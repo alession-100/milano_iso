@@ -2,14 +2,14 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 0 - G0 re-review
-**Last gate passed:** none
+**Current phase:** 0 - HUMAN CHECKPOINT (awaiting owner)
+**Last gate passed:** G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
 | Task | Status | Report | Notes |
 |---|---|---|---|
 | T-0.1 | done | - | Owner answers 2026-11-15; ADR-0001..0011 accepted (ADR-0003 provisional until checkpoint render) |
-| T-0.2 | done | reports/R-0.2.md | Verified from a clean clone: make setup/test pass (pytest 3, vitest 6, ruff, tsc, eslint), build OK, JS 131,397 B gzip, e2e 2 passed, side-by-side render reviewed. CI not run (no remote). Decisions in ADR-0012 |
+| T-0.2 | done | reports/R-0.2.md | Verified from a clean clone: make setup/test pass (pytest 3, vitest 6, ruff, tsc, eslint), build OK, JS about 131-133 kB gzip, e2e 2 passed, side-by-side render reviewed. CI not run (no remote). Decisions in ADR-0012 |
 | T-0.3 | done | reports/R-0.3.md | Verified by orchestrator: script reproduces origin/bbox, 0 TO VERIFY, Wikidata P625 / Geofabrik size / DBT licence re-checked live. Origin 83 m mismatch resolved in ADR-0004. Open: DBT `UN_VOL_AV` semantics and join to `EDIFC` (T-1.2); Pages custom headers unconfirmed (T-6.3) |
 
 | T-0.3a | done | reports/R-0.3a.md | Verified independently (shapely centroid 514978.51, 5034535.58; config constants, bbox, WGS84 corners and 83.4 m distance all match). ADR-0004 frozen. Was: Corrective (T-0.3 retry 1/2): G0 blocker B1, origin centroid float error (orchestrator confirmed with shapely: E 514978.511, N 5034535.581) |
@@ -22,3 +22,11 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 - GNU Make 4.4.1 via winget `ezwinports.make`; shims for `make` and `uv` in `~/bin` (on Git Bash PATH).
 - Node v24.12.0, npm 11.6.2, git 2.52.0.
 - No GitHub remote yet; `gh` CLI not installed. CI cannot run until the owner creates the repo.
+
+## Carry-over risks from G0
+- CI never run (no remote). First run may trip the anchored GPU-stall filter on Linux (ADR-0012).
+- CI actions pinned by tag, not SHA. Pin by SHA when the remote exists.
+- Attribution is still a placeholder. It must read "(c) OpenStreetMap contributors" (+ Comune di Milano CC BY if DBT is used) before any OSM geometry renders (Phase 3).
+- The web client needs an origin constant that matches `pipeline/milano_iso/config.py`, with a test (Phase 2/3).
+- DBT `UN_VOL_AV` semantics and the join to `EDIFC` are unknown (T-1.2).
+- GitHub Pages custom headers unconfirmed (T-6.3).
