@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 1 - Data acquisition and validation (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Current phase:** 1 - gate G1 in review (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
 **Last gate passed:** G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -24,7 +24,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-1.5a | done | reports/R-1.5a.md | Verified live: relation/18231605 (building=train_station, v3) contains node/6067258870; centroid matches within 0.001 m. Q651643 is the Madrid tower, so Q3995204 is kept. The Wikidata distance (52.6 m) is informational only; the 5 m tolerance applies to processed vs reference position |
 | T-1.6 | done (with correction) | reports/R-1.6.md | Verified: make validate 78 pass / 3 fail / 2 skip; determinism OK (4 gpkg); make test unchanged (111, 83 data tests deselected). The 3 failures are the 7b rendered-landmark check: a definitional mismatch between OSM and DBT building extents, plus the Generali id assignment. Orchestrator measured OSM/DBT registration: mean offset 0.22 m over 41 pairs, so ADR-0017 and T-1.6a |
 | T-1.6a | done (finding) | reports/R-1.6a.md | Verified: registration n=48, magnitude 0.167 m; Generali passes. Palazzo Reale fails because its reference point lies in its courtyard (orchestrator confirmed). ADR-0018 and T-1.6b (retry 2/2) |
-| T-1.6b | in progress | | courtyard-filled check, deferred landmarks get no id |
+| T-1.6b | done | reports/R-1.6b.md | Verified: make validate exit 0 (83 pass, 2 skip); filled-union distance 0.000 m for all 6; the deferred-landmark unit test fails when the guard is removed (orchestrator sabotage), passes with it |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
@@ -42,5 +42,6 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 - DBT `UN_VOL_AV` semantics and the join to `EDIFC` are unknown (T-1.2).
 - GitHub Pages custom headers unconfirmed (T-6.3).
 - The web client must skip `rendered = false` rows (Phase 2/3 export).
+- `reports/artifacts/T-1.6/junit.xml` contains timestamps, so a `make validate` run dirties the tree; consider gitignoring it.
 - Python artifact writers emit CRLF on Windows (git normalises on commit; set newline='
 ' when touched).

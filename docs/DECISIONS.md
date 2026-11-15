@@ -135,7 +135,7 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - **Palazzo Reale:** after T-1.6a its reference position (the OSM footprint centroid) lies in the DBT courtyard of the palazzo, 22.3 m from the primary rendered building and 10.4 m from the nearest building carrying its id. The centroid of a building wrapped around a courtyard often falls inside the courtyard, so the point check was testing the shape, not the placement.
   - **Galleria:** landmark-first assignment gave its id to an unrelated building (IoU 0.006), even though its own OSM roof is not rendered (ADR-0016).
 - **Decision:**
-  1. The rendered landmark check measures the distance from the reference position to the union of all rendered buildings carrying the landmark id, with interior rings (courtyards) filled. The tolerance stays 5 m.
+  1. The rendered landmark check measures the distance from the reference position to the union of all rendered buildings carrying the landmark id; the union is formed first and its interior rings (courtyards) are then filled. A courtyard enclosed by several buildings (Palazzo Reale) therefore counts. The tolerance stays 5 m.
      - The orchestrator measured this on 2026-11-15: all 6 rendered in-pilot landmarks are at 0.00 m, against 22.26 m for Palazzo Reale and 2.39 m for Generali under the old primary-only rule.
      - The registration check (ADR-0017 point 3) still guards against any systematic shift.
   2. A landmark whose own OSM element is not rendered (`rendered = false`) gets no `landmark_id` assignment at all and is reported as `deferred_phase4`.
