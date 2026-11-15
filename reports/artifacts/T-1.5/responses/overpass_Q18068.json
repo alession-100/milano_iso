@@ -1,0 +1,64 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:15:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 18017026,
+  "center": {
+    "lat": 45.4641844,
+    "lon": 9.1916105
+  },
+  "tags": {
+    "alt_official_name": "Cattedrale di Santa Maria Nascente",
+    "amenity": "place_of_worship",
+    "architect": "Simone da Orsenigo",
+    "building": "cathedral",
+    "building:architecture": "international gothic;neoclassical;neogothic",
+    "building:colour": "lightgrey",
+    "building:material": "marble",
+    "denomination": "roman_catholic",
+    "email": "info@duomomilano.it",
+    "fax": "+39 02 72022419",
+    "historic": "yes",
+    "inscription": "MARIAE|ASCENTI",
+    "name": "Duomo di Milano",
+    "name:ar": "كاتدرائية ميلان",
+    "name:cs": "Milánský dóm",
+    "name:de": "Mailänder Dom",
+    "name:en": "Milan Cathedral",
+    "name:es": "Catedral de Milán",
+    "name:fr": "Dôme de Milan",
+    "name:hi": "मिलानॊ कथेड्रल",
+    "name:it": "Duomo di Milano",
+    "name:lmo": "Domm de Milan",
+    "name:nl": "Dom van Milaan",
+    "name:pl": "Katedra Narodzin św. Marii w Mediolanie",
+    "name:pt": "Catedral de Milão",
+    "name:ru": "Миланский собор",
+    "name:zh": "米蘭大教堂",
+    "official_name": "Cattedrale Metropolitana della Natività della Beata Vergine Maria",
+    "opening_hours": "Mo-Su 08:00-19:00",
+    "phone": "+39 02 361691",
+    "religion": "christian",
+    "start_date": "1386",
+    "toilets:wheelchair": "yes",
+    "tourism": "attraction",
+    "type": "multipolygon",
+    "website": "https://www.duomomilano.it/",
+    "wheelchair": "yes",
+    "wheelchair:description:de": "Eintritt frei für Rollstuhlfahrer",
+    "wheelchair:description:en": "Free entry for wheelchairs users",
+    "wheelchair:description:it": "Entrata gratuita per i portatori di disabilità",
+    "wikidata": "Q18068",
+    "wikipedia": "it:Duomo di Milano"
+  }
+}
+
+  ]
+}

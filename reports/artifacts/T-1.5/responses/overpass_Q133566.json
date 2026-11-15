@@ -1,0 +1,45 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:25:32Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 218520505,
+  "center": {
+    "lat": 45.4780341,
+    "lon": 9.1239671
+  },
+  "tags": {
+    "addr:postcode": "20151",
+    "addr:street": "Piazzale Angelo Moratti",
+    "construction:start_date": "1925",
+    "leisure": "stadium",
+    "name": "Stadio Giuseppe Meazza",
+    "name:ar": "سان سيرو او جوسيبي ميازا",
+    "name:da": "Giuseppe Meazza Stadion",
+    "name:de": "Giuseppe Meazza Stadion",
+    "name:en": "Giuseppe Meazza Stadium",
+    "name:it": "Stadio Giuseppe Meazza",
+    "name:pl": "Stadion Giuseppe Meazzy",
+    "name:ru": "Джузеппе Меацца (Сан-Сиро) стадион",
+    "name:uk": "Сан-Сіро",
+    "name:zh": "梅阿查球场",
+    "old_name": "Stadio San Siro",
+    "short_name": "San Siro",
+    "sport": "soccer",
+    "start_date": "1926-09-19",
+    "tourism": "attraction",
+    "website": "https://sansirostadium.com/?lang=en",
+    "wikidata": "Q133566",
+    "wikimedia_commons": "Category:Stadio Giuseppe Meazza",
+    "wikipedia": "en:San Siro"
+  }
+}
+
+  ]
+}

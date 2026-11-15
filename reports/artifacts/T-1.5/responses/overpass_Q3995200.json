@@ -1,0 +1,44 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:21:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 353878517,
+  "center": {
+    "lat": 45.4776208,
+    "lon": 9.1573264
+  },
+  "tags": {
+    "alt_name": "Torre Allianz",
+    "alt_name:en": "Isozaki Tower",
+    "architect": "Arata Isozaki;Andrea Maffei",
+    "architect:wikidata": "Q317135;Q15845329",
+    "architect:wikipedia": "it:Arata Isozaki;it:Andrea Maffei",
+    "brand": "Allianz",
+    "brand:wikidata": "Q487292",
+    "brand:wikipedia": "fr:Allianz",
+    "building": "office",
+    "building:levels": "50",
+    "building:material": "glass",
+    "construction_date": "2012",
+    "height": "209.2",
+    "loc_name": "Il Dritto",
+    "name": "Torre Isozaki",
+    "name:en": "Allianz Tower",
+    "roof:material": "concrete",
+    "roof:shape": "flat",
+    "start_date": "2015-11-14",
+    "wikidata": "Q3995200",
+    "wikimedia_commons": "Category:Allianz Tower",
+    "wikipedia": "it:Torre Isozaki"
+  }
+}
+
+  ]
+}

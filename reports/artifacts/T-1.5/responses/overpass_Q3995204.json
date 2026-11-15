@@ -1,0 +1,39 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:24:29Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 18247388,
+  "center": {
+    "lat": 45.4788193,
+    "lon": 9.1566810
+  },
+  "tags": {
+    "alt_name": "Torre PwC",
+    "architect": "Daniel Libeskind",
+    "brand": "PricewaterhouseCoopers",
+    "building": "office",
+    "building:levels": "30",
+    "building:material": "glass",
+    "construction_date": "2015",
+    "height": "175",
+    "loc_name": "il Curvo",
+    "name": "Torre Libeskind",
+    "roof:material": "asphalt",
+    "roof:shape": "flat",
+    "start_date": "2020",
+    "type": "multipolygon",
+    "wikidata": "Q3995204",
+    "wikimedia_commons": "Category:Torre Libeskind",
+    "wikipedia": "it:Torre Libeskind"
+  }
+}
+
+  ]
+}

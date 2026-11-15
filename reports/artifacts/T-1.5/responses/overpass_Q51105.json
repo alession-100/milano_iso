@@ -1,0 +1,48 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:26:36Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 36488,
+  "center": {
+    "lat": 45.4629066,
+    "lon": 9.1912169
+  },
+  "tags": {
+    "alt_name": "Broletto Vecchio",
+    "building": "yes",
+    "building:levels": "3",
+    "historic": "heritage",
+    "museum": "art",
+    "museum_type": "municipal",
+    "name": "Palazzo Reale",
+    "name:de": "Königlicher Palast",
+    "name:en": "Royal Palace",
+    "name:es": "Palacio Real",
+    "name:fr": "Palais royal",
+    "name:it": "Palazzo Reale",
+    "name:pt": "Palácio Real",
+    "name:zh": "米兰王宫",
+    "opening_hours": "Tu-We, Fr-Su 10:00-19:30; Th 10:00-22:30; Mo off",
+    "operator": "Comune di Milano",
+    "phone": "+390288445181",
+    "roof:colour": "#99646A",
+    "toilets": "yes",
+    "tourism": "museum",
+    "type": "multipolygon",
+    "website": "https://www.palazzorealemilano.it/",
+    "wheelchair": "limited",
+    "wikidata": "Q51105",
+    "wikimedia_commons": "Category:Palazzo Reale (Milan)",
+    "wikipedia": "it:Palazzo Reale (Milano)"
+  }
+}
+
+  ]
+}

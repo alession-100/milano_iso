@@ -1,0 +1,82 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:20:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 11155707089,
+  "lat": 45.4856111,
+  "lon": 9.1904001,
+  "tags": {
+    "name": "Bosco Verticale",
+    "name:en": "Vertical Forest",
+    "tourism": "attraction",
+    "wikidata": "Q2501413",
+    "wikipedia": "it:Bosco Verticale"
+  }
+},
+{
+  "type": "way",
+  "id": 179244686,
+  "center": {
+    "lat": 45.4860000,
+    "lon": 9.1899849
+  },
+  "tags": {
+    "architect": "Boeri Studio",
+    "building": "residential",
+    "building:levels": "18",
+    "height": "78",
+    "name": "Torre Confalonieri",
+    "old_name": "Torre D",
+    "start_date": "2014",
+    "wikidata": "Q2501413",
+    "wikimedia_commons": "Category:Bosco Verticale",
+    "wikipedia": "it:Bosco Verticale"
+  }
+},
+{
+  "type": "way",
+  "id": 179244688,
+  "center": {
+    "lat": 45.4857049,
+    "lon": 9.1905374
+  },
+  "tags": {
+    "architect": "Boeri Studio",
+    "building": "apartments",
+    "building:levels": "27",
+    "height": "111",
+    "name": "Torre De Castillia",
+    "old_name": "Torre E",
+    "start_date": "2014",
+    "wikidata": "Q2501413",
+    "wikimedia_commons": "Category:Bosco Verticale",
+    "wikipedia": "it:Bosco Verticale"
+  }
+},
+{
+  "type": "relation",
+  "id": 16020020,
+  "center": {
+    "lat": 45.4858605,
+    "lon": 9.1903014
+  },
+  "tags": {
+    "architect": "Boeri Studio",
+    "name": "Bosco Verticale",
+    "start_date": "2014",
+    "tourism": "attraction",
+    "type": "site",
+    "wikidata": "Q2501413",
+    "wikipedia": "it:Bosco Verticale"
+  }
+}
+
+  ]
+}

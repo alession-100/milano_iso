@@ -1,0 +1,162 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:25:32Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 163757278,
+  "center": {
+    "lat": 45.4647182,
+    "lon": 9.1900275
+  },
+  "tags": {
+    "alt_name": "Galleria Vittorio Emanuele II",
+    "bicycle": "permissive",
+    "cycling_width": "good",
+    "highway": "pedestrian",
+    "historic": "yes",
+    "lit": "yes",
+    "loc_name": "Galeria Vittori Emanuel II",
+    "name": "Galleria Vittorio Emanuele Secondo",
+    "name:it": "Galleria Vittorio Emanuele Secondo",
+    "name:ja": "ヴィットーリオ・エマヌエーレ2世のガッレリア",
+    "name:lmo": "Galeria Vittori Emanuel II",
+    "name:pl": "Galeria Vittorio Emanuele II",
+    "surface": "paving_stones",
+    "tourism": "attraction",
+    "wheelchair": "yes",
+    "wikidata": "Q51112",
+    "wikipedia": "it:Galleria Vittorio Emanuele II"
+  }
+},
+{
+  "type": "way",
+  "id": 166623693,
+  "center": {
+    "lat": 45.4656112,
+    "lon": 9.1900061
+  },
+  "tags": {
+    "alt_name": "Galleria Vittorio Emanuele II",
+    "bicycle": "dismount",
+    "covered": "yes",
+    "cycling_width": "good",
+    "highway": "pedestrian",
+    "historic": "yes",
+    "indoor": "yes",
+    "lit": "yes",
+    "loc_name": "Galeria Vittori Emanuel II",
+    "loc_ref": "10_0",
+    "motor_vehicle": "no",
+    "name": "Galleria Vittorio Emanuele Secondo",
+    "name:it": "Galleria Vittorio Emanuele Secondo",
+    "name:ja": "ヴィットーリオ・エマヌエーレ2世のガッレリア",
+    "name:lmo": "Galeria Vittori Emanuel II",
+    "name:pl": "Galeria Vittorio Emanuele II",
+    "note:surface": "made from fossil of ammonite",
+    "oneway": "no",
+    "smoothness": "excellent",
+    "surface": "paving_stones",
+    "tourism": "attraction",
+    "tunnel": "building_passage",
+    "wheelchair": "yes",
+    "wikidata": "Q51112",
+    "wikipedia": "it:Galleria Vittorio Emanuele II"
+  }
+},
+{
+  "type": "way",
+  "id": 166623705,
+  "center": {
+    "lat": 45.4656413,
+    "lon": 9.1900051
+  },
+  "tags": {
+    "alt_name": "Galleria Vittorio Emanuele II",
+    "building": "roof",
+    "historic": "yes",
+    "name": "Galleria Vittorio Emanuele Secondo",
+    "name:ko": "비토리오 에마누엘레 2세 갤러리아",
+    "name:ru": "Галерея Виктора Эммануила 2",
+    "name:zh": "埃马努埃莱二世拱廊街",
+    "roof:material": "glass",
+    "tourism": "attraction",
+    "wheelchair": "yes",
+    "wikidata": "Q51112",
+    "wikimedia_commons": "Category:Galleria Vittorio Emanuele II (Milan)",
+    "wikipedia": "it:Galleria Vittorio Emanuele II"
+  }
+},
+{
+  "type": "way",
+  "id": 331883966,
+  "center": {
+    "lat": 45.4656801,
+    "lon": 9.1900223
+  },
+  "tags": {
+    "alt_name": "Galleria Vittorio Emanuele II",
+    "bicycle": "dismount",
+    "covered": "yes",
+    "highway": "pedestrian",
+    "historic": "yes",
+    "indoor": "yes",
+    "lit": "yes",
+    "loc_name": "Galeria Vittori Emanuel II",
+    "loc_ref": "10_0",
+    "motor_vehicle": "no",
+    "name": "Galleria Vittorio Emanuele Secondo",
+    "name:it": "Galleria Vittorio Emanuele Secondo",
+    "name:ja": "ヴィットーリオ・エマヌエーレ2世のガッレリア",
+    "name:lmo": "Galeria Vittori Emanuel II",
+    "name:pl": "Galeria Vittorio Emanuele II",
+    "note:surface": "made from fossil of ammonite",
+    "oneway": "no",
+    "smoothness": "excellent",
+    "surface": "paving_stones",
+    "tourism": "attraction",
+    "tunnel": "building_passage",
+    "wheelchair": "yes",
+    "wikidata": "Q51112",
+    "wikipedia": "it:Galleria Vittorio Emanuele II"
+  }
+},
+{
+  "type": "way",
+  "id": 1261410658,
+  "center": {
+    "lat": 45.4647868,
+    "lon": 9.1900262
+  },
+  "tags": {
+    "alt_name": "Galleria Vittorio Emanuele II",
+    "covered": "yes",
+    "highway": "pedestrian",
+    "historic": "yes",
+    "indoor": "yes",
+    "lit": "yes",
+    "loc_name": "Galeria Vittori Emanuel II",
+    "loc_ref": "10_0",
+    "motor_vehicle": "no",
+    "name": "Galleria Vittorio Emanuele Secondo",
+    "name:it": "Galleria Vittorio Emanuele Secondo",
+    "name:ja": "ヴィットーリオ・エマヌエーレ2世のガッレリア",
+    "name:lmo": "Galeria Vittori Emanuel II",
+    "name:pl": "Galeria Vittorio Emanuele II",
+    "note:surface": "made from fossil of ammonite",
+    "oneway": "no",
+    "surface": "paving_stones",
+    "tourism": "attraction",
+    "tunnel": "building_passage",
+    "wikidata": "Q51112",
+    "wikipedia": "it:Galleria Vittorio Emanuele II"
+  }
+}
+
+  ]
+}
