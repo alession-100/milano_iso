@@ -67,3 +67,12 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Context:** Most Phase 4 landmarks (San Siro, CityLife, Bosco Verticale, Pirelli, Stazione Centrale, probably Castello Sforzesco) lie outside the pilot AOI.
 - **Decision:** `tests/landmarks.yaml` lists every landmark, each with a flag for whether it lies in the pilot AOI (computed, not guessed). G1 and G4 check the 5 m tolerance only for landmarks inside the processed extent; the full list is checked at G6. Landmark models outside the pilot may be built in Phase 4 but are placed and verified in Phase 6.
 - **Also defined here:** a landmark's "position" is the centroid of its OSM footprint polygon (or the cited point for point features), compared with the centroid of the processed footprint.
+
+## ADR-0012 - Phase 0 scaffold decisions (from T-0.2)
+- **Status:** Accepted (2026-11-15)
+- **Decisions:**
+  - e2e console check ignores exactly one message, `GPU stall due to ReadPixels`. Headless Chromium's software GL (SwiftShader) emits it when a WebGL canvas is screenshotted, so the screenshot causes it, not the app. Every other console error, warning or page error fails the test. The filter is a single regex in `web/e2e/smoke.spec.ts` and must not be widened without a new ADR.
+  - TypeScript is pinned to 6.0.3, the version npm resolved with the pinned typescript-eslint (7.0.2 exists). Upgrade only together with typescript-eslint support.
+  - Extra pinned dev dependencies accepted: pyyaml, hatchling (build backend), @eslint/js, @types/node.
+  - `npm audit` reports 7 moderate findings, all in dev dependencies (not shipped to the browser). Accepted for now and re-checked in T-7.2.
+- **Integration fix:** after merging T-0.2 and T-0.3, `ruff` flagged `pipeline/scripts/origin_from_sources.py` (RUF007 plus formatting). The orchestrator applied ruff's fix. Script output is byte-identical before and after (diff checked).
