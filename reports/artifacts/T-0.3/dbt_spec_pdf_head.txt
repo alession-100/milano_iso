@@ -1,0 +1,7 @@
+HTTP/1.1 200 200
+X-Content-Type-Options: nosniff
+Set-Cookie: JSESSIONID=8985BCA64F335032D88AEF447633F844; Path=/; Secure; HttpOnly
+Last-Modified: Tue, 11 Apr 2023 13:06:12 GMT
+Content-Type: application/pdf
+Content-Length: 12386999
+Set-Cookie: BIGipServerGIS_GEOPORTALE_2021-0526_PROD_443_POOL=2066930186.47873.0000; path=/; Httponly; Secure

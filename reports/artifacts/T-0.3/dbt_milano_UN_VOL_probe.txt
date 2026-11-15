@@ -1,0 +1,4 @@
+records 237743 recordlen 419
+fields [('UN_VOL_QE', 'N', 19), ('UN_VOL_POR', 'C', 80), ('CLASSID', 'C', 70), ('UN_VOL_AV', 'N', 19), ('UN_VOL_EX', 'C', 80), ('CEDIUV', 'C', 70), ('SCRIL', 'C', 80)]
+UN_VOL_AV non-empty 237743 empty/invalid 0
+min -0.001 median 13.226 max 200.738 zero count 287

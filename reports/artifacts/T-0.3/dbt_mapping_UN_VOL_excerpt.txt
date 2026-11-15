@@ -1,0 +1,40 @@
+222-ZONA_R_POS GU_CXSURFACEB3D POLYGONZ Attributo geometrico 000201101 - Estensione - ZONA_R_POS della classe 000201 - Porzione di territorio
+223-restituito - ZONA_R
+224-ZONA_R_RID Stringa (50) C (50) Attributo semplice 00020103 - identificatore ripresa aerea - ZONA_R_RID
+225:ZONA_R_SN Stringa (80) C (80) Attributo enumerato 00020101 - scala nominale - ZONA_R_SN
+226-CLASSE: Ambito omogeneo per la metainformazione
+227-Pagina 8 di 226
+228-File: META
+229-Classe 000202 - Ambito omogeneo per la metainformazione - META
+--
+862-SCALA Stringa (80) C (80) Attributo enumerato di DataType 04 - scala - SCALA del DataType81 - Metadati di istanza - MET_IST
+863-SD_FER_SUP GU_CPSURFACEB3D POLYGONZ Attributo geometrico 010201101 - Estensione - SD_FER_SUP della classe 010201 - Sede di trasporto su
+864-ferro - SD_FER
+865:SD_FER_TY Stringa (80) C (80) Attributo enumerato 01020101 - tipo di trasporto su ferro - SD_FER_TY
+866-File: SD_FER_SD_FER_SUP_SG
+867-Tratti minimi dell'attributo geometrico 010201101 - Estensione - SD_FER_SUP  della classe 010201 - SD_FER -
+868-Sede di trasporto su ferro
+869-NOME TIPO GEOUML TIPO DESCRIZIONE
+--
+1231-TEMA: Edificato
+1232-CLASSE: Unita' volumetrica
+1233-File: UN_VOL
+1234:Classe 020101 - Unita' volumetrica - UN_VOL
+1235-NOME TIPO GEOUML TIPO DESCRIZIONE
+1236-CEDIUV Stringa (70) C (70) Ruolo 02010171 - Cediuv - CEDIUV --> riferimento alle classi 020102 - Edificio - EDIFC, 020106 - Edificio minore
+1237-- EDI_MIN
+1238-ClassID Stringa (70) C (70) Identificativo univoco
+--
+1246-NOME TIPO GEOUML TIPO DESCRIZIONE
+1247-SCALA Stringa (80) C (80) Attributo enumerato di DataType 04 - scala - SCALA del DataType81 - Metadati di istanza - MET_IST
+1248-ScRil Stringa (80) C (80) Livello di scala
+1249:UN_VOL_AV Reale N (10, 3) Attributo semplice 02010102 - altezza volume - UN_VOL_AV
+1250-UN_VOL_EX Stringa (80) C (80) Attributo enumerato 02010108 - tipo estrusione - UN_VOL_EX dell'attributo geometrico 020101101 -
+1251-Sup_base - UN_VOL_SUP
+1252-UN_VOL_POR Stringa (80) C (80) Attributo enumerato 02010103 - tipo di porzione - UN_VOL_POR
+1253-UN_VOL_QE Reale N (10, 3) Attributo semplice 02010107 - quota estrusione - UN_VOL_QE dell'attributo geometrico 020101101 -
+1254-Sup_base - UN_VOL_SUP
+1255:UN_VOL_SUP GU_CPSURFACEB3D POLYGONZ Attributo geometrico 020101101 - Sup_base - UN_VOL_SUP della classe 020101 - Unita' volumetrica -
+1256-UN_VOL
+1257-CLASSE: Edificio
+1258-File: EDIFC

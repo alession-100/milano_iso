@@ -1,0 +1,14 @@
+OSM element: relation/18017026  name=Duomo di Milano  osm_base=2026-11-15T19:00:21Z
+OSM footprint area (EPSG:32632 m2): 10260.9
+OSM centroid WGS84 (lat, lon): 45.4641839, 9.1915987
+OSM centroid EPSG:32632 (E, N): 514978.48, 5034535.31
+Wikidata: Q18068 P625
+Wikidata WGS84 (lat, lon): 45.463968, 9.190578
+Wikidata EPSG:32632 (E, N): 514898.74, 5034511.13
+Distance OSM centroid - Wikidata (m): 83.3
+ORIGIN EPSG:32632 (E, N): 514978, 5034535
+AOI bbox EPSG:32632 (xmin, ymin, xmax, ymax): 514478, 5034035, 515478, 5035035
+AOI corner SW WGS84 (lat, lon): 45.459691, 9.185182
+AOI corner SE WGS84 (lat, lon): 45.459670, 9.197973
+AOI corner NE WGS84 (lat, lon): 45.468671, 9.198004
+AOI corner NW WGS84 (lat, lon): 45.468692, 9.185212
