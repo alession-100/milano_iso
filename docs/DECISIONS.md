@@ -86,3 +86,16 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - **Processing extent:** a feature is kept when it intersects the extent, and is kept whole (no cutting at the extent edge). Phase 1 uses the pilot AOI (ADR-0004); Phase 6 uses the comune boundary.
   - Landmarks are located by Wikidata QID, which is then resolved to the OSM element tagged with it. Their positions follow ADR-0011.
 - **Consequences:** Reruns are cheap and deterministic. A changed upstream file is detected rather than silently used.
+
+## ADR-0014 - Building geometry: DBT volumes first, OSM for attributes and gaps
+- **Status:** Accepted (2026-11-15)
+- **Context:** T-1.2 showed that the DBT 2020 of the Comune di Milano (CC BY 4.0, scale 1:1,000) splits every building into volume units (`UN_VOL`), each with its own height. In the pilot there are 4,657 volumes for 170 `EDIFC` buildings. `UN_VOL_AV` is the height of a flat-topped volume up to the eaves (spec pp.129-133). OSM has 706 building areas in the pilot, with names and types but sparse heights.
+- **Decision:**
+  - Rendered building massing comes from DBT volumes wherever DBT covers a building: each volume is extruded from its base to its top, with `height_source = dbt`.
+  - OSM supplies attributes (name, `building` type, OSM id for the info card), joined spatially to the DBT buildings.
+  - OSM buildings with no DBT counterpart (for example, built after the 2020 survey) are rendered from their OSM footprint. They use the height fallback chain steps 2-5 of `DATA_SOURCES.md`.
+  - Both the Comune di Milano (CC BY 4.0) and OSM (ODbL) are credited in the UI.
+- **Consequences:**
+  - The geometry is far more accurate (roof steps, courtyards, towers on podiums), and the landmarks gain real massing.
+  - Conflating DBT and OSM needs explicit, tested matching rules (T-1.4).
+  - Completeness (VERIFICATION section 3) is measured per source: processed DBT volumes >= 99% of the source volumes in the extent, and processed OSM buildings >= 99% of the OSM building areas.
