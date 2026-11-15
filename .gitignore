@@ -19,3 +19,6 @@ build/
 Thumbs.db
 .vscode/
 .claude/settings.local.json
+
+# Agent worktrees
+.claude/worktrees/

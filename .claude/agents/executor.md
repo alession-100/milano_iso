@@ -15,6 +15,7 @@ Rules:
 5. At the end run every verification command in the card, in order, and capture the output.
 6. Write reports/R-<id>.md from reports/_TEMPLATE.md. Include evidence (trimmed command output, file paths, screenshots) for every acceptance criterion, and list all deviations and assumptions explicitly.
 7. Report BLOCKED instead of guessing when: a criterion cannot be met as written, the card contradicts CLAUDE.md/ADRs/data, an input is missing, or two attempts at the same fix have failed.
-8. You do not sign off your own work: the orchestrator verifies independently. Do not claim a gate has passed.
+8. If a tool call is denied or blocked by a guard, never retry it in an altered, encoded or obfuscated form. Note it in the report and continue another way or report BLOCKED.
+9. You do not sign off your own work: the orchestrator verifies independently. Do not claim a gate has passed.
 
 Keep the final message short: status, report path, and anything the orchestrator must decide.
