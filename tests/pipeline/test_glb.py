@@ -55,7 +55,7 @@ def test_quantised_roundtrip_header_alignment_extension_and_error():
     assert [m["name"] for m in doc["meshes"]] == ["buildings", "roads"]
 
     for mesh, node, src in zip(doc["meshes"], doc["nodes"], meshes, strict=True):
-        assert node["scale"] == [0.01] * 3
+        assert node["scale"] == [0.02] * 3
         assert node["translation"] == [CENTRE[0], 0.0, CENTRE[1]]
         prim = mesh["primitives"][0]
         assert set(prim["attributes"]) == {"POSITION", "_FEATURE_ID"}
@@ -63,9 +63,9 @@ def test_quantised_roundtrip_header_alignment_extension_and_error():
         assert acc["componentType"] == 5122 and "normalized" not in acc
         assert view["byteOffset"] % 4 == 0 and view["byteStride"] % 4 == 0
         assert acc["min"] == q.min(axis=0).tolist() and acc["max"] == q.max(axis=0).tolist()
-        back = q * 0.01 + np.array([node["translation"][0], 0.0, node["translation"][2]])
+        back = q * 0.02 + np.array([node["translation"][0], 0.0, node["translation"][2]])
         err = np.abs(back - src["positions"]).max()
-        assert err <= 0.005 + 1e-9  # half a centimetre
+        assert err <= 0.01 + 1e-9  # half a unit (1 cm)
         assert err > 0  # genuinely quantised
         _, _, fid = _read(doc, bin_data, prim["attributes"]["_FEATURE_ID"], "<u2", 1)
         assert np.array_equal(fid[:, 0], src["feature_ids"])
@@ -78,15 +78,15 @@ def test_dequantise_helper_matches_error_bound():
     m = _mesh("x", 90, 3)
     q = glb.quantise(m["positions"], CENTRE)
     assert q.dtype == np.int16
-    assert np.abs(glb.dequantise(q, CENTRE) - m["positions"]).max() <= 0.005 + 1e-9
+    assert np.abs(glb.dequantise(q, CENTRE) - m["positions"]).max() <= 0.01 + 1e-9
 
 
 def test_out_of_range_coordinate_raises():
     m = _mesh("x", 9, 4)
-    m["positions"][0, 0] = CENTRE[0] + 327.68  # one unit past int16
+    m["positions"][0, 0] = CENTRE[0] + 655.36  # one unit past int16
     with pytest.raises(ValueError, match="out of int16 range"):
         glb.write_glb([m], CENTRE, 10)
-    m["positions"][0, 0] = CENTRE[0] + 327.67  # last representable value
+    m["positions"][0, 0] = CENTRE[0] + 655.34  # last representable value
     glb.write_glb([m], CENTRE, 10)
 
 

@@ -1,4 +1,4 @@
-/* global process, console */
+/* global process, console, Buffer */
 // Loads every .glb in a tile directory with three's GLTFLoader (no browser) and prints the
 // mesh names and vertex/index counts. Usage: node web/scripts/load-tiles.mjs <tile dir> [summary.json]
 // With a summary path (default: reports/artifacts/T-2.2/export_summary.json next to the repo
@@ -6,14 +6,14 @@
 // Meshes split into `<layer>#<n>` chunks (ADR-0022) are summed per layer.
 // Quantised positions (KHR_mesh_quantization, int16 cm with a node translation and scale) are
 // dequantised through the node transform and compared with the exporter's float64 sample
-// (`position_sample` per tile in the summary) within 0.01 m.
+// (`position_sample` per tile in the summary) within 0.011 m (2 cm unit, 1 cm rounding plus float slack).
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Vector3 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const POSITION_TOLERANCE_M = 0.01;
+const POSITION_TOLERANCE_M = 0.011;
 const MIN_SAMPLE = 100;
 
 const dir = process.argv[2];

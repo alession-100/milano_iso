@@ -128,17 +128,29 @@ def _named(layer: str, mb: geom.MeshBuilder) -> list[dict]:
     return [{"name": f"{layer}#{n}", **c} for n, c in enumerate(chunks)]
 
 
+def _max_offset(meshes: list[dict], centre: tuple[float, float]) -> float:
+    """Largest absolute coordinate offset from the tile centre (x, z; y from 0), in metres."""
+    if not meshes:
+        return 0.0
+    c = np.array([centre[0], 0.0, centre[1]])
+    return float(max(np.abs(m["positions"] - c).max() for m in meshes))
+
+
 def _sample(meshes: list[dict]) -> list[dict]:
     """Evenly spaced vertices with their float64 client-frame coordinates (metres)."""
     owners = [(m["name"], v) for m in meshes for v in range(len(m["positions"]))]
     if not owners:
         return []
     by_name = {m["name"]: m for m in meshes}
-    picks = np.unique(np.linspace(0, len(owners) - 1, min(SAMPLE_VERTICES, len(owners))).astype(int))
+    picks = np.unique(
+        np.linspace(0, len(owners) - 1, min(SAMPLE_VERTICES, len(owners))).astype(int)
+    )
     out = []
     for p in picks:
         name, v = owners[int(p)]
-        out.append({"mesh": name, "vertex": v, "xyz": [float(c) for c in by_name[name]["positions"][v]]})
+        out.append(
+            {"mesh": name, "vertex": v, "xyz": [float(c) for c in by_name[name]["positions"][v]]}
+        )
     return out
 
 
@@ -186,8 +198,9 @@ def build(
     aoi_tiles = set(grid.tiles_covering(config.PILOT_AOI_BBOX))
     tiles = sorted(aoi_tiles | set(tile_of.values()))  # ADR-0022 point 5
     ax0, ay0, ax1, ay1 = config.PILOT_AOI_BBOX
-    extent_box = box(ax0 - config.ORIGIN_E, ay0 - config.ORIGIN_N, ax1 - config.ORIGIN_E,
-                     ay1 - config.ORIGIN_N)
+    extent_box = box(
+        ax0 - config.ORIGIN_E, ay0 - config.ORIGIN_N, ax1 - config.ORIGIN_E, ay1 - config.ORIGIN_N
+    )
     summary_tiles = {}
     seen_buildings: dict[str, str] = {}
     duplicates = []
@@ -282,6 +295,7 @@ def build(
             "over_gzip_budget": gz > BUDGET_GZIP_BYTES,
             "max_hausdorff_m": round(max_h, 6),
             "gzip9_baseline_t22": BASELINE_GZIP9.get(name),
+            "max_offset_from_centre_m": round(_max_offset(meshes, centre), 3),
             "features": n_features,
             "meshes": [m["name"] for m in meshes],
             "centre_client_m": list(centre),
@@ -331,8 +345,10 @@ def _markdown(s: dict) -> str:
             )
     lines += [
         "",
-        "| tile | glb bytes | gzip-9 before (T-2.2) | gzip-9 after | brotli bytes "
-        "| max Hausdorff m | gzip > 250 KB |",
+        (
+            "| tile | glb bytes | gzip-9 before (T-2.2) | gzip-9 after | brotli bytes "
+            "| max Hausdorff m | gzip > 250 KB |"
+        ),
     ]
     lines.append("|---|---:|---:|---:|---:|---:|---|")
     for name, t in s["tiles"].items():
@@ -343,6 +359,14 @@ def _markdown(s: dict) -> str:
             f"{t['max_hausdorff_m']} | {'YES' if t['over_gzip_budget'] else 'no'} |"
         )
     tot = s["totals"]
+    worst = max(t["max_offset_from_centre_m"] for t in s["tiles"].values())
+    lines += [
+        "",
+        (
+            f"Worst offset from a tile centre: {worst} m; int16 range +/-655.34 m "
+            f"(2 cm unit), headroom {round(655.34 - worst, 3)} m."
+        ),
+    ]
     lines += [
         "",
         (

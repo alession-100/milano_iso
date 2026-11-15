@@ -15,7 +15,7 @@ UNSIGNED_INT = 5125
 SHORT = 5122
 GENERATOR = "milano-iso"
 EXTENSION = "KHR_mesh_quantization"
-QUANT_SCALE = 0.01  # one int16 unit is 1 cm
+QUANT_SCALE = 0.02  # one int16 unit is 2 cm (ADR-0022 point 2a)
 INT16_MAX = 32767
 UINT16_LIMIT = 65536
 
@@ -25,7 +25,7 @@ def _pad(b: bytes, fill: bytes) -> bytes:
 
 
 def quantise(positions: np.ndarray, centre: tuple[float, float]) -> np.ndarray:
-    """int16 centimetre offsets from the tile centre (cx, cz) at y = 0. Raises when out of range."""
+    """int16 offsets in 2 cm units from the tile centre (cx, cz) at y = 0. Raises when out of range."""
     off = np.asarray(positions, dtype=np.float64) - np.array([centre[0], 0.0, centre[1]])
     q = np.rint(off / QUANT_SCALE)
     if np.abs(q).max() > INT16_MAX:
@@ -37,7 +37,7 @@ def quantise(positions: np.ndarray, centre: tuple[float, float]) -> np.ndarray:
 
 
 def dequantise(q: np.ndarray, centre: tuple[float, float]) -> np.ndarray:
-    """Client-frame metres from int16 values, as a node (translation, scale 0.01) does."""
+    """Client-frame metres from int16 values, as a node (translation, scale 0.02) does."""
     return q.astype(np.float64) * QUANT_SCALE + np.array([centre[0], 0.0, centre[1]])
 
 
@@ -45,8 +45,8 @@ def write_glb(meshes: list[dict], centre: tuple[float, float], n_features: int) 
     """meshes: dicts with name, positions (n,3) float64 in client metres, feature_ids (n,) and
     indices (m,). One node, mesh, primitive and material per entry, named after it.
 
-    Positions are stored as int16 centimetres from ``centre`` (x, z of the tile centre in client
-    metres); each node has translation (cx, 0, cz) and scale 0.01 (KHR_mesh_quantization).
+    Positions are stored as int16 2 cm units from ``centre`` (x, z of the tile centre in client
+    metres); each node has translation (cx, 0, cz) and scale 0.02 (KHR_mesh_quantization).
     Indices are uint16 below 65,536 vertices, else uint32; ``_FEATURE_ID`` is uint16 when
     ``n_features`` < 65,536, else uint32. The int16 POSITION view uses byteStride 8 (6 data bytes
     plus 2 padding) to keep every vertex 4-byte aligned; the other views are tightly packed.
