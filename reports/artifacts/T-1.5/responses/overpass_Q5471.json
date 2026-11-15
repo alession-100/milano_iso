@@ -1,0 +1,50 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:26:36Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 6552704,
+  "center": {
+    "lat": 45.4675932,
+    "lon": 9.1891337
+  },
+  "tags": {
+    "amenity": "theatre",
+    "architect": "Giuseppe Piermarini",
+    "building": "theatre",
+    "building:levels": "4",
+    "loc_name": "Teater a la Scala",
+    "name": "Teatro alla Scala",
+    "name:es": "Teatro de la Scala",
+    "name:etymology": "Chiesa di Santa Maria alla Scala",
+    "name:etymology:wikidata": "Q902320",
+    "name:etymology:wikipedia": "it:Chiesa di Santa Maria alla Scala",
+    "name:fr": "La Scala de Milan",
+    "name:ko": "스칼라 극장",
+    "name:lt": "La Scala",
+    "name:pl": "Teatr La Scala",
+    "name:uk": "Ла Скала",
+    "note:name:etymology": "La chiesa di Santa Maria della Scala a sua volta prende il nome dalla sua fondatrice Regina della Scala (https://www.wikidata.org/wiki/Q51089)",
+    "old_official_name": "Nuovo Regio Ducal Teatro alla Scala",
+    "outdoor_seating": "no",
+    "short_loc_name": "Scala",
+    "short_name": "La Scala",
+    "start_date": "1778-08-03",
+    "theatre:genre": "music",
+    "tourism": "attraction",
+    "type": "multipolygon",
+    "website": "https://www.teatroallascala.org",
+    "wheelchair": "yes",
+    "wikidata": "Q5471",
+    "wikipedia": "it:Teatro alla Scala"
+  }
+}
+
+  ]
+}

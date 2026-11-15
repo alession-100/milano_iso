@@ -1,0 +1,40 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:19:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 89444196,
+  "center": {
+    "lat": 45.4847849,
+    "lon": 9.2011772
+  },
+  "tags": {
+    "building": "office",
+    "building:levels": "31",
+    "building:material": "glass",
+    "height": "127.10",
+    "loc_name": "Pirellone",
+    "name": "Grattacielo Pirelli",
+    "name:de": "Pirelli-Hochhaus",
+    "name:en": "Pirelli Tower",
+    "name:es": "Torre Pirelli",
+    "name:fr": "Tour Pirelli",
+    "name:it": "Grattacielo Pirelli",
+    "name:ru": "Башня Пирелли",
+    "name:uk": "Башта Піреллі",
+    "roof:shape": "flat",
+    "start_date": "1961-04-04",
+    "wikidata": "Q920809",
+    "wikimedia_commons": "Category:Pirelli Tower (Milan)",
+    "wikipedia": "it:Grattacielo Pirelli"
+  }
+}
+
+  ]
+}

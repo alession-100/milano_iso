@@ -1,0 +1,62 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:20:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 6067258870,
+  "lat": 45.4858786,
+  "lon": 9.2042617,
+  "tags": {
+    "description": "Area STIBM: Mi1",
+    "iata": "XIK",
+    "name": "Milano Centrale",
+    "name:es": "Milano Central",
+    "name:it": "Milano Centrale",
+    "name:ja": "ミラノ中央",
+    "name:ko": "밀라노 중앙역",
+    "network": "STIBM",
+    "operator": "Rete Ferroviaria Italiana;Grandi Stazioni",
+    "platforms": "24",
+    "public_transport": "station",
+    "railway": "station",
+    "railway:ref": "MIC",
+    "ref:FR:sncf:resarail": "ITBGE",
+    "short_name": "Milano C.le",
+    "station": "train",
+    "train": "yes",
+    "uic_ref": "8301700",
+    "website": "https://www.rfi.it/it/stazioni/milano-centrale.html",
+    "wheelchair": "yes",
+    "wikidata": "Q801193",
+    "wikimedia_commons": "Category:Milano_Centrale_train_station",
+    "wikipedia": "it:Stazione di Milano Centrale",
+    "wikipedia:en": "en:Milano Centrale railway station"
+  }
+},
+{
+  "type": "relation",
+  "id": 11556082,
+  "center": {
+    "lat": 45.4874615,
+    "lon": 9.2060123
+  },
+  "tags": {
+    "description": "Area STIBM: Mi1",
+    "name": "Milano Centrale",
+    "network": "STIBM",
+    "operator": "Rete Ferroviaria Italiana;Grandi Stazioni",
+    "public_transport": "stop_area",
+    "type": "public_transport",
+    "wikidata": "Q801193",
+    "wikipedia": "it:Stazione di Milano Centrale"
+  }
+}
+
+  ]
+}

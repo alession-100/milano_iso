@@ -1,0 +1,28 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-15T20:27:36Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "relation",
+  "id": 2766789,
+  "center": {
+    "lat": 45.4666124,
+    "lon": 9.1906659
+  },
+  "tags": {
+    "building": "civic",
+    "building:levels": "3",
+    "name": "Palazzo Marino",
+    "type": "multipolygon",
+    "wikidata": "Q1403582",
+    "wikipedia": "it:Palazzo Marino"
+  }
+}
+
+  ]
+}
