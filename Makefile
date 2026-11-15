@@ -1,7 +1,7 @@
 .PHONY: setup lint test data tiles
 
 setup:
-	uv sync
+	uv sync --locked
 	npm --prefix web ci
 
 lint:

@@ -2,10 +2,11 @@ import { mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { type ConsoleMessage, expect, test } from '@playwright/test';
 
-const OUT = path.resolve(process.cwd(), '..', 'reports', 'artifacts', 'T-0.2');
+// Screenshots go to a gitignored folder so e2e never rewrites tracked files.
+const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
 const ELEVATIONS = ['30', '35.264'];
 
-test('renders a canvas with no console errors or warnings, at both elevations', async ({
+test('renders a canvas with no console errors or warnings, at both elevations, and composes side-by-side.png', async ({
   page,
 }) => {
   mkdirSync(OUT, { recursive: true });
@@ -13,7 +14,7 @@ test('renders a canvas with no console errors or warnings, at both elevations', 
   // Chromium's software GL (SwiftShader) emits a driver "GPU stall due to ReadPixels" warning
   // whenever a WebGL canvas is read back for a screenshot. It is caused by the screenshot, not
   // by the app, so exactly that message is ignored; every other warning or error fails the test.
-  const screenshotNoise = /GPU stall due to ReadPixels/;
+  const screenshotNoise = /^\[\.WebGL-[0-9a-fx]+\]GL Driver Message \(OpenGL, Performance, GL_CLOSE_PATH_NV, High\): GPU stall due to ReadPixels$/;
   page.on('console', (m: ConsoleMessage) => {
     if ((m.type() === 'error' || m.type() === 'warning') && !screenshotNoise.test(m.text())) {
       problems.push(`${m.type()}: ${m.text()}`);
@@ -29,9 +30,8 @@ test('renders a canvas with no console errors or warnings, at both elevations', 
   }
   await page.waitForTimeout(300);
   expect(problems).toEqual([]);
-});
 
-test('compose side-by-side.png from the two screenshots', async ({ page }) => {
+  // Compose side-by-side.png from the two screenshots.
   const figures = ELEVATIONS.map((elev) => {
     const b64 = readFileSync(path.join(OUT, `elev-${elev}.png`)).toString('base64');
     return `<figure><img src="data:image/png;base64,${b64}"><figcaption>elevation ${elev}&deg;</figcaption></figure>`;
