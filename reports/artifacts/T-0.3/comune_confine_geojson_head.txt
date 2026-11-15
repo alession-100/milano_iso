@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Date: Sun, 15 Nov 2026 18:58:47 GMT
+Content-Type: application/geo+json
+Connection: keep-alive
+Pragma: no-cache
+Cache-Control: no-cache
+Last-Modified: Mon, 04 Nov 2024 08:00:05 GMT
+Content-Range: bytes 0-1917279/1917280
+ETag: "1730707205.0-1917280"
+Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.comune.milano.it http://assets.adobedtm.com https://assets.adobedtm.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://*.comune.milano.it http://assets.adobedtm.com https://assets.adobedtm.com https://epsg.io https://use.fontawesome.com https://e.infogram.com; style-src 'self' 'unsafe-inline' https://*.comune.milano.it;  img-src 'self' https://*.comune.milano.it http://tile.openstreetmap.org https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://imad.com.co https://gravatar.com https://comunedimilano.d3.sc.omtrdc.net data:; frame-src 'self' https://e.infogram.com https://www.openstreetmap.org https://datawrapper.dwcdn.net;
+Referrer-Policy: strict-origin-when-cross-origin
+

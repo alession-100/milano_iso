@@ -1,0 +1,791 @@
+{
+  "id" : "82bu-bgvn",
+  "name" : "Elenco stato di Avanzamento del progetto Data Base Topografico (DbT)",
+  "assetType" : "dataset",
+  "attribution" : "Regione Lombardia",
+  "attributionLink" : "http://www.regione.lombardia.it/wps/portal/istituzionale/HP/istituzione/direzioni-generali/direzione-generale-territorio-urbanistica-difesa-del-suolo-e-citta-metropolitana",
+  "averageRating" : 0,
+  "category" : "Territorio",
+  "createdAt" : 1384442319,
+  "description" : "Elenco stato di Avanzamento del progetto Data Base Topografico(DbT) prodotti da Regione Lombardia a partire dall’anno 2006.",
+  "diciBackend" : false,
+  "displayType" : "table",
+  "downloadCount" : 3593,
+  "hideFromCatalog" : false,
+  "hideFromDataJson" : false,
+  "licenseId" : "CC0_10",
+  "locked" : false,
+  "newBackend" : true,
+  "numberOfComments" : 0,
+  "oid" : 2953944,
+  "provenance" : "official",
+  "publicationAppendEnabled" : false,
+  "publicationDate" : 1725618094,
+  "publicationGroup" : 6297,
+  "publicationStage" : "published",
+  "rowsUpdatedAt" : 1740645735,
+  "rowsUpdatedBy" : "7pvs-5xuu",
+  "tableId" : 1975357,
+  "totalTimesRated" : 0,
+  "viewCount" : 2175,
+  "viewLastModified" : 1740645738,
+  "viewType" : "tabular",
+  "approvals" : [ {
+    "reviewedAt" : 1437727362,
+    "reviewedAutomatically" : true,
+    "state" : "approved",
+    "submissionId" : 1461816,
+    "submissionObject" : "public_audience_request",
+    "submissionOutcome" : "change_audience",
+    "submittedAt" : 1437727362,
+    "targetAudience" : "public",
+    "workflowId" : 186,
+    "submissionDetails" : {
+      "permissionType" : "READ"
+    },
+    "submissionOutcomeApplication" : {
+      "failureCount" : 0,
+      "status" : "success"
+    },
+    "submitter" : {
+      "id" : "7pvs-5xuu",
+      "displayName" : "Regione Lombardia"
+    }
+  } ],
+  "clientContext" : {
+    "clientContextVariables" : [ ],
+    "inheritedVariables" : { }
+  },
+  "columns" : [ {
+    "id" : 26388817,
+    "name" : "COD_ISTAT",
+    "dataTypeName" : "text",
+    "description" : "codice istat",
+    "fieldName" : "cod_istat",
+    "position" : 1,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60206,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1502",
+      "largest" : "98062.0",
+      "null" : "2",
+      "top" : [ {
+        "item" : "13192.0",
+        "count" : "1"
+      }, {
+        "item" : "16189.0",
+        "count" : "1"
+      }, {
+        "item" : "16165.0",
+        "count" : "1"
+      }, {
+        "item" : "16129.0",
+        "count" : "1"
+      }, {
+        "item" : "97065.0",
+        "count" : "1"
+      }, {
+        "item" : "13118.0",
+        "count" : "1"
+      }, {
+        "item" : "15110.0",
+        "count" : "1"
+      }, {
+        "item" : "17029.0",
+        "count" : "1"
+      }, {
+        "item" : "17203.0",
+        "count" : "1"
+      }, {
+        "item" : "98026.0",
+        "count" : "1"
+      }, {
+        "item" : "17076.0",
+        "count" : "1"
+      }, {
+        "item" : "17096.0",
+        "count" : "1"
+      }, {
+        "item" : "18060.0",
+        "count" : "1"
+      }, {
+        "item" : "18009.0",
+        "count" : "1"
+      }, {
+        "item" : "18066.0",
+        "count" : "1"
+      }, {
+        "item" : "16170.0",
+        "count" : "1"
+      }, {
+        "item" : "13084.0",
+        "count" : "1"
+      }, {
+        "item" : "16134.0",
+        "count" : "1"
+      }, {
+        "item" : "15159.0",
+        "count" : "1"
+      }, {
+        "item" : "108016.0",
+        "count" : "1"
+      } ],
+      "smallest" : "108001.0",
+      "count" : "1504",
+      "cardinality" : "1502"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388818,
+    "name" : "NOME_COMUNE",
+    "dataTypeName" : "text",
+    "description" : "nome del comune",
+    "fieldName" : "nome_comune",
+    "position" : 2,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60207,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1502",
+      "largest" : "ZONE",
+      "null" : "2",
+      "top" : [ {
+        "item" : "CAPRIOLO",
+        "count" : "1"
+      }, {
+        "item" : "ISPRA",
+        "count" : "1"
+      }, {
+        "item" : "GAMBOLO`",
+        "count" : "1"
+      }, {
+        "item" : "PERSICO DOSIMO",
+        "count" : "1"
+      }, {
+        "item" : "ROGNANO",
+        "count" : "1"
+      }, {
+        "item" : "LOZIO",
+        "count" : "1"
+      }, {
+        "item" : "QUINZANO D`OGLIO",
+        "count" : "1"
+      }, {
+        "item" : "LUNGAVILLA",
+        "count" : "1"
+      }, {
+        "item" : "CARAVATE",
+        "count" : "1"
+      }, {
+        "item" : "BOFFALORA SOPRA TICINO",
+        "count" : "1"
+      }, {
+        "item" : "CASTELLO CABIAGLIO",
+        "count" : "1"
+      }, {
+        "item" : "CASARGO",
+        "count" : "1"
+      }, {
+        "item" : "COLLEBEATO",
+        "count" : "1"
+      }, {
+        "item" : "CASTIGLIONE OLONA",
+        "count" : "1"
+      }, {
+        "item" : "CAMERATA CORNELLO",
+        "count" : "1"
+      }, {
+        "item" : "PRATA CAMPORTACCIO",
+        "count" : "1"
+      }, {
+        "item" : "CASTELLUCCHIO",
+        "count" : "1"
+      }, {
+        "item" : "CASTREZZATO",
+        "count" : "1"
+      }, {
+        "item" : "BAGNOLO MELLA",
+        "count" : "1"
+      }, {
+        "item" : "CALCIO",
+        "count" : "1"
+      } ],
+      "smallest" : "ABBADIA CERRETO",
+      "count" : "1504",
+      "cardinality" : "1502"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388819,
+    "name" : "NOME_PROVINCIA",
+    "dataTypeName" : "text",
+    "description" : "nome della provincia",
+    "fieldName" : "nome_provincia",
+    "position" : 3,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60208,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1502",
+      "largest" : "VA",
+      "null" : "2",
+      "top" : [ {
+        "item" : "BG",
+        "count" : "242"
+      }, {
+        "item" : "BS",
+        "count" : "205"
+      }, {
+        "item" : "PV",
+        "count" : "185"
+      }, {
+        "item" : "CO",
+        "count" : "147"
+      }, {
+        "item" : "VA",
+        "count" : "136"
+      }, {
+        "item" : "MI",
+        "count" : "133"
+      }, {
+        "item" : "CR",
+        "count" : "113"
+      }, {
+        "item" : "LC",
+        "count" : "85"
+      }, {
+        "item" : "SO",
+        "count" : "77"
+      }, {
+        "item" : "MN",
+        "count" : "64"
+      }, {
+        "item" : "LO",
+        "count" : "60"
+      }, {
+        "item" : "MB",
+        "count" : "55"
+      } ],
+      "smallest" : "BG",
+      "count" : "1504",
+      "cardinality" : "12"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388820,
+    "name" : "CONTENUTO",
+    "dataTypeName" : "text",
+    "description" : "contenuto",
+    "fieldName" : "contenuto",
+    "position" : 4,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60209,
+    "width" : 80,
+    "cachedContents" : {
+      "non_null" : "1502",
+      "largest" : "DBT",
+      "null" : "2",
+      "top" : [ {
+        "item" : "DBT",
+        "count" : "1502"
+      } ],
+      "smallest" : "DBT",
+      "count" : "1504",
+      "cardinality" : "1"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388821,
+    "name" : "STORICO_AMMINISTRATIVO",
+    "dataTypeName" : "text",
+    "description" : "storico amministrativo",
+    "fieldName" : "storico_amministrativo",
+    "position" : 5,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60210,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "33",
+      "largest" : "2024 - Fusione di RONAGO e UGGIATE-TREVANO",
+      "null" : "1471",
+      "top" : [ {
+        "item" : "2011 - Fusione di CONSIGLIO DI RUMO, GERMASINO e GRAVEDONA",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di BASTIDA DE' DOSSI e CORNALE",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di BELLAGIO e CIVENNA",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di BORGOFORTE e VIRGILIO",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di BREMBILLA e GEROSA",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di DREZZO, GIRONICO e PARE'",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di LENNO, MEZZEGRA, OSSUCCIO e TREMEZZO",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di MACCAGNO, PINO SULLA SPONDA DEL LAGO MAGGIORE e VEDDASCA",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di SANT'OMOBONO TERME e VALSECCA",
+        "count" : "1"
+      }, {
+        "item" : "2014 - Fusione di VERDERIO INFERIORE e VERDERIO SUPERIORE",
+        "count" : "1"
+      }, {
+        "item" : "2015 - Fusione di PEREGO e ROVAGNATE",
+        "count" : "1"
+      }, {
+        "item" : "2015 - GORDONA incorpora MENAROLA",
+        "count" : "1"
+      }, {
+        "item" : "2016 - BIENNO incorpora PRESTINE",
+        "count" : "1"
+      }, {
+        "item" : "2016 - Fusione di CORTEOLONA e GENZONE",
+        "count" : "1"
+      }, {
+        "item" : "2017 - Fusione di LANZO D`INTELVI, PELLIO INTELVI e RAMPONIO VERNA",
+        "count" : "1"
+      }, {
+        "item" : "2017 - SAN FERMO DELLA BATTAGLIA incorpora CAVALLASCA",
+        "count" : "1"
+      }, {
+        "item" : "2017 - SERMIDE incorpora FELONICA",
+        "count" : "1"
+      }, {
+        "item" : "2018 - Fusione di CASASCO D`INTELVI, CASTIGLIONE D`INTELVI e SAN FEDELE INTELVI",
+        "count" : "1"
+      }, {
+        "item" : "2018 - Fusione di CAVACURTA e CAMAIRAGO",
+        "count" : "1"
+      }, {
+        "item" : "2018 - Fusione di INTROZZO, TREMENICO e VESTRENO",
+        "count" : "1"
+      } ],
+      "smallest" : "2011 - Fusione di CONSIGLIO DI RUMO, GERMASINO e GRAVEDONA",
+      "count" : "1504",
+      "cardinality" : "33"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388822,
+    "name" : "ANNO_DI_RILIEVO_AGGIORNAMENTO",
+    "dataTypeName" : "text",
+    "description" : "anno di rilievo aggiornamento",
+    "fieldName" : "anno_di_rilievo_aggiornamento",
+    "position" : 6,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60211,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1504",
+      "largest" : "2022",
+      "null" : "0",
+      "top" : [ {
+        "item" : "2008",
+        "count" : "388"
+      }, {
+        "item" : "2015",
+        "count" : "251"
+      }, {
+        "item" : "2007",
+        "count" : "171"
+      }, {
+        "item" : "2009",
+        "count" : "166"
+      }, {
+        "item" : "2006",
+        "count" : "64"
+      }, {
+        "item" : "2011",
+        "count" : "63"
+      }, {
+        "item" : "2019",
+        "count" : "55"
+      }, {
+        "item" : "2010",
+        "count" : "51"
+      }, {
+        "item" : "2009 e 2015",
+        "count" : "47"
+      }, {
+        "item" : "2005",
+        "count" : "39"
+      }, {
+        "item" : "2018",
+        "count" : "38"
+      }, {
+        "item" : "2008 e 2009",
+        "count" : "36"
+      }, {
+        "item" : "2003 e 2012",
+        "count" : "32"
+      }, {
+        "item" : "1999 e 2008",
+        "count" : "19"
+      }, {
+        "item" : "2021",
+        "count" : "13"
+      }, {
+        "item" : "2012",
+        "count" : "11"
+      }, {
+        "item" : "2013 e 2014",
+        "count" : "10"
+      }, {
+        "item" : "2007 e 2015",
+        "count" : "8"
+      }, {
+        "item" : "2020",
+        "count" : "6"
+      }, {
+        "item" : "2009 e 2010",
+        "count" : "6"
+      } ],
+      "smallest" : "1995",
+      "count" : "1504",
+      "cardinality" : "39"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388823,
+    "name" : "NOME_PROGETTO",
+    "dataTypeName" : "text",
+    "description" : "nome del progetto",
+    "fieldName" : "nome_progetto",
+    "position" : 7,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60213,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1504",
+      "largest" : "Valore Comune 2004/2008 / II Bando",
+      "null" : "0",
+      "top" : [ {
+        "item" : "GECA 21/2017",
+        "count" : "252"
+      }, {
+        "item" : "CITTA' METROPOLITANA DI MILANO E PROVINCIA DI MONZA E BRIANZA UNIFICATO",
+        "count" : "165"
+      }, {
+        "item" : "Comuni Linea Group Holding 2007",
+        "count" : "148"
+      }, {
+        "item" : "Provincia di Lecco 2007",
+        "count" : "84"
+      }, {
+        "item" : "Provincia di Sondrio 2015",
+        "count" : "77"
+      }, {
+        "item" : "Provincia di Bergamo 2009",
+        "count" : "60"
+      }, {
+        "item" : "PADANIA ACQUE S.P.A. On-Line 2006",
+        "count" : "60"
+      }, {
+        "item" : "Provincia di Lodi / Bando 2006",
+        "count" : "60"
+      }, {
+        "item" : "Comuni montani bergamaschi 2007",
+        "count" : "57"
+      }, {
+        "item" : "Comunità montane Alto Varesotto 2007",
+        "count" : "53"
+      }, {
+        "item" : "Iniziativa provinciale",
+        "count" : "44"
+      }, {
+        "item" : "Comunità montana Oltrepò Pavese 2007",
+        "count" : "42"
+      }, {
+        "item" : "Provincia di varese 2009",
+        "count" : "41"
+      }, {
+        "item" : "Comunità montana Triangolo Lariano 2007",
+        "count" : "36"
+      }, {
+        "item" : "Consorzio del Seprio 2008 / II Bando",
+        "count" : "35"
+      }, {
+        "item" : "Iniziativa comunale",
+        "count" : "34"
+      }, {
+        "item" : "Comuni Linea Group Holding 2008 / I Bando",
+        "count" : "28"
+      }, {
+        "item" : "Comunità montana Valle Sabbia - Progetti ISAC",
+        "count" : "24"
+      }, {
+        "item" : "Iniziativa comunale Extra-Bandi",
+        "count" : "24"
+      }, {
+        "item" : "SITGEO 2018",
+        "count" : "21"
+      } ],
+      "smallest" : "C.I.P.A.L. 2008 / II BANDO",
+      "count" : "1504",
+      "cardinality" : "49"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388824,
+    "name" : "PROPONENTE",
+    "dataTypeName" : "text",
+    "description" : "proponente unico",
+    "fieldName" : "proponente",
+    "position" : 8,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60214,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1483",
+      "largest" : "Unione dei comuni Ceto, Cimbergo e Paspardo",
+      "null" : "21",
+      "top" : [ {
+        "item" : "REGIONE LOMBARDIA D.G.TERRITORIO, URBANISTICA E DIFESA DEL SUOLO",
+        "count" : "252"
+      }, {
+        "item" : "COGEME S.P.A.",
+        "count" : "200"
+      }, {
+        "item" : "Provincia di Milano",
+        "count" : "165"
+      }, {
+        "item" : "Provincia di Lecco",
+        "count" : "91"
+      }, {
+        "item" : "Provincia di Sondrio",
+        "count" : "77"
+      }, {
+        "item" : "Provincia di Brescia",
+        "count" : "76"
+      }, {
+        "item" : "PADANIA ACQUE S.P.A.",
+        "count" : "65"
+      }, {
+        "item" : "Provincia di Lodi",
+        "count" : "60"
+      }, {
+        "item" : "Provincia di Bergamo",
+        "count" : "60"
+      }, {
+        "item" : "Comunità montana Val Cavallina (ora Comunità  montana dei Laghi Bergamaschi)",
+        "count" : "57"
+      }, {
+        "item" : "Comunità montana Valcuvia (ora Comunità  montana Valli del Verbano)",
+        "count" : "54"
+      }, {
+        "item" : "Provincia di varese - Settore Territorio e Urbanistica",
+        "count" : "53"
+      }, {
+        "item" : "Comunità montana Oltrepò Pavese",
+        "count" : "42"
+      }, {
+        "item" : "Comunità montana Triangolo Lariano",
+        "count" : "36"
+      }, {
+        "item" : "Consorzio del Seprio",
+        "count" : "35"
+      }, {
+        "item" : "Comunità montana Valle Sabbia",
+        "count" : "24"
+      }, {
+        "item" : "Consorzio Intercomunale Piano Sviluppo dell'Alta Lomellina",
+        "count" : "20"
+      }, {
+        "item" : "Comune di Gravedona",
+        "count" : "15"
+      }, {
+        "item" : "Comune di Seriate - Servizio Innovazione e comunicazione",
+        "count" : "8"
+      }, {
+        "item" : "Comune di Bressana Bottarone",
+        "count" : "7"
+      } ],
+      "smallest" : "Città  di Lissone - Settore Pianificazione",
+      "count" : "1504",
+      "cardinality" : "93"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388825,
+    "name" : "ANNO_FINANZIAMENTO",
+    "dataTypeName" : "text",
+    "description" : "anno di finanziamento",
+    "fieldName" : "anno_finanziamento",
+    "position" : 9,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60215,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1216",
+      "largest" : "2018",
+      "null" : "288",
+      "top" : [ {
+        "item" : "2007",
+        "count" : "429"
+      }, {
+        "item" : "2017",
+        "count" : "253"
+      }, {
+        "item" : "2009",
+        "count" : "169"
+      }, {
+        "item" : "2006",
+        "count" : "120"
+      }, {
+        "item" : "2008",
+        "count" : "119"
+      }, {
+        "item" : "2015",
+        "count" : "77"
+      }, {
+        "item" : "2005",
+        "count" : "24"
+      }, {
+        "item" : "2011",
+        "count" : "24"
+      }, {
+        "item" : "2018",
+        "count" : "1"
+      } ],
+      "smallest" : "2005",
+      "count" : "1504",
+      "cardinality" : "9"
+    },
+    "format" : { }
+  }, {
+    "id" : 26388826,
+    "name" : "DATA_DI_INSERIMENTO_NEL_DBGT_REGIONALE",
+    "dataTypeName" : "text",
+    "description" : "data di inserimento nel dbt regionale",
+    "fieldName" : "data_di_inserimento_nel_dbgt_regionale",
+    "position" : 10,
+    "renderTypeName" : "text",
+    "tableColumnId" : 60216,
+    "width" : 100,
+    "cachedContents" : {
+      "non_null" : "1501",
+      "largest" : "2024/09/10 00:00:00.000",
+      "null" : "3",
+      "top" : [ {
+        "item" : "2017/01/25 00:00:00.000",
+        "count" : "168"
+      }, {
+        "item" : "2015/06/23 00:00:00.000",
+        "count" : "132"
+      }, {
+        "item" : "2013/07/02 00:00:00.000",
+        "count" : "91"
+      }, {
+        "item" : "2020/09/03 00:00:00.000",
+        "count" : "85"
+      }, {
+        "item" : "2020/09/04 00:00:00.000",
+        "count" : "80"
+      }, {
+        "item" : "2016/06/01 00:00:00.000",
+        "count" : "77"
+      }, {
+        "item" : "2013/05/24 00:00:00.000",
+        "count" : "65"
+      }, {
+        "item" : "2013/04/15 00:00:00.000",
+        "count" : "60"
+      }, {
+        "item" : "2015/04/28 00:00:00.000",
+        "count" : "60"
+      }, {
+        "item" : "2020/09/01 00:00:00.000",
+        "count" : "59"
+      }, {
+        "item" : "2014/03/21 00:00:00.000",
+        "count" : "55"
+      }, {
+        "item" : "2014/05/28 00:00:00.000",
+        "count" : "51"
+      }, {
+        "item" : "2014/03/18 00:00:00.000",
+        "count" : "42"
+      }, {
+        "item" : "2023/02/01 00:00:00.000",
+        "count" : "42"
+      }, {
+        "item" : "2014/05/05 00:00:00.000",
+        "count" : "36"
+      }, {
+        "item" : "2014/12/11 00:00:00.000",
+        "count" : "34"
+      }, {
+        "item" : "2014/01/14 00:00:00.000",
+        "count" : "32"
+      }, {
+        "item" : "2020/09/02 00:00:00.000",
+        "count" : "28"
+      }, {
+        "item" : "2016/03/02 00:00:00.000",
+        "count" : "24"
+      }, {
+        "item" : "2014/12/12 00:00:00.000",
+        "count" : "22"
+      } ],
+      "smallest" : "2013/04/15 00:00:00.000",
+      "count" : "1504",
+      "cardinality" : "88"
+    },
+    "format" : { }
+  } ],
+  "grants" : [ {
+    "inherited" : false,
+    "type" : "viewer",
+    "flags" : [ "public" ]
+  } ],
+  "license" : {
+    "name" : "Creative Commons 1.0 Universal (Public Domain Dedication)",
+    "logoUrl" : "images/licenses/ccZero.png",
+    "termsLink" : "http://creativecommons.org/publicdomain/zero/1.0/legalcode"
+  },
+  "metadata" : {
+    "custom_fields" : {
+      "Dettagli" : {
+        "Direzione" : "Territorio, urbanistica, difesa del suolo e citta' metropolitana"
+      },
+      "Frequenza di aggiornamento" : {
+        "Data ultima modifica" : "27/2/25",
+        "Frequenza" : "Annuale"
+      }
+    }
+  },
+  "owner" : {
+    "id" : "7pvs-5xuu",
+    "displayName" : "Regione Lombardia",
+    "profileImageUrlLarge" : "/api/users/7pvs-5xuu/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/7pvs-5xuu/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/7pvs-5xuu/profile_images/TINY",
+    "screenName" : "Regione Lombardia",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "query" : { },
+  "rights" : [ "read" ],
+  "tableAuthor" : {
+    "id" : "7pvs-5xuu",
+    "displayName" : "Regione Lombardia",
+    "profileImageUrlLarge" : "/api/users/7pvs-5xuu/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/7pvs-5xuu/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/7pvs-5xuu/profile_images/TINY",
+    "screenName" : "Regione Lombardia",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "tags" : [ "dbt", "data base topografico", "progetto", "catasto", "censimento", "ctr", "carta tecnica regionale da dbt", "topografia", "topografico", "z1" ],
+  "flags" : [ "default", "ownerMayBeContacted", "restorable", "restorePossibleForType" ]
+}

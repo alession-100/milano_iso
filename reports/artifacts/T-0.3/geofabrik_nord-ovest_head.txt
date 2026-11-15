@@ -1,0 +1,10 @@
+HTTP/1.1 307 Temporary Redirect
+Date: Sun, 15 Nov 2026 18:56:28 GMT
+Server: Apache
+Cache-Control: max-age=600, public
+Location: https://download.geofabrik.de/europe/italy/nord-ovest-261114.osm.pbf
+Content-Type: text/html; charset=iso-8859-1
+Cache-Status: download-proxy13;fwd=stale;detail=match
+Via: 1.1 download-proxy13 (squid/6.14)
+Connection: keep-alive
+
