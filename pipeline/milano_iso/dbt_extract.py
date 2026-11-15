@@ -7,7 +7,6 @@ and writes data/interim/dbt_pilot.gpkg. Also writes the T-1.2 report artefacts
 """
 
 import argparse
-import hashlib
 import json
 import re
 import statistics
@@ -27,6 +26,7 @@ from shapely.geometry import Polygon, box
 
 from milano_iso import config
 from milano_iso.dbt_fetch import target_path
+from milano_iso.geo import canonical_dump_sha256
 
 ZIP_PREFIX = "DBT 2020 - SHAPE/"
 SOURCE_CRS = "EPSG:7791"
@@ -41,6 +41,17 @@ LAYERS = {
     "edifc_me": ("EDIFC_CR_EDF_ME", "CLASSREF"),
     "edifc_me_sr": ("EDIFC_CR_EDF_ME_SR", "SUBREGID"),
     "un_vol": ("UN_VOL", "CLASSID"),
+    # EDI_MIN ("edificio minore", T-1.3): same three-way split; only IS and ME are extracted.
+    "edi_min": ("EDI_MIN_CR_EDF_IS", "CLASSREF"),
+    "edi_min_me": ("EDI_MIN_CR_EDF_ME", "CLASSREF"),
+}
+# Non-spatial attribute tables (.dbf only) -> (stem, building key column). Kept for the
+# buildings that appear in the extracted layers or are referenced by an extracted UN_VOL.
+# EDIFC_EDIFC_USO is multi-valued (spec: EDIFC_USO [1..*]), so its key is not unique.
+TABLES = {
+    "edifc_attr": ("EDIFC", "CLASSID"),
+    "edifc_uso": ("EDIFC_EDIFC_USO", "CLASSREF"),
+    "edi_min_attr": ("EDI_MIN", "CLASSID"),
 }
 STATS_LAYERS = {
     "EDIFC_CR_EDF_IS": "edifc",
@@ -81,28 +92,6 @@ def read_intersecting(path: str, poly: Polygon) -> gpd.GeoDataFrame:
     gdf = pyogrio.read_dataframe(path, bbox=tuple(poly.bounds))
     keep = gdf.geometry.intersects(poly)
     return gdf[keep.to_numpy()].reset_index(drop=True)
-
-
-def canonical_dump_sha256(gpkg: Path) -> str:
-    """sha256 of a canonical text dump (layers sorted by name, rows in stored order,
-    WKB geometry, repr of attribute values). Independent of gpkg file-level metadata."""
-    h = hashlib.sha256()
-    for layer in sorted(name for name, _ in pyogrio.list_layers(gpkg)):
-        info = pyogrio.read_info(gpkg, layer=layer)
-        h.update(f"LAYER {layer} {info['crs']} {info['geometry_type']}\n".encode())
-        df = pyogrio.read_dataframe(gpkg, layer=layer)
-        h.update(("COLUMNS " + ",".join(f"{c}:{df[c].dtype}" for c in df.columns) + "\n").encode())
-        for row in df.itertuples(index=False):
-            parts = []
-            for v in row:
-                if isinstance(v, shapely.Geometry):
-                    parts.append(shapely.to_wkb(v, output_dimension=3, byte_order=1).hex())
-                elif v is None or (isinstance(v, float) and np.isnan(v)):
-                    parts.append("None")
-                else:
-                    parts.append(repr(v))
-            h.update(("|".join(parts) + "\n").encode())
-    return h.hexdigest()
 
 
 def column_stats(df: pd.DataFrame) -> list[dict]:
@@ -259,6 +248,22 @@ def code_counts(df: pd.DataFrame, col: str) -> dict:
     return {str(k): int(v) for k, v in sorted(df[col].value_counts(dropna=False).items())}
 
 
+def vsizip_table(zip_path: Path, stem: str) -> str:
+    return f"/vsizip/{Path(zip_path).as_posix()}/{ZIP_PREFIX}{stem}.dbf"
+
+
+def read_building_table(path: str, key: str, keep: set) -> pd.DataFrame:
+    """Rows of an attribute table whose building key is in `keep`, sorted by (key, other cols)."""
+    df = pyogrio.read_dataframe(path, read_geometry=False)
+    df = df[df[key].isin(keep)]
+    cols = [key] + [c for c in df.columns if c != key]
+    order = sorted(
+        range(len(df)),
+        key=lambda i: (natural_key(df[key].iloc[i]), *(str(df[c].iloc[i]) for c in cols[1:])),
+    )
+    return df.iloc[order][cols].reset_index(drop=True)
+
+
 def extract_pilot(zip_path: Path, out_gpkg: Path) -> dict:
     poly = extent_polygon(config.PILOT_AOI_BBOX)
     out_gpkg.parent.mkdir(parents=True, exist_ok=True)
@@ -271,6 +276,15 @@ def extract_pilot(zip_path: Path, out_gpkg: Path) -> dict:
             raise SystemExit(f"{stem}: unexpected CRS {gdf.crs}")
         pyogrio.write_dataframe(gdf, out_gpkg, layer=name, driver="GPKG")
         layers[name] = gdf
+    # Attribute tables for every building the extract knows about (footprint layers plus the
+    # CEDIUV of every extracted volume, so a volume whose footprint is outside is still typed).
+    keep = set(layers["un_vol"]["CEDIUV"])
+    for lname in ("edifc", "edifc_me", "edi_min", "edi_min_me"):
+        keep |= set(layers[lname]["CLASSREF"])
+    for name, (stem, key) in TABLES.items():
+        table = read_building_table(vsizip_table(zip_path, stem), key, keep)
+        pyogrio.write_dataframe(table, out_gpkg, layer=name, driver="GPKG")
+        layers[name] = table
     return layers
 
 

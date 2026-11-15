@@ -33,16 +33,21 @@
       "share_abs_le_0.5": 1.0
     }
   },
-  "canonical_dump_sha256_dbt_pilot_gpkg": "f71400ef4fd06992b16604f710d78e2db97f25cf1937023157fb099ed44acf64",
+  "canonical_dump_sha256_dbt_pilot_gpkg": "793eb0055cf3ea0ac2e6a5ad802735f7762c02e91d82196fb9b42ae16823a512",
   "citywide_cediuv_match_rate": {
     "to_edi_min_cr_edf_me": 0.13492721131642152,
     "to_edifc_me": 0.8650727886835785,
     "to_either": 1.0
   },
   "counts": {
+    "edi_min": 47,
+    "edi_min_attr": 47,
+    "edi_min_me": 47,
     "edifc": 170,
+    "edifc_attr": 171,
     "edifc_me": 171,
     "edifc_me_sr": 665,
+    "edifc_uso": 171,
     "un_vol": 4657
   },
   "crs_transform": {
@@ -240,6 +245,8 @@
     "volumes_per_building_min": 1
   },
   "sort_keys": {
+    "edi_min": "CLASSREF",
+    "edi_min_me": "CLASSREF",
     "edifc": "CLASSREF",
     "edifc_me": "CLASSREF",
     "edifc_me_sr": "SUBREGID",
