@@ -1,0 +1,4 @@
+1236
+    osm_type    osm_id area_from
+226        r  18017026  relation
+{"alt_official_name": "Cattedrale di Santa Maria Nascente", "amenity": "place_of_worship", "architect": "Simone da Orsenigo", "building": "cathedral",
