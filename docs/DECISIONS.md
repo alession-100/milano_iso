@@ -99,3 +99,14 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - The geometry is far more accurate (roof steps, courtyards, towers on podiums), and the landmarks gain real massing.
   - Conflating DBT and OSM needs explicit, tested matching rules (T-1.4).
   - Completeness (VERIFICATION section 3) is measured per source: processed DBT volumes >= 99% of the source volumes in the extent, and processed OSM buildings >= 99% of the OSM building areas.
+
+## ADR-0015 - Height rules for v1
+- **Status:** Accepted (2026-11-15)
+- **DBT volumes:**
+  - Each volume spans from `bottom = UN_VOL_QE - UN_VOL_AV` to `top = UN_VOL_QE`, measured relative to the building's ground level.
+  - **Ground level** is the minimum base Z of the building's ground-based volumes (`POR` 01). A building with no `POR` 01 volume uses the minimum base Z of all its volumes and is flagged.
+  - Basis: the spec, pp.129-133 (flat-topped volume to eave level, portico intrados). The pilot data agree: for `POR` 01 and 04, `QE - AV` equals the base Z within 0.001 m; for `POR` 03 (porticoes) the volume starts 3.5 m above its base, so the open space under the portico stays empty.
+  - No roof shapes are added: the model is flat-topped at eave level.
+- **Overture (step 4 of the fallback chain) is skipped in v1.** T-0.3 found that Overture building heights come mainly from OSM, so the step adds little; and Overture was not fetched. Revisit in Phase 6 if many buildings fall through to the default.
+- **Default height (step 5)** is derived from data, never typed: the median building height of DBT buildings matched to OSM buildings with the same `building` value in the processed extent, when there are at least 5 of them. Otherwise it is the median over all matched DBT buildings. The values are written to a committed artifact by the pipeline, and every such building has `height_source = default`.
+- **OSM levels:** `building:levels x 3.0 m` with no roof allowance, as in `DATA_SOURCES.md`.
