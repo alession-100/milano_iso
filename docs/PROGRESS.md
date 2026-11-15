@@ -29,9 +29,9 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-1.7 | in progress | | G1 follow-ups: best-fit offset, raised-only ground, duplicates, cosmetics |
 | T-2.1 | done | - | ADR-0021 tile scheme |
 | T-2.2 | done (finding) | reports/R-2.2.md | Verified: 4 tiles load in Node, 0 mismatches. Budget exceeded (379-662 KB gzip vs 250 KB); the export is not indexed. ADR-0022 and T-2.2a |
-| T-2.2a | retry 2/2 | | blocked: int16 range at 1 cm; ADR-0022 2a sets 2 cm |
-| T-2.3 | todo | | |
-| T-2.4 | todo | | |
+| T-2.2a | done (finding) | reports/R-2.2a.md | Verified independently: byte-identical rebuild, 12 tiles load, 1536 sampled positions max error 0.010 m, 233/233 buildings once. Tile 0_0 is 289,508 B gzip-9, over budget; orchestrator measured 250 m tiles (max 92.0 KB), so ADR-0023 |
+| T-2.3 | in progress | | 250 m tiles + manifest + schema + determinism + glTF validator (absorbs T-2.4) |
+| T-2.4 | merged into T-2.3 | | |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 

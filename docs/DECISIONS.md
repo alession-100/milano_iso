@@ -198,3 +198,13 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   4. If the tiles are still over budget after 1-3, the next step is a smaller tile size (250 m), decided by ADR with measurements. Mesh compression (meshopt or Draco) is not adopted: it adds a dependency and a decoder.
   5. **All intersecting buildings are exported.** A rendered building whose representative point falls in a tile outside the 2 x 2 pilot block still gets exported, in that tile. Every feature then appears in exactly one tile, and edge tiles may hold only those buildings.
   6. **Underground roads and rail** (`underground = true`) are not exported in v1. Confirmed from T-2.2's assumption.
+
+## ADR-0023 - Tile size 250 m (amends ADR-0021)
+- **Status:** Accepted (2026-11-16)
+- **Context:** After the compact encoding (ADR-0022), tile 0_0 is still 289,508 bytes gzip-9 against the 256,000 budget. The other 500 m tiles are 7.9-237 KB. ADR-0022 point 4 names a 250 m tile size as the next step, to be taken with measurements.
+- **Measurement:** the orchestrator ran the T-2.2a exporter with the tile size patched to 250 m in a scratch copy on 2026-11-16. It produced 30 tiles; all 233 rendered buildings appear exactly once; the four largest tiles are 66.9, 81.6, 86.7 and 92.0 KB gzip-9.
+- **Decision:**
+  - Tiles are **250 m** squares aligned to the origin. Tile (i, j) covers E0 + 250*i <= E < E0 + 250*(i+1), and likewise for N with j. The pilot AOI is tiles i, j in {-2..1}: 16 tiles.
+  - The tile size becomes a single constant `TILE_SIZE_M` in `pipeline/milano_iso/config.py`, recorded in `tiles.json`.
+  - The quantisation (ADR-0022 point 2a: 2 cm from the tile centre, +/-655 m) still fits, since whole buildings overhang by at most a few hundred metres. The export keeps failing loudly if a building exceeds the range.
+- **Consequences:** about 4 times more requests per area, still far within the draw-call budget (16 tiles x about 6 meshes for the pilot). The budget headroom (largest tile about 36% of 256 KB) leaves room for denser districts in Phase 6, where it is measured again.
