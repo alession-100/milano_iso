@@ -128,3 +128,15 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   2. **Rendered landmark check:** the reference position must lie inside the primary rendered building's footprint, or within `tolerance_m` (5 m) of it. The IoU between the OSM landmark footprint and the rendered footprints that carry the id is reported, not asserted.
   3. **Registration check:** over OSM/DBT pairs with IoU >= 0.8 (at least 20 pairs), the magnitude of the mean centroid offset vector must be <= 1.0 m. The baseline is 0.22 m; this check catches a CRS or datum shift.
   4. The pipeline-integrity check (7a, OSM footprint centroid within 5 m of the reference) is unchanged.
+
+## ADR-0018 - Courtyards and deferred landmarks in the rendered landmark check (amends ADR-0017 point 2)
+- **Status:** Accepted (2026-11-15)
+- **Context:**
+  - **Palazzo Reale:** after T-1.6a its reference position (the OSM footprint centroid) lies in the DBT courtyard of the palazzo, 22.3 m from the primary rendered building and 10.4 m from the nearest building carrying its id. The centroid of a building wrapped around a courtyard often falls inside the courtyard, so the point check was testing the shape, not the placement.
+  - **Galleria:** landmark-first assignment gave its id to an unrelated building (IoU 0.006), even though its own OSM roof is not rendered (ADR-0016).
+- **Decision:**
+  1. The rendered landmark check measures the distance from the reference position to the union of all rendered buildings carrying the landmark id, with interior rings (courtyards) filled. The tolerance stays 5 m.
+     - The orchestrator measured this on 2026-11-15: all 6 rendered in-pilot landmarks are at 0.00 m, against 22.26 m for Palazzo Reale and 2.39 m for Generali under the old primary-only rule.
+     - The registration check (ADR-0017 point 3) still guards against any systematic shift.
+  2. A landmark whose own OSM element is not rendered (`rendered = false`) gets no `landmark_id` assignment at all and is reported as `deferred_phase4`.
+- **Owner note:** this changes how the check measures, not the 5 m threshold. It is flagged to the owner at the G1 report.
