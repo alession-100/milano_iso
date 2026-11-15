@@ -16,10 +16,12 @@ test: lint
 
 # Pipeline steps register themselves in pipeline/mk/*.mk (ADR-0013).
 DATA_STEPS :=
+TILES_STEPS :=
 -include $(sort $(wildcard pipeline/mk/*.mk))
 
 data: $(DATA_STEPS)
 	@echo "make data: done ($(DATA_STEPS))"
 
-tiles:
-	@echo "make tiles: not implemented yet (Phase 1/2)"
+# Tile steps register themselves in pipeline/mk/*.mk via TILES_STEPS (ADR-0021).
+tiles: $(TILES_STEPS)
+	@echo "make tiles: done ($(TILES_STEPS))"

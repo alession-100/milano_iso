@@ -140,8 +140,43 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
      - The registration check (ADR-0017 point 3) still guards against any systematic shift.
   2. A landmark whose own OSM element is not rendered (`rendered = false`) gets no `landmark_id` assignment at all and is reported as `deferred_phase4`.
 - **Owner note:** this changes how the check measures, not the 5 m threshold. It is flagged to the owner at the G1 report.
+- **Superseded in part:** point 1 is replaced by ADR-0020 (owner decision, 2026-11-15). Point 2 stays.
 
 ## ADR-0019 - Threshold for the share of explicit heights
 - **Status:** Accepted (2026-11-15)
 - **Context:** VERIFICATION section 3 says the baseline share of explicit (non-default) heights is measured at G1, after which an ADR fixes the threshold. G1 measured it on the pilot: 92.5% of buildings by count and 99.1% by footprint area.
 - **Decision:** On the pilot, `make validate` asserts an explicit share of at least **90% by count** and at least **98% by footprint area**. These are about 2.5 and 1 percentage points below the baseline, to absorb small upstream data changes. For the whole city (Phase 6) the baseline is measured again and the threshold re-set by a new ADR before G6.
+
+## ADR-0020 - Best-fit offset check for landmark placement (replaces ADR-0018 point 1)
+- **Status:** Accepted (2026-11-15; owner approved at G1)
+- **Context:** At G1 the reviewer shifted the Duomo's rendered building 40 m in a scratch copy, and the ADR-0018 check still passed (the reference point stayed inside the filled footprint). A check that cannot fail is not a check.
+- **Decision:**
+  - For each in-extent landmark with a rendered building, take its OSM footprint F and R, the union of every rendered footprint within 60 m of F (interior rings filled).
+  - Find the translation t, within +/-50 m, that maximises area((F + t) intersected with R). Search on a 2 m grid, then refine on a 0.25 m grid around the best cell. If several t come within 0.5% of the maximum overlap, take the one with the smallest |t|.
+  - **The landmark passes when |t| <= `tolerance_m` (5 m).** The best overlap ratio and the width of the plateau of near-maximal overlaps are reported.
+  - The registration check (ADR-0017 point 3) and the pipeline-integrity check 7a stay as they are.
+- **Known limitation:** when F lies well inside a much larger DBT block (Generali), the overlap plateau is wide, so the check is weak for that landmark. The plateau width is reported so the weakness is visible.
+
+## ADR-0021 - Tile scheme and format (task T-2.1)
+- **Status:** Accepted (2026-11-15)
+- **Grid:** square 500 m tiles in EPSG:32632, aligned to the origin of ADR-0004.
+  - Tile (i, j) covers E0 + 500*i <= E < E0 + 500*(i+1), and the same for N with j.
+  - The pilot AOI is exactly tiles i, j in {-1, 0}: 4 tiles.
+- **Client coordinates:** metres relative to the origin, Y up: x = E - E0, y = height, z = -(N - N0). float32 is enough: at 15 km from the origin its precision is about 1 mm.
+- **Assignment:**
+  - **Buildings** go whole to the single tile that contains the representative point of their `buildings` footprint. All their render volumes follow them. They are not split.
+  - **Lines and areas** (roads, rail, water, green, road_areas, landuse) are clipped at tile edges, which VERIFICATION section 3 allows as "explicitly split".
+  - Rows with `rendered = false` are excluded.
+- **Format:** one binary glTF 2.0 file (`.glb`) per tile, written by our own deterministic writer (numpy + struct) so the output is byte-identical.
+  - One mesh per layer, using float32 positions and normals and uint32 indices.
+  - A per-vertex `_FEATURE_ID` (uint32) points into a sidecar `<tile>.json` feature table holding key, name, type, `height_m`, `height_source` and `landmark_id`, used for picking in Phase 5.
+  - No textures. Colour and material are decided in the client (Phase 3).
+- **Geometry:**
+  - **Building footprints** are simplified with `simplify(0.2, preserve_topology=True)`. The Hausdorff distance to the original must be <= 0.5 m (VERIFICATION section 3), checked per feature.
+  - **Buildings** are extruded from `bottom_m` to `top_m`: walls plus a flat top, and a bottom face only when `bottom_m > 0`.
+  - **Flat layers** are triangulated at small fixed heights (style constants) to avoid z-fighting.
+- **Road ribbon widths:**
+  - An OSM `width` tag is used where it parses.
+  - Otherwise the width comes from a per-class **style table** in the pipeline config. These widths are stylisation, labelled as such, and are not presented as measured data.
+- **Manifest:** `tiles.json` with the format version, CRS, origin and tile size, and per tile: id, bbox (both local and EPSG:32632), counts per layer, byte size, gzip size and sha256. Validated against a committed JSON Schema (T-2.3).
+- **Budget:** 250 KB gzip per tile (VERIFICATION section 5). Measured in T-2.2; if exceeded, the tile size or the format is revisited by ADR.

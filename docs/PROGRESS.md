@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 1 complete; awaiting owner decision on ADR-0018 / landmark check before Phase 2 (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Current phase:** 2 - Tiling and export (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
 **Last gate passed:** G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -25,6 +25,12 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-1.6 | done (with correction) | reports/R-1.6.md | Verified: make validate 78 pass / 3 fail / 2 skip; determinism OK (4 gpkg); make test unchanged (111, 83 data tests deselected). The 3 failures are the 7b rendered-landmark check: a definitional mismatch between OSM and DBT building extents, plus the Generali id assignment. Orchestrator measured OSM/DBT registration: mean offset 0.22 m over 41 pairs, so ADR-0017 and T-1.6a |
 | T-1.6a | done (finding) | reports/R-1.6a.md | Verified: registration n=48, magnitude 0.167 m; Generali passes. Palazzo Reale fails because its reference point lies in its courtyard (orchestrator confirmed). ADR-0018 and T-1.6b (retry 2/2) |
 | T-1.6b | done | reports/R-1.6b.md | Verified: make validate exit 0 (83 pass, 2 skip); filled-union distance 0.000 m for all 6; the deferred-landmark unit test fails when the guard is removed (orchestrator sabotage), passes with it |
+
+| T-1.7 | in progress | | G1 follow-ups: best-fit offset, raised-only ground, duplicates, cosmetics |
+| T-2.1 | done | - | ADR-0021 tile scheme |
+| T-2.2 | in progress | | mesh export (frozen data snapshot data_t22/) |
+| T-2.3 | todo | | |
+| T-2.4 | todo | | |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
