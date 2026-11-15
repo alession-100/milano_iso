@@ -118,3 +118,13 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   1. The default height (step 5) is the median height of the DBT `EDI_MIN` (minor building) buildings in the processed extent: 3.2 m (n = 47) in the pilot, as measured by the orchestrator. The pipeline computes and records this value; it is not typed.
   2. OSM buildings with `building=roof` or `building=construction` that have no DBT match are kept in `buildings` but **not rendered**: `rendered = false` and `render_reason` set. Landmark roofs (the Galleria) are modelled in Phase 4.
   3. Every unmatched building stays listed in `unmatched_osm.csv` for review. A tall building built after 2020 without OSM height tags would show up too low; that is an accepted, visible gap.
+
+## ADR-0017 - Checking positions when rendered buildings come from the DBT
+- **Status:** Accepted (2026-11-15)
+- **Context:** T-1.6 check 7b compared each landmark's reference position (the centroid of its OSM footprint, ADR-0011) with the centroid of the rendered DBT building(s). It failed for Palazzo Reale (18.5 m) and Torre Velasca (5.2 m). The OSM and DBT data draw a building's extent differently: a DBT building unit can include wings or a podium that OSM maps as separate buildings, so their centroids differ even when both are correctly placed. It failed for Palazzo delle Assicurazioni Generali because no rendered building got its `landmark_id`: the attribute transfer works from the DBT building outwards, and the overlapping DBT building took another OSM id.
+  - **Orchestrator measurement:** I took the 41 OSM/DBT building pairs with IoU >= 0.8 in the pilot and compared their centroids. The mean offset is (dE +0.21 m, dN -0.08 m), the median distance 0.34 m and the p95 3.5 m. There is no systematic misregistration between the two sources.
+- **Decision:**
+  1. `landmark_id` is assigned landmark-first. The rendered building with the largest overlap with the landmark's OSM footprint is the primary building. Any other rendered building with more than 50% of its area inside that footprint also gets the id.
+  2. **Rendered landmark check:** the reference position must lie inside the primary rendered building's footprint, or within `tolerance_m` (5 m) of it. The IoU between the OSM landmark footprint and the rendered footprints that carry the id is reported, not asserted.
+  3. **Registration check:** over OSM/DBT pairs with IoU >= 0.8 (at least 20 pairs), the magnitude of the mean centroid offset vector must be <= 1.0 m. The baseline is 0.22 m; this check catches a CRS or datum shift.
+  4. The pipeline-integrity check (7a, OSM footprint centroid within 5 m of the reference) is unchanged.
