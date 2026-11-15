@@ -1,0 +1,11 @@
+{
+  "bytes": 595473987,
+  "file": "osm_geofabrik/nord-ovest-261114.osm.pbf",
+  "md5": "841c09557598094f6fa570c8e0f5e299",
+  "md5_url": "https://download.geofabrik.de/europe/italy/nord-ovest-261114.osm.pbf.md5",
+  "md5_verified": true,
+  "retrieved_utc": "2026-11-15T20:15:08Z",
+  "sha256": "8b68eed2f4325134d89683ff3b01ef0fdf14647f88f3c720e71668887092debd",
+  "source": "osm_geofabrik",
+  "url": "https://download.geofabrik.de/europe/italy/nord-ovest-261114.osm.pbf"
+}
