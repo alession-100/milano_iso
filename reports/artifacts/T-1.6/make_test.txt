@@ -1,0 +1,150 @@
+uv run ruff check pipeline tests
+All checks passed!
+uv run ruff format --check pipeline tests
+30 files already formatted
+uv run pytest -v
+============================= test session starts =============================
+platform win32 -- Python 3.12.16, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-a1ce00a9611336bff\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-a1ce00a9611336bff
+configfile: pyproject.toml
+testpaths: tests
+collecting ... collected 194 items / 83 deselected / 111 selected
+
+tests/pipeline/test_classify.py::test_building_area_and_building_no PASSED [  0%]
+tests/pipeline/test_classify.py::test_building_part_is_separate_from_building PASSED [  1%]
+tests/pipeline/test_classify.py::test_road_line PASSED                   [  2%]
+tests/pipeline/test_classify.py::test_closed_roundabout_way_becomes_a_road_not_a_road_area PASSED [  3%]
+tests/pipeline/test_classify.py::test_pedestrian_area_yes_square_is_a_road_area_only PASSED [  4%]
+tests/pipeline/test_classify.py::test_rail_classes_only PASSED           [  5%]
+tests/pipeline/test_classify.py::test_water_kinds PASSED                 [  6%]
+tests/pipeline/test_classify.py::test_green_beats_landuse_and_other_landuse_is_landuse PASSED [  7%]
+tests/pipeline/test_classify.py::test_named_features_for_every_geometry_kind PASSED [  8%]
+tests/pipeline/test_classify.py::test_unassigned_objects PASSED          [  9%]
+tests/pipeline/test_classify.py::test_highway_class[primary-primary] PASSED [  9%]
+tests/pipeline/test_classify.py::test_highway_class[primary_link-primary] PASSED [ 10%]
+tests/pipeline/test_classify.py::test_highway_class[residential-residential] PASSED [ 11%]
+tests/pipeline/test_classify.py::test_highway_class[traffic_island-traffic_island] PASSED [ 12%]
+tests/pipeline/test_classify.py::test_highway_class[bus_guideway-other] PASSED [ 13%]
+tests/pipeline/test_classify.py::test_highway_class[None-other] PASSED   [ 14%]
+tests/pipeline/test_classify.py::test_is_underground[tags0-True] PASSED  [ 15%]
+tests/pipeline/test_classify.py::test_is_underground[tags1-False] PASSED [ 16%]
+tests/pipeline/test_classify.py::test_is_underground[tags2-True] PASSED  [ 17%]
+tests/pipeline/test_classify.py::test_is_underground[tags3-True] PASSED  [ 18%]
+tests/pipeline/test_classify.py::test_is_underground[tags4-True] PASSED  [ 18%]
+tests/pipeline/test_classify.py::test_is_underground[tags5-False] PASSED [ 19%]
+tests/pipeline/test_classify.py::test_is_underground[tags6-False] PASSED [ 20%]
+tests/pipeline/test_classify.py::test_is_underground[tags7-False] PASSED [ 21%]
+tests/pipeline/test_classify.py::test_is_underground[tags8-False] PASSED [ 22%]
+tests/pipeline/test_classify.py::test_top_tag_key_and_category PASSED    [ 23%]
+tests/pipeline/test_classify.py::test_rules_are_data_and_every_layer_has_a_rule PASSED [ 24%]
+tests/pipeline/test_dbt_extract.py::test_natural_key_orders_numerically PASSED [ 25%]
+tests/pipeline/test_dbt_extract.py::test_sort_by_key_and_rejects_duplicates PASSED [ 26%]
+tests/pipeline/test_dbt_extract.py::test_extent_polygon_is_densified_and_same_crs_passthrough PASSED [ 27%]
+tests/pipeline/test_dbt_extract.py::test_extent_polygon_transform_stays_close PASSED [ 27%]
+tests/pipeline/test_dbt_extract.py::test_read_intersecting_keeps_whole_features PASSED [ 28%]
+tests/pipeline/test_dbt_extract.py::test_canonical_dump_is_stable_and_sensitive PASSED [ 29%]
+tests/pipeline/test_dbt_extract.py::test_column_stats PASSED             [ 30%]
+tests/pipeline/test_dbt_extract.py::test_join_stats PASSED               [ 31%]
+tests/pipeline/test_dbt_extract.py::test_height_vs_extrusion PASSED      [ 32%]
+tests/pipeline/test_dbt_extract.py::test_fetch_skips_when_manifest_matches_and_fails_on_mismatch PASSED [ 33%]
+tests/pipeline/test_fetch.py::test_download_writes_manifest_with_md5 PASSED [ 34%]
+tests/pipeline/test_fetch.py::test_second_run_skips PASSED               [ 35%]
+tests/pipeline/test_fetch.py::test_existing_file_mismatching_manifest_fails PASSED [ 36%]
+tests/pipeline/test_fetch.py::test_upstream_change_detected_on_redownload PASSED [ 36%]
+tests/pipeline/test_fetch.py::test_md5_mismatch_fails_and_writes_no_manifest PASSED [ 37%]
+tests/pipeline/test_fetch.py::test_user_agent_is_generic PASSED          [ 38%]
+tests/pipeline/test_heights.py::test_dbt_bottom_top_por01_and_por03 PASSED [ 39%]
+tests/pipeline/test_heights.py::test_dbt_ground_is_min_over_por01_only PASSED [ 40%]
+tests/pipeline/test_heights.py::test_dbt_no_por01_fallback_is_flagged PASSED [ 41%]
+tests/pipeline/test_heights.py::test_coverage_threshold_049_and_051[4.9-False] PASSED [ 42%]
+tests/pipeline/test_heights.py::test_coverage_threshold_049_and_051[5.1-True] PASSED [ 43%]
+tests/pipeline/test_heights.py::test_transfer_picks_largest_overlap PASSED [ 44%]
+tests/pipeline/test_heights.py::test_transfer_tie_goes_to_lower_osm_id PASSED [ 45%]
+tests/pipeline/test_heights.py::test_transfer_no_overlap_gives_no_row PASSED [ 45%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[12-12.0] PASSED [ 46%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[12.5-12.5] PASSED [ 47%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[12 m-12.0] PASSED [ 48%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[12m-12.0] PASSED [ 49%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[10 ft-3.048] PASSED [ 50%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[10ft-3.048] PASSED [ 51%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[10'-3.048] PASSED [ 52%]
+tests/pipeline/test_heights.py::test_parse_height_accepted[ 7 -7.0] PASSED [ 53%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[] PASSED      [ 54%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[  ] PASSED    [ 54%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[None] PASSED  [ 55%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[nan] PASSED   [ 56%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[12 meters] PASSED [ 57%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[1,5] PASSED   [ 58%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[3-4] PASSED   [ 59%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[tall] PASSED  [ 60%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[5'6"] PASSED  [ 61%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[12 km] PASSED [ 62%]
+tests/pipeline/test_heights.py::test_parse_height_rejected[-3] PASSED    [ 63%]
+tests/pipeline/test_heights.py::test_levels_rule_and_chain_order PASSED  [ 63%]
+tests/pipeline/test_heights.py::test_bottom_from_min_height_then_min_level PASSED [ 64%]
+tests/pipeline/test_heights.py::test_default_is_median_of_edi_min_buildings PASSED [ 65%]
+tests/pipeline/test_heights.py::test_default_fails_loudly_without_edi_min PASSED [ 66%]
+tests/pipeline/test_heights.py::test_render_status PASSED                [ 67%]
+tests/pipeline/test_heights.py::test_build_end_to_end_synthetic PASSED   [ 68%]
+tests/pipeline/test_heights.py::test_selected_building_ids_and_whole_building_volumes PASSED [ 69%]
+tests/pipeline/test_heights.py::test_volumes_outside_extent_allowed_only_with_their_building PASSED [ 70%]
+tests/pipeline/test_landmarks_file.py::test_count_and_duomo PASSED       [ 71%]
+tests/pipeline/test_landmarks_file.py::test_schema PASSED                [ 72%]
+tests/pipeline/test_landmarks_file.py::test_unique_ids_and_qids PASSED   [ 72%]
+tests/pipeline/test_landmarks_file.py::test_in_pilot_matches_bbox PASSED [ 73%]
+tests/pipeline/test_landmarks_file.py::test_positions_within_20km_of_origin PASSED [ 74%]
+tests/pipeline/test_landmarks_file.py::test_build_reproduces_committed_yaml PASSED [ 75%]
+tests/pipeline/test_landmarks_file.py::test_buildings_use_footprint_centroid PASSED [ 76%]
+tests/pipeline/test_normalise.py::test_reproject_uses_xy_order PASSED    [ 77%]
+tests/pipeline/test_normalise.py::test_reproject_drops_z_and_dbt_is_near_identity PASSED [ 78%]
+tests/pipeline/test_normalise.py::test_drop_log_requires_a_reason PASSED [ 79%]
+tests/pipeline/test_normalise.py::test_clean_geometry_repairs_bowtie_and_reports_reason PASSED [ 80%]
+tests/pipeline/test_normalise.py::test_make_valid_keeps_polygonal_parts_only PASSED [ 81%]
+tests/pipeline/test_normalise.py::test_clean_geometry_drops_zero_area_and_zero_length_and_empty PASSED [ 81%]
+tests/pipeline/test_normalise.py::test_clean_layer_logs_repairs_and_drops PASSED [ 82%]
+tests/pipeline/test_normalise.py::test_duplicates_are_removed_and_logged PASSED [ 83%]
+tests/pipeline/test_normalise.py::test_exterior_z_range PASSED           [ 84%]
+tests/pipeline/test_normalise.py::test_building_class_of PASSED          [ 85%]
+tests/pipeline/test_normalise.py::test_run_end_to_end_on_synthetic_data PASSED [ 86%]
+tests/pipeline/test_normalise.py::test_deterministic_ordering_and_hash PASSED [ 87%]
+tests/pipeline/test_origin.py::test_synthetic_square_far_from_origin PASSED [ 88%]
+tests/pipeline/test_origin.py::test_duomo_stable_centroid_matches_shapely PASSED [ 89%]
+tests/pipeline/test_origin.py::test_config_origin_is_rounded_shapely_centroid PASSED [ 90%]
+tests/pipeline/test_origin.py::test_pilot_aoi_bbox PASSED                [ 90%]
+tests/pipeline/test_osm_extract.py::test_extent_intersection PASSED      [ 91%]
+tests/pipeline/test_osm_extract.py::test_objects_kept_whole PASSED       [ 92%]
+tests/pipeline/test_osm_extract.py::test_area_output_closed_way_and_multipolygon PASSED [ 93%]
+tests/pipeline/test_osm_extract.py::test_tags_json_sorted PASSED         [ 94%]
+tests/pipeline/test_osm_extract.py::test_deterministic_ordering_and_hash PASSED [ 95%]
+tests/pipeline/test_osm_extract.py::test_failed_area_assembly_listed PASSED [ 96%]
+tests/pipeline/test_osm_extract.py::test_pilot_extent_is_densified_and_wgs84 PASSED [ 97%]
+tests/pipeline/test_smoke.py::test_package_version PASSED                [ 98%]
+tests/pipeline/test_smoke.py::test_cli_runs PASSED                       [ 99%]
+tests/pipeline/test_smoke.py::test_geo_stack_imports PASSED              [100%]
+
+===================== 111 passed, 83 deselected in 14.88s =====================
+npm --prefix web run typecheck
+
+> milano-iso-web@0.1.0 typecheck
+> tsc --noEmit
+
+npm --prefix web run lint
+
+> milano-iso-web@0.1.0 lint
+> eslint .
+
+npm --prefix web run test
+
+> milano-iso-web@0.1.0 test
+> vitest run
+
+
+ RUN  v5.1.0 C:/Users/studi/Documents/milano-iso/.claude/worktrees/agent-a1ce00a9611336bff/web
+
+
+ Test Files  2 passed (2)
+      Tests  6 passed (6)
+   Start at  22:46:20
+   Duration  228ms (import 57%, transform 24%, worker 13%, tests 6%)
+

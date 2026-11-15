@@ -1,0 +1,8 @@
+id,tolerance_m,ref_e,ref_n,osm_footprint_layer,dist_a_osm_footprint_m,status_a,rendered_building_keys,dist_b_rendered_m,status_b,note
+duomo,5,514978.51,5034535.58,osm_buildings,0.001,pass,dbt:EDIFC_13669,0.956,pass,
+galleria_vittorio_emanuele_ii,5,514853.69,5034695.05,osm_buildings,0.005,pass,osm:w166623705,,deferred_phase4,ADR-0016: roof not rendered (no_walls_roof); modelled in Phase 4
+palazzo_assicurazioni_generali,5,514612.36,5034624.3,osm_buildings,0.001,pass,,,fail_no_rendered_building,no buildings row with this landmark_id
+palazzo_marino,5,514904.72,5034806.12,osm_buildings,0.005,pass,dbt:EDIFC_14011,0.453,pass,
+palazzo_reale,5,514954.44,5034395.59,osm_buildings,0.004,pass,dbt:EDIFC_14168;dbt:EDIFC_14192;dbt:EDIFC_4565;dbt:EDIFC_4651,18.495,fail,
+teatro_alla_scala,5,514782.52,5034910.67,osm_buildings,0.003,pass,dbt:EDIFC_13997,2.245,pass,
+torre_velasca,5,514909.13,5034056.99,osm_buildings,0.006,pass,dbt:EDIFC_14394,5.211,fail,

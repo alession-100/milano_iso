@@ -1,5 +1,6 @@
 # Raw and intermediate data (never committed)
 data/
+!tests/data/
 # Python
 __pycache__/
 *.pyc
