@@ -5,15 +5,15 @@ Reads, from reports/artifacts/T-0.3/:
   wikidata_Q18068.json           Wikidata entity JSON (property P625)
 Prints coordinates in WGS84 and EPSG:32632, their distance, the origin (OSM
 centroid in EPSG:32632 rounded to whole metres) and the AOI = origin +/- 500 m.
-Dependencies: stdlib + pyproj.
+Run with `uv run python pipeline/scripts/origin_from_sources.py` (project env).
 """
 
-import itertools
 import json
 import math
 import sys
 from pathlib import Path
 
+from milano_iso.geo import polygon_centroid_area
 from pyproj import Transformer
 
 ART = Path(__file__).resolve().parents[2] / "reports" / "artifacts" / "T-0.3"
@@ -52,34 +52,26 @@ def assemble_rings(ways):
     return rings
 
 
-def ring_area_centroid(pts):
-    """Signed area and centroid (shoelace) of a closed ring of (x, y)."""
-    a = cx = cy = 0.0
-    for (x0, y0), (x1, y1) in itertools.pairwise(pts):
-        cr = x0 * y1 - x1 * y0
-        a += cr
-        cx += (x0 + x1) * cr
-        cy += (y0 + y1) * cr
-    a *= 0.5
-    return a, cx / (6 * a), cy / (6 * a)
+def projected_rings(elem):
+    """Return (outer_rings, inner_rings) of a multipolygon element, in EPSG:32632."""
+
+    def rings_for(role):
+        ways = [
+            [(g["lon"], g["lat"]) for g in m["geometry"]]
+            for m in elem["members"]
+            if m["type"] == "way" and m["role"] == role
+        ]
+        return [[TO_UTM.transform(lon, lat) for lon, lat in ring] for ring in assemble_rings(ways)]
+
+    return rings_for("outer"), rings_for("inner")
 
 
 def osm_centroid(elem):
-    outers = [
-        [(g["lon"], g["lat"]) for g in m["geometry"]]
-        for m in elem["members"]
-        if m["type"] == "way" and m["role"] == "outer"
-    ]
-    inners = [
-        [(g["lon"], g["lat"]) for g in m["geometry"]]
-        for m in elem["members"]
-        if m["type"] == "way" and m["role"] == "inner"
-    ]
+    outers, inners = projected_rings(elem)
     tot = sx = sy = 0.0
-    for rings, sign in ((assemble_rings(outers), 1.0), (assemble_rings(inners), -1.0)):
-        for ring in rings:
-            pts = [TO_UTM.transform(lon, lat) for lon, lat in ring]
-            a, cx, cy = ring_area_centroid(pts)
+    for rings, sign in ((outers, 1.0), (inners, -1.0)):
+        for pts in rings:
+            a, cx, cy = polygon_centroid_area(pts)
             w = sign * abs(a)
             tot += w
             sx += w * cx
