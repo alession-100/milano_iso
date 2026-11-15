@@ -1,0 +1,164 @@
+mkdir -p reports/artifacts/T-1.6
+uv run pytest -m data tests/data -v --junitxml=reports/artifacts/T-1.6/junit.xml
+============================= test session starts =============================
+platform win32 -- Python 3.12.16, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-a1ce00a9611336bff\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-a1ce00a9611336bff
+configfile: pyproject.toml
+collecting ... collected 83 items
+
+tests/data/test_data_completeness.py::test_completeness_dbt_volumes PASSED [  1%]
+tests/data/test_data_completeness.py::test_completeness_osm_buildings PASSED [  2%]
+tests/data/test_data_completeness.py::test_drop_log_has_a_reason_for_every_drop PASSED [  3%]
+tests/data/test_data_completeness.py::test_every_missing_source_feature_is_in_drop_log PASSED [  4%]
+tests/data/test_data_completeness.py::test_drop_log_counts_match_t13_validation PASSED [  6%]
+tests/data/test_data_geometry.py::test_crs_every_layer_is_epsg32632 PASSED [  7%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[buildings] PASSED [  8%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[comune_boundary] PASSED [  9%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[dbt_buildings] PASSED [ 10%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[dbt_volumes] PASSED [ 12%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[green] PASSED [ 13%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[landuse] PASSED [ 14%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[named_features] PASSED [ 15%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[osm_building_parts] PASSED [ 16%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[osm_buildings] PASSED [ 18%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[rail] PASSED [ 19%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[render_volumes] PASSED [ 20%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[road_areas] PASSED [ 21%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[roads] PASSED [ 22%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[water] PASSED [ 24%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[buildings] PASSED [ 25%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[comune_boundary] PASSED [ 26%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[dbt_buildings] PASSED [ 27%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[dbt_volumes] PASSED [ 28%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[green] PASSED [ 30%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[landuse] PASSED [ 31%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[named_features] PASSED [ 32%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[osm_building_parts] PASSED [ 33%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[osm_buildings] PASSED [ 34%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[rail] PASSED [ 36%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[render_volumes] PASSED [ 37%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[road_areas] PASSED [ 38%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[roads] PASSED [ 39%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[water] PASSED [ 40%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[buildings] PASSED [ 42%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[comune_boundary] PASSED [ 43%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[dbt_buildings] PASSED [ 44%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[dbt_volumes] PASSED [ 45%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[green] PASSED [ 46%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[landuse] PASSED [ 48%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[named_features] PASSED [ 49%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[osm_building_parts] PASSED [ 50%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[osm_buildings] PASSED [ 51%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[rail] PASSED [ 53%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[render_volumes] PASSED [ 54%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[road_areas] PASSED [ 55%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[roads] PASSED [ 56%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[water] PASSED [ 57%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[buildings] PASSED [ 59%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[comune_boundary] PASSED [ 60%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[dbt_buildings] PASSED [ 61%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[dbt_volumes] PASSED [ 62%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[green] PASSED [ 63%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[landuse] PASSED [ 65%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[named_features] PASSED [ 66%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[osm_building_parts] PASSED [ 67%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[osm_buildings] PASSED [ 68%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[rail] PASSED [ 69%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[render_volumes] PASSED [ 71%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[road_areas] PASSED [ 72%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[roads] PASSED [ 73%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[water] PASSED [ 74%]
+tests/data/test_data_heights.py::test_every_row_has_height_and_source[buildings] PASSED [ 75%]
+tests/data/test_data_heights.py::test_every_row_has_height_and_source[render_volumes] PASSED [ 77%]
+tests/data/test_data_heights.py::test_height_distribution_and_baseline_share PASSED [ 78%]
+tests/data/test_data_heights.py::test_height_outliers_reported PASSED    [ 79%]
+tests/data/test_data_heights.py::test_tallest_building_is_plausible PASSED [ 80%]
+tests/data/test_data_landmarks.py::test_landmark_entries_present PASSED  [ 81%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[duomo] PASSED [ 83%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[galleria_vittorio_emanuele_ii] PASSED [ 84%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[palazzo_assicurazioni_generali] PASSED [ 85%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[palazzo_marino] PASSED [ 86%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[palazzo_reale] PASSED [ 87%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[teatro_alla_scala] PASSED [ 89%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[torre_velasca] PASSED [ 90%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[duomo] PASSED [ 91%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[galleria_vittorio_emanuele_ii] SKIPPED [ 92%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_assicurazioni_generali] FAILED [ 93%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_marino] PASSED [ 95%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_reale] FAILED [ 96%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[teatro_alla_scala] PASSED [ 97%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[torre_velasca] FAILED [ 98%]
+tests/data/test_data_simplification.py::test_simplification_tolerance SKIPPED [100%]
+
+================================== FAILURES ===================================
+______ test_landmark_b_rendered_position[palazzo_assicurazioni_generali] ______
+
+lid = 'palazzo_assicurazioni_generali'
+rows = {'duomo': {'id': 'duomo', 'tolerance_m': 5, 'ref_e': 514978.51, 'ref_n': 5034535.58, ...}, 'galleria_vittorio_emanuele... ...}, 'palazzo_marino': {'id': 'palazzo_marino', 'tolerance_m': 5, 'ref_e': 514904.72, 'ref_n': 5034806.12, ...}, ...}
+
+    @pytest.mark.parametrize("lid", [e["id"] for e in _entries()])
+    def test_landmark_b_rendered_position(lid, rows):
+        r = rows[lid]
+        if r["status_b"] == "deferred_phase4":
+            pytest.skip(f"deferred_phase4: {r['note']}")
+>       assert r["status_b"] == "pass", (
+            f"{lid}: rendered building centroid is {r['dist_b_rendered_m'] or 'n/a'} m from the "
+            f"reference (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
+        )
+E       AssertionError: palazzo_assicurazioni_generali: rendered building centroid is n/a m from the reference (tolerance 5 m), status fail_no_rendered_building. no buildings row with this landmark_id
+E       assert 'fail_no_rendered_building' == 'pass'
+E         
+E         - pass
+E         + fail_no_rendered_building
+
+tests\data\test_data_landmarks.py:150: AssertionError
+______________ test_landmark_b_rendered_position[palazzo_reale] _______________
+
+lid = 'palazzo_reale'
+rows = {'duomo': {'id': 'duomo', 'tolerance_m': 5, 'ref_e': 514978.51, 'ref_n': 5034535.58, ...}, 'galleria_vittorio_emanuele... ...}, 'palazzo_marino': {'id': 'palazzo_marino', 'tolerance_m': 5, 'ref_e': 514904.72, 'ref_n': 5034806.12, ...}, ...}
+
+    @pytest.mark.parametrize("lid", [e["id"] for e in _entries()])
+    def test_landmark_b_rendered_position(lid, rows):
+        r = rows[lid]
+        if r["status_b"] == "deferred_phase4":
+            pytest.skip(f"deferred_phase4: {r['note']}")
+>       assert r["status_b"] == "pass", (
+            f"{lid}: rendered building centroid is {r['dist_b_rendered_m'] or 'n/a'} m from the "
+            f"reference (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
+        )
+E       AssertionError: palazzo_reale: rendered building centroid is 18.495 m from the reference (tolerance 5 m), status fail. 
+E       assert 'fail' == 'pass'
+E         
+E         - pass
+E         + fail
+
+tests\data\test_data_landmarks.py:150: AssertionError
+______________ test_landmark_b_rendered_position[torre_velasca] _______________
+
+lid = 'torre_velasca'
+rows = {'duomo': {'id': 'duomo', 'tolerance_m': 5, 'ref_e': 514978.51, 'ref_n': 5034535.58, ...}, 'galleria_vittorio_emanuele... ...}, 'palazzo_marino': {'id': 'palazzo_marino', 'tolerance_m': 5, 'ref_e': 514904.72, 'ref_n': 5034806.12, ...}, ...}
+
+    @pytest.mark.parametrize("lid", [e["id"] for e in _entries()])
+    def test_landmark_b_rendered_position(lid, rows):
+        r = rows[lid]
+        if r["status_b"] == "deferred_phase4":
+            pytest.skip(f"deferred_phase4: {r['note']}")
+>       assert r["status_b"] == "pass", (
+            f"{lid}: rendered building centroid is {r['dist_b_rendered_m'] or 'n/a'} m from the "
+            f"reference (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
+        )
+E       AssertionError: torre_velasca: rendered building centroid is 5.211 m from the reference (tolerance 5 m), status fail. 
+E       assert 'fail' == 'pass'
+E         
+E         - pass
+E         + fail
+
+tests\data\test_data_landmarks.py:150: AssertionError
+- generated xml file: C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-a1ce00a9611336bff\reports\artifacts\T-1.6\junit.xml -
+=========================== short test summary info ===========================
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_assicurazioni_generali]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_reale]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[torre_velasca]
+=================== 3 failed, 78 passed, 2 skipped in 2.53s ===================
+make: *** [pipeline/mk/90-validate.mk:11: validate] Error 1

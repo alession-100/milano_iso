@@ -28,6 +28,10 @@ target-version = "py312"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["pipeline"]
+addopts = "-m 'not data'"
+markers = [
+    "data: reads the real processed data (make validate); deselected by make test",
+]
 
 [dependency-groups]
 dev = [

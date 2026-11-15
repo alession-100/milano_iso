@@ -1,0 +1,31 @@
+uv run python tests/data/check_determinism.py data-boundary data-osm data-dbt data-normalise data-heights
+run 1: data-boundary data-osm data-dbt data-normalise data-heights
+  data-boundary: 0 s
+  data-osm: 243 s
+  data-dbt: 3 s
+  data-normalise: 2 s
+  data-heights: 2 s
+run 2: data-boundary data-osm data-dbt data-normalise data-heights
+  data-boundary: 0 s
+  data-osm: 210 s
+  data-dbt: 3 s
+  data-normalise: 2 s
+  data-heights: 2 s
+
+osm_pilot.gpkg
+  run1 9c6390b6c140444d52ff56b0737098a68d6543986b8a82cce732f990447082f0
+  run2 9c6390b6c140444d52ff56b0737098a68d6543986b8a82cce732f990447082f0
+  MATCH
+dbt_pilot.gpkg
+  run1 597e00a2ea07601dc5581c50af79b19ebb05209d581f59f31e23ef28bd6ad8d1
+  run2 597e00a2ea07601dc5581c50af79b19ebb05209d581f59f31e23ef28bd6ad8d1
+  MATCH
+pilot.gpkg (after normalise)
+  run1 0829878fa10f4d0d93dc95cb62d6919c165178ee37b466b42f1bebbe7ea9ac69
+  run2 0829878fa10f4d0d93dc95cb62d6919c165178ee37b466b42f1bebbe7ea9ac69
+  MATCH
+pilot.gpkg
+  run1 ab5da681a9be949fd7bbbaecc7aefacb04d0c1da2cc52625fe3746bd6ede67db
+  run2 ab5da681a9be949fd7bbbaecc7aefacb04d0c1da2cc52625fe3746bd6ede67db
+  MATCH
+determinism: OK, all hashes match

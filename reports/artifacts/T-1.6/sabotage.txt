@@ -1,0 +1,32 @@
+### sabotage 1: height_source null
+        bad_s = df[~df["height_source"].isin(SOURCES)]
+            f"{name}: {len(bad_s)} rows with height_source null or outside {sorted(SOURCES)}, "
+E       AssertionError: buildings: 1 rows with height_source null or outside ['dbt', 'default', 'osm_height', 'osm_levels'], keys ['dbt:EDIFC_13367']
+E       AssertionError: palazzo_assicurazioni_generali: rendered building centroid is n/a m from the reference (tolerance 5 m), status fail_no_rendered_building. no buildings row with this landmark_id
+E       AssertionError: palazzo_reale: rendered building centroid is 18.495 m from the reference (tolerance 5 m), status fail. 
+E       AssertionError: torre_velasca: rendered building centroid is 5.211 m from the reference (tolerance 5 m), status fail. 
+FAILED tests/data/test_data_heights.py::test_every_row_has_height_and_source[buildings]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_assicurazioni_generali]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_reale]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[torre_velasca]
+=================== 4 failed, 77 passed, 2 skipped in 3.27s ===================
+make: *** [pipeline/mk/90-validate.mk:11: validate] Error 1
+make exit=2
+
+### sabotage 2: Duomo moved 10 m
+E       AssertionError: duomo: processed OSM footprint centroid is 10.001 m from the reference (tolerance 5 m), status fail
+E       AssertionError: duomo: rendered building centroid is 9.711 m from the reference (tolerance 5 m), status fail. 
+E       AssertionError: palazzo_assicurazioni_generali: rendered building centroid is n/a m from the reference (tolerance 5 m), status fail_no_rendered_building. no buildings row with this landmark_id
+E       AssertionError: palazzo_reale: rendered building centroid is 18.495 m from the reference (tolerance 5 m), status fail. 
+E       AssertionError: torre_velasca: rendered building centroid is 5.211 m from the reference (tolerance 5 m), status fail. 
+FAILED tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[duomo]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[duomo]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_assicurazioni_generali]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_reale]
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[torre_velasca]
+=================== 5 failed, 76 passed, 2 skipped in 3.35s ===================
+make: *** [pipeline/mk/90-validate.mk:11: validate] Error 1
+make exit=2
+id,tolerance_m,ref_e,ref_n,osm_footprint_layer,dist_a_osm_footprint_m,status_a,rendered_building_keys,dist_b_rendered_m,status_b,note
+duomo,5,514978.51,5034535.58,osm_buildings,10.001,fail,dbt:EDIFC_13669,9.711,fail,
+galleria_vittorio_emanuele_ii,5,514853.69,5034695.05,osm_buildings,0.005,pass,osm:w166623705,,deferred_phase4,ADR-0016: roof not rendered (no_walls_roof); modelled in Phase 4
