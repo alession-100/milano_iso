@@ -1,7 +1,7 @@
-"""Export processed/pilot.gpkg to one .glb plus one feature table per 500 m tile (T-2.2).
+"""Export processed/pilot.gpkg to one .glb plus one feature table per 500 m tile (T-2.2, T-2.2a).
 
 Run: ``python -m milano_iso.tiles.export --extent pilot``
-Rules: ADR-0021 (tile scheme and format), ADR-0016 (rendered flag). Deterministic: sorted
+Rules: ADR-0021 (tile scheme), ADR-0022 (compact encoding, all buildings exported), ADR-0016. Deterministic: sorted
 iteration, no timestamps, JSON with sorted keys.
 """
 
@@ -25,6 +25,9 @@ SUMMARY_DIR = config.REPO_ROOT / "reports" / "artifacts" / "T-2.2"
 METRIC_CRS = 32632
 GPKG_NAME = "pilot.gpkg"
 BUDGET_GZIP_BYTES = 250 * 1024
+SAMPLE_VERTICES = 128  # per tile, written to the summary for the client position check
+# Per-tile gzip-9 bytes of the T-2.2 export (reports/artifacts/T-2.2/export_summary.md at 8360d08).
+BASELINE_GZIP9 = {"-1_-1": 527468, "-1_0": 476956, "0_-1": 378851, "0_0": 661914}
 FLAT_LAYERS = ("landuse", "green", "water", "road_areas", "roads", "rail")
 # Feature-table columns per flat layer (osm_type, osm_id and the class or kind).
 FLAT_FIELDS = {
@@ -117,11 +120,44 @@ def _clip_polys(polys, tile_box) -> list:
     return out
 
 
+def _named(layer: str, mb: geom.MeshBuilder) -> list[dict]:
+    """Chunks of a builder as meshes: `<layer>`, or `<layer>#<n>` when split."""
+    chunks = mb.to_gl_chunks()
+    if len(chunks) == 1:
+        return [{"name": layer, **chunks[0]}]
+    return [{"name": f"{layer}#{n}", **c} for n, c in enumerate(chunks)]
+
+
+def _max_offset(meshes: list[dict], centre: tuple[float, float]) -> float:
+    """Largest absolute coordinate offset from the tile centre (x, z; y from 0), in metres."""
+    if not meshes:
+        return 0.0
+    c = np.array([centre[0], 0.0, centre[1]])
+    return float(max(np.abs(m["positions"] - c).max() for m in meshes))
+
+
+def _sample(meshes: list[dict]) -> list[dict]:
+    """Evenly spaced vertices with their float64 client-frame coordinates (metres)."""
+    owners = [(m["name"], v) for m in meshes for v in range(len(m["positions"]))]
+    if not owners:
+        return []
+    by_name = {m["name"]: m for m in meshes}
+    picks = np.unique(
+        np.linspace(0, len(owners) - 1, min(SAMPLE_VERTICES, len(owners))).astype(int)
+    )
+    out = []
+    for p in picks:
+        name, v = owners[int(p)]
+        out.append(
+            {"mesh": name, "vertex": v, "xyz": [float(c) for c in by_name[name]["positions"][v]]}
+        )
+    return out
+
+
 def build(
     extent: str = "pilot",
     out_dir: Path | None = None,
     summary_dir: Path | None = None,
-    include_outside: bool = False,
 ):
     if extent != "pilot":
         raise ValueError("only --extent pilot is supported")
@@ -129,6 +165,8 @@ def build(
     out_dir = out_dir or config.DATA_DIR / "tiles" / "pilot"
     summary_dir = summary_dir or SUMMARY_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
+    for stale in sorted([*out_dir.glob("*.glb"), *out_dir.glob("*.json")]):
+        stale.unlink()
     summary_dir.mkdir(parents=True, exist_ok=True)
 
     buildings = _read(gpkg, "buildings")
@@ -158,14 +196,22 @@ def build(
         flat[layer] = _flat_features(layer, gdf)
 
     aoi_tiles = set(grid.tiles_covering(config.PILOT_AOI_BBOX))
-    tiles = sorted(aoi_tiles | set(tile_of.values())) if include_outside else sorted(aoi_tiles)
-    outside = sorted(k for k, t in tile_of.items() if t not in set(tiles))
+    tiles = sorted(aoi_tiles | set(tile_of.values()))  # ADR-0022 point 5
+    ax0, ay0, ax1, ay1 = config.PILOT_AOI_BBOX
+    extent_box = box(
+        ax0 - config.ORIGIN_E, ay0 - config.ORIGIN_N, ax1 - config.ORIGIN_E, ay1 - config.ORIGIN_N
+    )
     summary_tiles = {}
     seen_buildings: dict[str, str] = {}
     duplicates = []
     for i, j in tiles:
         name = grid.tile_name(i, j)
         tbox = box(*grid.tile_bbox_local(i, j))
+        fbox = tbox.intersection(extent_box)  # flat layers: processed extent and tile
+        centre = (
+            grid.TILE_SIZE_M * i + grid.TILE_SIZE_M / 2,
+            -(grid.TILE_SIZE_M * j + grid.TILE_SIZE_M / 2),
+        )
         meshes, tables, layer_stats = [], {}, {}
         max_h = 0.0
 
@@ -198,7 +244,7 @@ def build(
                         mb.add_extrusion(part, float(v.bottom_m), float(v.top_m), fid)
                 n_vols += 1
         if table:
-            meshes.append({"name": "buildings", **mb.to_gl()})
+            meshes.extend(_named("buildings", mb))
             tables["buildings"] = table
             layer_stats["buildings"] = {
                 "features": len(table),
@@ -212,7 +258,7 @@ def build(
             mf = geom.MeshBuilder()
             table = []
             for f in flat[layer]:
-                clipped = _clip_polys(f["polys"], tbox)
+                clipped = [] if fbox.is_empty else _clip_polys(f["polys"], fbox)
                 if not clipped:
                     continue
                 fid = len(table)
@@ -222,7 +268,7 @@ def build(
                 if mf.n_vertices > before:
                     table.append(f["entry"])
             if table:
-                meshes.append({"name": layer, **mf.to_gl()})
+                meshes.extend(_named(layer, mf))
                 tables[layer] = table
                 layer_stats[layer] = {
                     "features": len(table),
@@ -230,7 +276,9 @@ def build(
                     "triangles": mf.n_triangles,
                 }
 
-        blob = glb.write_glb(meshes) if meshes else b""
+        n_features = sum(len(t) for t in tables.values())
+        blob = glb.write_glb(meshes, centre, n_features) if meshes else b""
+        sample = _sample(meshes)
         (out_dir / f"{name}.glb").write_bytes(blob)
         (out_dir / f"{name}.json").write_bytes(_json_bytes({"tile": name, "layers": tables}))
         gz = len(gzip.compress(blob, 9, mtime=0))
@@ -246,6 +294,12 @@ def build(
             "brotli_bytes": br,
             "over_gzip_budget": gz > BUDGET_GZIP_BYTES,
             "max_hausdorff_m": round(max_h, 6),
+            "gzip9_baseline_t22": BASELINE_GZIP9.get(name),
+            "max_offset_from_centre_m": round(_max_offset(meshes, centre), 3),
+            "features": n_features,
+            "meshes": [m["name"] for m in meshes],
+            "centre_client_m": list(centre),
+            "position_sample": sample,
             "layers": layer_stats,
         }
 
@@ -266,11 +320,6 @@ def build(
             "buildings_rendered": len(rendered),
             "buildings_in_tiles": per_tile_buildings,
             "buildings_count_matches": per_tile_buildings == len(rendered),
-            "buildings_outside_exported_tiles": len(outside),
-            "buildings_in_tiles_plus_outside_equals_rendered": (
-                per_tile_buildings + len(outside) == len(rendered)
-            ),
-            "include_outside": include_outside,
             "buildings_in_two_tiles": sorted(set(duplicates)),
             "rendered_volumes_without_rendered_building": len(stray),
             "tiles_outside_pilot_aoi": sorted(
@@ -286,7 +335,7 @@ def build(
 
 
 def _markdown(s: dict) -> str:
-    lines = ["# T-2.2 export summary", ""]
+    lines = ["# Tile export summary (T-2.2, T-2.2a)", ""]
     lines.append("| tile | layer | features | vertices | triangles |")
     lines.append("|---|---|---:|---:|---:|")
     for name, t in s["tiles"].items():
@@ -296,16 +345,28 @@ def _markdown(s: dict) -> str:
             )
     lines += [
         "",
-        "| tile | glb bytes | gzip-9 bytes | brotli bytes | max Hausdorff m | gzip > 250 KB |",
+        (
+            "| tile | glb bytes | gzip-9 before (T-2.2) | gzip-9 after | brotli bytes "
+            "| max Hausdorff m | gzip > 250 KB |"
+        ),
     ]
-    lines.append("|---|---:|---:|---:|---:|---|")
+    lines.append("|---|---:|---:|---:|---:|---:|---|")
     for name, t in s["tiles"].items():
         br = t["brotli_bytes"] if t["brotli_bytes"] is not None else "n/a"
         lines.append(
-            f"| {name} | {t['glb_bytes']} | {t['gzip9_bytes']} | {br} | "
+            f"| {name} | {t['glb_bytes']} | {t['gzip9_baseline_t22'] or 'n/a'} | "
+            f"{t['gzip9_bytes']} | {br} | "
             f"{t['max_hausdorff_m']} | {'YES' if t['over_gzip_budget'] else 'no'} |"
         )
     tot = s["totals"]
+    worst = max(t["max_offset_from_centre_m"] for t in s["tiles"].values())
+    lines += [
+        "",
+        (
+            f"Worst offset from a tile centre: {worst} m; int16 range +/-655.34 m "
+            f"(2 cm unit), headroom {round(655.34 - worst, 3)} m."
+        ),
+    ]
     lines += [
         "",
         (
@@ -325,13 +386,8 @@ def _markdown(s: dict) -> str:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--extent", default="pilot")
-    ap.add_argument(
-        "--include-outside",
-        action="store_true",
-        help="also export tiles outside the pilot AOI that hold buildings (default: AOI only)",
-    )
     args = ap.parse_args(argv)
-    s = build(args.extent, include_outside=args.include_outside)
+    s = build(args.extent)
     print(f"tiles: {', '.join(s['tiles'])}")
     print(f"checks: {s['checks']}")
     return 0
