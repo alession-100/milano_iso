@@ -20,7 +20,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-1.3 | in progress | | delegated (worktree) |
 | T-1.4 | todo | | |
 | T-1.5 | done | reports/R-1.5.md | Verified: 16 entries, in_pilot flags match bbox (7 in pilot); 8 entries re-derived from the live OSM API (with inner rings) match within 0.005 m, and their QIDs match the OSM wikidata tags; YAML reproducible. Centrale uses a node fallback, so corrective T-1.5a |
-| T-1.5a | in progress | | Centrale footprint; Q651643 check |
+| T-1.5a | done | reports/R-1.5a.md | Verified live: relation/18231605 (building=train_station, v3) contains node/6067258870; centroid matches within 0.001 m. Q651643 is the Madrid tower, so Q3995204 is kept. The Wikidata distance (52.6 m) is informational only; the 5 m tolerance applies to processed vs reference position |
 | T-1.6 | todo | | |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
