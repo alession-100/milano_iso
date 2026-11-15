@@ -24,7 +24,7 @@ import yaml
 from milano_iso import config
 from milano_iso.geo import polygon_centroid_area
 from pyproj import Transformer
-from shapely.geometry import Polygon
+from shapely.geometry import Point, Polygon
 from shapely.ops import unary_union
 
 RESP = config.REPO_ROOT / "reports" / "artifacts" / "T-1.5" / "responses"
@@ -36,7 +36,10 @@ CROSSCHECK_M = 1e-3
 TO_UTM = Transformer.from_crs("EPSG:4326", "EPSG:32632", always_xy=True)
 TO_WGS = Transformer.from_crs("EPSG:32632", "EPSG:4326", always_xy=True)
 
-# id, name, group, QID, search (file key, language, query text), OSM element
+# id, name, group, QID, search (file key, language, query text), OSM element[, via node id]
+# A seventh item (via) means the QID resolves only to a non-building element, the node with
+# that id. The footprint is then the single building=* area containing that node
+# (rule of T-1.5a, saved Overpass is_in response contains_node_<id>.json).
 SELECTION = [
     ("duomo", "Duomo di Milano", "phase4", "Q18068", ("duomo", "it", "Duomo di Milano"), "relation/18017026"),
     ("castello_sforzesco", "Castello Sforzesco", "phase4", "Q23354", ("castello", "it", "Castello Sforzesco"), "relation/1918"),
@@ -44,7 +47,7 @@ SELECTION = [
     ("grattacielo_pirelli", "Grattacielo Pirelli", "phase4", "Q920809", ("pirelli", "it", "Grattacielo Pirelli"), "way/89444196"),
     ("bosco_verticale_torre_confalonieri", "Bosco Verticale (Torre Confalonieri)", "phase4", "Q2501413", ("bosco_verticale", "it", "Bosco Verticale"), "way/179244686"),
     ("bosco_verticale_torre_de_castillia", "Bosco Verticale (Torre De Castillia)", "phase4", "Q2501413", ("bosco_verticale", "it", "Bosco Verticale"), "way/179244688"),
-    ("stazione_centrale", "Stazione di Milano Centrale", "phase4", "Q801193", ("centrale", "it", "Stazione di Milano Centrale"), "node/6067258870"),
+    ("stazione_centrale", "Stazione di Milano Centrale", "phase4", "Q801193", ("centrale", "it", "Stazione di Milano Centrale"), "relation/18231605", 6067258870),
     ("citylife_allianz", "Torre Allianz (Isozaki)", "phase4", "Q3995200", ("allianz", "it", "Torre Allianz"), "way/353878517"),
     ("citylife_generali", "Torre Generali (Hadid)", "phase4", "Q3995195", ("generali", "it", "Torre Generali"), "relation/18247480"),
     ("citylife_pwc", "Torre PwC (Libeskind)", "phase4", "Q3995204", ("pwc", "it", "Torre PwC"), "relation/18247388"),
@@ -150,7 +153,30 @@ def p625(entity):
     return v["latitude"], v["longitude"]
 
 
-def build_entry(lid, name, group, qid, search, osmref):
+def check_contains_node(lid, qid, node_id, typ, oid, outers, inners):
+    """Verify the T-1.5a rule offline: node carries the QID, exactly one building contains it."""
+    ov = load(f"overpass_{qid}.json")
+    if not any(e["type"] == "node" and e["id"] == node_id for e in ov["elements"]):
+        raise ValueError(f"{lid}: node/{node_id} does not carry wikidata={qid} in saved Overpass")
+    if any("building" in e.get("tags", {}) for e in ov["elements"]):
+        raise ValueError(
+            f"{lid}: a building element carries {qid}; the node fallback is not needed"
+        )
+    cands = load(f"contains_node_{node_id}.json")["elements"]
+    if [(e["type"], e["id"]) for e in cands] != [(typ, oid)]:
+        raise ValueError(f"{lid}: not exactly one containing building: {cands}")
+    if "building" not in cands[0]["tags"]:
+        raise ValueError(f"{lid}: {typ}/{oid} has no building tag")
+    nd = next(e for e in load(f"osm_node_{node_id}.json")["elements"] if e["id"] == node_id)
+    pt = Point(TO_UTM.transform(nd["lon"], nd["lat"]))
+    geom = unary_union([Polygon(r) for r in outers])
+    if inners:
+        geom = geom.difference(unary_union([Polygon(r) for r in inners]))
+    if not geom.contains(pt):
+        raise ValueError(f"{lid}: node/{node_id} is not inside {typ}/{oid} (own check)")
+
+
+def build_entry(lid, name, group, qid, search, osmref, via=None):
     skey, slang, stext = search
     if not any(s["id"] == qid for s in load(f"search_{skey}_{slang}.json")["search"]):
         raise ValueError(f"{lid}: {qid} not in saved search {skey}_{slang}")
@@ -158,7 +184,7 @@ def build_entry(lid, name, group, qid, search, osmref):
     ov = load(f"overpass_{qid}.json")
     typ, oid = osmref.split("/")
     oid = int(oid)
-    if not any(e["type"] == typ and e["id"] == oid for e in ov["elements"]):
+    if via is None and not any(e["type"] == typ and e["id"] == oid for e in ov["elements"]):
         raise ValueError(f"{lid}: {osmref} does not carry wikidata={qid} in saved Overpass")
     elems = load(f"osm_{typ}_{oid}.json")["elements"]
     if typ == "node":
@@ -169,6 +195,8 @@ def build_entry(lid, name, group, qid, search, osmref):
         el, outers, inners = footprint(elems, typ, oid)
         x, y, _ = centroid(outers, inners)
         method = "footprint_centroid"
+        if via is not None:
+            check_contains_node(lid, qid, via, typ, oid, outers, inners)
     e, n = round(x, 2), round(y, 2)
     lon, lat = TO_WGS.transform(x, y)
     xmin, ymin, xmax, ymax = config.PILOT_AOI_BBOX
@@ -182,12 +210,15 @@ def build_entry(lid, name, group, qid, search, osmref):
     ql = f'[out:json][timeout:60];nwr["wikidata"="{qid}"];out tags center;'
     search_q = {"action": "wbsearchentities", "search": stext, "language": slang}
     search_q.update({"uselang": slang, "limit": "8", "format": "json"})
-    return {
+    osm = {"type": typ, "id": oid, "version": el["version"], "timestamp": el["timestamp"]}
+    if via is not None:
+        osm["via"] = f"contains_node/{via}"
+    entry = {
         "id": lid,
         "name": name,
         "group": group,
         "wikidata": qid,
-        "osm": {"type": typ, "id": oid, "version": el["version"], "timestamp": el["timestamp"]},
+        "osm": osm,
         "position": {
             "e": e,
             "n": n,
@@ -216,6 +247,20 @@ def build_entry(lid, name, group, qid, search, osmref):
             {"url": api, "retrieved": RETRIEVED},
         ],
     }
+    if via is not None:
+        cq = f"[out:json][timeout:60];node({via});is_in->.a;"
+        cq += '(way(pivot.a)["building"];rel(pivot.a)["building"];);out tags center;'
+        entry["sources"].append(
+            {
+                "url": "https://overpass-api.de/api/interpreter?"
+                + urllib.parse.urlencode({"data": cq}),
+                "retrieved": RETRIEVED,
+                "timestamp_osm_base": load(f"contains_node_{via}.json")["osm3s"][
+                    "timestamp_osm_base"
+                ],
+            }
+        )
+    return entry
 
 
 def main():

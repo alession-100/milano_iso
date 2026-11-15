@@ -410,16 +410,17 @@ landmarks:
   in_pilot: false
   name: Stazione di Milano Centrale
   osm:
-    id: 6067258870
-    timestamp: '2026-09-28T22:56:20Z'
-    type: node
-    version: 16
+    id: 18231605
+    timestamp: '2026-08-31T17:23:27Z'
+    type: relation
+    version: 3
+    via: contains_node/6067258870
   position:
-    e: 515962.3
-    lat: 45.4858786
-    lon: 9.2042617
-    method: node
-    n: 5036947.95
+    e: 515976.66
+    lat: 45.4860045
+    lon: 9.2044459
+    method: footprint_centroid
+    n: 5036961.97
   sources:
   - retrieved: '2026-11-15'
     url: https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Stazione+di+Milano+Centrale&language=it&uselang=it&limit=8&format=json
@@ -429,11 +430,14 @@ landmarks:
     timestamp_osm_base: '2026-11-15T20:20:21Z'
     url: https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A60%5D%3Bnwr%5B%22wikidata%22%3D%22Q801193%22%5D%3Bout+tags+center%3B
   - retrieved: '2026-11-15'
-    url: https://api.openstreetmap.org/api/0.6/node/6067258870
+    url: https://api.openstreetmap.org/api/0.6/relation/18231605/full
+  - retrieved: '2026-11-15'
+    timestamp_osm_base: '2026-11-15T20:33:35Z'
+    url: https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A60%5D%3Bnode%286067258870%29%3Bis_in-%3E.a%3B%28way%28pivot.a%29%5B%22building%22%5D%3Brel%28pivot.a%29%5B%22building%22%5D%3B%29%3Bout+tags+center%3B
   tolerance_m: 5
   wikidata: Q801193
   wikidata_p625:
-    distance_m: 32.53
+    distance_m: 52.56
     lat: 45.485658
     lon: 9.203988
 - group: pilot_ref

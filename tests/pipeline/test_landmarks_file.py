@@ -88,3 +88,17 @@ def test_build_reproduces_committed_yaml():
         assert YAML_PATH.read_bytes() == before
     finally:
         YAML_PATH.write_bytes(before)
+
+
+NODE_METHOD_EXCEPTIONS = []  # ids allowed to use method: node (must stay empty, T-1.5a)
+
+
+def test_buildings_use_footprint_centroid():
+    # Every landmark is a building (or the stadium/roof outline); none may fall back to a node.
+    for x in _landmarks():
+        if x["id"] in NODE_METHOD_EXCEPTIONS:
+            continue
+        assert x["position"]["method"] == "footprint_centroid", x["id"]
+        assert x["osm"]["type"] in ("way", "relation"), x["id"]
+    centrale = next(x for x in _landmarks() if x["id"] == "stazione_centrale")
+    assert centrale["osm"]["via"] == "contains_node/6067258870"

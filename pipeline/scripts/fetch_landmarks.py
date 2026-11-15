@@ -4,6 +4,7 @@ Subcommands:
   search               Wikidata wbsearchentities for each landmark query (it, en).
   entities QID...      Wikidata entity JSON for the given QIDs.
   overpass QID...      Overpass: OSM elements tagged wikidata=<QID> (tags and centre only).
+  contains NODE_ID...  Overpass: building ways/relations containing the node (is_in, pivot), tags only.
   osm TYPE/ID ...      OSM API full geometry (way/relation: /full, node: itself).
 Politeness: generic User-Agent, at most 1 request per second.
 The QID choice is made by a human reading the saved search responses (see choices.md).
@@ -95,6 +96,14 @@ def main():
             ql = f'[out:json][timeout:60];nwr["wikidata"="{q}"];out tags center;'
             data = urllib.parse.urlencode({"data": ql}).encode()
             save(f"overpass_{q}.json", get("https://overpass-api.de/api/interpreter", data))
+    elif cmd == "contains":  # building=* areas that contain a node (rule of T-1.5a)
+        for nid in args:
+            ql = (
+                f"[out:json][timeout:60];node({nid});is_in->.a;"
+                '(way(pivot.a)["building"];rel(pivot.a)["building"];);out tags center;'
+            )
+            data = urllib.parse.urlencode({"data": ql}).encode()
+            save(f"contains_node_{nid}.json", get("https://overpass-api.de/api/interpreter", data))
     elif cmd == "osm":
         for ref in args:
             typ, i = ref.split("/")
