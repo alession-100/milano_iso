@@ -358,6 +358,26 @@ def test_build_landmark_first_not_attribute_transfer():
     assert res["landmarks_no_rendered_overlap"] == []
 
 
+def test_build_deferred_landmark_gets_no_id():
+    """ADR-0018 point 2: a landmark whose own OSM element is not rendered is assigned to no
+    building, even though an unrelated rendered building overlaps its footprint."""
+    vols = gpd.GeoDataFrame(
+        [
+            vol("U1", "B1", "01", 100.0, 10.0, 110.0, box(0, 0, 30, 10)),
+            vol("M1", "B2", "01", 100.0, 4.0, 104.0, box(100, 0, 110, 10), cls="EDI_MIN"),
+        ],
+        geometry="geometry",
+        crs=CRS,
+    )
+    osm = osm_frame([osm_row(7, box(25, 0, 45, 10), building="roof", name="Roofed")])
+    parts = gpd.GeoDataFrame({"geometry": []}, geometry="geometry", crs=CRS)
+    res = heights.build(vols, osm, parts, {("w", 7): "lm_roof"})
+    bl = res["buildings"]
+    assert not bool(bl.set_index("building_key").loc["osm:w7", "rendered"])
+    assert bl["landmark_id"].isna().all()
+    assert not bl["landmark_primary"].any()
+
+
 # ----------------------------------------------------------------------------- edge fix
 
 

@@ -2,9 +2,11 @@
 
 (a) pipeline integrity: the processed OSM footprint with the landmark's OSM type and id has its
     centroid within ``tolerance_m`` of the reference position.
-(b) rendered landmark (ADR-0017 point 2): the reference position lies inside, or within
-    ``tolerance_m`` of, the primary rendered building (``landmark_primary``). The IoU between the
-    OSM footprint and the rendered footprints carrying the id is reported, not asserted.
+(b) rendered landmark (ADR-0018 point 1): the distance from the reference position to the union
+    of all rendered buildings carrying the id, interior rings filled, is within ``tolerance_m``
+    (``dist_filled_union_m``, the only asserted value). The primary-only distance, the inside
+    flag and the IoU are reported. A deferred landmark (own OSM element not rendered, ADR-0018
+    point 2) must have no building carrying its id.
 (c) registration (ADR-0017 point 3): over OSM/DBT building pairs with IoU >= 0.8 the magnitude
     of the mean centroid offset is <= 1.0 m, with at least 20 pairs.
 All numbers go to landmarks_check.csv and validate_summary.md. Nothing is loosened.
@@ -22,7 +24,6 @@ from milano_iso import config
 
 LANDMARKS = config.REPO_ROOT / "tests" / "landmarks.yaml"
 OSM_CODE = {"way": "w", "relation": "r", "node": "n"}
-GALLERIA = "galleria_vittorio_emanuele_ii"
 OSM_LAYERS = ["osm_buildings", "osm_building_parts", "landuse", "green", "water", "road_areas"]
 FIELDS = [
     "id",
@@ -37,6 +38,7 @@ FIELDS = [
     "dist_b_to_primary_m",
     "ref_inside_primary",
     "iou_osm_vs_rendered",
+    "dist_filled_union_m",
     "status_b",
     "note",
 ]
@@ -59,6 +61,16 @@ def _dist(c, e):
     return math.hypot(c[0] - e["position"]["e"], c[1] - e["position"]["n"])
 
 
+def filled_union_distance(geoms, ref):
+    """Distance from ``ref`` to the union of ``geoms`` with interior rings removed.
+
+    The union is taken first, so a courtyard enclosed by several buildings is also filled.
+    """
+    union = shapely.union_all(list(geoms))
+    exteriors = [shapely.Polygon(poly.exterior) for poly in shapely.get_parts(union)]
+    return float(shapely.union_all(exteriors).distance(ref))
+
+
 def _check(e, layers):
     code = OSM_CODE[e["osm"]["type"]]
     oid = int(e["osm"]["id"])
@@ -75,6 +87,7 @@ def _check(e, layers):
         "dist_b_to_primary_m": "",
         "ref_inside_primary": "",
         "iou_osm_vs_rendered": "",
+        "dist_filled_union_m": "",
         "status_b": "",
         "note": "",
     }
@@ -100,24 +113,19 @@ def _check(e, layers):
     # (b)
     b = layers["buildings"]
     own = b[(b["osm_type"] == code) & (b["osm_id"] == oid)]
-    if e["id"] == GALLERIA and len(own) and not own["rendered"].any():
-        # ADR-0016: the Galleria is an unmatched building=roof, not rendered in v1. Any rendered
-        # building that landmark-first picks up is only an incidental overlap; report it, skip.
+    if len(own) and not own["rendered"].any():
+        # ADR-0016/0018: own OSM element not rendered -> deferred; no building may carry the id.
         reasons = sorted(set(own["render_reason"].dropna()))
-        other = b[(b["landmark_id"] == e["id"]) & b["rendered"]]
-        row["primary_building_key"] = ";".join(other["building_key"])
-        row["status_b"] = "deferred_phase4"
-        row["note"] = f"ADR-0016: roof not rendered ({', '.join(reasons)}); modelled in Phase 4"
+        carrying = b[b["landmark_id"] == e["id"]]
+        row["primary_building_key"] = ";".join(carrying["building_key"])
+        row["status_b"] = "deferred_phase4" if carrying.empty else "fail_deferred_has_building"
+        row["note"] = f"ADR-0016: not rendered ({', '.join(reasons)}); modelled in Phase 4"
         return row
-    bl = b[b["landmark_id"] == e["id"]]
-    prim = bl[bl["landmark_primary"] & bl["rendered"]] if len(bl) else bl
+    bl = b[(b["landmark_id"] == e["id"]) & b["rendered"]]
+    prim = bl[bl["landmark_primary"]] if len(bl) else bl
     if prim.empty:
-        if e["id"] == GALLERIA:
-            row["status_b"] = "deferred_phase4"
-            row["note"] = "ADR-0016: roof not rendered; modelled in Phase 4"
-        else:
-            row["status_b"] = "fail_no_rendered_building"
-            row["note"] = "no rendered building with landmark_primary for this landmark_id"
+        row["status_b"] = "fail_no_rendered_building"
+        row["note"] = "no rendered building with landmark_primary for this landmark_id"
         return row
     if len(prim) > 1:
         row["status_b"] = "fail_multiple_primary"
@@ -125,16 +133,18 @@ def _check(e, layers):
         return row
     p = prim.iloc[0]
     row["primary_building_key"] = p["building_key"]
+    row["rendered_building_keys"] = ";".join(bl["building_key"])
     ref = shapely.Point(e["position"]["e"], e["position"]["n"])
-    d = float(p.geometry.distance(ref))
-    row["dist_b_to_primary_m"] = f"{d:.3f}"
+    row["dist_b_to_primary_m"] = f"{float(p.geometry.distance(ref)):.3f}"
     row["ref_inside_primary"] = str(bool(p.geometry.covers(ref)))
     if hit is not None:
-        rendered = shapely.union_all(bl[bl["rendered"]].geometry.to_numpy())
+        rendered = shapely.union_all(bl.geometry.to_numpy())
         osm_g = shapely.union_all(hit[1].geometry.to_numpy())
         union = shapely.area(shapely.union(osm_g, rendered))
         inter = shapely.area(shapely.intersection(osm_g, rendered))
         row["iou_osm_vs_rendered"] = f"{inter / union:.3f}"
+    d = filled_union_distance(bl.geometry.to_numpy(), ref)
+    row["dist_filled_union_m"] = f"{d:.3f}"
     row["status_b"] = "pass" if d <= tol else "fail"
     return row
 
@@ -148,6 +158,16 @@ def rows(layers):
         w.writeheader()
         w.writerows(result)
     return {r["id"]: r for r in result}
+
+
+def test_filled_union_distance_courtyard_synthetic():
+    ring = shapely.Polygon(
+        [(0, 0), (40, 0), (40, 40), (0, 40)], holes=[[(10, 10), (30, 10), (30, 30), (10, 30)]]
+    )
+    assert filled_union_distance([ring], shapely.Point(20, 20)) == 0.0  # in the courtyard
+    assert ring.distance(shapely.Point(20, 20)) == 10.0  # the unfilled shape would be 10 m away
+    d = filled_union_distance([ring], shapely.Point(46, 20))  # 6 m outside the outer wall
+    assert d == pytest.approx(6.0) and d > 5.0
 
 
 def test_landmark_entries_present():
@@ -169,8 +189,8 @@ def test_landmark_b_rendered_position(lid, rows):
     if r["status_b"] == "deferred_phase4":
         pytest.skip(f"deferred_phase4: {r['note']}")
     assert r["status_b"] == "pass", (
-        f"{lid}: reference is {r['dist_b_to_primary_m'] or 'n/a'} m from the primary rendered "
-        f"footprint (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
+        f"{lid}: reference is {r['dist_filled_union_m'] or 'n/a'} m from the filled union of "
+        f"rendered buildings (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
     )
 
 
