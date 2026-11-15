@@ -1,0 +1,151 @@
+{
+  "attribute_transfer": {
+    "dbt_buildings_with_landmark_id": 8,
+    "dbt_buildings_with_osm_attributes": 191,
+    "dbt_buildings_without_osm_attributes": 27
+  },
+  "canonical_dump_sha256_pilot_gpkg": "540f61a1fd6d91c30bb36aeb931f8839bb18d79d4e4d8bce464a0cbe15309d5a",
+  "checks": {
+    "buildings_ok": true,
+    "render_volumes_ok": true
+  },
+  "counts": {
+    "buildings": 240,
+    "dbt_buildings": 218,
+    "dbt_volumes": 5821,
+    "osm_only_buildings": 22,
+    "render_volumes": 5843
+  },
+  "dbt_ground_flag_no_por01_buildings": 1,
+  "height_m_distribution": {
+    "max": 100.17900000000002,
+    "median": 27.321999999999996,
+    "min": 2.0,
+    "p25": 14.249249999999993,
+    "p5": 2.689449999999998,
+    "p75": 34.1525,
+    "p95": 43.62945
+  },
+  "height_source_buildings_and_area": {
+    "dbt": {
+      "buildings": 218,
+      "footprint_area_m2": 678993.1678626135,
+      "share_of_buildings": 0.9083333333333333,
+      "share_of_footprint_area": 0.989906166760663
+    },
+    "default": {
+      "buildings": 18,
+      "footprint_area_m2": 6470.232215502066,
+      "share_of_buildings": 0.075,
+      "share_of_footprint_area": 0.009432970865761297
+    },
+    "osm_height": {
+      "buildings": 1,
+      "footprint_area_m2": 309.450874265369,
+      "share_of_buildings": 0.004166666666666667,
+      "share_of_footprint_area": 0.00045114935354805983
+    },
+    "osm_levels": {
+      "buildings": 3,
+      "footprint_area_m2": 143.84566193438144,
+      "share_of_buildings": 0.0125,
+      "share_of_footprint_area": 0.00020971302002765585
+    }
+  },
+  "height_source_volumes": {
+    "dbt": 5821,
+    "default": 18,
+    "osm_height": 1,
+    "osm_levels": 3
+  },
+  "matching": {
+    "band": [
+      0.3,
+      0.7
+    ],
+    "coverage_below_0.2": 19,
+    "coverage_below_0.5": 22,
+    "coverage_histogram": [
+      {
+        "bin": "0.0-0.1",
+        "n": 18
+      },
+      {
+        "bin": "0.1-0.2",
+        "n": 1
+      },
+      {
+        "bin": "0.2-0.3",
+        "n": 1
+      },
+      {
+        "bin": "0.3-0.4",
+        "n": 1
+      },
+      {
+        "bin": "0.4-0.5",
+        "n": 1
+      },
+      {
+        "bin": "0.5-0.6",
+        "n": 0
+      },
+      {
+        "bin": "0.6-0.7",
+        "n": 3
+      },
+      {
+        "bin": "0.7-0.8",
+        "n": 6
+      },
+      {
+        "bin": "0.8-0.9",
+        "n": 19
+      },
+      {
+        "bin": "0.9-1.0",
+        "n": 656
+      }
+    ],
+    "in_band_inclusive": 5,
+    "matched": 684,
+    "osm_buildings": 706,
+    "threshold": 0.5,
+    "unmatched": 22,
+    "unmatched_share": 0.031161473087818695,
+    "unmatched_with_building_parts": 2
+  },
+  "outliers": [],
+  "tallest_five": [
+    {
+      "height_m": 100.17900000000002,
+      "key": "dbt:EDIFC_14394",
+      "name": "Torre Velasca"
+    },
+    {
+      "height_m": 94.57900000000001,
+      "key": "dbt:EDIFC_13669",
+      "name": "Duomo di Milano"
+    },
+    {
+      "height_m": 68.73,
+      "key": "dbt:EDIFC_4453",
+      "name": null
+    },
+    {
+      "height_m": 67.17300000000002,
+      "key": "dbt:EDIFC_3004",
+      "name": null
+    },
+    {
+      "height_m": 59.14299999999999,
+      "key": "dbt:EDIFC_5104",
+      "name": "Palazzetto Taverna"
+    }
+  ],
+  "unmatched_rule_counts": {
+    "default": 18,
+    "osm_height": 1,
+    "osm_levels": 3
+  }
+}

@@ -7,12 +7,12 @@
     "features_outside_extent_total": 0,
     "invalid_geometries_total": 0
   },
-  "canonical_dump_sha256_pilot_gpkg": "b0303b862a1393601cbe45c8396f0854092570aa7840551b8a1a967865200122",
+  "canonical_dump_sha256_pilot_gpkg": "0829878fa10f4d0d93dc95cb62d6919c165178ee37b466b42f1bebbe7ea9ac69",
   "completeness": {
     "dbt_volumes": {
       "denominator": "UN_VOL features in dbt_pilot.gpkg",
-      "in": 4657,
-      "out": 4657,
+      "in": 5821,
+      "out": 5821,
       "ratio": 1.0,
       "target": 0.99
     },
@@ -27,7 +27,7 @@
   },
   "dbt": {
     "volumes_by_building_class": {
-      "EDIFC": 4610,
+      "EDIFC": 5774,
       "EDI_MIN": 47
     },
     "volumes_underground_por_08": 0,
@@ -67,10 +67,11 @@
       "crs": "EPSG:32632",
       "dropped": {},
       "duplicates": 0,
-      "input": 4657,
+      "input": 5821,
       "invalid": 0,
-      "output": 4657,
+      "output": 5821,
       "outside_extent": 0,
+      "outside_extent_kept_with_building": 1164,
       "repaired": 0,
       "underground": 0
     },

@@ -1,0 +1,23 @@
+key,name,building_type,coverage,rule,height_m,bottom_m,has_parts
+osm:w1112397663,,yes,0.0000,osm_height,2.000,0.000,True
+osm:w1421353782,,construction,0.0097,default,28.410,0.000,False
+osm:w1432785208,,yes,0.0331,default,30.088,0.000,False
+osm:w1441837122,,yes,0.0000,default,30.088,0.000,False
+osm:w1511862299,,roof,0.0000,default,28.410,0.000,False
+osm:w166623705,Galleria Vittorio Emanuele Secondo,roof,0.0328,default,28.410,0.000,True
+osm:w172261244,,yes,0.0000,default,30.088,0.000,False
+osm:w176512639,San Giovanni in Conca,yes,0.0000,default,30.088,0.000,False
+osm:w242710288,,roof,0.2684,default,28.410,0.000,False
+osm:w396367509,Edicola Valli dal 1946,kiosk,0.0000,osm_levels,3.000,0.000,False
+osm:w435768745,,yes,0.0172,default,30.088,0.000,False
+osm:w437381825,,yes,0.0132,default,30.088,0.000,False
+osm:w437510390,,yes,0.0619,default,30.088,0.000,False
+osm:w437510407,,yes,0.0226,default,30.088,0.000,False
+osm:w437510411,,yes,0.4961,default,30.088,0.000,False
+osm:w437510414,,yes,0.1642,default,30.088,0.000,False
+osm:w44833378,,yes,0.0157,default,30.088,0.000,False
+osm:w487197940,,yes,0.3829,default,30.088,0.000,False
+osm:w491367824,Apple Piazza Liberty,commercial,0.0000,default,34.147,0.000,False
+osm:w501463992,,roof,0.0217,osm_levels,3.000,0.000,False
+osm:w503252698,,roof,0.0892,default,28.410,0.000,False
+osm:w515460351,,roof,0.0000,osm_levels,3.000,0.000,False
