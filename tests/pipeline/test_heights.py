@@ -4,6 +4,7 @@ import geopandas as gpd
 import pandas as pd
 import pyogrio
 import pytest
+import shapely
 from milano_iso import dbt_extract, heights, normalise
 from shapely.geometry import box
 
@@ -295,6 +296,66 @@ def test_build_end_to_end_synthetic():
         "not_rendered": 2,
         "reasons": {"no_walls_roof": 1, "under_construction": 1},
     }
+
+
+# ----------------------------------------------------------------------------- landmark-first
+
+
+def _cand(items):
+    return pd.DataFrame({"building_key": [k for k, _ in items], "geometry": [g for _, g in items]})
+
+
+def test_assign_landmarks_largest_overlap_is_primary():
+    cand = _cand([("a", box(0, 0, 10, 10)), ("b", box(10, 0, 30, 10))])
+    # footprint overlaps a by 30 m2 (30% of a) and b by 100 m2 (50% of b)
+    out, unassigned = heights.assign_landmarks(cand, {"lm": box(7, 0, 20, 10)})
+    assert out["b"] == ("lm", True)
+    assert "a" not in out
+    assert unassigned == []
+
+
+def test_assign_landmarks_secondary_needs_more_than_half_inside():
+    cand = _cand(
+        [
+            ("big", box(0, 0, 20, 10)),
+            ("half", box(20, 0, 30, 10)),  # exactly 50% inside: not secondary
+            ("most", box(20, 20, 30, 30)),  # 60% inside: secondary
+            ("far", box(100, 0, 110, 10)),
+        ]
+    )
+    fp = shapely.union_all([box(0, 0, 25, 10), box(20, 20, 26, 30)])
+    out, _ = heights.assign_landmarks(cand, {"lm": fp})
+    assert out == {"big": ("lm", True), "most": ("lm", False)}
+
+
+def test_assign_landmarks_no_overlap_is_reported():
+    cand = _cand([("a", box(0, 0, 10, 10))])
+    out, unassigned = heights.assign_landmarks(cand, {"lm": box(50, 50, 60, 60)})
+    assert out == {} and unassigned == ["lm"]
+
+
+def test_build_landmark_first_not_attribute_transfer():
+    """Generali case: attribute transfer gives the DBT building OSM id 2 (larger overlap), but
+    the landmark is OSM id 1; landmark-first still makes the DBT building primary."""
+    vols = gpd.GeoDataFrame(
+        [
+            vol("U1", "B1", "01", 100.0, 10.0, 110.0, box(0, 0, 30, 10)),
+            vol("M1", "B2", "01", 100.0, 4.0, 104.0, box(100, 0, 110, 10), cls="EDI_MIN"),
+        ],
+        geometry="geometry",
+        crs=CRS,
+    )
+    osm = osm_frame(
+        [
+            osm_row(1, box(0, 0, 25, 10), name="Landmark"),
+            osm_row(2, box(0, 0, 30, 10), name="Other"),
+        ]
+    )
+    parts = gpd.GeoDataFrame({"geometry": []}, geometry="geometry", crs=CRS)
+    res = heights.build(vols, osm, parts, {("w", 1): "lm1"})
+    row = res["buildings"].set_index("building_key").loc["dbt:B1"]
+    assert row["osm_id"] == 2 and row["landmark_id"] == "lm1" and bool(row["landmark_primary"])
+    assert res["landmarks_no_rendered_overlap"] == []
 
 
 # ----------------------------------------------------------------------------- edge fix

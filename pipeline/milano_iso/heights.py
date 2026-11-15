@@ -269,6 +269,44 @@ def render_status(building_type, src: str) -> tuple[bool, str | None]:
 # ----------------------------------------------------------------------------- build
 
 
+def assign_landmarks(buildings: pd.DataFrame, footprints: dict) -> tuple[dict, list]:
+    """Landmark-first assignment of ``landmark_id`` (ADR-0017 point 1).
+
+    ``buildings``: rendered candidate buildings with ``building_key`` and ``geometry``.
+    ``footprints``: {landmark id: OSM footprint geometry}. For each landmark the building with
+    the largest overlap area is primary; any other building with more than 50% of its own area
+    inside the footprint is secondary. Ties on the overlap (to 1e-6 m2) go to the lower
+    ``building_key``. A building keeps one id: a primary assignment beats a secondary one, and
+    among equals the landmark that comes first in sorted id order wins.
+    Returns ``({building_key: (landmark id, primary)}, [landmark ids with no overlap])``.
+    """
+    keys = buildings["building_key"].to_numpy()
+    geoms = np.asarray(buildings["geometry"].to_numpy(), dtype=object)
+    tree = STRtree(geoms) if len(geoms) else None
+    primary: dict[str, str] = {}
+    secondary: dict[str, str] = {}
+    unassigned = []
+    for lid in sorted(footprints):
+        fp = footprints[lid]
+        cands = []
+        hits = tree.query(fp, predicate="intersects") if tree is not None else []
+        for j in hits:
+            area = round(float(shapely.area(shapely.intersection(geoms[j], fp))), 6)
+            if area > 0:
+                cands.append((-area, str(keys[j]), int(j)))
+        if not cands:
+            unassigned.append(lid)
+            continue
+        cands.sort()
+        primary.setdefault(cands[0][1], lid)
+        for neg_area, key, j in cands[1:]:
+            if -neg_area / float(shapely.area(geoms[j])) > 0.5:
+                secondary.setdefault(key, lid)
+    out = {k: (v, False) for k, v in secondary.items()}
+    out.update({k: (v, True) for k, v in primary.items()})
+    return out, unassigned
+
+
 def load_landmarks(path: Path = LANDMARKS_FILE) -> dict:
     """{(osm_type, osm_id): landmark id} from tests/landmarks.yaml.
 
@@ -321,11 +359,6 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
 
     xfer = transfer_attributes(dbt_b.set_index("building_key").geometry, osm[osm["matched"]])
     dbt_b = dbt_b.join(xfer, on="building_key")
-    dbt_b["landmark_id"] = [
-        landmarks.get((t, int(i))) if _clean(t) is not None else None
-        for t, i in zip(dbt_b["osm_type"], dbt_b["osm_id"], strict=True)
-    ]
-
     # Default height (ADR-0016): fails loudly when there is no EDI_MIN building.
     default = derive_default(dbt_b)
     unmatched = osm[~osm["matched"]].copy()
@@ -381,6 +414,30 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             }
         )
 
+    # --- landmark-first assignment (ADR-0017 point 1) over the rendered buildings
+    cand = pd.concat(
+        [
+            pd.DataFrame({"building_key": dbt_b["building_key"], "geometry": dbt_b["geometry"]}),
+            pd.DataFrame(
+                {
+                    "building_key": [x["key"] for x in osm_rows if x["rendered"]],
+                    "geometry": [x["geometry"] for x in osm_rows if x["rendered"]],
+                }
+            ),
+        ],
+        ignore_index=True,
+    )
+    lm_osm = osm.set_index(["osm_type", "osm_id"]).geometry
+    footprints, lm_missing = {}, []
+    for (t, i), lid in sorted(landmarks.items(), key=lambda kv: kv[1]):
+        if (t, i) in lm_osm.index:
+            footprints[lid] = lm_osm.loc[(t, i)]
+        else:
+            lm_missing.append(lid)
+    assigned, lm_no_overlap = assign_landmarks(cand, footprints)
+    dbt_b["landmark_id"] = [assigned.get(k, (None, False))[0] for k in dbt_b["building_key"]]
+    dbt_b["landmark_primary"] = [assigned.get(k, (None, False))[1] for k in dbt_b["building_key"]]
+
     # --- render_volumes
     dbt_v = vh.assign(source="dbt", height_source="dbt", rendered=True, render_reason=None)
     dbt_v["height_m"] = dbt_v["top_m"] - dbt_v["bottom_m"]
@@ -431,6 +488,7 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "name": dbt_b["name"],
             "building_type": dbt_b["building_type"],
             "landmark_id": dbt_b["landmark_id"],
+            "landmark_primary": dbt_b["landmark_primary"],
             "n_volumes": dbt_b["n_volumes"],
             "rendered": True,
             "render_reason": None,
@@ -447,7 +505,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "osm_id": [x["osm_id"] for x in osm_rows],
             "name": [x["name"] for x in osm_rows],
             "building_type": [x["building_type"] for x in osm_rows],
-            "landmark_id": [landmarks.get((x["osm_type"], x["osm_id"])) for x in osm_rows],
+            "landmark_id": [assigned.get(x["key"], (None, False))[0] for x in osm_rows],
+            "landmark_primary": [assigned.get(x["key"], (None, False))[1] for x in osm_rows],
             "n_volumes": 1,
             "rendered": [x["rendered"] for x in osm_rows],
             "render_reason": [x["render_reason"] for x in osm_rows],
@@ -470,6 +529,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
         "parse_log": parse_log,
         "unmatched_report": unmatched_report,
         "n_unmatched_with_parts": n_with_parts,
+        "landmarks_no_osm_footprint": lm_missing,
+        "landmarks_no_rendered_overlap": lm_no_overlap,
     }
 
 
@@ -594,6 +655,12 @@ def make_report(res: dict) -> dict:
             "dbt_buildings_with_osm_attributes": int(dbt_b["osm_id"].notna().sum()),
             "dbt_buildings_without_osm_attributes": int(dbt_b["osm_id"].isna().sum()),
             "dbt_buildings_with_landmark_id": int(dbt_b["landmark_id"].notna().sum()),
+        },
+        "landmark_assignment": {
+            "buildings_with_landmark_id": int(bl["landmark_id"].notna().sum()),
+            "primary_buildings": int(bl["landmark_primary"].sum()),
+            "no_osm_footprint": res["landmarks_no_osm_footprint"],
+            "no_rendered_overlap": res["landmarks_no_rendered_overlap"],
         },
         "unmatched_rule_counts": {
             s: sum(1 for x in res["unmatched_report"] if x["rule"] == s)
@@ -824,6 +891,9 @@ def main(argv=None) -> int:
     rep = r["report"]
     print(f"canonical dump sha256 of {gpkg.name}: {r['sha']}")
     print(json.dumps({"checks": rep["checks"], "counts": rep["counts"]}, sort_keys=True))
+    la = rep["landmark_assignment"]
+    if la["no_osm_footprint"] or la["no_rendered_overlap"]:
+        print(f"landmarks without assignment: {json.dumps(la, sort_keys=True)}")
     return 0 if all(rep["checks"].values()) else 1
 
 

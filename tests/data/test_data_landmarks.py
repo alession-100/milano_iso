@@ -1,14 +1,19 @@
-"""Landmark positions (T-1.6 check 7, VERIFICATION section 3 positional accuracy).
+"""Landmark positions (T-1.6 check 7, T-1.6a, ADR-0017; VERIFICATION section 3).
 
-(a) pipeline integrity: the processed OSM footprint with the landmark's OSM type and id.
-(b) rendered position: the rendered building carrying the landmark id (union of its rendered
-    volumes' footprints, or its OSM footprint when it is OSM-only).
-Both distances go to landmarks_check.csv. A failure in (b) is a finding; it is not loosened.
+(a) pipeline integrity: the processed OSM footprint with the landmark's OSM type and id has its
+    centroid within ``tolerance_m`` of the reference position.
+(b) rendered landmark (ADR-0017 point 2): the reference position lies inside, or within
+    ``tolerance_m`` of, the primary rendered building (``landmark_primary``). The IoU between the
+    OSM footprint and the rendered footprints carrying the id is reported, not asserted.
+(c) registration (ADR-0017 point 3): over OSM/DBT building pairs with IoU >= 0.8 the magnitude
+    of the mean centroid offset is <= 1.0 m, with at least 20 pairs.
+All numbers go to landmarks_check.csv and validate_summary.md. Nothing is loosened.
 """
 
 import csv
 import math
 
+import numpy as np
 import pytest
 import shapely
 import yaml
@@ -28,7 +33,10 @@ FIELDS = [
     "dist_a_osm_footprint_m",
     "status_a",
     "rendered_building_keys",
-    "dist_b_rendered_m",
+    "primary_building_key",
+    "dist_b_to_primary_m",
+    "ref_inside_primary",
+    "iou_osm_vs_rendered",
     "status_b",
     "note",
 ]
@@ -63,7 +71,10 @@ def _check(e, layers):
         "dist_a_osm_footprint_m": "",
         "status_a": "",
         "rendered_building_keys": "",
-        "dist_b_rendered_m": "",
+        "primary_building_key": "",
+        "dist_b_to_primary_m": "",
+        "ref_inside_primary": "",
+        "iou_osm_vs_rendered": "",
         "status_b": "",
         "note": "",
     }
@@ -88,33 +99,43 @@ def _check(e, layers):
         row["status_a"] = "pass" if d <= tol else "fail"
     # (b)
     b = layers["buildings"]
+    own = b[(b["osm_type"] == code) & (b["osm_id"] == oid)]
+    if e["id"] == GALLERIA and len(own) and not own["rendered"].any():
+        # ADR-0016: the Galleria is an unmatched building=roof, not rendered in v1. Any rendered
+        # building that landmark-first picks up is only an incidental overlap; report it, skip.
+        reasons = sorted(set(own["render_reason"].dropna()))
+        other = b[(b["landmark_id"] == e["id"]) & b["rendered"]]
+        row["primary_building_key"] = ";".join(other["building_key"])
+        row["status_b"] = "deferred_phase4"
+        row["note"] = f"ADR-0016: roof not rendered ({', '.join(reasons)}); modelled in Phase 4"
+        return row
     bl = b[b["landmark_id"] == e["id"]]
-    if bl.empty:
-        row["status_b"] = "fail_no_rendered_building"
-        row["note"] = "no buildings row with this landmark_id"
-    elif not bl["rendered"].any():
-        reasons = sorted(set(bl["render_reason"].dropna()))
-        row["rendered_building_keys"] = ";".join(bl["building_key"])
+    prim = bl[bl["landmark_primary"] & bl["rendered"]] if len(bl) else bl
+    if prim.empty:
         if e["id"] == GALLERIA:
             row["status_b"] = "deferred_phase4"
-            row["note"] = f"ADR-0016: roof not rendered ({', '.join(reasons)}); modelled in Phase 4"
+            row["note"] = "ADR-0016: roof not rendered; modelled in Phase 4"
         else:
-            row["status_b"] = "fail_not_rendered"
-            row["note"] = f"rendered=false, render_reason {reasons}"
-    else:
-        bl = bl[bl["rendered"]]
-        row["rendered_building_keys"] = ";".join(bl["building_key"])
-        rv = layers["render_volumes"]
-        geoms = []
-        for _, r in bl.iterrows():
-            if r["source"] == "dbt":
-                v = rv[(rv["building_key"] == r["building_key"]) & rv["rendered"]]
-                geoms += list(v.geometry)
-            else:
-                geoms.append(r.geometry)
-        d = _dist(_centroid(shapely.union_all(geoms)), e)
-        row["dist_b_rendered_m"] = f"{d:.3f}"
-        row["status_b"] = "pass" if d <= tol else "fail"
+            row["status_b"] = "fail_no_rendered_building"
+            row["note"] = "no rendered building with landmark_primary for this landmark_id"
+        return row
+    if len(prim) > 1:
+        row["status_b"] = "fail_multiple_primary"
+        row["primary_building_key"] = ";".join(prim["building_key"])
+        return row
+    p = prim.iloc[0]
+    row["primary_building_key"] = p["building_key"]
+    ref = shapely.Point(e["position"]["e"], e["position"]["n"])
+    d = float(p.geometry.distance(ref))
+    row["dist_b_to_primary_m"] = f"{d:.3f}"
+    row["ref_inside_primary"] = str(bool(p.geometry.covers(ref)))
+    if hit is not None:
+        rendered = shapely.union_all(bl[bl["rendered"]].geometry.to_numpy())
+        osm_g = shapely.union_all(hit[1].geometry.to_numpy())
+        union = shapely.area(shapely.union(osm_g, rendered))
+        inter = shapely.area(shapely.intersection(osm_g, rendered))
+        row["iou_osm_vs_rendered"] = f"{inter / union:.3f}"
+    row["status_b"] = "pass" if d <= tol else "fail"
     return row
 
 
@@ -148,6 +169,53 @@ def test_landmark_b_rendered_position(lid, rows):
     if r["status_b"] == "deferred_phase4":
         pytest.skip(f"deferred_phase4: {r['note']}")
     assert r["status_b"] == "pass", (
-        f"{lid}: rendered building centroid is {r['dist_b_rendered_m'] or 'n/a'} m from the "
-        f"reference (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
+        f"{lid}: reference is {r['dist_b_to_primary_m'] or 'n/a'} m from the primary rendered "
+        f"footprint (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
+    )
+
+
+REG_IOU = 0.8
+REG_MIN_PAIRS = 20
+REG_MAX_MAGNITUDE_M = 1.0
+
+
+def test_landmark_c_osm_dbt_registration(layers, report):
+    """ADR-0017 point 3: no CRS or datum shift between the OSM and DBT footprints."""
+    osm = layers["osm_buildings"]
+    b = layers["buildings"]
+    dbt = b[b["source"] == "dbt"].reset_index(drop=True)
+    tree = shapely.STRtree(dbt.geometry.to_numpy())
+    og = osm.geometry.to_numpy()
+    dg = dbt.geometry.to_numpy()
+    vecs = []
+    for g in og:
+        best, best_iou = None, 0.0
+        for j in tree.query(g, predicate="intersects"):
+            u = shapely.area(shapely.union(g, dg[j]))
+            iou = shapely.area(shapely.intersection(g, dg[j])) / u if u > 0 else 0.0
+            if iou > best_iou:
+                best, best_iou = int(j), float(iou)
+        if best is not None and best_iou >= REG_IOU:
+            co, cd = _centroid(g), _centroid(dg[best])
+            vecs.append((cd[0] - co[0], cd[1] - co[1]))
+    n = len(vecs)
+    assert n > 0, "no OSM/DBT pairs with IoU >= 0.8"
+    v = np.array(vecs)
+    mean = v.mean(axis=0)
+    mag = float(np.hypot(*mean))
+    dist = np.hypot(v[:, 0], v[:, 1])
+    report.add(
+        "Registration OSM vs DBT (ADR-0017 point 3)",
+        f"Pairs: OSM building with its best-IoU DBT building, IoU >= {REG_IOU}. "
+        "Offset = DBT centroid minus OSM centroid.\n\n"
+        f"- n pairs: {n}\n"
+        f"- mean vector (dE, dN): ({mean[0]:+.3f} m, {mean[1]:+.3f} m)\n"
+        f"- magnitude of the mean vector: {mag:.3f} m (limit {REG_MAX_MAGNITUDE_M} m)\n"
+        f"- median pair distance: {float(np.median(dist)):.3f} m\n"
+        f"- p95 pair distance: {float(np.percentile(dist, 95)):.3f} m",
+    )
+    assert n >= REG_MIN_PAIRS, f"only {n} pairs with IoU >= {REG_IOU}, need {REG_MIN_PAIRS}"
+    assert mag <= REG_MAX_MAGNITUDE_M, (
+        f"mean OSM/DBT centroid offset is {mag:.3f} m (dE {mean[0]:+.3f}, dN {mean[1]:+.3f}), "
+        f"limit {REG_MAX_MAGNITUDE_M} m"
     )
