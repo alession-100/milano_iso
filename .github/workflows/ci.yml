@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install Python 3.12
+        run: uv python install 3.12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Setup
+        run: make setup
+      - name: Test
+        run: make test
+      - name: Build web
+        run: npm --prefix web run build
+      - name: Install Playwright Chromium
+        run: npx --prefix web playwright install --with-deps chromium
+      - name: e2e
+        run: npm --prefix web run e2e
