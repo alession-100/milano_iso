@@ -2,8 +2,8 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 1 - gate G1 in review (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
-**Last gate passed:** G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
+**Current phase:** 1 complete; awaiting owner decision on ADR-0018 / landmark check before Phase 2 (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Last gate passed:** G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
 | Task | Status | Report | Notes |
@@ -45,3 +45,12 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 - `reports/artifacts/T-1.6/junit.xml` contains timestamps, so a `make validate` run dirties the tree; consider gitignoring it.
 - Python artifact writers emit CRLF on Windows (git normalises on commit; set newline='
 ' when touched).
+
+## Carry-over from G1 (reviewer findings, non-blocking)
+1. **The ADR-0018 rendered-landmark check cannot detect misplacement.** Shifting the Duomo's rendered building 40 m in a scratch copy still passes. Proposed fix: a best-fit offset check (owner decision pending). It must be fixed before G4.
+2. **Generali:** `landmark_id` sits on DBT block EDIFC_4831 (5,644 m2), whose transferred OSM name is "Palazzo Carminati". The info card would mix up the names (Phase 5).
+3. **EDIFC_2671:** an underpass-ceiling volume (POR 04) rendered solid from 0 m, about 3.4 m too low at the top. Its footprint is also missing from `dbt_buildings` with no drop-log row.
+4. **Simplification <= 0.5 m check:** to be written at tile export (Phase 2).
+5. **Duplicate check:** it only catches same key plus same geometry; extend it to geometry-only.
+6. **Cosmetic:** -0.0 bottoms, CRLF artifacts, timestamps in junit.xml.
+7. **Torre Velasca:** 100.18 m at the eaves vs 106 m to the roof (en.wikipedia citing LIFE 1957; Wikidata P2048). Consistent with ADR-0015 (no roofs).

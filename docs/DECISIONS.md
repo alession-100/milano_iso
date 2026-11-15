@@ -140,3 +140,8 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
      - The registration check (ADR-0017 point 3) still guards against any systematic shift.
   2. A landmark whose own OSM element is not rendered (`rendered = false`) gets no `landmark_id` assignment at all and is reported as `deferred_phase4`.
 - **Owner note:** this changes how the check measures, not the 5 m threshold. It is flagged to the owner at the G1 report.
+
+## ADR-0019 - Threshold for the share of explicit heights
+- **Status:** Accepted (2026-11-15)
+- **Context:** VERIFICATION section 3 says the baseline share of explicit (non-default) heights is measured at G1, after which an ADR fixes the threshold. G1 measured it on the pilot: 92.5% of buildings by count and 99.1% by footprint area.
+- **Decision:** On the pilot, `make validate` asserts an explicit share of at least **90% by count** and at least **98% by footprint area**. These are about 2.5 and 1 percentage points below the baseline, to absorb small upstream data changes. For the whole city (Phase 6) the baseline is measured again and the threshold re-set by a new ADR before G6.
