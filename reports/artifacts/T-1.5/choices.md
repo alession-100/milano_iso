@@ -41,3 +41,19 @@ saved entity JSON. All OSM candidates are the elements Overpass returned for `wi
   centroid of the outer rings minus the inner rings. Castello Sforzesco relation/1918 is a
   multipolygon; its centroid is 73 m from P625.
 - Remaining single-element ways (Grattacielo Pirelli, Torre Isozaki) are plain closed building ways.
+
+## T-1.5a corrections and notes
+- **Stazione di Milano Centrale (replaces the node fallback above).** Rule: take the single `building=*` area that
+  contains the QID's station node. Overpass `node(6067258870); is_in->.a; (way(pivot.a)["building"];
+  rel(pivot.a)["building"];)` (saved as `responses/contains_node_6067258870.json`, osm_base 2026-11-15T20:33:35Z)
+  returns exactly one element: relation/18231605 (`building=train_station`, `type=multipolygon`, name "Milano
+  Centrale"). Its full geometry is `responses/osm_relation_18231605.json`; build_landmarks.py also checks with shapely
+  that the node lies inside the assembled polygon. The entry records `osm.via: contains_node/6067258870`.
+  The centroid is 52.56 m from Wikidata P625 (the previous node was 32.53 m away). The relation does not carry the
+  QID itself; the link is only geometric.
+- **Wikidata Q651643 ("Torre PwC").** Not our tower. Saved `responses/wikidata_Q651643.json`: label it/en "Torre PwC",
+  en description "skyscraper", it alias "Torre Sacyr Vallehermoso", P131 = Q2807 (Madrid), P625 = 40.4767, -3.6878.
+  The entity has no redirect (`redirects` absent) and no P1889 "different from"/duplicate statement.
+  Overpass (`responses/overpass_Q651643.json`) returns one element tagged with it: way/98280725, Madrid, Paseo de la
+  Castellana, `old_name=Torre Sacyr Vallehermoso`, `wikipedia=es:Torre PwC`. It is the Madrid tower, not a duplicate
+  of Q3995204 (Milan, "Torre Libeskind", P131 = Q490 Milano, P625 = 45.47882, 9.15687). Q3995204 stays.
