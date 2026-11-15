@@ -1,7 +1,7 @@
 """Extract DBT 2020 building footprints and volume units for the pilot extent.
 
 Reads the Shapefiles straight from the ZIP (GDAL /vsizip/), keeps every feature that
-intersects the extent whole, in the source CRS (EPSG:7791), sorted by a stable source key,
+intersects the extent whole (volumes: all volumes of every building that intersects it), in the source CRS (EPSG:7791), sorted by a stable source key,
 and writes data/interim/dbt_pilot.gpkg. Also writes the T-1.2 report artefacts
 (schema.md, summary.json). Run: python -m milano_iso.dbt_extract --extent pilot
 """
@@ -264,6 +264,22 @@ def read_building_table(path: str, key: str, keep: set) -> pd.DataFrame:
     return df.iloc[order][cols].reset_index(drop=True)
 
 
+def selected_building_ids(layers: dict, touching_volumes: pd.DataFrame) -> set:
+    """Building ids (EDIFC_<n> / EDI_MIN_<n>) of every building that intersects the extent:
+    the CLASSREF of the extracted footprint layers plus the CEDIUV of volumes that touch it."""
+    ids = set(touching_volumes["CEDIUV"])
+    for lname in ("edifc", "edifc_me", "edi_min", "edi_min_me"):
+        ids |= set(layers[lname]["CLASSREF"])
+    return ids
+
+
+def read_building_volumes(path: str, building_ids: set) -> gpd.GeoDataFrame:
+    """All UN_VOL features whose CEDIUV is in `building_ids`, wherever they lie."""
+    gdf = pyogrio.read_dataframe(path)
+    keep = gdf["CEDIUV"].isin(building_ids)
+    return gdf[keep.to_numpy()].reset_index(drop=True)
+
+
 def extract_pilot(zip_path: Path, out_gpkg: Path) -> dict:
     poly = extent_polygon(config.PILOT_AOI_BBOX)
     out_gpkg.parent.mkdir(parents=True, exist_ok=True)
@@ -271,11 +287,23 @@ def extract_pilot(zip_path: Path, out_gpkg: Path) -> dict:
         out_gpkg.unlink()
     layers = {}
     for name, (stem, key) in LAYERS.items():
+        if name == "un_vol":
+            continue  # selected by building below
         gdf = sort_by_key(read_intersecting(vsizip(zip_path, stem), poly), key)
         if str(gdf.crs) != SOURCE_CRS and gdf.crs.to_string() != SOURCE_CRS:
             raise SystemExit(f"{stem}: unexpected CRS {gdf.crs}")
         pyogrio.write_dataframe(gdf, out_gpkg, layer=name, driver="GPKG")
         layers[name] = gdf
+    # Volumes are selected per building (ADR-0013: keep features whole): every EDIFC / EDI_MIN
+    # building that intersects the extent, by footprint (IS or ME) or by one of its volumes,
+    # contributes ALL its volumes, wherever they lie.
+    stem, key = LAYERS["un_vol"]
+    touching = read_intersecting(vsizip(zip_path, stem), poly)
+    layers["un_vol"] = sort_by_key(
+        read_building_volumes(vsizip(zip_path, stem), selected_building_ids(layers, touching)),
+        key,
+    )
+    pyogrio.write_dataframe(layers["un_vol"], out_gpkg, layer="un_vol", driver="GPKG")
     # Attribute tables for every building the extract knows about (footprint layers plus the
     # CEDIUV of every extracted volume, so a volume whose footprint is outside is still typed).
     keep = set(layers["un_vol"]["CEDIUV"])

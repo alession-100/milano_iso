@@ -2,7 +2,8 @@
 
 Reads ``interim/osm_pilot.gpkg`` (EPSG:4326), ``interim/dbt_pilot.gpkg`` (EPSG:7791) and the
 comune boundary, and writes ``processed/pilot.gpkg`` (every layer EPSG:32632), plus the drop
-log and the validation report. No simplification, no heights, no OSM/DBT matching here.
+log and the validation report. No simplification, no heights, no OSM/DBT matching here. DBT volumes outside the extent are
+kept when their building intersects it (T-1.4).
 
 Run: ``python -m milano_iso.normalise --extent pilot``
 """
@@ -554,18 +555,43 @@ def write_layers(layers: dict, out: Path) -> None:
         pyogrio.write_dataframe(layers[name], out, layer=name, driver="GPKG")
 
 
+def volumes_outside_extent(vols: pd.DataFrame, buildings: pd.DataFrame, extent) -> tuple[int, int]:
+    """(violations, kept_with_building) for DBT volumes.
+
+    A volume outside the extent is allowed only when its building intersects the extent
+    (ADR-0013, T-1.4: all volumes of a building are kept). A building intersects the extent
+    when one of its volumes or its footprint does. Returns the number of outside volumes
+    whose building does not intersect (violations) and the number allowed (kept).
+    """
+    inside = shapely.intersects(vols.geometry.to_numpy(), extent)
+    touching = set(vols.loc[inside, "building_ref"])
+    touching |= set(
+        buildings.loc[shapely.intersects(buildings.geometry.to_numpy(), extent), "bld_id"]
+    )
+    outside = vols.loc[~inside]
+    ok = outside["building_ref"].isin(touching)
+    return int((~ok).sum()), int(ok.sum())
+
+
 def check_output(gpkg: Path, extent) -> dict:
     """Read the written file back: CRS, geometry validity and extent intersection per layer."""
     res = {}
+    frames = {}
     for name in sorted(n for n, _ in pyogrio.list_layers(gpkg)):
         info = pyogrio.read_info(gpkg, layer=name)
-        g = pyogrio.read_dataframe(gpkg, layer=name).geometry.to_numpy()
+        frames[name] = pyogrio.read_dataframe(gpkg, layer=name)
+        g = frames[name].geometry.to_numpy()
         res[name] = {
             "crs": info["crs"],
             "features": len(g),
             "invalid": int((~shapely.is_valid(g)).sum()),
             "outside_extent": int((~shapely.intersects(g, extent)).sum()),
         }
+    violations, kept = volumes_outside_extent(
+        frames["dbt_volumes"], frames["dbt_buildings"], extent
+    )
+    res["dbt_volumes"]["outside_extent"] = violations
+    res["dbt_volumes"]["outside_extent_kept_with_building"] = kept
     return res
 
 
@@ -617,8 +643,9 @@ def run(osm_gpkg: Path, dbt_gpkg: Path, boundary: Path, out_gpkg: Path, bbox) ->
     per_layer = {}
     for name in sorted(stats):
         per_layer[name] = {**stats[name]}
-        for k in ("crs", "invalid", "outside_extent"):
-            per_layer[name][k] = checks[name][k]
+        for k in ("crs", "invalid", "outside_extent", "outside_extent_kept_with_building"):
+            if k in checks[name]:
+                per_layer[name][k] = checks[name][k]
     report = {
         "extent": {"name": "pilot", "bbox_epsg32632": list(bbox)},
         "canonical_dump_sha256_pilot_gpkg": canonical_dump_sha256(out_gpkg),
@@ -718,6 +745,8 @@ def write_validation_md(report: dict, path: Path) -> None:
         f"- CRS EPSG:32632 on every layer: {_mark(a['crs_all_layers_epsg32632'])}",
         f"- Invalid geometries: {a['invalid_geometries_total']} ({_mark(a['invalid_geometries_total'] == 0)})",
         f"- Features outside the extent: {a['features_outside_extent_total']} ({_mark(a['all_features_intersect_extent'])})",
+        "  (a DBT volume outside the extent is allowed only when its building intersects it;",
+        f"  allowed volumes: {report['layers']['dbt_volumes'].get('outside_extent_kept_with_building', 0)})",
         "",
         "## Completeness (target >= 99%)",
         "",
