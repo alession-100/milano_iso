@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 0 - G0 FAIL (1 blocker), corrective tasks running
+**Current phase:** 0 - G0 re-review
 **Last gate passed:** none
 **Open escalations:** none
 
@@ -13,7 +13,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-0.3 | done | reports/R-0.3.md | Verified by orchestrator: script reproduces origin/bbox, 0 TO VERIFY, Wikidata P625 / Geofabrik size / DBT licence re-checked live. Origin 83 m mismatch resolved in ADR-0004. Open: DBT `UN_VOL_AV` semantics and join to `EDIFC` (T-1.2); Pages custom headers unconfirmed (T-6.3) |
 
 | T-0.3a | done | reports/R-0.3a.md | Verified independently (shapely centroid 514978.51, 5034535.58; config constants, bbox, WGS84 corners and 83.4 m distance all match). ADR-0004 frozen. Was: Corrective (T-0.3 retry 1/2): G0 blocker B1, origin centroid float error (orchestrator confirmed with shapely: E 514978.511, N 5034535.581) |
-| T-0.2a | in progress | | G0 non-blocking hardening: uv --locked, e2e output dir, test independence, CI permissions |
+| T-0.2a | done | reports/R-0.2a.md | Verified: make setup/test pass, e2e 1 passed, test passes alone, tree clean after e2e, CI permissions read-only. Was: G0 non-blocking hardening: uv --locked, e2e output dir, test independence, CI permissions |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 

@@ -71,7 +71,7 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 ## ADR-0012 - Phase 0 scaffold decisions (from T-0.2)
 - **Status:** Accepted (2026-11-15)
 - **Decisions:**
-  - e2e console check ignores exactly one message, `GPU stall due to ReadPixels`. Headless Chromium's software GL (SwiftShader) emits it when a WebGL canvas is screenshotted, so the screenshot causes it, not the app. Every other console error, warning or page error fails the test. The filter is a single regex in `web/e2e/smoke.spec.ts` and must not be widened without a new ADR.
+  - e2e console check ignores exactly one message, `GPU stall due to ReadPixels`. Headless Chromium's software GL (SwiftShader) emits it when a WebGL canvas is screenshotted, so the screenshot causes it, not the app. Every other console error, warning or page error fails the test. The filter is a single fully anchored regex in `web/e2e/smoke.spec.ts` (since T-0.2a), matching the full observed message `[.WebGL-0x<hex>]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels`. It must not be widened without a new ADR. Known risk: the CI runner's GL driver may word the prefix differently.
   - TypeScript is pinned to 6.0.3, the version npm resolved with the pinned typescript-eslint (7.0.2 exists). Upgrade only together with typescript-eslint support.
   - Extra pinned dev dependencies accepted: pyyaml, hatchling (build backend), @eslint/js, @types/node.
   - `npm audit` reports 7 moderate findings, all in dev dependencies (not shipped to the browser). Accepted for now and re-checked in T-7.2.
