@@ -1,0 +1,21 @@
+# Raw and intermediate data (never committed)
+data/
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+# Node
+node_modules/
+web/dist/
+web/test-results/
+web/playwright-report/
+# Generated tiles (built from data)
+build/
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.claude/settings.local.json
