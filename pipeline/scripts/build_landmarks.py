@@ -159,7 +159,9 @@ def check_contains_node(lid, qid, node_id, typ, oid, outers, inners):
     if not any(e["type"] == "node" and e["id"] == node_id for e in ov["elements"]):
         raise ValueError(f"{lid}: node/{node_id} does not carry wikidata={qid} in saved Overpass")
     if any("building" in e.get("tags", {}) for e in ov["elements"]):
-        raise ValueError(f"{lid}: a building element carries {qid}; the node fallback is not needed")
+        raise ValueError(
+            f"{lid}: a building element carries {qid}; the node fallback is not needed"
+        )
     cands = load(f"contains_node_{node_id}.json")["elements"]
     if [(e["type"], e["id"]) for e in cands] != [(typ, oid)]:
         raise ValueError(f"{lid}: not exactly one containing building: {cands}")
