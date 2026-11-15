@@ -9,8 +9,8 @@ Single source of truth for state. The orchestrator updates it after every accept
 | Task | Status | Report | Notes |
 |---|---|---|---|
 | T-0.1 | done | - | Owner answers 2026-11-15; ADR-0001..0011 accepted (ADR-0003 provisional until checkpoint render) |
-| T-0.2 | todo | | |
-| T-0.3 | todo | | |
+| T-0.2 | in progress | | delegated to executor (worktree) |
+| T-0.3 | in progress | | delegated to executor (worktree) |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
