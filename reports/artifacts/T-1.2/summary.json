@@ -1,0 +1,330 @@
+{
+  "av_vs_qe_minus_base_z": {
+    "01": {
+      "max": 0.0010000000000118803,
+      "min": -2.1316282072803006e-14,
+      "n": 4209,
+      "qe_minus_basez_minus_av_median": 0.0,
+      "share_abs_le_0.05": 1.0,
+      "share_abs_le_0.5": 1.0
+    },
+    "02": {
+      "max": 7.662999999999997,
+      "min": -1.4210854715202004e-14,
+      "n": 40,
+      "qe_minus_basez_minus_av_median": 0.0,
+      "share_abs_le_0.05": 0.9,
+      "share_abs_le_0.5": 0.9
+    },
+    "03": {
+      "max": 3.5000000000000178,
+      "min": 3.4999999999999822,
+      "n": 212,
+      "qe_minus_basez_minus_av_median": 3.5,
+      "share_abs_le_0.05": 0.0,
+      "share_abs_le_0.5": 0.0
+    },
+    "04": {
+      "max": 1.7763568394002505e-14,
+      "min": -1.9539925233402755e-14,
+      "n": 196,
+      "qe_minus_basez_minus_av_median": 0.0,
+      "share_abs_le_0.05": 1.0,
+      "share_abs_le_0.5": 1.0
+    }
+  },
+  "canonical_dump_sha256_dbt_pilot_gpkg": "f71400ef4fd06992b16604f710d78e2db97f25cf1937023157fb099ed44acf64",
+  "citywide_cediuv_match_rate": {
+    "to_edi_min_cr_edf_me": 0.13492721131642152,
+    "to_edifc_me": 0.8650727886835785,
+    "to_either": 1.0
+  },
+  "counts": {
+    "edifc": 170,
+    "edifc_me": 171,
+    "edifc_me_sr": 665,
+    "un_vol": 4657
+  },
+  "crs_transform": {
+    "operations": [
+      {
+        "accuracy_m": 1.0,
+        "available": true,
+        "name": "pipeline"
+      }
+    ],
+    "selected_accuracy_m": 1.0,
+    "selected_by_default": "Inverse of UTM zone 32N + RDN2008 to WGS 84 (1) + UTM zone 32N",
+    "shift_at_pilot_centre_m": {
+      "dE": -1.2508826330304146e-07,
+      "dN": 0.00012011919170618057
+    },
+    "source_crs": "RDN2008 / UTM zone 32N",
+    "target_crs": "WGS 84 / UTM zone 32N"
+  },
+  "edifc_me_sr_por_counts": {
+    "01": 217,
+    "02": 40,
+    "03": 212,
+    "04": 196
+  },
+  "extent": {
+    "bbox_epsg32632": [
+      514479,
+      5034036,
+      515479,
+      5035036
+    ],
+    "name": "pilot"
+  },
+  "join_un_vol_to_edifc_is": {
+    "buildings": 170,
+    "buildings_with_volume": 170,
+    "buildings_without_volume": 0,
+    "match_rate": 0.9896929353661156,
+    "un_vol": 4657,
+    "un_vol_matched": 4609,
+    "volumes_per_building_histogram": {
+      "1": 16,
+      "10": 4,
+      "100": 1,
+      "11": 2,
+      "113": 1,
+      "12": 1,
+      "13": 4,
+      "130": 1,
+      "137": 1,
+      "14": 3,
+      "15": 3,
+      "152": 1,
+      "16": 4,
+      "168": 1,
+      "17": 1,
+      "170": 1,
+      "18": 3,
+      "19": 3,
+      "196": 1,
+      "2": 10,
+      "20": 1,
+      "21": 2,
+      "22": 3,
+      "23": 1,
+      "24": 2,
+      "25": 3,
+      "26": 1,
+      "27": 2,
+      "28": 1,
+      "29": 2,
+      "3": 9,
+      "30": 3,
+      "31": 2,
+      "32": 2,
+      "33": 1,
+      "38": 1,
+      "39": 3,
+      "4": 11,
+      "40": 1,
+      "41": 2,
+      "42": 1,
+      "43": 1,
+      "44": 1,
+      "47": 2,
+      "48": 1,
+      "49": 3,
+      "5": 7,
+      "50": 1,
+      "51": 1,
+      "52": 1,
+      "55": 1,
+      "57": 2,
+      "6": 4,
+      "64": 1,
+      "66": 1,
+      "7": 4,
+      "71": 1,
+      "73": 1,
+      "76": 1,
+      "79": 1,
+      "8": 4,
+      "81": 1,
+      "82": 2,
+      "83": 1,
+      "84": 1,
+      "9": 8,
+      "94": 1,
+      "99": 1
+    },
+    "volumes_per_building_max": 196,
+    "volumes_per_building_median": 14.0,
+    "volumes_per_building_min": 1
+  },
+  "join_un_vol_to_edifc_me": {
+    "buildings": 171,
+    "buildings_with_volume": 171,
+    "buildings_without_volume": 0,
+    "match_rate": 0.9899076658793214,
+    "un_vol": 4657,
+    "un_vol_matched": 4610,
+    "volumes_per_building_histogram": {
+      "1": 17,
+      "10": 4,
+      "100": 1,
+      "11": 2,
+      "113": 1,
+      "12": 1,
+      "13": 4,
+      "130": 1,
+      "137": 1,
+      "14": 3,
+      "15": 3,
+      "152": 1,
+      "16": 4,
+      "168": 1,
+      "17": 1,
+      "170": 1,
+      "18": 3,
+      "19": 3,
+      "196": 1,
+      "2": 10,
+      "20": 1,
+      "21": 2,
+      "22": 3,
+      "23": 1,
+      "24": 2,
+      "25": 3,
+      "26": 1,
+      "27": 2,
+      "28": 1,
+      "29": 2,
+      "3": 9,
+      "30": 3,
+      "31": 2,
+      "32": 2,
+      "33": 1,
+      "38": 1,
+      "39": 3,
+      "4": 11,
+      "40": 1,
+      "41": 2,
+      "42": 1,
+      "43": 1,
+      "44": 1,
+      "47": 2,
+      "48": 1,
+      "49": 3,
+      "5": 7,
+      "50": 1,
+      "51": 1,
+      "52": 1,
+      "55": 1,
+      "57": 2,
+      "6": 4,
+      "64": 1,
+      "66": 1,
+      "7": 4,
+      "71": 1,
+      "73": 1,
+      "76": 1,
+      "79": 1,
+      "8": 4,
+      "81": 1,
+      "82": 2,
+      "83": 1,
+      "84": 1,
+      "9": 8,
+      "94": 1,
+      "99": 1
+    },
+    "volumes_per_building_max": 196,
+    "volumes_per_building_median": 14.0,
+    "volumes_per_building_min": 1
+  },
+  "sort_keys": {
+    "edifc": "CLASSREF",
+    "edifc_me": "CLASSREF",
+    "edifc_me_sr": "SUBREGID",
+    "un_vol": "CLASSID"
+  },
+  "un_vol_av": {
+    "max": 100.119,
+    "median": 19.72,
+    "min": 0.703,
+    "negative_count": 0,
+    "null_count": 0,
+    "zero_count": 0
+  },
+  "un_vol_av_by_por": {
+    "01": {
+      "median": 19.677,
+      "n": 4209,
+      "negative_count": 0,
+      "zero_count": 0
+    },
+    "02": {
+      "median": 15.626999999999999,
+      "n": 40,
+      "negative_count": 0,
+      "zero_count": 0
+    },
+    "03": {
+      "median": 22.953000000000003,
+      "n": 212,
+      "negative_count": 0,
+      "zero_count": 0
+    },
+    "04": {
+      "median": 17.5185,
+      "n": 196,
+      "negative_count": 0,
+      "zero_count": 0
+    }
+  },
+  "un_vol_av_citywide_negative_values": [
+    -0.001,
+    -0.001
+  ],
+  "un_vol_av_citywide_zero_or_negative": {
+    "negative_count": 2,
+    "por_of_zero_or_negative": {
+      "01": 286,
+      "03": 3
+    },
+    "por_of_zero_or_negative_note": "records with UN_VOL_AV <= 0",
+    "zero_count": 287
+  },
+  "un_vol_ex_counts": {
+    "01": 4657
+  },
+  "un_vol_ex_counts_citywide": {
+    "01": 237743
+  },
+  "un_vol_por_counts": {
+    "01": 4209,
+    "02": 40,
+    "03": 212,
+    "04": 196
+  },
+  "un_vol_por_counts_citywide": {
+    "01": 214233,
+    "02": 6540,
+    "03": 3488,
+    "04": 13405,
+    "05": 40,
+    "07": 1,
+    "08": 35,
+    "09": 1
+  },
+  "un_vol_qe": {
+    "max": 217.229,
+    "median": 139.739,
+    "min": 117.17
+  },
+  "unmatched_un_vol_in_pilot": {
+    "cediuv_prefixes": {
+      "EDI_MIN_": 47
+    },
+    "count": 47,
+    "present_in_citywide_edi_min_cr_edf_me": 47,
+    "present_in_citywide_edifc_me": 0
+  }
+}
