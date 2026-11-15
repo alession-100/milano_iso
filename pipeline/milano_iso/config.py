@@ -1,5 +1,17 @@
 """Frozen project constants."""
 
+import os
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+# Data root (ADR-0013). Override with MILANO_ISO_DATA so that worktrees can share one
+# download cache. Layout: raw/<source>/, interim/, processed/.
+DATA_DIR = Path(os.environ.get("MILANO_ISO_DATA", REPO_ROOT / "data"))
+RAW_DIR = DATA_DIR / "raw"
+INTERIM_DIR = DATA_DIR / "interim"
+PROCESSED_DIR = DATA_DIR / "processed"
+
 # Map origin (ADR-0004), EPSG:32632 metres: the centroid of OSM relation/18017026
 # (Duomo di Milano, wikidata=Q18068), rounded to whole metres. Overpass
 # timestamp_osm_base 2026-11-15T19:00:21Z. Produced by

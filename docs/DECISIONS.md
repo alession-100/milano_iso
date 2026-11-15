@@ -20,7 +20,7 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Consequences:** More custom code than a map library; exact SimCity-like projection.
 
 ## ADR-0003 - Camera angle
-- **Status:** Accepted, provisional (2026-11-15). Re-confirmed by the owner at the Phase 0 checkpoint from a side-by-side render.
+- **Status:** Accepted (2026-11-15). The owner confirmed 30 degrees at the Phase 0 checkpoint after seeing the side-by-side render (`reports/artifacts/T-0.2/side-by-side.png`).
 - **Context:** Classic SimCity pixel look is a 2:1 dimetric view; "true isometric" is slightly steeper.
 - **Decision:** Azimuth 45 degrees, elevation 30 degrees (ground squares appear as 2:1 rhombi). The alternative, 35.264 degrees (true isometric), is rendered side by side in T-0.2 for the owner to compare.
 - **Consequences:** Affects shading, texture choices and picking maths. The angle is a single config constant so it can change cheaply until Phase 3.
@@ -76,3 +76,13 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - Extra pinned dev dependencies accepted: pyyaml, hatchling (build backend), @eslint/js, @types/node.
   - `npm audit` reports 7 moderate findings, all in dev dependencies (not shipped to the browser). Accepted for now and re-checked in T-7.2.
 - **Integration fix:** after merging T-0.2 and T-0.3, `ruff` flagged `pipeline/scripts/origin_from_sources.py` (RUF007 plus formatting). The orchestrator applied ruff's fix. Script output is byte-identical before and after (diff checked).
+
+## ADR-0013 - Phase 1 data layout and pipeline step conventions
+- **Status:** Accepted (2026-11-15)
+- **Decision:**
+  - `data/raw/<source>/` holds downloaded files, unchanged. `data/interim/` holds per-source extracts in the source CRS. `data/processed/` holds normalised layers in EPSG:32632. All three are gitignored. Every path derives from `config.DATA_DIR`, which the env var `MILANO_ISO_DATA` can override (so parallel worktrees share one download cache). Manifests and the `pipeline/manifests/` folder always stay in the repo.
+  - Every downloaded file has a committed manifest `pipeline/manifests/<source>.json` with url, retrieval date (UTC), byte size and sha256. Fetch steps are idempotent: they skip the download when the file exists and its sha256 matches the manifest, and fail loudly on a mismatch.
+  - Each pipeline step is a module run as `uv run python -m milano_iso.<step>`. Each step's Make targets live in their own fragment `pipeline/mk/<step>.mk`, which appends to `DATA_STEPS`. This lets parallel tasks avoid editing a shared Makefile.
+  - **Processing extent:** a feature is kept when it intersects the extent, and is kept whole (no cutting at the extent edge). Phase 1 uses the pilot AOI (ADR-0004); Phase 6 uses the comune boundary.
+  - Landmarks are located by Wikidata QID, which is then resolved to the OSM element tagged with it. Their positions follow ADR-0011.
+- **Consequences:** Reruns are cheap and deterministic. A changed upstream file is detected rather than silently used.

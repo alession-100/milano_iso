@@ -14,8 +14,12 @@ test: lint
 	npm --prefix web run lint
 	npm --prefix web run test
 
-data:
-	@echo "make data: not implemented yet (Phase 1/2)"
+# Pipeline steps register themselves in pipeline/mk/*.mk (ADR-0013).
+DATA_STEPS :=
+-include $(sort $(wildcard pipeline/mk/*.mk))
+
+data: $(DATA_STEPS)
+	@echo "make data: done ($(DATA_STEPS))"
 
 tiles:
 	@echo "make tiles: not implemented yet (Phase 1/2)"

@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 0 - HUMAN CHECKPOINT (awaiting owner)
+**Current phase:** 1 - Data acquisition and validation (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
 **Last gate passed:** G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -15,6 +15,13 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-0.3a | done | reports/R-0.3a.md | Verified independently (shapely centroid 514978.51, 5034535.58; config constants, bbox, WGS84 corners and 83.4 m distance all match). ADR-0004 frozen. Was: Corrective (T-0.3 retry 1/2): G0 blocker B1, origin centroid float error (orchestrator confirmed with shapely: E 514978.511, N 5034535.581) |
 | T-0.2a | done | reports/R-0.2a.md | Verified: make setup/test pass, e2e 1 passed, test passes alone, tree clean after e2e, CI permissions read-only. Was: G0 non-blocking hardening: uv --locked, e2e output dir, test independence, CI permissions |
 
+| T-1.1 | todo | | OSM extract + comune boundary |
+| T-1.2 | todo | | DBT 2020 |
+| T-1.3 | todo | | |
+| T-1.4 | todo | | |
+| T-1.5 | todo | | landmarks.yaml |
+| T-1.6 | todo | | |
+
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
 ## Environment notes (dev machine, Windows 11)
@@ -24,7 +31,7 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 - No GitHub remote yet; `gh` CLI not installed. CI cannot run until the owner creates the repo.
 
 ## Carry-over risks from G0
-- CI never run (no remote). First run may trip the anchored GPU-stall filter on Linux (ADR-0012).
+- CI never run (no remote; owner has not yet supplied a GitHub repo URL). First run may trip the anchored GPU-stall filter on Linux (ADR-0012).
 - CI actions pinned by tag, not SHA. Pin by SHA when the remote exists.
 - Attribution is still a placeholder. It must read "(c) OpenStreetMap contributors" (+ Comune di Milano CC BY if DBT is used) before any OSM geometry renders (Phase 3).
 - The web client needs an origin constant that matches `pipeline/milano_iso/config.py`, with a test (Phase 2/3).
