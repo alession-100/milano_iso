@@ -180,3 +180,17 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - Otherwise the width comes from a per-class **style table** in the pipeline config. These widths are stylisation, labelled as such, and are not presented as measured data.
 - **Manifest:** `tiles.json` with the format version, CRS, origin and tile size, and per tile: id, bbox (both local and EPSG:32632), counts per layer, byte size, gzip size and sha256. Validated against a committed JSON Schema (T-2.3).
 - **Budget:** 250 KB gzip per tile (VERIFICATION section 5). Measured in T-2.2; if exceeded, the tile size or the format is revisited by ADR.
+
+## ADR-0022 - Compact tile encoding (amends ADR-0021 format); all intersecting buildings exported
+- **Status:** Accepted (2026-11-16)
+- **Context:** T-2.2 measured all 4 pilot tiles above the 250 KB gzip budget: 379-662 KB, with 13.7 MB of raw glb in total. Buildings dominate (tile 0_0: 128,763 vertices for 42,921 triangles). The export is effectively non-indexed: three vertices per triangle, with float32 normals and float32 positions.
+- **Decision:**
+  1. **No `NORMAL` attribute.** The client uses flat shading, with normals derived in the shader from screen-space derivatives (three.js `flatShading: true`). Vertices are then shared through indices: each ring vertex is stored once at the bottom and once at the top of its volume.
+  2. **Quantised positions (`KHR_mesh_quantization`, required extension).** `POSITION` is int16 (normalized=false). The values are centimetre offsets from the tile's south-west corner at y = 0, with the node's translation set to that corner in client metres and its scale to 0.01.
+     - Range: +/-327.67 m per axis. That covers a 500 m tile only if the offset starts at the tile centre, so the offset is taken **from the tile centre** instead.
+     - Heights up to 327 m fit (the pilot maximum is 100.2 m). A feature exceeding the range makes the export fail loudly.
+     - Rounding to 1 cm is far below the 0.5 m simplification tolerance.
+  3. **Smallest index and id types.** `uint16` indices for meshes with fewer than 65,536 vertices (otherwise the mesh is split into chunks named `<layer>#<n>`). `_FEATURE_ID` is `uint16` when the tile has fewer than 65,536 features, else `uint32`.
+  4. If the tiles are still over budget after 1-3, the next step is a smaller tile size (250 m), decided by ADR with measurements. Mesh compression (meshopt or Draco) is not adopted: it adds a dependency and a decoder.
+  5. **All intersecting buildings are exported.** A rendered building whose representative point falls in a tile outside the 2 x 2 pilot block still gets exported, in that tile. Every feature then appears in exactly one tile, and edge tiles may hold only those buildings.
+  6. **Underground roads and rail** (`underground = true`) are not exported in v1. Confirmed from T-2.2's assumption.
