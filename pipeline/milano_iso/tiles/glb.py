@@ -10,55 +10,106 @@ CHUNK_JSON = 0x4E4F534A
 CHUNK_BIN = 0x004E4942
 ARRAY_BUFFER = 34962
 ELEMENT_ARRAY_BUFFER = 34963
-FLOAT = 5126
+UNSIGNED_SHORT = 5123
 UNSIGNED_INT = 5125
+SHORT = 5122
 GENERATOR = "milano-iso"
+EXTENSION = "KHR_mesh_quantization"
+QUANT_SCALE = 0.01  # one int16 unit is 1 cm
+INT16_MAX = 32767
+UINT16_LIMIT = 65536
 
 
 def _pad(b: bytes, fill: bytes) -> bytes:
     return b + fill * (-len(b) % 4)
 
 
-def write_glb(meshes: list[dict]) -> bytes:
-    """meshes: dicts with name, positions (n,3) f32, normals (n,3) f32, feature_ids (n,) u32,
-    indices (m,) u32. One node, mesh, primitive and material per entry, named after it."""
+def quantise(positions: np.ndarray, centre: tuple[float, float]) -> np.ndarray:
+    """int16 centimetre offsets from the tile centre (cx, cz) at y = 0. Raises when out of range."""
+    off = np.asarray(positions, dtype=np.float64) - np.array([centre[0], 0.0, centre[1]])
+    q = np.rint(off / QUANT_SCALE)
+    if np.abs(q).max() > INT16_MAX:
+        raise ValueError(
+            f"position out of int16 range (+/-{INT16_MAX * QUANT_SCALE:.2f} m from the tile "
+            f"centre): max offset {np.abs(off).max():.3f} m"
+        )
+    return q.astype(np.int16)
+
+
+def dequantise(q: np.ndarray, centre: tuple[float, float]) -> np.ndarray:
+    """Client-frame metres from int16 values, as a node (translation, scale 0.01) does."""
+    return q.astype(np.float64) * QUANT_SCALE + np.array([centre[0], 0.0, centre[1]])
+
+
+def write_glb(meshes: list[dict], centre: tuple[float, float], n_features: int) -> bytes:
+    """meshes: dicts with name, positions (n,3) float64 in client metres, feature_ids (n,) and
+    indices (m,). One node, mesh, primitive and material per entry, named after it.
+
+    Positions are stored as int16 centimetres from ``centre`` (x, z of the tile centre in client
+    metres); each node has translation (cx, 0, cz) and scale 0.01 (KHR_mesh_quantization).
+    Indices are uint16 below 65,536 vertices, else uint32; ``_FEATURE_ID`` is uint16 when
+    ``n_features`` < 65,536, else uint32. The int16 POSITION view uses byteStride 8 (6 data bytes
+    plus 2 padding) to keep every vertex 4-byte aligned; the other views are tightly packed.
+    """
     bin_data = bytearray()
     views, accessors, gl_meshes, nodes, materials = [], [], [], [], []
 
-    def add(arr: np.ndarray, comp: int, ctype: str, target: int, with_minmax: bool) -> int:
+    def add(arr, comp, ctype, target, stride=None, minmax=None, count=None) -> int:
         raw = np.ascontiguousarray(arr).astype(arr.dtype.newbyteorder("<")).tobytes()
         off = len(bin_data)
         bin_data.extend(raw)
         bin_data.extend(b"\0" * (-len(bin_data) % 4))
-        views.append({"buffer": 0, "byteOffset": off, "byteLength": len(raw), "target": target})
+        view = {"buffer": 0, "byteOffset": off, "byteLength": len(raw), "target": target}
+        if stride:
+            view["byteStride"] = stride
+        views.append(view)
         acc = {
             "bufferView": len(views) - 1,
             "componentType": comp,
-            "count": int(arr.shape[0]),
+            "count": int(arr.shape[0] if count is None else count),
             "type": ctype,
         }
-        if with_minmax:
-            acc["min"] = [float(v) for v in arr.min(axis=0)]
-            acc["max"] = [float(v) for v in arr.max(axis=0)]
+        if minmax is not None:
+            acc["min"], acc["max"] = minmax
         accessors.append(acc)
         return len(accessors) - 1
 
+    fid_dtype = np.uint16 if n_features < UINT16_LIMIT else np.uint32
+    fid_comp = UNSIGNED_SHORT if fid_dtype is np.uint16 else UNSIGNED_INT
     for k, m in enumerate(meshes):
-        pos = np.asarray(m["positions"], dtype=np.float32)
-        nrm = np.asarray(m["normals"], dtype=np.float32)
-        fid = np.asarray(m["feature_ids"], dtype=np.uint32)
-        idx = np.asarray(m["indices"], dtype=np.uint32)
-        a_pos = add(pos, FLOAT, "VEC3", ARRAY_BUFFER, True)
-        a_nrm = add(nrm, FLOAT, "VEC3", ARRAY_BUFFER, False)
-        a_fid = add(fid, UNSIGNED_INT, "SCALAR", ARRAY_BUFFER, False)
-        a_idx = add(idx, UNSIGNED_INT, "SCALAR", ELEMENT_ARRAY_BUFFER, False)
+        q = quantise(m["positions"], centre)
+        n = len(q)
+        padded = np.zeros((n, 4), dtype=np.int16)
+        padded[:, :3] = q
+        fid = np.asarray(m["feature_ids"])
+        if fid.max() >= np.iinfo(fid_dtype).max + 1:
+            raise ValueError("feature id out of range")
+        fid = fid.astype(fid_dtype)
+        idx_dtype = np.uint16 if n < UINT16_LIMIT else np.uint32
+        idx = np.asarray(m["indices"]).astype(idx_dtype)
+        a_pos = add(
+            padded,
+            SHORT,
+            "VEC3",
+            ARRAY_BUFFER,
+            stride=8,
+            minmax=([int(v) for v in q.min(axis=0)], [int(v) for v in q.max(axis=0)]),
+            count=n,
+        )
+        a_fid = add(fid, fid_comp, "SCALAR", ARRAY_BUFFER)
+        a_idx = add(
+            idx,
+            UNSIGNED_SHORT if idx_dtype is np.uint16 else UNSIGNED_INT,
+            "SCALAR",
+            ELEMENT_ARRAY_BUFFER,
+        )
         materials.append({"name": m["name"]})
         gl_meshes.append(
             {
                 "name": m["name"],
                 "primitives": [
                     {
-                        "attributes": {"POSITION": a_pos, "NORMAL": a_nrm, "_FEATURE_ID": a_fid},
+                        "attributes": {"POSITION": a_pos, "_FEATURE_ID": a_fid},
                         "indices": a_idx,
                         "material": k,
                         "mode": 4,
@@ -66,10 +117,19 @@ def write_glb(meshes: list[dict]) -> bytes:
                 ],
             }
         )
-        nodes.append({"name": m["name"], "mesh": k})
+        nodes.append(
+            {
+                "name": m["name"],
+                "mesh": k,
+                "scale": [QUANT_SCALE] * 3,
+                "translation": [float(centre[0]), 0.0, float(centre[1])],
+            }
+        )
 
     doc = {
         "asset": {"version": "2.0", "generator": GENERATOR},
+        "extensionsUsed": [EXTENSION],
+        "extensionsRequired": [EXTENSION],
         "scene": 0,
         "scenes": [{"nodes": list(range(len(nodes)))}],
         "nodes": nodes,

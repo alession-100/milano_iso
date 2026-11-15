@@ -1,7 +1,7 @@
 """Geometry for the tile export: simplification, extrusion, triangulation, ribbons.
 
 All functions work in local metres (E - E0, N - N0) with the Z-up right-handed frame
-(east, north, up). ``MeshBuilder.to_gl`` converts to the client frame x = E, y = up,
+(east, north, up). ``MeshBuilder.to_gl_chunks`` converts to the client frame x = E, y = up,
 z = -N (a proper rotation, so counter-clockwise winding is preserved).
 """
 
@@ -18,6 +18,7 @@ from milano_iso import style
 SIMPLIFY_TOLERANCE_M = 0.2
 MAX_HAUSDORFF_M = 0.5
 MIN_AREA_M2 = 1e-6
+MAX_CHUNK_VERTICES = 65535  # uint16 indices (ADR-0022)
 
 
 def polygons_of(geom) -> list[Polygon]:
@@ -75,81 +76,106 @@ def triangulate_polygon(poly: Polygon) -> np.ndarray:
 
 
 class MeshBuilder:
-    """Accumulates flat-shaded triangles (duplicated vertices) in the local ENU frame."""
+    """Accumulates indexed triangles with shared vertices in the local ENU frame (ADR-0022).
+
+    A vertex is identified by (x, y, z, feature id), so a ring vertex is stored once per height.
+    Triangles are counter-clockwise seen from outside; normals are not stored (flat shading in
+    the client derives them from screen-space derivatives).
+    """
 
     def __init__(self) -> None:
-        self._pos: list[np.ndarray] = []
-        self._nrm: list[np.ndarray] = []
-        self._fid: list[np.ndarray] = []
+        self._index: dict[tuple[float, float, float, int], int] = {}
+        self._xyz: list[tuple[float, float, float]] = []
+        self._fid: list[int] = []
+        self._tri: list[tuple[int, int, int]] = []
 
-    def add_triangles(self, tris: np.ndarray, normals: np.ndarray, fid: int) -> None:
-        """tris (n, 3, 3), normals (n, 3): one normal per triangle."""
-        n = len(tris)
-        if n == 0:
-            return
-        self._pos.append(tris.reshape(n * 3, 3))
-        self._nrm.append(np.repeat(normals, 3, axis=0))
-        self._fid.append(np.full(n * 3, fid, dtype=np.uint32))
+    def _vertex(self, x: float, y: float, z: float, fid: int) -> int:
+        key = (float(x), float(y), float(z), fid)
+        k = self._index.get(key)
+        if k is None:
+            k = len(self._xyz)
+            self._index[key] = k
+            self._xyz.append(key[:3])
+            self._fid.append(fid)
+        return k
+
+    def add_triangles(self, tris: np.ndarray, fid: int) -> None:
+        """tris (n, 3, 3): counter-clockwise seen from outside."""
+        for t in tris:
+            a, b, c = (self._vertex(v[0], v[1], v[2], fid) for v in t)
+            if a != b and b != c and a != c:
+                self._tri.append((a, b, c))
 
     @property
     def n_vertices(self) -> int:
-        return sum(len(p) for p in self._pos)
+        return len(self._xyz)
 
     @property
     def n_triangles(self) -> int:
-        return self.n_vertices // 3
+        return len(self._tri)
 
     def add_flat(self, poly: Polygon, z: float, fid: int) -> None:
         """Upward-facing triangulated polygon at height z."""
         t2 = triangulate_polygon(poly)
         if len(t2) == 0:
             return
-        tris = np.concatenate([t2, np.full((len(t2), 3, 1), z)], axis=2)
-        self.add_triangles(tris, np.tile([0.0, 0.0, 1.0], (len(t2), 1)), fid)
+        self.add_triangles(np.concatenate([t2, np.full((len(t2), 3, 1), z)], axis=2), fid)
 
     def add_extrusion(self, poly: Polygon, bottom: float, top: float, fid: int) -> None:
         """Walls from bottom to top, a flat top cap, and a bottom cap only if bottom > 0."""
         poly = orient(poly, 1.0)  # exterior CCW, holes CW: outward is right of the edge
-        wall_t, wall_n = [], []
+        wall = []
         for ring in (poly.exterior, *poly.interiors):
             c = np.asarray(ring.coords, dtype=np.float64)
             for a, b in itertools.pairwise(c):
-                dx, dy = b[0] - a[0], b[1] - a[1]
-                length = math.hypot(dx, dy)
-                if length < 1e-9:
+                if math.hypot(b[0] - a[0], b[1] - a[1]) < 1e-9:
                     continue
-                nrm = [dy / length, -dx / length, 0.0]
                 a0 = [a[0], a[1], bottom]
                 b0 = [b[0], b[1], bottom]
                 b1 = [b[0], b[1], top]
                 a1 = [a[0], a[1], top]
-                wall_t += [[a0, b0, b1], [a0, b1, a1]]
-                wall_n += [nrm, nrm]
-        if wall_t:
-            self.add_triangles(np.array(wall_t), np.array(wall_n), fid)
+                wall += [[a0, b0, b1], [a0, b1, a1]]
+        if wall:
+            self.add_triangles(np.array(wall), fid)
         t2 = triangulate_polygon(poly)
         if len(t2):
-            up = np.concatenate([t2, np.full((len(t2), 3, 1), top)], axis=2)
-            self.add_triangles(up, np.tile([0.0, 0.0, 1.0], (len(t2), 1)), fid)
+            self.add_triangles(np.concatenate([t2, np.full((len(t2), 3, 1), top)], axis=2), fid)
             if bottom > 0:
                 dn = np.concatenate([t2, np.full((len(t2), 3, 1), bottom)], axis=2)[:, [0, 2, 1]]
-                self.add_triangles(dn, np.tile([0.0, 0.0, -1.0], (len(t2), 1)), fid)
+                self.add_triangles(dn, fid)
 
-    def to_gl(self) -> dict[str, np.ndarray]:
-        """Client frame (x = E, y = up, z = -N), cast to float32 last."""
-        if not self._pos:
+    def to_gl_chunks(self, max_vertices: int = MAX_CHUNK_VERTICES) -> list[dict[str, np.ndarray]]:
+        """Client frame (x = E, y = up, z = -N), float64, split into chunks of at most
+        ``max_vertices`` vertices (triangles stay whole, in insertion order)."""
+        if not self._tri:
             raise ValueError("empty mesh")
-        p = np.concatenate(self._pos)
-        n = np.concatenate(self._nrm)
-        fid = np.concatenate(self._fid)
-        pos = np.stack([p[:, 0], p[:, 2], -p[:, 1]], axis=1).astype(np.float32)
-        nrm = np.stack([n[:, 0], n[:, 2], -n[:, 1]], axis=1).astype(np.float32)
-        return {
-            "positions": pos,
-            "normals": nrm,
-            "feature_ids": fid,
-            "indices": np.arange(len(pos), dtype=np.uint32),
-        }
+        xyz = np.asarray(self._xyz, dtype=np.float64)
+        pos_all = np.stack([xyz[:, 0], xyz[:, 2], -xyz[:, 1]], axis=1)
+        fid_all = np.asarray(self._fid, dtype=np.int64)
+        chunks, remap, verts, idx = [], {}, [], []
+
+        def flush() -> None:
+            sel = np.asarray(verts, dtype=np.int64)
+            chunks.append(
+                {
+                    "positions": pos_all[sel],
+                    "feature_ids": fid_all[sel],
+                    "indices": np.asarray(idx, dtype=np.int64),
+                }
+            )
+
+        for tri in self._tri:
+            new = sum(1 for v in set(tri) if v not in remap)
+            if remap and len(remap) + new > max_vertices:
+                flush()
+                remap, verts, idx = {}, [], []
+            for v in tri:
+                if v not in remap:
+                    remap[v] = len(verts)
+                    verts.append(v)
+                idx.append(remap[v])
+        flush()
+        return chunks
 
 
 def parse_width(raw) -> float | None:
