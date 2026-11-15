@@ -1,10 +1,10 @@
 {
   "attribute_transfer": {
-    "dbt_buildings_with_landmark_id": 8,
+    "dbt_buildings_with_landmark_id": 10,
     "dbt_buildings_with_osm_attributes": 191,
     "dbt_buildings_without_osm_attributes": 27
   },
-  "canonical_dump_sha256_pilot_gpkg": "ab5da681a9be949fd7bbbaecc7aefacb04d0c1da2cc52625fe3746bd6ede67db",
+  "canonical_dump_sha256_pilot_gpkg": "0a2d7eeb15481eb98e94f55a04b6de842f0c30efad6e265f763fefa277897aa7",
   "checks": {
     "buildings_ok": true,
     "render_volumes_ok": true
@@ -62,6 +62,22 @@
     "default": 18,
     "osm_height": 1,
     "osm_levels": 3
+  },
+  "landmark_assignment": {
+    "buildings_with_landmark_id": 10,
+    "no_osm_footprint": [
+      "bosco_verticale_torre_confalonieri",
+      "bosco_verticale_torre_de_castillia",
+      "castello_sforzesco",
+      "citylife_allianz",
+      "citylife_generali",
+      "citylife_pwc",
+      "grattacielo_pirelli",
+      "stadio_meazza",
+      "stazione_centrale"
+    ],
+    "no_rendered_overlap": [],
+    "primary_buildings": 7
   },
   "matching": {
     "band": [
