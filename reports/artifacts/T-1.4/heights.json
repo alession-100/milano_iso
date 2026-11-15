@@ -1,10 +1,10 @@
 {
   "attribute_transfer": {
-    "dbt_buildings_with_landmark_id": 10,
+    "dbt_buildings_with_landmark_id": 9,
     "dbt_buildings_with_osm_attributes": 191,
     "dbt_buildings_without_osm_attributes": 27
   },
-  "canonical_dump_sha256_pilot_gpkg": "0a2d7eeb15481eb98e94f55a04b6de842f0c30efad6e265f763fefa277897aa7",
+  "canonical_dump_sha256_pilot_gpkg": "99e418cfead127d1e6be21559799962189f8680ad1dfb7a4397720013b070bc0",
   "checks": {
     "buildings_ok": true,
     "render_volumes_ok": true
@@ -64,7 +64,7 @@
     "osm_levels": 3
   },
   "landmark_assignment": {
-    "buildings_with_landmark_id": 10,
+    "buildings_with_landmark_id": 9,
     "no_osm_footprint": [
       "bosco_verticale_torre_confalonieri",
       "bosco_verticale_torre_de_castillia",
@@ -77,7 +77,7 @@
       "stazione_centrale"
     ],
     "no_rendered_overlap": [],
-    "primary_buildings": 7
+    "primary_buildings": 6
   },
   "matching": {
     "band": [

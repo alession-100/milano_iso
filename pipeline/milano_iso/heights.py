@@ -429,7 +429,11 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
     )
     lm_osm = osm.set_index(["osm_type", "osm_id"]).geometry
     footprints, lm_missing = {}, []
+    # ADR-0018 point 2: a landmark whose own OSM element is not rendered gets no assignment.
+    not_rendered = {(x["osm_type"], x["osm_id"]) for x in osm_rows if not x["rendered"]}
     for (t, i), lid in sorted(landmarks.items(), key=lambda kv: kv[1]):
+        if (t, int(i)) in not_rendered:
+            continue
         if (t, i) in lm_osm.index:
             footprints[lid] = lm_osm.loc[(t, i)]
         else:
