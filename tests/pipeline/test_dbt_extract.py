@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 from milano_iso import dbt_extract as ex
 from milano_iso import dbt_fetch as fe
+from milano_iso import fetch
 from shapely.geometry import Polygon, box
 
 
@@ -96,22 +97,24 @@ def test_height_vs_extrusion():
     assert r["03"]["qe_minus_basez_minus_av_median"] == pytest.approx(3.5)
 
 
-def test_fetch_skips_when_manifest_matches_and_fails_on_mismatch(tmp_path, monkeypatch, capsys):
+def test_fetch_skips_when_manifest_matches_and_fails_on_mismatch(tmp_path, monkeypatch, caplog):
     monkeypatch.setattr(fe.config, "RAW_DIR", tmp_path / "raw")
     monkeypatch.setattr(fe, "MANIFEST_DIR", tmp_path / "man")
     dest = fe.target_path("dbt_spec")
     dest.parent.mkdir(parents=True)
     dest.write_bytes(b"hello")
     fe.MANIFEST_DIR.mkdir()
-    man = {"url": "u", "retrieved_utc": "t", "bytes": 5, "sha256": fe.sha256_file(dest)}
+    url = fe.SOURCES["dbt_spec"]["url"]
+    man = {"url": url, "retrieved_utc": "t", "bytes": 5, "sha256": fetch.sha256_file(dest)}
     fe.manifest_path("dbt_spec").write_text(json.dumps(man))
 
     def boom(*a, **k):
         raise AssertionError("must not download")
 
-    monkeypatch.setattr(fe, "_download", boom)
-    fe.fetch("dbt_spec")
-    assert "skip" in capsys.readouterr().out
+    monkeypatch.setattr(fetch, "_download", boom)
+    with caplog.at_level("INFO", logger="milano_iso.fetch"):
+        fe.fetch("dbt_spec")
+    assert "skip" in caplog.text
     dest.write_bytes(b"tampered")
     with pytest.raises(SystemExit):
         fe.fetch("dbt_spec")

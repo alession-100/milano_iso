@@ -1,6 +1,12 @@
 """Geometry helpers."""
 
+import hashlib
 import itertools
+from pathlib import Path
+
+import numpy as np
+import pyogrio
+import shapely
 
 
 def polygon_centroid_area(ring):
@@ -23,3 +29,25 @@ def polygon_centroid_area(ring):
         cy += (y0 + y1) * cr
     a *= 0.5
     return a, bx + cx / (6 * a), by + cy / (6 * a)
+
+
+def canonical_dump_sha256(gpkg: Path) -> str:
+    """sha256 of a canonical text dump (layers sorted by name, rows in stored order,
+    WKB geometry, repr of attribute values). Independent of gpkg file-level metadata."""
+    h = hashlib.sha256()
+    for layer in sorted(name for name, _ in pyogrio.list_layers(gpkg)):
+        info = pyogrio.read_info(gpkg, layer=layer)
+        h.update(f"LAYER {layer} {info['crs']} {info['geometry_type']}\n".encode())
+        df = pyogrio.read_dataframe(gpkg, layer=layer)
+        h.update(("COLUMNS " + ",".join(f"{c}:{df[c].dtype}" for c in df.columns) + "\n").encode())
+        for row in df.itertuples(index=False):
+            parts = []
+            for v in row:
+                if isinstance(v, shapely.Geometry):
+                    parts.append(shapely.to_wkb(v, output_dimension=3, byte_order=1).hex())
+                elif v is None or (isinstance(v, float) and np.isnan(v)):
+                    parts.append("None")
+                else:
+                    parts.append(repr(v))
+            h.update(("|".join(parts) + "\n").encode())
+    return h.hexdigest()
