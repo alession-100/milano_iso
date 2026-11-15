@@ -29,7 +29,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-1.7 | in progress | | G1 follow-ups: best-fit offset, raised-only ground, duplicates, cosmetics |
 | T-2.1 | done | - | ADR-0021 tile scheme |
 | T-2.2 | done (finding) | reports/R-2.2.md | Verified: 4 tiles load in Node, 0 mismatches. Budget exceeded (379-662 KB gzip vs 250 KB); the export is not indexed. ADR-0022 and T-2.2a |
-| T-2.2a | in progress | | compact encoding |
+| T-2.2a | retry 2/2 | | blocked: int16 range at 1 cm; ADR-0022 2a sets 2 cm |
 | T-2.3 | todo | | |
 | T-2.4 | todo | | |
 
