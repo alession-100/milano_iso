@@ -19,10 +19,10 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-1.2 | done | reports/R-1.2.md | Verified independently: ZIP sha256 matches manifest; own read of the ZIP gives 170 EDIFC_IS, 4657 UN_VOL, join 98.99%, AV = QE - baseZ (POR 01/04), POR 03 offset 3.5; spec pp.129-133 quotes confirmed. Decisions: EDIFC = IS (footprint) + ME (join); EDI_MIN to be included in T-1.3; POR 02/03 handled in T-1.4 |
 | T-1.3 | done | reports/R-1.3.md | Verified independently: 12 layers, all EPSG:32632, 0 invalid, 0 empty, 0 outside the extent; OSM buildings 706/706 and parts 133/133 vs the interim tags; DBT volumes 4657 (EDIFC 4610 + EDI_MIN 47, 0 unmatched); Duomo centroid matches ADR-0004. Classify lists reviewed and accepted. EDIFC_USO kept as codes only (labels did not extract from the PDF) |
 | T-1.4 | done (with correction) | reports/R-1.4.md | Verified: edge fix gives 5821 volumes, unmatched OSM 22/706 (3.1%); top 5 heights inspected (Torre Velasca 100.18 m, Duomo 94.58 m). Default-height rule found biased (about 30 m blocks on a crypt, roofs, an underground entrance), so ADR-0016 and corrective T-1.4a |
-| T-1.4a | in progress | | Default from EDI_MIN median; roof/construction not rendered |
+| T-1.4a | done | reports/R-1.4a.md | Verified: default 3.201 m (EDI_MIN, n=47); 7 not rendered (6 roof, 1 construction); all heights > 0 with a valid source; make test green |
 | T-1.5 | done | reports/R-1.5.md | Verified: 16 entries, in_pilot flags match bbox (7 in pilot); 8 entries re-derived from the live OSM API (with inner rings) match within 0.005 m, and their QIDs match the OSM wikidata tags; YAML reproducible. Centrale uses a node fallback, so corrective T-1.5a |
 | T-1.5a | done | reports/R-1.5a.md | Verified live: relation/18231605 (building=train_station, v3) contains node/6067258870; centroid matches within 0.001 m. Q651643 is the Madrid tower, so Q3995204 is kept. The Wikidata distance (52.6 m) is informational only; the 5 m tolerance applies to processed vs reference position |
-| T-1.6 | todo | | |
+| T-1.6 | in progress | | validation suite |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
@@ -39,3 +39,6 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 - The web client needs an origin constant that matches `pipeline/milano_iso/config.py`, with a test (Phase 2/3).
 - DBT `UN_VOL_AV` semantics and the join to `EDIFC` are unknown (T-1.2).
 - GitHub Pages custom headers unconfirmed (T-6.3).
+- The web client must skip `rendered = false` rows (Phase 2/3 export).
+- Python artifact writers emit CRLF on Windows (git normalises on commit; set newline='
+' when touched).
