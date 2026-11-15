@@ -1,0 +1,36 @@
+[project]
+name = "milano-iso"
+version = "0.1.0"
+description = "Milano Iso data pipeline"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "geopandas==1.2.0",
+    "pyogrio==0.13.0",
+    "pyproj==3.8.0",
+    "shapely==2.2.0",
+]
+
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pipeline/milano_iso"]
+
+[project.scripts]
+milano-iso = "milano_iso.cli:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["pipeline"]
+
+[dependency-groups]
+dev = [
+    "pytest==9.2.0",
+    "pyyaml==6.0.3",
+    "ruff==0.17.5",
+]
