@@ -4,7 +4,7 @@
     "dbt_buildings_with_osm_attributes": 191,
     "dbt_buildings_without_osm_attributes": 27
   },
-  "canonical_dump_sha256_pilot_gpkg": "540f61a1fd6d91c30bb36aeb931f8839bb18d79d4e4d8bce464a0cbe15309d5a",
+  "canonical_dump_sha256_pilot_gpkg": "ab5da681a9be949fd7bbbaecc7aefacb04d0c1da2cc52625fe3746bd6ede67db",
   "checks": {
     "buildings_ok": true,
     "render_volumes_ok": true
@@ -17,11 +17,16 @@
     "render_volumes": 5843
   },
   "dbt_ground_flag_no_por01_buildings": 1,
+  "default": {
+    "method": "median_edi_min_dbt_buildings",
+    "n": 47,
+    "value": 3.2009999999999934
+  },
   "height_m_distribution": {
     "max": 100.17900000000002,
-    "median": 27.321999999999996,
+    "median": 25.225500000000004,
     "min": 2.0,
-    "p25": 14.249249999999993,
+    "p25": 4.454499999999992,
     "p5": 2.689449999999998,
     "p75": 34.1525,
     "p95": 43.62945
@@ -116,6 +121,14 @@
     "unmatched_with_building_parts": 2
   },
   "outliers": [],
+  "render_status": {
+    "not_rendered": 7,
+    "reasons": {
+      "no_walls_roof": 6,
+      "under_construction": 1
+    },
+    "rendered": 233
+  },
   "tallest_five": [
     {
       "height_m": 100.17900000000002,

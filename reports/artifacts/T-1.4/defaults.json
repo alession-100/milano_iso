@@ -1,29 +1,5 @@
 {
-  "by_building_type": {
-    "commercial": {
-      "method": "median_same_building_type",
-      "n": 17,
-      "value": 34.147000000000006
-    },
-    "construction": {
-      "method": "overall_median_fallback_n_lt_5",
-      "n": 0,
-      "value": 28.41000000000001
-    },
-    "roof": {
-      "method": "overall_median_fallback_n_lt_5",
-      "n": 1,
-      "value": 28.41000000000001
-    },
-    "yes": {
-      "method": "median_same_building_type",
-      "n": 66,
-      "value": 30.088499999999996
-    }
-  },
-  "overall_matched_dbt": {
-    "method": "median_all_matched_dbt_buildings",
-    "n": 191,
-    "value": 28.41000000000001
-  }
+  "method": "median_edi_min_dbt_buildings",
+  "n": 47,
+  "value": 3.2009999999999934
 }

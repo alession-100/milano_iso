@@ -7,7 +7,8 @@ Reads ``processed/pilot.gpkg`` (written by ``milano_iso.normalise``) and appends
   ``height_source``.
 - ``buildings``: one row per building (DBT building or unmatched OSM building).
 
-Rules: ADR-0014 (DBT volumes first, OSM for attributes and gaps) and ADR-0015 (height rules).
+Rules: ADR-0014 (DBT volumes first, OSM for attributes and gaps), ADR-0015 (height rules)
+and ADR-0016 (default height, non-rendered roofs and construction sites).
 No height or default constant is typed here: every height is a DBT value, an OSM tag, or a
 median computed from the data. The only constants are the 3.0 m per level of
 ``DATA_SOURCES.md`` and the 0.3048 m per foot used for unit conversion.
@@ -43,7 +44,8 @@ MATCH_THRESHOLD = 0.5
 BAND_LOW, BAND_HIGH = 0.3, 0.7  # reported, to let the orchestrator revisit the threshold
 METRES_PER_LEVEL = 3.0  # DATA_SOURCES.md, "Height fallback chain" step 3
 METRES_PER_FOOT = 0.3048  # unit conversion, not a modelling constant
-MIN_N_FOR_TYPE_DEFAULT = 5  # ADR-0015
+DEFAULT_CLASS = "EDI_MIN"  # ADR-0016: default height = median of minor DBT buildings
+NOT_RENDERED_REASONS = {"roof": "no_walls_roof", "construction": "under_construction"}
 OUTLIER_HIGH_M, OUTLIER_LOW_M = 250.0, 2.0  # VERIFICATION.md section 3
 BOTTOM_TOLERANCE_M = 0.01  # card rule 1: report bottom_m < -0.01
 GROUND_POR = "01"
@@ -235,36 +237,33 @@ def transfer_attributes(bld_geoms: pd.Series, osm: gpd.GeoDataFrame) -> pd.DataF
     return pd.DataFrame.from_dict(rows, orient="index", columns=cols)
 
 
-def derive_defaults(dbt_blds: pd.DataFrame, needed_types, min_n: int = MIN_N_FOR_TYPE_DEFAULT):
-    """Default heights (ADR-0015), computed from data.
+def derive_default(dbt_blds: pd.DataFrame) -> dict:
+    """Default height (ADR-0016): median ``height_m`` of DBT buildings of class ``EDI_MIN``.
 
-    ``dbt_blds``: DBT buildings matched to OSM, with ``building_type`` and ``height_m``.
-    For each needed type: the median ``height_m`` over buildings of that type when there are
-    at least ``min_n``, otherwise the overall median. Returns ``(by_type, overall)``, each
-    entry ``{"value", "n", "method"}``.
+    ``dbt_blds``: DBT buildings with ``building_class`` and ``height_m``. Raises ``ValueError``
+    when there is no such building (no silent fallback). Returns ``{"value", "n", "method"}``.
     """
-    valid = dbt_blds.dropna(subset=["height_m"])
-    overall = {
-        "value": float(valid["height_m"].median()) if len(valid) else None,
-        "n": len(valid),
-        "method": "median_all_matched_dbt_buildings",
+    if "building_class" not in dbt_blds.columns:
+        raise ValueError("cannot derive the default height: no building_class column")
+    sub = dbt_blds.loc[dbt_blds["building_class"] == DEFAULT_CLASS, "height_m"].dropna()
+    if len(sub) == 0:
+        raise ValueError(
+            f"cannot derive the default height: no DBT buildings of class {DEFAULT_CLASS} "
+            "in the processed extent"
+        )
+    return {
+        "value": float(sub.median()),
+        "n": len(sub),
+        "method": "median_edi_min_dbt_buildings",
     }
-    by_type = {}
-    for t in sorted({x for x in needed_types if x is not None}):
-        sub = valid.loc[valid["building_type"] == t, "height_m"]
-        if len(sub) >= min_n:
-            by_type[t] = {
-                "value": float(sub.median()),
-                "n": len(sub),
-                "method": "median_same_building_type",
-            }
-        else:
-            by_type[t] = {
-                "value": overall["value"],
-                "n": len(sub),
-                "method": f"overall_median_fallback_n_lt_{min_n}",
-            }
-    return by_type, overall
+
+
+def render_status(building_type, src: str) -> tuple[bool, str | None]:
+    """ADR-0016: unmatched roofs and construction sites are kept but not rendered."""
+    reason = NOT_RENDERED_REASONS.get(building_type)
+    if reason is None:
+        return True, None
+    return False, reason
 
 
 # ----------------------------------------------------------------------------- build
@@ -306,6 +305,9 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
                 "height_m": float(grp["top_m"].max()),
                 "n_volumes": len(grp),
                 "ground_flag": "no_por01" if (grp["ground_flag"] == "no_por01").any() else None,
+                "building_class": grp["building_class"].iloc[0]
+                if "building_class" in grp.columns
+                else None,
             }
         )
     dbt_b = gpd.GeoDataFrame(dbt_rows, geometry="geometry", crs=METRIC_CRS)
@@ -324,30 +326,20 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
         for t, i in zip(dbt_b["osm_type"], dbt_b["osm_id"], strict=True)
     ]
 
-    # Defaults need the DBT building heights and transferred types.
-    with_osm = dbt_b.dropna(subset=["osm_id"])
+    # Default height (ADR-0016): fails loudly when there is no EDI_MIN building.
+    default = derive_default(dbt_b)
     unmatched = osm[~osm["matched"]].copy()
     parse_log, osm_rows, unmatched_report = [], [], []
-
-    # First pass: which unmatched buildings reach the default rule?
-    need_default = set()
-    for r in unmatched.itertuples():
-        top, src, _ = osm_top_m(r.height_raw, r.levels_raw, None)
-        if src == "default":
-            need_default.add(r.building)
-    by_type, overall = derive_defaults(
-        with_osm.rename(columns={"building_type": "building_type"}), need_default
-    )
 
     parts_tree = STRtree(parts.geometry.to_numpy()) if len(parts) else None
     n_with_parts = 0
     for r in unmatched.itertuples():
         key = osm_key(r.osm_type, r.osm_id)
-        d = by_type.get(r.building, overall)
-        top, src, rows = osm_top_m(r.height_raw, r.levels_raw, d["value"])
+        top, src, rows = osm_top_m(r.height_raw, r.levels_raw, default["value"])
+        rendered, reason = render_status(r.building, src)
         bottom, brows = osm_bottom_m(r.min_height_raw, r.min_level_raw)
-        for field, raw, status, reason in rows + brows:
-            parse_log.append((key, field, raw, status, reason))
+        for field, raw, status, why in rows + brows:
+            parse_log.append((key, field, raw, status, why))
         if parts_tree is not None:
             hits = parts_tree.query(r.geometry, predicate="intersects")
             has_parts = any(
@@ -370,6 +362,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
                 "height_source": src,
                 "coverage": float(r.coverage),
                 "has_parts": has_parts,
+                "rendered": rendered,
+                "render_reason": reason,
             }
         )
         unmatched_report.append(
@@ -382,11 +376,13 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
                 "height_m": top,
                 "bottom_m": bottom,
                 "has_parts": has_parts,
+                "rendered": rendered,
+                "render_reason": reason,
             }
         )
 
     # --- render_volumes
-    dbt_v = vh.rename(columns={}).assign(source="dbt", height_source="dbt")
+    dbt_v = vh.assign(source="dbt", height_source="dbt", rendered=True, render_reason=None)
     dbt_v["height_m"] = dbt_v["top_m"] - dbt_v["bottom_m"]
     rv_dbt = dbt_v[
         [
@@ -398,6 +394,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "height_m",
             "height_source",
             "ground_flag",
+            "rendered",
+            "render_reason",
             "geometry",
         ]
     ]
@@ -411,6 +409,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "height_m": [x["top_m"] - x["bottom_m"] for x in osm_rows],
             "height_source": [x["height_source"] for x in osm_rows],
             "ground_flag": None,
+            "rendered": [x["rendered"] for x in osm_rows],
+            "render_reason": [x["render_reason"] for x in osm_rows],
             "geometry": [x["geometry"] for x in osm_rows],
         }
     )
@@ -432,6 +432,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "building_type": dbt_b["building_type"],
             "landmark_id": dbt_b["landmark_id"],
             "n_volumes": dbt_b["n_volumes"],
+            "rendered": True,
+            "render_reason": None,
             "geometry": dbt_b["geometry"],
         }
     )
@@ -447,6 +449,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "building_type": [x["building_type"] for x in osm_rows],
             "landmark_id": [landmarks.get((x["osm_type"], x["osm_id"])) for x in osm_rows],
             "n_volumes": 1,
+            "rendered": [x["rendered"] for x in osm_rows],
+            "render_reason": [x["render_reason"] for x in osm_rows],
             "geometry": [x["geometry"] for x in osm_rows],
         }
     )
@@ -462,7 +466,7 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
         "osm": osm,
         "dbt_volumes": vh,
         "dbt_buildings": dbt_b,
-        "defaults": {"by_building_type": by_type, "overall_matched_dbt": overall},
+        "defaults": default,
         "parse_log": parse_log,
         "unmatched_report": unmatched_report,
         "n_unmatched_with_parts": n_with_parts,
@@ -596,6 +600,17 @@ def make_report(res: dict) -> dict:
             for s in HEIGHT_SOURCES
             if s != "dbt"
         },
+        "render_status": {
+            "rendered": int(bl["rendered"].sum()),
+            "not_rendered": int((~bl["rendered"]).sum()),
+            "reasons": {
+                str(k): int(v)
+                for k, v in bl.loc[~bl["rendered"], "render_reason"]
+                .value_counts()
+                .sort_index()
+                .items()
+            },
+        },
         "dbt_ground_flag_no_por01_buildings": int((dbt_b["ground_flag"] == "no_por01").sum()),
     }
 
@@ -624,6 +639,15 @@ def write_heights_md(rep: dict, sha: str, path: Path) -> None:
         (
             f"- `render_volumes`: {c['render_volumes']} ({c['dbt_volumes']} DBT volumes, "
             f"{c['render_volumes'] - c['dbt_volumes']} OSM prisms)"
+        ),
+        (
+            f"- Rendered buildings: {rep['render_status']['rendered']}; not rendered: "
+            f"{rep['render_status']['not_rendered']}, by reason: {rep['render_status']['reasons']} "
+            "(ADR-0016: unmatched `building=roof` / `building=construction`)."
+        ),
+        (
+            f"- Default height (ADR-0016): {rep['default']['value']:.3f} m, n = "
+            f"{rep['default']['n']}, method `{rep['default']['method']}`."
         ),
         "",
         "## Share by height_source",
@@ -718,7 +742,18 @@ def write_outputs(res: dict, rep: dict, defaults: dict, sha: str, out_dir: Path)
     write_heights_md(rep, sha, out_dir / "heights.md")
     write_csv(
         out_dir / "unmatched_osm.csv",
-        ["key", "name", "building_type", "coverage", "rule", "height_m", "bottom_m", "has_parts"],
+        [
+            "key",
+            "name",
+            "building_type",
+            "coverage",
+            "rule",
+            "height_m",
+            "bottom_m",
+            "has_parts",
+            "rendered",
+            "render_reason",
+        ],
         [
             (
                 x["key"],
@@ -729,6 +764,8 @@ def write_outputs(res: dict, rep: dict, defaults: dict, sha: str, out_dir: Path)
                 "" if x["height_m"] is None else f"{x['height_m']:.3f}",
                 f"{x['bottom_m']:.3f}",
                 x["has_parts"],
+                x["rendered"],
+                x["render_reason"] or "",
             )
             for x in sorted(res["unmatched_report"], key=lambda x: x["key"])
         ],
@@ -769,6 +806,7 @@ def run(gpkg: Path, out_dir: Path = ARTIFACT_DIR, landmarks_path: Path = LANDMAR
         pyogrio.write_dataframe(res[name], gpkg, layer=name, driver="GPKG", append=False)
     sha = canonical_dump_sha256(gpkg)
     rep = make_report(res)
+    rep["default"] = res["defaults"]
     rep["checks"] = check_layers(res["render_volumes"], res["buildings"])
     write_outputs(res, rep, res["defaults"], sha, out_dir)
     return {"report": rep, "sha": sha}

@@ -10,8 +10,9 @@ from shapely.geometry import box
 CRS = "EPSG:32632"
 
 
-def vol(vol_id, ref, por, base_z, av, qe, geom=None):
+def vol(vol_id, ref, por, base_z, av, qe, geom=None, cls="EDIFC"):
     return {
+        "building_class": cls,
         "vol_id": vol_id,
         "building_ref": ref,
         "por": por,
@@ -189,28 +190,32 @@ def test_bottom_from_min_height_then_min_level():
 # ----------------------------------------------------------------------------- defaults
 
 
-def test_defaults_by_type_and_n_lt_5_fallback():
-    rows = [("yes", h) for h in (10.0, 20.0, 30.0, 40.0, 50.0)]  # n = 5 -> own median
-    rows += [("church", 100.0), ("church", 90.0)]  # n = 2 -> overall median
-    df = pd.DataFrame(rows, columns=["building_type", "height_m"])
-    by_type, overall = heights.derive_defaults(df, ["yes", "church", "kiosk", None])
-    assert by_type["yes"] == {"value": 30.0, "n": 5, "method": "median_same_building_type"}
-    assert overall["value"] == pytest.approx(df["height_m"].median())
-    assert overall["n"] == 7
-    assert by_type["church"]["value"] == overall["value"]
-    assert by_type["church"]["n"] == 2
-    assert by_type["church"]["method"].startswith("overall_median_fallback")
-    assert by_type["kiosk"]["n"] == 0
-    assert None not in by_type
-
-
-def test_defaults_n4_is_fallback():
-    four = pd.DataFrame(
-        {"building_type": ["a"] * 4 + ["b"] * 3, "height_m": [1, 2, 3, 4, 100, 100, 100]}
+def test_default_is_median_of_edi_min_buildings():
+    df = pd.DataFrame(
+        {
+            "building_class": ["EDI_MIN"] * 3 + ["EDIFC"] * 2 + [None],
+            "height_m": [2.0, 3.0, 10.0, 30.0, 40.0, 5.0],
+        }
     )
-    by_type, overall = heights.derive_defaults(four, ["a"])
-    assert by_type["a"]["value"] == overall["value"] == 4.0
-    assert by_type["a"]["method"].startswith("overall_median_fallback")
+    assert heights.derive_default(df) == {
+        "value": 3.0,
+        "n": 3,
+        "method": "median_edi_min_dbt_buildings",
+    }
+
+
+def test_default_fails_loudly_without_edi_min():
+    df = pd.DataFrame({"building_class": ["EDIFC", None], "height_m": [30.0, 5.0]})
+    with pytest.raises(ValueError, match="EDI_MIN"):
+        heights.derive_default(df)
+    with pytest.raises(ValueError):
+        heights.derive_default(pd.DataFrame({"height_m": [3.0]}))
+
+
+def test_render_status():
+    assert heights.render_status("roof", "default") == (False, "no_walls_roof")
+    assert heights.render_status("construction", "default") == (False, "under_construction")
+    assert heights.render_status("yes", "default") == (True, None)
 
 
 # ----------------------------------------------------------------------------- build
@@ -221,6 +226,7 @@ def test_build_end_to_end_synthetic():
         [
             vol("U1", "B1", "01", 100.0, 10.0, 110.0, box(0, 0, 10, 10)),
             vol("U2", "B1", "01", 100.0, 20.0, 120.0, box(10, 0, 20, 10)),
+            vol("M1", "B2", "01", 100.0, 4.0, 104.0, box(100, 0, 110, 10), cls="EDI_MIN"),
         ],
         geometry="geometry",
         crs=CRS,
@@ -229,13 +235,31 @@ def test_build_end_to_end_synthetic():
         [
             osm_row(1, box(0, 0, 20, 10), name="Matched"),
             osm_row(2, box(50, 0, 60, 10), name="Gap", height_raw="8 m"),
+            osm_row(3, box(70, 0, 80, 10), building="roof"),
+            osm_row(4, box(90, 20, 95, 25), building="construction"),
+            osm_row(5, box(90, 40, 95, 45)),
         ]
     )
     parts = gpd.GeoDataFrame({"geometry": [box(52, 2, 54, 4)]}, geometry="geometry", crs=CRS)
     res = heights.build(vols, osm, parts, {("w", 1): "lm1", ("w", 2): "lm2"})
     rv, bl = res["render_volumes"], res["buildings"]
-    assert rv["vol_key"].tolist() == ["dbt:U1", "dbt:U2", "osm:w2"]
-    assert bl["building_key"].tolist() == ["dbt:B1", "osm:w2"]
+    assert rv["vol_key"].tolist() == [
+        "dbt:M1",
+        "dbt:U1",
+        "dbt:U2",
+        "osm:w2",
+        "osm:w3",
+        "osm:w4",
+        "osm:w5",
+    ]
+    assert bl["building_key"].tolist() == [
+        "dbt:B1",
+        "dbt:B2",
+        "osm:w2",
+        "osm:w3",
+        "osm:w4",
+        "osm:w5",
+    ]
     by_key = bl.set_index("building_key")
     dbt = by_key.loc["dbt:B1"]
     assert dbt["height_m"] == 20.0 and dbt["n_volumes"] == 2 and dbt["name"] == "Matched"
@@ -243,11 +267,34 @@ def test_build_end_to_end_synthetic():
     gap = by_key.loc["osm:w2"]
     assert gap["height_m"] == 8.0 and gap["height_source"] == "osm_height"
     assert gap["landmark_id"] == "lm2"
+    assert res["defaults"]["value"] == 4.0 and res["defaults"]["n"] == 1
+    expected = {
+        "osm:w2": (True, None),
+        "osm:w3": (False, "no_walls_roof"),
+        "osm:w4": (False, "under_construction"),
+        "osm:w5": (True, None),
+        "dbt:B1": (True, None),
+    }
+    for key, (rendered, reason) in expected.items():
+        row = by_key.loc[key]
+        assert bool(row["rendered"]) is rendered
+        if reason is None:
+            assert pd.isna(row["render_reason"])
+        else:
+            assert row["render_reason"] == reason
+    for key in ("osm:w3", "osm:w4", "osm:w5"):
+        assert by_key.loc[key, "height_m"] == 4.0 and by_key.loc[key, "height_source"] == "default"
+    assert not rv.set_index("vol_key").loc["osm:w3", "rendered"]
     assert res["n_unmatched_with_parts"] == 1
     assert heights.check_layers(rv, bl) == {"render_volumes_ok": True, "buildings_ok": True}
     rep = heights.make_report(res)
-    assert rep["matching"]["matched"] == 1 and rep["matching"]["unmatched"] == 1
-    assert rep["attribute_transfer"]["dbt_buildings_without_osm_attributes"] == 0
+    assert rep["matching"]["matched"] == 1 and rep["matching"]["unmatched"] == 4
+    assert rep["attribute_transfer"]["dbt_buildings_without_osm_attributes"] == 1
+    assert rep["render_status"] == {
+        "rendered": 4,
+        "not_rendered": 2,
+        "reasons": {"no_walls_roof": 1, "under_construction": 1},
+    }
 
 
 # ----------------------------------------------------------------------------- edge fix
