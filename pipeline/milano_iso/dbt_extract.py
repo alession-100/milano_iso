@@ -241,7 +241,7 @@ def write_schema_md(inventory, full_stats, path: Path) -> None:
                 f"| {s.get('distinct', '')} | {s.get('min', '')} | {s.get('median', '')} "
                 f"| {s.get('max', '')} |"
             )
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def code_counts(df: pd.DataFrame, col: str) -> dict:
@@ -415,7 +415,7 @@ def main(argv=None) -> None:
         "crs_transform": tr,
     }
     (ARTIFACT_DIR / "summary.json").write_text(
-        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
     )
     print(
         json.dumps(summary["counts"]),

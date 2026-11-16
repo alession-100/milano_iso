@@ -1,0 +1,18 @@
+real sha256 before: 1a41195d5e59e05e3b6a0129e70c888758fd8aa978b9c1821b020ae841ec198f *C:/Users/studi/Documents/milano-iso/data/processed/pilot.gpkg
+buildings rows shifted: 1
+render_volumes rows shifted: 64
+            f"{r['best_overlap_ratio'] or 'n/a'}, status {r['status_b']}. {r['note']}"
+        )
+E       AssertionError: duomo: best-fit offset of the OSM footprint onto the rendered buildings is 39.007 m (dE 39.000, dN -0.750; tolerance 5 m), overlap ratio 0.986, status fail. 
+E       assert 'fail' == 'pass'
+E         
+E         - pass
+E         + fail
+
+tests\data\test_data_landmarks.py:227: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[duomo]
+1 failed, 1 passed, 15 deselected in 4.82s
+id,tolerance_m,ref_e,ref_n,osm_footprint_layer,dist_a_osm_footprint_m,status_a,rendered_building_keys,primary_building_key,dist_b_to_primary_m,ref_inside_primary,iou_osm_vs_rendered,dist_filled_union_m,best_offset_e,best_offset_n,best_offset_m,best_overlap_ratio,plateau_width_m,status_b,note
+duomo,5,514978.51,5034535.58,osm_buildings,0.001,pass,dbt:EDIFC_13669,dbt:EDIFC_13669,0.000,True,0.495,0.000,39.000,-0.750,39.007,0.986,2.000,fail,
+real sha256 after: 1a41195d5e59e05e3b6a0129e70c888758fd8aa978b9c1821b020ae841ec198f *C:/Users/studi/Documents/milano-iso/data/processed/pilot.gpkg

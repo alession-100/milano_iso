@@ -70,20 +70,48 @@ def test_dbt_ground_is_min_over_por01_only():
     assert out["bottom_m"].tolist() == pytest.approx([0.5, 0.0, -10.5])  # reported, not clamped
 
 
-def test_dbt_no_por01_fallback_is_flagged():
-    df = pd.DataFrame(
-        [
-            vol("V1", "B1", "03", 100.0, 5.0, 108.5),
-            vol("V2", "B1", "02", 102.0, 3.0, 108.0),
-            vol("V3", "B2", "01", 50.0, 10.0, 60.0),
-        ]
-    )
-    out = heights.dbt_volume_heights(df).set_index("vol_id")
-    assert out.loc["V1", "ground_flag"] == "no_por01"
-    assert out.loc["V2", "ground_flag"] == "no_por01"
-    assert out.loc["V1", "ground_z_m"] == 100.0  # minimum over all volumes of B1
-    assert out.loc["V1", "bottom_m"] == pytest.approx(3.5)
-    assert pd.isna(out.loc["V3", "ground_flag"])
+def _ground_neighbours(z_values, dist_start=20.0, step=5.0):
+    return [
+        vol(
+            f"N{i}",
+            f"N{i}",
+            "01",
+            z,
+            10.0,
+            z + 10.0,
+            geom=box(dist_start + step * i, 0, dist_start + step * i + 3, 3),
+        )
+        for i, z in enumerate(z_values)
+    ]
+
+
+def test_dbt_raised_only_building_takes_neighbour_median():
+    own = [
+        vol("V1", "B1", "04", 100.0, 3.0, 108.5, geom=box(0, 0, 10, 10)),
+        vol("V2", "B1", "02", 102.0, 3.0, 108.0, geom=box(0, 0, 10, 10)),
+    ]
+    nb = _ground_neighbours([50.0, 52.0, 51.0, 90.0, 49.0, 400.0])  # within 50 m: first 6 at x<=45
+    out = heights.dbt_volume_heights(pd.DataFrame(own + nb)).set_index("vol_id")
+    # the 6 neighbours are all within 50 m of B1 (x from 20 to 45): median of the 6 values
+    assert out.loc["V1", "ground_flag"] == "neighbour_median"
+    assert out.loc["V2", "ground_flag"] == "neighbour_median"
+    assert out.loc["V1", "ground_z_m"] == pytest.approx(51.5)
+    assert out.loc["V1", "ground_neighbours"] == 6
+    assert out.loc["V1", "bottom_m"] == pytest.approx((108.5 - 3.0) - 51.5)
+    assert pd.isna(out.loc["N0", "ground_flag"])
+
+
+def test_dbt_raised_only_widens_to_100m_then_fails():
+    own = [vol("V1", "B1", "04", 100.0, 3.0, 108.5, geom=box(0, 0, 10, 10))]
+    far = _ground_neighbours([50.0, 51.0, 52.0, 53.0, 54.0], dist_start=70.0, step=3.0)
+    out = heights.dbt_volume_heights(pd.DataFrame(own + far)).set_index("vol_id")
+    assert out.loc["V1", "ground_z_m"] == 52.0 and out.loc["V1", "ground_neighbours"] == 5
+    too_far = _ground_neighbours([50.0] * 5, dist_start=150.0)
+    with pytest.raises(ValueError, match="fewer than 5"):
+        heights.dbt_volume_heights(pd.DataFrame(own + too_far))
+    few = _ground_neighbours([50.0] * 4, dist_start=20.0)
+    with pytest.raises(ValueError, match="fewer than 5"):
+        heights.dbt_volume_heights(pd.DataFrame(own + few))
 
 
 # ----------------------------------------------------------------------------- matching

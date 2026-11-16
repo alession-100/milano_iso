@@ -124,7 +124,7 @@ class DropLog:
 
     def write(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("w", newline="", encoding="utf-8") as f:
+        with path.open("w", newline="\n", encoding="utf-8") as f:
             w = csv.writer(f, lineterminator="\n")
             w.writerow(DROP_LOG_COLUMNS)
             w.writerows(sorted(self.rows))
@@ -222,14 +222,40 @@ def drop_duplicates(gdf: gpd.GeoDataFrame, key_cols, ids, layer: str, source: st
     return gdf.iloc[keep].reset_index(drop=True), n_dup
 
 
+# Layers where several rows legitimately share one geometry (admin relations, T-1.7).
+SAME_GEOMETRY_EXEMPT_LAYERS = ("named_features",)
+
+
+def flag_same_geometry(gdf: gpd.GeoDataFrame, ids, layer: str, source: str, log: DropLog) -> int:
+    """Log (action ``flagged``) every row whose geometry equals that of an earlier row.
+
+    Exact duplicates are removed before this runs, so such rows have a different key. Rows are
+    only flagged, never dropped. Exempt layers are skipped. Returns the number of rows flagged.
+    """
+    if layer in SAME_GEOMETRY_EXEMPT_LAYERS:
+        return 0
+    wkb = shapely.to_wkb(gdf.geometry.to_numpy(), byte_order=1)
+    seen, n = set(), 0
+    for i in range(len(gdf)):
+        k = bytes(wkb[i])
+        if k in seen:
+            log.add(layer, source, ids[i], "flagged", "same_geometry_different_key")
+            n += 1
+        seen.add(k)
+    return n
+
+
 def _finish(gdf, layer, source, key_cols, id_fn, log):
-    """clean -> deduplicate -> sort. Returns (frame, stats)."""
+    """clean -> deduplicate -> flag -> sort. Returns (frame, stats)."""
     n_in = len(gdf)
     gdf, stats = clean_layer(gdf, layer, source, [id_fn(r) for r in gdf.itertuples()], log)
     gdf, n_dup = drop_duplicates(
         gdf, key_cols, [id_fn(r) for r in gdf.itertuples()], layer, source, log
     )
     stats["duplicates"] = n_dup
+    stats["same_geometry_different_key"] = flag_same_geometry(
+        gdf, [id_fn(r) for r in gdf.itertuples()], layer, source, log
+    )
     stats["input"] = n_in
     return gdf, stats
 
@@ -434,7 +460,16 @@ def building_class_of(building_ref, edifc_ids: set, edi_min_ids: set):
 
 def read_dbt(gpkg: Path) -> dict:
     out = {}
-    for name in ("un_vol", "edifc", "edi_min", "edifc_attr", "edifc_uso", "edi_min_attr"):
+    for name in (
+        "un_vol",
+        "edifc",
+        "edifc_me",
+        "edi_min",
+        "edi_min_me",
+        "edifc_attr",
+        "edifc_uso",
+        "edi_min_attr",
+    ):
         out[name] = pyogrio.read_dataframe(gpkg, layer=name)
     return out
 
@@ -475,29 +510,57 @@ def normalise_dbt(dbt: dict, log: DropLog):
     a = attr.set_index("CLASSID")
     m = mini.set_index("CLASSID")
     brow = []
+    entries = []  # (class, ref, geometry in metres, footprint_source)
     for cls, src in (("EDIFC", dbt["edifc"]), ("EDI_MIN", dbt["edi_min"])):
-        for ref, geom in zip(src["CLASSREF"], src.geometry.to_numpy(), strict=True):
-            row = {"bld_id": ref, "building_class": cls, "use_codes": uso.get(ref)}
-            if cls == "EDIFC" and ref in a.index:
-                r = a.loc[ref]
-                row |= {
-                    "type_code": _opt(r["EDIFC_TY"]),
-                    "status_code": _opt(r["EDIFC_STAT"]),
-                    "monumental": _opt(r["EDIFC_MON"]),
-                    "name": _opt(r["NOME"]),
-                }
-                row["type_label"] = _label(row["type_code"], EDIFC_TY_LABELS)
-            elif cls == "EDI_MIN" and ref in m.index:
-                r = m.loc[ref]
-                row |= {
-                    "type_code": _opt(r["EDI_MIN_TY"]),
-                    "status_code": _opt(r["EDI_MIN_ST"]),
-                    "precarious": _opt(r["EDI_MIN_PR"]),
-                }
-                row["type_label"] = _label(row["type_code"], EDI_MIN_TY_LABELS)
-            row["status_label"] = _label(row.get("status_code"), STATUS_LABELS)
-            row["geometry"] = geom
-            brow.append(row)
+        geoms = reproject(src.geometry.to_numpy(), DBT_CRS)
+        entries += [(cls, ref, g, "is") for ref, g in zip(src["CLASSREF"], geoms, strict=True)]
+    # A building with volumes but no IS footprint: ME footprint, else the union of its volumes
+    # (T-1.7). Logged as `substituted`.
+    have = {e[1] for e in entries}
+    me = {}
+    for cls, key in (("EDIFC", "edifc_me"), ("EDI_MIN", "edi_min_me")):
+        if key in dbt:
+            geoms = reproject(dbt[key].geometry.to_numpy(), DBT_CRS)
+            for ref, g in zip(dbt[key]["CLASSREF"], geoms, strict=True):
+                me.setdefault(ref, g)
+    for ref in sorted(set(vols["building_ref"]) - have, key=natural_key):
+        cls = building_class_of(ref, edifc_ids, edi_min_ids)
+        if cls is None:
+            continue  # volume of an unknown building: reported as volumes_unmatched
+        if ref in me:
+            entries.append((cls, ref, me[ref], "me"))
+            log.add("dbt_buildings", "dbt", ref, "substituted", "no_is_footprint_used_me")
+        else:
+            g = shapely.union_all(vols.loc[vols["building_ref"] == ref, "geometry"].to_numpy())
+            entries.append((cls, ref, g, "volumes"))
+            log.add("dbt_buildings", "dbt", ref, "substituted", "no_is_footprint_used_volumes")
+    for cls, ref, geom, fsrc in entries:
+        row = {
+            "bld_id": ref,
+            "building_class": cls,
+            "use_codes": uso.get(ref),
+            "footprint_source": fsrc,
+        }
+        if cls == "EDIFC" and ref in a.index:
+            r = a.loc[ref]
+            row |= {
+                "type_code": _opt(r["EDIFC_TY"]),
+                "status_code": _opt(r["EDIFC_STAT"]),
+                "monumental": _opt(r["EDIFC_MON"]),
+                "name": _opt(r["NOME"]),
+            }
+            row["type_label"] = _label(row["type_code"], EDIFC_TY_LABELS)
+        elif cls == "EDI_MIN" and ref in m.index:
+            r = m.loc[ref]
+            row |= {
+                "type_code": _opt(r["EDI_MIN_TY"]),
+                "status_code": _opt(r["EDI_MIN_ST"]),
+                "precarious": _opt(r["EDI_MIN_PR"]),
+            }
+            row["type_label"] = _label(row["type_code"], EDI_MIN_TY_LABELS)
+        row["status_label"] = _label(row.get("status_code"), STATUS_LABELS)
+        row["geometry"] = geom
+        brow.append(row)
     cols = [
         "bld_id",
         "building_class",
@@ -509,10 +572,10 @@ def normalise_dbt(dbt: dict, log: DropLog):
         "monumental",
         "precarious",
         "name",
+        "footprint_source",
         "geometry",
     ]
     bdf = pd.DataFrame(brow, columns=cols)
-    bdf["geometry"] = reproject(bdf["geometry"].to_numpy(), DBT_CRS)
     for c in ("monumental", "precarious"):
         bdf[c] = bdf[c].astype("Int64")
     bdf = _natural_sorted(bdf, "bld_id").reset_index(drop=True)
@@ -724,7 +787,7 @@ def write_transform_md(path: Path) -> None:
                 f"  - unavailable (grid missing): {op['name']} "
                 f"(accuracy {_acc_text(op['accuracy_m'])})"
             )
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def _mark(ok: bool) -> str:
@@ -763,14 +826,15 @@ def write_validation_md(report: dict, path: Path) -> None:
         "",
         "## Per layer",
         "",
-        "| Layer | In | Out | Repaired | Dropped (reason: n) | Duplicates | Underground | Invalid | Outside extent | CRS |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| Layer | In | Out | Repaired | Dropped (reason: n) | Duplicates | Same geometry, other key (flagged) | Underground | Invalid | Outside extent | CRS |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for name, s in report["layers"].items():
         dropped = ", ".join(f"{k}: {v}" for k, v in s["dropped"].items()) or "0"
         lines.append(
             f"| {name} | {s['input']} | {s['output']} | {s['repaired']} | {dropped} "
-            f"| {s['duplicates']} | {s.get('underground', 'n/a')} | {s['invalid']} "
+            f"| {s['duplicates']} | {s.get('same_geometry_different_key', 0)} "
+            f"| {s.get('underground', 'n/a')} | {s['invalid']} "
             f"| {s['outside_extent']} | {s['crs']} |"
         )
     osm = report["osm"]
@@ -791,7 +855,7 @@ def write_validation_md(report: dict, path: Path) -> None:
     for layer, counts in osm["class_counts"].items():
         lines.append(f"- {layer}: {counts}")
     lines += ["", "## DBT volumes", "", f"- {report['dbt']}"]
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def main(argv=None) -> int:
@@ -819,7 +883,7 @@ def main(argv=None) -> int:
     args.artifacts.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(log_path, args.artifacts / "drop_log.csv")
     (args.artifacts / "validation.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
     )
     write_validation_md(report, args.artifacts / "validation.md")
     write_transform_md(args.artifacts / "transform.md")

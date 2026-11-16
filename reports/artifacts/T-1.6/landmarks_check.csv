@@ -1,8 +1,8 @@
-id,tolerance_m,ref_e,ref_n,osm_footprint_layer,dist_a_osm_footprint_m,status_a,rendered_building_keys,primary_building_key,dist_b_to_primary_m,ref_inside_primary,iou_osm_vs_rendered,dist_filled_union_m,status_b,note
-duomo,5,514978.51,5034535.58,osm_buildings,0.001,pass,dbt:EDIFC_13669,dbt:EDIFC_13669,0.000,True,0.954,0.000,pass,
-galleria_vittorio_emanuele_ii,5,514853.69,5034695.05,osm_buildings,0.005,pass,,,,,,,deferred_phase4,ADR-0016: not rendered (no_walls_roof); modelled in Phase 4
-palazzo_assicurazioni_generali,5,514612.36,5034624.3,osm_buildings,0.001,pass,dbt:EDIFC_4831,dbt:EDIFC_4831,2.389,False,0.276,0.000,pass,
-palazzo_marino,5,514904.72,5034806.12,osm_buildings,0.005,pass,dbt:EDIFC_14011,dbt:EDIFC_14011,0.000,True,0.924,0.000,pass,
-palazzo_reale,5,514954.44,5034395.59,osm_buildings,0.004,pass,dbt:EDIFC_14168;dbt:EDIFC_14192;dbt:EDIFC_4565;dbt:EDIFC_4651,dbt:EDIFC_4565,22.263,False,0.667,0.000,pass,
-teatro_alla_scala,5,514782.52,5034910.67,osm_buildings,0.003,pass,dbt:EDIFC_13997,dbt:EDIFC_13997,0.000,True,0.952,0.000,pass,
-torre_velasca,5,514909.13,5034056.99,osm_buildings,0.006,pass,dbt:EDIFC_14394,dbt:EDIFC_14394,0.000,True,0.734,0.000,pass,
+id,tolerance_m,ref_e,ref_n,osm_footprint_layer,dist_a_osm_footprint_m,status_a,rendered_building_keys,primary_building_key,dist_b_to_primary_m,ref_inside_primary,iou_osm_vs_rendered,dist_filled_union_m,best_offset_e,best_offset_n,best_offset_m,best_overlap_ratio,plateau_width_m,status_b,note
+duomo,5,514978.51,5034535.58,osm_buildings,0.001,pass,dbt:EDIFC_13669,dbt:EDIFC_13669,0.000,True,0.954,0.000,-0.500,-0.500,0.707,0.983,2.000,pass,
+galleria_vittorio_emanuele_ii,5,514853.69,5034695.05,osm_buildings,0.005,pass,,,,,,,,,,,,deferred_phase4,ADR-0016: not rendered (no_walls_roof); modelled in Phase 4
+palazzo_assicurazioni_generali,5,514612.36,5034624.3,osm_buildings,0.001,pass,dbt:EDIFC_4831,dbt:EDIFC_4831,2.389,False,0.276,0.000,0.000,0.000,0.000,0.997,21.260,pass,
+palazzo_marino,5,514904.72,5034806.12,osm_buildings,0.005,pass,dbt:EDIFC_14011,dbt:EDIFC_14011,0.000,True,0.924,0.000,-49.500,-49.750,70.181,0.976,0.000,fail,
+palazzo_reale,5,514954.44,5034395.59,osm_buildings,0.004,pass,dbt:EDIFC_14168;dbt:EDIFC_14192;dbt:EDIFC_4565;dbt:EDIFC_4651,dbt:EDIFC_4565,22.263,False,0.667,0.000,0.000,0.000,0.000,0.999,0.000,pass,
+teatro_alla_scala,5,514782.52,5034910.67,osm_buildings,0.003,pass,dbt:EDIFC_13997,dbt:EDIFC_13997,0.000,True,0.952,0.000,0.000,0.000,0.000,0.973,0.000,pass,
+torre_velasca,5,514909.13,5034056.99,osm_buildings,0.006,pass,dbt:EDIFC_14394,dbt:EDIFC_14394,0.000,True,0.734,0.000,35.750,-36.000,50.735,0.998,141.421,fail,
