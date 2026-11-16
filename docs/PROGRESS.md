@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 2 - Tiling and export (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Current phase:** 2 - gate G2 in review (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
 **Last gate passed:** G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -26,7 +26,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-1.6a | done (finding) | reports/R-1.6a.md | Verified: registration n=48, magnitude 0.167 m; Generali passes. Palazzo Reale fails because its reference point lies in its courtyard (orchestrator confirmed). ADR-0018 and T-1.6b (retry 2/2) |
 | T-1.6b | done | reports/R-1.6b.md | Verified: make validate exit 0 (83 pass, 2 skip); filled-union distance 0.000 m for all 6; the deferred-landmark unit test fails when the guard is removed (orchestrator sabotage), passes with it |
 
-| T-1.7 | in progress | | G1 follow-ups: best-fit offset, raised-only ground, duplicates, cosmetics |
+| T-1.7 | done (retry 1/2) | reports/R-1.7.md | Verified on main: make data canonical 85c50ccd...b4fb (matches the executor); make validate 106 pass / 2 skip, landmark best offsets <= 0.71 m; Duomo 40 m sabotage fails at 38.8 m (executor evidence). First attempt blocked by an ADR-0020 flaw (R = all nearby buildings), amended |
 | T-2.1 | done | - | ADR-0021 tile scheme |
 | T-2.2 | done (finding) | reports/R-2.2.md | Verified: 4 tiles load in Node, 0 mismatches. Budget exceeded (379-662 KB gzip vs 250 KB); the export is not indexed. ADR-0022 and T-2.2a |
 | T-2.2a | done (finding) | reports/R-2.2a.md | Verified independently: byte-identical rebuild, 12 tiles load, 1536 sampled positions max error 0.010 m, 233/233 buildings once. Tile 0_0 is 289,508 B gzip-9, over budget; orchestrator measured 250 m tiles (max 92.0 KB), so ADR-0023 |
