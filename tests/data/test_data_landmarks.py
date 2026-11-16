@@ -3,7 +3,7 @@
 (a) pipeline integrity: the processed OSM footprint with the landmark's OSM type and id has its
     centroid within ``tolerance_m`` of the reference position.
 (b) rendered landmark (ADR-0020, replaces ADR-0018 point 1): the translation of the OSM footprint
-    that best fits the union of the rendered footprints within 60 m (interior rings filled) has
+    that best fits the union of the rendered footprints carrying the landmark id (interior rings filled) has
     magnitude <= ``tolerance_m`` (``best_offset_m``, the only asserted value; see
     landmark_offset.py). The overlap ratio and the plateau width are reported. The ADR-0018
     filled-union distance, the primary-only distance, the inside flag and the IoU are reported,
@@ -77,9 +77,6 @@ def filled_union_distance(geoms, ref):
     union = shapely.union_all(list(geoms))
     exteriors = [shapely.Polygon(poly.exterior) for poly in shapely.get_parts(union)]
     return float(shapely.union_all(exteriors).distance(ref))
-
-
-SEARCH_RADIUS_M = 60.0
 
 
 def _num(x: float) -> str:
@@ -170,9 +167,8 @@ def _check(e, layers):
     if hit is None:
         row["status_b"] = "fail_no_osm_footprint"
         return row
-    # ADR-0020: every rendered building within 60 m of the OSM footprint, courtyards filled.
-    near = b[b["rendered"] & (b.geometry.distance(osm_g) <= SEARCH_RADIUS_M)]
-    fit = best_offset(osm_g, fill_rings(shapely.union_all(near.geometry.to_numpy())))
+    # ADR-0020 (amended 2026-11-16): R = rendered buildings carrying the landmark id, filled.
+    fit = best_offset(osm_g, fill_rings(shapely.union_all(bl.geometry.to_numpy())))
     row["best_offset_e"] = _num(fit.e)
     row["best_offset_n"] = _num(fit.n)
     row["best_offset_m"] = _num(fit.magnitude_m)

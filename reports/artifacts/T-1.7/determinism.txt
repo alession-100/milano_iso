@@ -1,16 +1,16 @@
 uv run python tests/data/check_determinism.py data-boundary data-osm data-dbt data-normalise data-heights
 run 1: data-boundary data-osm data-dbt data-normalise data-heights
   data-boundary: 0 s
-  data-osm: 28153 s
-  data-dbt: 5 s
-  data-normalise: 3 s
+  data-osm: 335 s
+  data-dbt: 6 s
+  data-normalise: 4 s
   data-heights: 3 s
 run 2: data-boundary data-osm data-dbt data-normalise data-heights
   data-boundary: 0 s
-  data-osm: 3927 s
-  data-dbt: 4 s
-  data-normalise: 11851 s
-  data-heights: 6 s
+  data-osm: 404 s
+  data-dbt: 5 s
+  data-normalise: 6 s
+  data-heights: 4 s
 
 osm_pilot.gpkg
   run1 9c6390b6c140444d52ff56b0737098a68d6543986b8a82cce732f990447082f0
@@ -29,4 +29,3 @@ pilot.gpkg
   run2 85c50ccddf127b770658a24843e8855e0c50fdc4aac5fdc183d9660e8a68b4fb
   MATCH
 determinism: OK, all hashes match
-determinism exit=0
