@@ -21,6 +21,10 @@ ORIGIN_N = 5034536
 
 AOI_HALF_SIZE_M = 500
 
+# Tile edge length in metres (ADR-0023, amends ADR-0021). The only definition; grid, export and
+# manifest read it from here.
+TILE_SIZE_M = 250
+
 # Pilot AOI (xmin, ymin, xmax, ymax), EPSG:32632.
 PILOT_AOI_BBOX = (
     ORIGIN_E - AOI_HALF_SIZE_M,

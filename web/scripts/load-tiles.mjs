@@ -1,7 +1,7 @@
 /* global process, console, Buffer */
 // Loads every .glb in a tile directory with three's GLTFLoader (no browser) and prints the
 // mesh names and vertex/index counts. Usage: node web/scripts/load-tiles.mjs <tile dir> [summary.json]
-// With a summary path (default: reports/artifacts/T-2.2/export_summary.json next to the repo
+// With a summary path (default: reports/artifacts/T-2.3/export_summary.json next to the repo
 // root) the counts are compared with the exporter's numbers; a mismatch exits non-zero.
 // Meshes split into `<layer>#<n>` chunks (ADR-0022) are summed per layer.
 // Quantised positions (KHR_mesh_quantization, int16 cm with a node translation and scale) are
@@ -23,7 +23,7 @@ if (!dir) {
 }
 const here = dirname(fileURLToPath(import.meta.url));
 const summaryPath = resolve(
-  process.argv[3] ?? join(here, '..', '..', 'reports', 'artifacts', 'T-2.2', 'export_summary.json'),
+  process.argv[3] ?? join(here, '..', '..', 'reports', 'artifacts', 'T-2.3', 'export_summary.json'),
 );
 const summary = existsSync(summaryPath) ? JSON.parse(readFileSync(summaryPath, 'utf8')) : null;
 
@@ -87,8 +87,11 @@ for (const f of files) {
       }
     }
     const sample = t?.position_sample ?? [];
-    if (sample.length < MIN_SAMPLE) {
-      console.log(`  MISMATCH position sample too small: ${sample.length} < ${MIN_SAMPLE}`);
+    // Small tiles (a few vertices at the edge of the extent) are sampled completely.
+    const tileVertices = Object.values(seen).reduce((a, s) => a + s.vertices, 0);
+    const need = Math.min(MIN_SAMPLE, tileVertices);
+    if (sample.length < need) {
+      console.log(`  MISMATCH position sample too small: ${sample.length} < ${need}`);
       mismatches++;
     }
     let tileWorst = 0;
