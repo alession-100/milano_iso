@@ -151,7 +151,7 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Status:** Accepted (2026-11-15; owner approved at G1)
 - **Context:** At G1 the reviewer shifted the Duomo's rendered building 40 m in a scratch copy, and the ADR-0018 check still passed (the reference point stayed inside the filled footprint). A check that cannot fail is not a check.
 - **Decision:**
-  - For each in-extent landmark with a rendered building, take its OSM footprint F and R, the union of every rendered footprint within 60 m of F (interior rings filled).
+  - For each in-extent landmark with a rendered building, take its OSM footprint F and R, the union of the rendered footprints that **carry that landmark's id** (interior rings filled). *Amended 2026-11-16 (T-1.7 finding):* the original R, every rendered footprint within 60 m, let F slide to a better-covered spot in the dense centre. Palazzo Marino moved 70.2 m and Torre Velasca 50.7 m on correct data. The search window stays +/-50 m so that large shifts are still detected.
   - Find the translation t, within +/-50 m, that maximises area((F + t) intersected with R). Search on a 2 m grid, then refine on a 0.25 m grid around the best cell. If several t come within 0.5% of the maximum overlap, take the one with the smallest |t|.
   - **The landmark passes when |t| <= `tolerance_m` (5 m).** The best overlap ratio and the width of the plateau of near-maximal overlaps are reported.
   - The registration check (ADR-0017 point 3) and the pipeline-integrity check 7a stay as they are.
@@ -208,3 +208,8 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - The tile size becomes a single constant `TILE_SIZE_M` in `pipeline/milano_iso/config.py`, recorded in `tiles.json`.
   - The quantisation (ADR-0022 point 2a: 2 cm from the tile centre, +/-655 m) still fits, since whole buildings overhang by at most a few hundred metres. The export keeps failing loudly if a building exceeds the range.
 - **Consequences:** about 4 times more requests per area, still far within the draw-call budget (16 tiles x about 6 meshes for the pilot). The budget headroom (largest tile about 36% of 256 KB) leaves room for denser districts in Phase 6, where it is measured again.
+
+## ADR-0015 amendment - Ground level of raised-only DBT buildings (T-1.7)
+- **Status:** Accepted (2026-11-16)
+- **Decision:** A DBT building with no `POR` 01 volume takes as its `ground_z` the median `base_z_min_m` of the `POR` 01 volumes of other buildings within 50 m of its footprint. It needs at least 5 such volumes; with fewer it widens to 100 m, and with still fewer it fails. It is flagged `ground_flag = neighbour_median` with the count in `ground_neighbours`. This replaces "the minimum base Z of all its volumes".
+- **Evidence:** EDIFC_2671, an underpass ceiling (`POR` 04): with 83 neighbours it now spans 3.44-19.34 m, where before it was 0-15.9 m and filled the passage.
