@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Milano Iso tiles.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format_version", "crs", "origin", "tile_size_m", "axis", "quantization", "layers",
+    "attribution", "tiles", "totals"
+  ],
+  "properties": {
+    "format_version": {"const": 1},
+    "crs": {"const": "EPSG:32632"},
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["e", "n"],
+      "properties": {"e": {"type": "number"}, "n": {"type": "number"}}
+    },
+    "tile_size_m": {"type": "number", "exclusiveMinimum": 0},
+    "axis": {"const": "x=E-E0, y=up, z=-(N-N0)"},
+    "quantization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit_m", "anchor"],
+      "properties": {"unit_m": {"const": 0.02}, "anchor": {"const": "tile_center"}}
+    },
+    "layers": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "attribution": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "licence", "text"],
+        "properties": {
+          "source": {"type": "string", "minLength": 1},
+          "licence": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "tiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tile"}},
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tiles", "counts", "glb_bytes", "gzip9_bytes", "features_bytes"],
+      "properties": {
+        "tiles": {"type": "integer", "minimum": 1},
+        "counts": {"$ref": "#/$defs/counts"},
+        "glb_bytes": {"type": "integer", "minimum": 0},
+        "gzip9_bytes": {"type": "integer", "minimum": 0},
+        "features_bytes": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "$defs": {
+    "counts": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "bbox": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {"type": "number"}
+    },
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "tile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "i", "j", "bbox_local", "bbox_epsg32632", "counts", "glb", "features"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^-?[0-9]+_-?[0-9]+$"},
+        "i": {"type": "integer"},
+        "j": {"type": "integer"},
+        "bbox_local": {"$ref": "#/$defs/bbox"},
+        "bbox_epsg32632": {"$ref": "#/$defs/bbox"},
+        "counts": {"$ref": "#/$defs/counts"},
+        "glb": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file", "bytes", "gzip9_bytes", "sha256"],
+          "properties": {
+            "file": {"type": "string", "pattern": "^-?[0-9]+_-?[0-9]+\\.glb$"},
+            "bytes": {"type": "integer", "minimum": 0},
+            "gzip9_bytes": {"type": "integer", "minimum": 0},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "features": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file", "bytes", "sha256"],
+          "properties": {
+            "file": {"type": "string", "pattern": "^-?[0-9]+_-?[0-9]+\\.json$"},
+            "bytes": {"type": "integer", "minimum": 0},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      }
+    }
+  }
+}

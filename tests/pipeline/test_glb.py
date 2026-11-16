@@ -67,7 +67,8 @@ def test_quantised_roundtrip_header_alignment_extension_and_error():
         err = np.abs(back - src["positions"]).max()
         assert err <= 0.01 + 1e-9  # half a unit (1 cm)
         assert err > 0  # genuinely quantised
-        _, _, fid = _read(doc, bin_data, prim["attributes"]["_FEATURE_ID"], "<u2", 1)
+        _, fview, fid = _read(doc, bin_data, prim["attributes"]["_FEATURE_ID"], "<u2", 1)
+        assert fview["byteOffset"] % 4 == 0 and fview["byteStride"] == 4  # Khronos alignment
         assert np.array_equal(fid[:, 0], src["feature_ids"])
         _, iv, idx = _read(doc, bin_data, prim["indices"], "<u2", 1)
         assert iv["target"] == 34963 and iv["byteOffset"] % 4 == 0

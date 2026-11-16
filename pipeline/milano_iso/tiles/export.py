@@ -1,4 +1,4 @@
-"""Export processed/pilot.gpkg to one .glb plus one feature table per 500 m tile (T-2.2, T-2.2a).
+"""Export processed/pilot.gpkg to one .glb plus one feature table per tile, and tiles.json (T-2.3).
 
 Run: ``python -m milano_iso.tiles.export --extent pilot``
 Rules: ADR-0021 (tile scheme), ADR-0022 (compact encoding, all buildings exported), ADR-0016. Deterministic: sorted
@@ -19,15 +19,13 @@ from shapely import affinity
 from shapely.geometry import box
 
 from milano_iso import config, style
-from milano_iso.tiles import geom, glb, grid
+from milano_iso.tiles import geom, glb, grid, manifest
 
-SUMMARY_DIR = config.REPO_ROOT / "reports" / "artifacts" / "T-2.2"
+SUMMARY_DIR = config.REPO_ROOT / "reports" / "artifacts" / "T-2.3"
 METRIC_CRS = 32632
 GPKG_NAME = "pilot.gpkg"
-BUDGET_GZIP_BYTES = 250 * 1024
+BUDGET_GZIP_BYTES = 256_000  # ADR-0022, docs/VERIFICATION.md section 5
 SAMPLE_VERTICES = 128  # per tile, written to the summary for the client position check
-# Per-tile gzip-9 bytes of the T-2.2 export (reports/artifacts/T-2.2/export_summary.md at 8360d08).
-BASELINE_GZIP9 = {"-1_-1": 527468, "-1_0": 476956, "0_-1": 378851, "0_0": 661914}
 FLAT_LAYERS = ("landuse", "green", "water", "road_areas", "roads", "rail")
 # Feature-table columns per flat layer (osm_type, osm_id and the class or kind).
 FLAT_FIELDS = {
@@ -202,6 +200,7 @@ def build(
         ax0 - config.ORIGIN_E, ay0 - config.ORIGIN_N, ax1 - config.ORIGIN_E, ay1 - config.ORIGIN_N
     )
     summary_tiles = {}
+    entries = []
     seen_buildings: dict[str, str] = {}
     duplicates = []
     for i, j in tiles:
@@ -209,8 +208,8 @@ def build(
         tbox = box(*grid.tile_bbox_local(i, j))
         fbox = tbox.intersection(extent_box)  # flat layers: processed extent and tile
         centre = (
-            grid.TILE_SIZE_M * i + grid.TILE_SIZE_M / 2,
-            -(grid.TILE_SIZE_M * j + grid.TILE_SIZE_M / 2),
+            config.TILE_SIZE_M * i + config.TILE_SIZE_M / 2,
+            -(config.TILE_SIZE_M * j + config.TILE_SIZE_M / 2),
         )
         meshes, tables, layer_stats = [], {}, {}
         max_h = 0.0
@@ -288,13 +287,17 @@ def build(
             br = len(brotli.compress(blob))
         except ImportError:
             br = None
+        entries.append(
+            manifest.tile_entry(
+                out_dir, name, i, j, {k: v["features"] for k, v in layer_stats.items()}
+            )
+        )
         summary_tiles[name] = {
             "glb_bytes": len(blob),
             "gzip9_bytes": gz,
             "brotli_bytes": br,
             "over_gzip_budget": gz > BUDGET_GZIP_BYTES,
             "max_hausdorff_m": round(max_h, 6),
-            "gzip9_baseline_t22": BASELINE_GZIP9.get(name),
             "max_offset_from_centre_m": round(_max_offset(meshes, centre), 3),
             "features": n_features,
             "meshes": [m["name"] for m in meshes],
@@ -303,6 +306,7 @@ def build(
             "layers": layer_stats,
         }
 
+    manifest.write_manifest(out_dir, manifest.build_manifest(entries, ["buildings", *FLAT_LAYERS]))
     per_tile_buildings = sum(
         t["layers"].get("buildings", {}).get("features", 0) for t in summary_tiles.values()
     )
@@ -335,7 +339,7 @@ def build(
 
 
 def _markdown(s: dict) -> str:
-    lines = ["# Tile export summary (T-2.2, T-2.2a)", ""]
+    lines = ["# Tile export summary (T-2.3)", ""]
     lines.append("| tile | layer | features | vertices | triangles |")
     lines.append("|---|---|---:|---:|---:|")
     for name, t in s["tiles"].items():
@@ -345,17 +349,13 @@ def _markdown(s: dict) -> str:
             )
     lines += [
         "",
-        (
-            "| tile | glb bytes | gzip-9 before (T-2.2) | gzip-9 after | brotli bytes "
-            "| max Hausdorff m | gzip > 250 KB |"
-        ),
+        ("| tile | glb bytes | gzip-9 bytes | brotli bytes | max Hausdorff m | gzip > budget |"),
     ]
-    lines.append("|---|---:|---:|---:|---:|---:|---|")
+    lines.append("|---|---:|---:|---:|---:|---|")
     for name, t in s["tiles"].items():
         br = t["brotli_bytes"] if t["brotli_bytes"] is not None else "n/a"
         lines.append(
-            f"| {name} | {t['glb_bytes']} | {t['gzip9_baseline_t22'] or 'n/a'} | "
-            f"{t['gzip9_bytes']} | {br} | "
+            f"| {name} | {t['glb_bytes']} | {t['gzip9_bytes']} | {br} | "
             f"{t['max_hausdorff_m']} | {'YES' if t['over_gzip_budget'] else 'no'} |"
         )
     tot = s["totals"]

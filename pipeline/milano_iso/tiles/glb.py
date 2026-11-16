@@ -49,7 +49,9 @@ def write_glb(meshes: list[dict], centre: tuple[float, float], n_features: int) 
     metres); each node has translation (cx, 0, cz) and scale 0.02 (KHR_mesh_quantization).
     Indices are uint16 below 65,536 vertices, else uint32; ``_FEATURE_ID`` is uint16 when
     ``n_features`` < 65,536, else uint32. The int16 POSITION view uses byteStride 8 (6 data bytes
-    plus 2 padding) to keep every vertex 4-byte aligned; the other views are tightly packed.
+    plus 2 padding) and a uint16 ``_FEATURE_ID`` view byteStride 4 (2 plus 2 padding), so every
+    vertex attribute is 4-byte aligned as the Khronos validator requires; the index views and a
+    uint32 ``_FEATURE_ID`` are tightly packed.
     """
     bin_data = bytearray()
     views, accessors, gl_meshes, nodes, materials = [], [], [], [], []
@@ -96,7 +98,14 @@ def write_glb(meshes: list[dict], centre: tuple[float, float], n_features: int) 
             minmax=([int(v) for v in q.min(axis=0)], [int(v) for v in q.max(axis=0)]),
             count=n,
         )
-        a_fid = add(fid, fid_comp, "SCALAR", ARRAY_BUFFER)
+        if fid_dtype is np.uint16:
+            # Khronos validator (MESH_PRIMITIVE_ACCESSOR_UNALIGNED): every vertex attribute
+            # element must start on a 4-byte boundary, so a 2-byte id gets byteStride 4.
+            fid_pad = np.zeros((n, 2), dtype=np.uint16)
+            fid_pad[:, 0] = fid
+            a_fid = add(fid_pad, fid_comp, "SCALAR", ARRAY_BUFFER, stride=4, count=n)
+        else:
+            a_fid = add(fid, fid_comp, "SCALAR", ARRAY_BUFFER)
         a_idx = add(
             idx,
             UNSIGNED_SHORT if idx_dtype is np.uint16 else UNSIGNED_INT,
