@@ -151,7 +151,7 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Status:** Accepted (2026-11-15; owner approved at G1)
 - **Context:** At G1 the reviewer shifted the Duomo's rendered building 40 m in a scratch copy, and the ADR-0018 check still passed (the reference point stayed inside the filled footprint). A check that cannot fail is not a check.
 - **Decision:**
-  - For each in-extent landmark with a rendered building, take its OSM footprint F and R, the union of every rendered footprint within 60 m of F (interior rings filled).
+  - For each in-extent landmark with a rendered building, take its OSM footprint F and R, the union of the rendered footprints that **carry that landmark's id** (interior rings filled). *Amended 2026-11-16 (T-1.7 finding):* the original R, every rendered footprint within 60 m, let F slide to a better-covered spot in the dense centre. Palazzo Marino moved 70.2 m and Torre Velasca 50.7 m on correct data. The search window stays +/-50 m so that large shifts are still detected.
   - Find the translation t, within +/-50 m, that maximises area((F + t) intersected with R). Search on a 2 m grid, then refine on a 0.25 m grid around the best cell. If several t come within 0.5% of the maximum overlap, take the one with the smallest |t|.
   - **The landmark passes when |t| <= `tolerance_m` (5 m).** The best overlap ratio and the width of the plateau of near-maximal overlaps are reported.
   - The registration check (ADR-0017 point 3) and the pipeline-integrity check 7a stay as they are.
@@ -180,3 +180,36 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - Otherwise the width comes from a per-class **style table** in the pipeline config. These widths are stylisation, labelled as such, and are not presented as measured data.
 - **Manifest:** `tiles.json` with the format version, CRS, origin and tile size, and per tile: id, bbox (both local and EPSG:32632), counts per layer, byte size, gzip size and sha256. Validated against a committed JSON Schema (T-2.3).
 - **Budget:** 250 KB gzip per tile (VERIFICATION section 5). Measured in T-2.2; if exceeded, the tile size or the format is revisited by ADR.
+
+## ADR-0022 - Compact tile encoding (amends ADR-0021 format); all intersecting buildings exported
+- **Status:** Accepted (2026-11-16)
+- **Context:** T-2.2 measured all 4 pilot tiles above the 250 KB gzip budget: 379-662 KB, with 13.7 MB of raw glb in total. Buildings dominate (tile 0_0: 128,763 vertices for 42,921 triangles). The export is effectively non-indexed: three vertices per triangle, with float32 normals and float32 positions.
+- **Decision:**
+  1. **No `NORMAL` attribute.** The client uses flat shading, with normals derived in the shader from screen-space derivatives (three.js `flatShading: true`). Vertices are then shared through indices: each ring vertex is stored once at the bottom and once at the top of its volume.
+  2. *(Amended 2026-11-16, see point 2a.)* **Quantised positions (`KHR_mesh_quantization`, required extension).** `POSITION` is int16 (normalized=false). The values are centimetre offsets from the tile's south-west corner at y = 0, with the node's translation set to that corner in client metres and its scale to 0.01.
+     - Range: +/-327.67 m per axis. That covers a 500 m tile only if the offset starts at the tile centre, so the offset is taken **from the tile centre** instead.
+     - Heights up to 327 m fit (the pilot maximum is 100.2 m). A feature exceeding the range makes the export fail loudly.
+     - Rounding to 1 cm is far below the 0.5 m simplification tolerance.
+  2a. **Amendment (T-2.2a finding).** Buildings are kept whole, so they overhang their tile. The worst case is dbt:EDIFC_5112, 358.9 m from its tile centre. Seven buildings, the Duomo among them, exceed +/-327.67 m.
+     - **The quantisation unit becomes 2 cm:** node scale 0.02, centred on the tile centre, which gives a range of +/-655.34 m.
+     - The maximum rounding error is 1 cm, far below the 0.5 m simplification tolerance.
+     - Out-of-range coordinates still fail loudly. Phase 6 must re-check the worst overhang for the whole city.
+  3. **Smallest index and id types.** `uint16` indices for meshes with fewer than 65,536 vertices (otherwise the mesh is split into chunks named `<layer>#<n>`). `_FEATURE_ID` is `uint16` when the tile has fewer than 65,536 features, else `uint32`.
+  4. If the tiles are still over budget after 1-3, the next step is a smaller tile size (250 m), decided by ADR with measurements. Mesh compression (meshopt or Draco) is not adopted: it adds a dependency and a decoder.
+  5. **All intersecting buildings are exported.** A rendered building whose representative point falls in a tile outside the 2 x 2 pilot block still gets exported, in that tile. Every feature then appears in exactly one tile, and edge tiles may hold only those buildings.
+  6. **Underground roads and rail** (`underground = true`) are not exported in v1. Confirmed from T-2.2's assumption.
+
+## ADR-0023 - Tile size 250 m (amends ADR-0021)
+- **Status:** Accepted (2026-11-16)
+- **Context:** After the compact encoding (ADR-0022), tile 0_0 is still 289,508 bytes gzip-9 against the 256,000 budget. The other 500 m tiles are 7.9-237 KB. ADR-0022 point 4 names a 250 m tile size as the next step, to be taken with measurements.
+- **Measurement:** the orchestrator ran the T-2.2a exporter with the tile size patched to 250 m in a scratch copy on 2026-11-16. It produced 30 tiles; all 233 rendered buildings appear exactly once; the four largest tiles are 66.9, 81.6, 86.7 and 92.0 KB gzip-9.
+- **Decision:**
+  - Tiles are **250 m** squares aligned to the origin. Tile (i, j) covers E0 + 250*i <= E < E0 + 250*(i+1), and likewise for N with j. The pilot AOI is tiles i, j in {-2..1}: 16 tiles.
+  - The tile size becomes a single constant `TILE_SIZE_M` in `pipeline/milano_iso/config.py`, recorded in `tiles.json`.
+  - The quantisation (ADR-0022 point 2a: 2 cm from the tile centre, +/-655 m) still fits, since whole buildings overhang by at most a few hundred metres. The export keeps failing loudly if a building exceeds the range.
+- **Consequences:** about 4 times more requests per area, still far within the draw-call budget (16 tiles x about 6 meshes for the pilot). The budget headroom (largest tile about 36% of 256 KB) leaves room for denser districts in Phase 6, where it is measured again.
+
+## ADR-0015 amendment - Ground level of raised-only DBT buildings (T-1.7)
+- **Status:** Accepted (2026-11-16)
+- **Decision:** A DBT building with no `POR` 01 volume takes as its `ground_z` the median `base_z_min_m` of the `POR` 01 volumes of other buildings within 50 m of its footprint. It needs at least 5 such volumes; with fewer it widens to 100 m, and with still fewer it fails. It is flagged `ground_flag = neighbour_median` with the count in `ground_neighbours`. This replaces "the minimum base Z of all its volumes".
+- **Evidence:** EDIFC_2671, an underpass ceiling (`POR` 04): with 83 neighbours it now spans 3.44-19.34 m, where before it was 0-15.9 m and filled the passage.
