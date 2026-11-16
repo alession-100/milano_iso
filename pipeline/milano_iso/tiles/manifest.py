@@ -3,6 +3,7 @@
 Sorted keys, LF, no timestamps. Validated against ``tiles.schema.json`` (same directory).
 """
 
+import copy
 import gzip
 import hashlib
 import json
@@ -88,7 +89,7 @@ def build_manifest(entries: list[dict], layers: list[str]) -> dict:
         "axis": AXIS,
         "quantization": {"unit_m": QUANT_UNIT_M, "anchor": "tile_center"},
         "layers": list(layers),
-        "attribution": ATTRIBUTION,
+        "attribution": copy.deepcopy(ATTRIBUTION),
         "tiles": entries,
         "totals": {
             "tiles": len(entries),

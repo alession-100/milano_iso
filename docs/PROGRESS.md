@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 2 complete (G2 PASS WITH RISKS); T-2.5 follow-ups before Phase 3 (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Current phase:** 2 complete; publishing to GitHub (owner: strip third-party HTML snapshots from history first) (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
 **Last gate passed:** G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -33,7 +33,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-2.3 | done | reports/R-2.3.md | Verified independently: 30 tiles, largest 91.4 KB gzip; Khronos validator 0 errors, 0 warnings; data tile checks 9 pass; determinism check exits 1 under orchestrator sabotage (flipped byte), 0 normally. Accepted: the glb.py stride fix (validator finding) and the Comune attribution wording composed from the portal's quoted licence text |
 | T-2.4 | merged into T-2.3 | | |
 
-| T-2.5 | in progress | | G2 follow-ups: content bbox, flat coverage test, simplification test, empty tiles |
+| T-2.5 | done | reports/R-2.5.md | Verified on main: make validate 111 pass / 1 skip (deferred Galleria). Region-Hausdorff reading accepted (max 0.271 m). The orchestrator fixed the root cause of the shared ATTRIBUTION mutation (deepcopy in manifest.py). Warm `make validate` takes about 333 s because `make data` is not incremental (to improve later) |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
