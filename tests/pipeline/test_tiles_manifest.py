@@ -1,3 +1,4 @@
+import copy
 import json
 
 import pytest
@@ -7,16 +8,19 @@ from milano_iso.tiles import glb, manifest, schema_check
 SCHEMA = json.loads(manifest.SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
+BBOX3 = {"min": [0.0, 0.0, -1.0], "max": [2.0, 3.0, 4.0]}
+
+
 def _tile(out, name, i, j, blob=b"glTF", feat=b"{}\n"):
     (out / f"{name}.glb").write_bytes(blob)
     (out / f"{name}.json").write_bytes(feat)
-    return manifest.tile_entry(out, name, i, j, {"buildings": 2, "roads": 1})
+    return manifest.tile_entry(out, name, i, j, {"buildings": 2, "roads": 1}, BBOX3)
 
 
 @pytest.fixture
 def man(tmp_path):
     entries = [_tile(tmp_path, "1_0", 1, 0), _tile(tmp_path, "-1_-1", -1, -1)]
-    return manifest.build_manifest(entries, ["buildings", "roads"])
+    return copy.deepcopy(manifest.build_manifest(entries, ["buildings", "roads"]))
 
 
 def test_manifest_is_valid_sorted_and_summed(man):
@@ -56,6 +60,8 @@ def test_bytes_are_deterministic_lf_without_timestamps(man):
         lambda m: m.update(crs="EPSG:4326"),
         lambda m: m["tiles"][0]["counts"].update(roads=-1),
         lambda m: m["tiles"][0].update(i="0"),
+        lambda m: m["tiles"][0].pop("content_bbox_local"),
+        lambda m: m["tiles"][0]["content_bbox_local"].update(min=[1, 2]),
         lambda m: m["attribution"].pop(),
     ],
 )
@@ -67,3 +73,30 @@ def test_schema_rejects_broken_manifests(man, mutate):
 def test_validator_rejects_unknown_keyword():
     with pytest.raises(ValueError):
         schema_check.validate(1, {"oneOf": []})
+
+
+def test_empty_tile_is_skipped_not_written_as_zero_byte_glb(tmp_path):
+    from milano_iso.tiles import export
+
+    assert export.write_tile(tmp_path, "5_5", 5, 5, [], {}, {}, (0.0, 0.0)) is None
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_write_tile_reports_content_bbox_of_dequantised_vertices(tmp_path):
+    import numpy as np
+    from milano_iso.tiles import export
+
+    pos = np.array([[10.0, 0.0, -5.0], [12.0, 3.0, -5.0], [10.0, 3.0, -9.0]])
+    mesh = {
+        "name": "buildings",
+        "positions": pos,
+        "feature_ids": np.zeros(3, dtype=np.int64),
+        "indices": np.array([0, 1, 2]),
+    }
+    stats = {"buildings": {"features": 1}}
+    entry, blob = export.write_tile(
+        tmp_path, "0_0", 0, 0, [mesh], {"buildings": [{}]}, stats, (11.0, -7.0)
+    )
+    assert blob and (tmp_path / "0_0.glb").stat().st_size == len(blob)
+    assert entry["content_bbox_local"] == {"min": [10.0, 0.0, -9.0], "max": [12.0, 3.0, -5.0]}
+    assert schema_check.validate(manifest.build_manifest([entry], ["buildings"]), SCHEMA) == []

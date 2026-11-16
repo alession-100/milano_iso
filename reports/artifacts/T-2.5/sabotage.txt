@@ -1,0 +1,7 @@
+Scratch copy only: MILANO_ISO_DATA=<temp>/scr (copy of processed/pilot.gpkg; tiles rebuilt there
+with sabotage_patch.py, which drops the first road feature from the export). The real data is untouched.
+dropped road {'osm_type': 'r', 'osm_id': 1858559, 'class': 'pedestrian', 'width_m': 4.0, 'width_source': 'style'}
+pytest -m data tests/data/test_data_tile_content.py tests/data/test_data_tiles.py
+E   AssertionError: roads: 1 features missing from the tiles: [('r', 1858559)]
+FAILED tests/data/test_data_tile_content.py::test_flat_every_source_feature_inside_the_extent_is_in_a_tile
+1 failed, 12 passed

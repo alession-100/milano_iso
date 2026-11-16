@@ -64,17 +64,33 @@
       "maxItems": 4,
       "items": {"type": "number"}
     },
+    "vec3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "number"}
+    },
+    "bbox3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {"min": {"$ref": "#/$defs/vec3"}, "max": {"$ref": "#/$defs/vec3"}}
+    },
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "tile": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "i", "j", "bbox_local", "bbox_epsg32632", "counts", "glb", "features"],
+      "required": [
+        "id", "i", "j", "bbox_local", "bbox_epsg32632", "content_bbox_local", "counts", "glb",
+        "features"
+      ],
       "properties": {
         "id": {"type": "string", "pattern": "^-?[0-9]+_-?[0-9]+$"},
         "i": {"type": "integer"},
         "j": {"type": "integer"},
         "bbox_local": {"$ref": "#/$defs/bbox"},
         "bbox_epsg32632": {"$ref": "#/$defs/bbox"},
+        "content_bbox_local": {"$ref": "#/$defs/bbox3"},
         "counts": {"$ref": "#/$defs/counts"},
         "glb": {
           "type": "object",

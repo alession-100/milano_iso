@@ -6,7 +6,6 @@ iteration, no timestamps, JSON with sorted keys.
 """
 
 import argparse
-import gzip
 import json
 import math
 import sys
@@ -134,6 +133,22 @@ def _max_offset(meshes: list[dict], centre: tuple[float, float]) -> float:
     return float(max(np.abs(m["positions"] - c).max() for m in meshes))
 
 
+def _content_bbox(meshes: list[dict], centre: tuple[float, float]) -> dict:
+    """Extent of the dequantised vertices (what the client decodes), client frame, metres.
+
+    Whole buildings may overhang the tile cell (ADR-0022 point 5), so the grid cell is not a
+    bound of the content. Rounded to 3 decimals (the quantisation unit is 0.02 m).
+    """
+    pts = np.concatenate(
+        [glb.dequantise(glb.quantise(m["positions"], centre), centre) for m in meshes]
+    )
+    lo, hi = pts.min(axis=0), pts.max(axis=0)
+    return {
+        "min": [round(float(v), 3) + 0.0 for v in lo],
+        "max": [round(float(v), 3) + 0.0 for v in hi],
+    }
+
+
 def _sample(meshes: list[dict]) -> list[dict]:
     """Evenly spaced vertices with their float64 client-frame coordinates (metres)."""
     owners = [(m["name"], v) for m in meshes for v in range(len(m["positions"]))]
@@ -150,6 +165,28 @@ def _sample(meshes: list[dict]) -> list[dict]:
             {"mesh": name, "vertex": v, "xyz": [float(c) for c in by_name[name]["positions"][v]]}
         )
     return out
+
+
+def write_tile(out_dir, name, i, j, meshes, tables, layer_stats, centre):
+    """Write ``<name>.glb`` and ``<name>.json``; return (manifest entry, glb bytes).
+
+    A tile without meshes writes nothing and returns None: never a 0-byte .glb (T-2.5).
+    """
+    if not meshes:
+        return None
+    n_features = sum(len(t) for t in tables.values())
+    blob = glb.write_glb(meshes, centre, n_features)
+    (out_dir / f"{name}.glb").write_bytes(blob)
+    (out_dir / f"{name}.json").write_bytes(_json_bytes({"tile": name, "layers": tables}))
+    entry = manifest.tile_entry(
+        out_dir,
+        name,
+        i,
+        j,
+        {k: v["features"] for k, v in layer_stats.items()},
+        _content_bbox(meshes, centre),
+    )
+    return entry, blob
 
 
 def build(
@@ -275,23 +312,19 @@ def build(
                     "triangles": mf.n_triangles,
                 }
 
-        n_features = sum(len(t) for t in tables.values())
-        blob = glb.write_glb(meshes, centre, n_features) if meshes else b""
+        written = write_tile(out_dir, name, i, j, meshes, tables, layer_stats, centre)
+        if written is None:
+            continue  # T-2.5: an empty tile is skipped (no file, not in the manifest)
+        entry, blob = written
         sample = _sample(meshes)
-        (out_dir / f"{name}.glb").write_bytes(blob)
-        (out_dir / f"{name}.json").write_bytes(_json_bytes({"tile": name, "layers": tables}))
-        gz = len(gzip.compress(blob, 9, mtime=0))
+        gz = entry["glb"]["gzip9_bytes"]
         try:
             import brotli
 
             br = len(brotli.compress(blob))
         except ImportError:
             br = None
-        entries.append(
-            manifest.tile_entry(
-                out_dir, name, i, j, {k: v["features"] for k, v in layer_stats.items()}
-            )
-        )
+        entries.append(entry)
         summary_tiles[name] = {
             "glb_bytes": len(blob),
             "gzip9_bytes": gz,
@@ -299,7 +332,7 @@ def build(
             "over_gzip_budget": gz > BUDGET_GZIP_BYTES,
             "max_hausdorff_m": round(max_h, 6),
             "max_offset_from_centre_m": round(_max_offset(meshes, centre), 3),
-            "features": n_features,
+            "features": sum(len(t) for t in tables.values()),
             "meshes": [m["name"] for m in meshes],
             "centre_client_m": list(centre),
             "position_sample": sample,

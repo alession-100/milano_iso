@@ -43,7 +43,9 @@ def manifest_bytes(obj: dict) -> bytes:
     return (s + "\n").encode("utf-8")
 
 
-def tile_entry(out_dir: Path, name: str, i: int, j: int, counts: dict[str, int]) -> dict:
+def tile_entry(
+    out_dir: Path, name: str, i: int, j: int, counts: dict[str, int], content_bbox_local: dict
+) -> dict:
     """Manifest entry of tile ``name``; reads its .glb and .json files from ``out_dir``."""
     glb_path, feat_path = out_dir / f"{name}.glb", out_dir / f"{name}.json"
     blob = glb_path.read_bytes()
@@ -56,6 +58,8 @@ def tile_entry(out_dir: Path, name: str, i: int, j: int, counts: dict[str, int])
         "bbox_local": [xmin, 0.0 - ymax, xmax, 0.0 - ymin],
         "bbox_epsg32632": list(grid.tile_bbox(i, j)),
         "counts": dict(sorted(counts.items())),
+        # extent of the decoded vertices, client frame [x, y, z]; may exceed bbox_local (overhang)
+        "content_bbox_local": content_bbox_local,
         "glb": {
             "file": glb_path.name,
             "bytes": len(blob),
