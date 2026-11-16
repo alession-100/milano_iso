@@ -1,0 +1,7 @@
+duomo | all60/+-50: |t|=0.71 ratio=0.983 plateau=2.0 | all60/+-15: |t|=0.71 ratio=0.983 plateau=0.0 | own/+-50: |t|=0.71 ratio=0.983 plateau=2.0 | ratio@t0=0.9729
+galleria_vittorio_emanuele_ii deferred
+palazzo_assicurazioni_generali | all60/+-50: |t|=0.00 ratio=0.997 plateau=21.3 | all60/+-15: |t|=0.00 ratio=0.997 plateau=18.4 | own/+-50: |t|=0.00 ratio=0.997 plateau=21.3 | ratio@t0=0.9969
+palazzo_marino | all60/+-50: |t|=70.18 ratio=0.976 plateau=0.0 | all60/+-15: |t|=0.25 ratio=0.972 plateau=0.0 | own/+-50: |t|=0.25 ratio=0.972 plateau=0.0 | ratio@t0=0.9694
+palazzo_reale | all60/+-50: |t|=0.00 ratio=0.999 plateau=0.0 | all60/+-15: |t|=0.00 ratio=0.999 plateau=2.0 | own/+-50: |t|=0.00 ratio=0.904 plateau=0.0 | ratio@t0=0.9986
+teatro_alla_scala | all60/+-50: |t|=0.00 ratio=0.973 plateau=0.0 | all60/+-15: |t|=0.00 ratio=0.973 plateau=2.8 | own/+-50: |t|=0.00 ratio=0.968 plateau=0.0 | ratio@t0=0.9730
+torre_velasca | all60/+-50: |t|=50.74 ratio=0.998 plateau=141.4 | all60/+-15: |t|=0.00 ratio=0.966 plateau=2.0 | own/+-50: |t|=0.00 ratio=0.966 plateau=0.0 | ratio@t0=0.9664

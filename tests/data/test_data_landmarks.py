@@ -2,11 +2,13 @@
 
 (a) pipeline integrity: the processed OSM footprint with the landmark's OSM type and id has its
     centroid within ``tolerance_m`` of the reference position.
-(b) rendered landmark (ADR-0018 point 1): the distance from the reference position to the union
-    of all rendered buildings carrying the id, interior rings filled, is within ``tolerance_m``
-    (``dist_filled_union_m``, the only asserted value). The primary-only distance, the inside
-    flag and the IoU are reported. A deferred landmark (own OSM element not rendered, ADR-0018
-    point 2) must have no building carrying its id.
+(b) rendered landmark (ADR-0020, replaces ADR-0018 point 1): the translation of the OSM footprint
+    that best fits the union of the rendered footprints carrying the landmark id (interior rings filled) has
+    magnitude <= ``tolerance_m`` (``best_offset_m``, the only asserted value; see
+    landmark_offset.py). The overlap ratio and the plateau width are reported. The ADR-0018
+    filled-union distance, the primary-only distance, the inside flag and the IoU are reported,
+    not asserted. A deferred landmark (own OSM element not rendered, ADR-0018 point 2) must have
+    no building carrying its id.
 (c) registration (ADR-0017 point 3): over OSM/DBT building pairs with IoU >= 0.8 the magnitude
     of the mean centroid offset is <= 1.0 m, with at least 20 pairs.
 All numbers go to landmarks_check.csv and validate_summary.md. Nothing is loosened.
@@ -20,6 +22,7 @@ import pytest
 import shapely
 import yaml
 from conftest import OUT_DIR
+from landmark_offset import best_offset, fill_rings
 from milano_iso import config
 
 LANDMARKS = config.REPO_ROOT / "tests" / "landmarks.yaml"
@@ -39,6 +42,11 @@ FIELDS = [
     "ref_inside_primary",
     "iou_osm_vs_rendered",
     "dist_filled_union_m",
+    "best_offset_e",
+    "best_offset_n",
+    "best_offset_m",
+    "best_overlap_ratio",
+    "plateau_width_m",
     "status_b",
     "note",
 ]
@@ -71,6 +79,12 @@ def filled_union_distance(geoms, ref):
     return float(shapely.union_all(exteriors).distance(ref))
 
 
+def _num(x: float) -> str:
+    """Fixed-point text; never '-0.000'."""
+    text = f"{x:.3f}"
+    return "0.000" if text == "-0.000" else text
+
+
 def _check(e, layers):
     code = OSM_CODE[e["osm"]["type"]]
     oid = int(e["osm"]["id"])
@@ -88,6 +102,11 @@ def _check(e, layers):
         "ref_inside_primary": "",
         "iou_osm_vs_rendered": "",
         "dist_filled_union_m": "",
+        "best_offset_e": "",
+        "best_offset_n": "",
+        "best_offset_m": "",
+        "best_overlap_ratio": "",
+        "plateau_width_m": "",
         "status_b": "",
         "note": "",
     }
@@ -145,7 +164,20 @@ def _check(e, layers):
         row["iou_osm_vs_rendered"] = f"{inter / union:.3f}"
     d = filled_union_distance(bl.geometry.to_numpy(), ref)
     row["dist_filled_union_m"] = f"{d:.3f}"
-    row["status_b"] = "pass" if d <= tol else "fail"
+    if hit is None:
+        row["status_b"] = "fail_no_osm_footprint"
+        return row
+    # ADR-0020 (amended 2026-11-16): R = rendered buildings carrying the landmark id, filled.
+    fit = best_offset(osm_g, fill_rings(shapely.union_all(bl.geometry.to_numpy())))
+    row["best_offset_e"] = _num(fit.e)
+    row["best_offset_n"] = _num(fit.n)
+    row["best_offset_m"] = _num(fit.magnitude_m)
+    row["best_overlap_ratio"] = f"{fit.overlap_ratio:.3f}"
+    row["plateau_width_m"] = _num(fit.plateau_width_m)
+    if fit.overlap_ratio <= 0:
+        row["status_b"] = "fail_no_overlap"
+    else:
+        row["status_b"] = "pass" if fit.magnitude_m <= tol else "fail"
     return row
 
 
@@ -153,7 +185,7 @@ def _check(e, layers):
 def rows(layers):
     result = [_check(e, layers) for e in _entries()]
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    with (OUT_DIR / "landmarks_check.csv").open("w", newline="", encoding="utf-8") as f:
+    with (OUT_DIR / "landmarks_check.csv").open("w", newline="\n", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
         w.writeheader()
         w.writerows(result)
@@ -189,8 +221,10 @@ def test_landmark_b_rendered_position(lid, rows):
     if r["status_b"] == "deferred_phase4":
         pytest.skip(f"deferred_phase4: {r['note']}")
     assert r["status_b"] == "pass", (
-        f"{lid}: reference is {r['dist_filled_union_m'] or 'n/a'} m from the filled union of "
-        f"rendered buildings (tolerance {r['tolerance_m']} m), status {r['status_b']}. {r['note']}"
+        f"{lid}: best-fit offset of the OSM footprint onto the rendered buildings is "
+        f"{r['best_offset_m'] or 'n/a'} m (dE {r['best_offset_e'] or 'n/a'}, dN "
+        f"{r['best_offset_n'] or 'n/a'}; tolerance {r['tolerance_m']} m), overlap ratio "
+        f"{r['best_overlap_ratio'] or 'n/a'}, status {r['status_b']}. {r['note']}"
     )
 
 

@@ -77,6 +77,32 @@ def test_geometry_no_exact_duplicates(layer_name, layers):
     )
 
 
+# Layers where several rows share one geometry legitimately (T-1.7): named_features holds one
+# row per named OSM object, and distinct objects share a position or an outline (on the pilot:
+# 80 rows, 44 surplus; 55 ways, 18 nodes, 7 relations; e.g. a bus stop and a stop position at
+# one point).
+SAME_GEOMETRY_EXEMPT = ("named_features",)
+
+
+def test_geometry_no_same_geometry_different_key(layer_name, layers, report):
+    """T-1.7 (G1 finding 6): no two rows of a layer share one geometry, whatever their key."""
+    gdf = layers[layer_name]
+    wkb = pd.Series(shapely.to_wkb(gdf.geometry.to_numpy()))
+    n_extra = int(wkb.duplicated().sum())
+    n_rows = int(wkb.duplicated(keep=False).sum())
+    report.add(
+        f"Same geometry, any key: {layer_name}",
+        f"- rows sharing a geometry with another row: {n_rows}; surplus rows: {n_extra}; "
+        f"exempt: {layer_name in SAME_GEOMETRY_EXEMPT}",
+    )
+    if layer_name in SAME_GEOMETRY_EXEMPT:
+        return
+    assert n_rows == 0, (
+        f"{layer_name}: {n_rows} rows share a geometry with another row "
+        f"(first rows {list(wkb.index[wkb.duplicated(keep=False)][:5])})"
+    )
+
+
 def test_extent_every_feature_intersects_pilot(layer_name, layers):
     """ADR-0013 (as amended in T-1.4): features are kept whole if they intersect the extent.
     DBT volumes are kept when their building intersects; the building is the one in

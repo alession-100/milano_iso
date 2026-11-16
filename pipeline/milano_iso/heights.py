@@ -167,25 +167,67 @@ def osm_top_m(height_raw, levels_raw, default_m: float | None):
 # ----------------------------------------------------------------------------- DBT heights
 
 
-def dbt_volume_heights(vols: pd.DataFrame) -> pd.DataFrame:
-    """Add ``ground_z_m``, ``ground_flag``, ``bottom_m`` and ``top_m`` to DBT volumes (ADR-0015).
+NEIGHBOUR_RADII_M = (50.0, 100.0)
+NEIGHBOUR_MIN_VOLUMES = 5
 
-    Needs columns ``building_ref``, ``por``, ``av_m``, ``qe_m``, ``base_z_min_m``.
-    ``ground_z`` of a building is the minimum ``base_z_min_m`` of its POR 01 volumes; without
-    any, the minimum over all its volumes, flagged ``no_por01``. Then
+
+def neighbour_ground_z(footprint, pool_geoms, pool_z, building_ref: str) -> tuple[float, int]:
+    """Median base Z of the POR 01 volumes near ``footprint`` (ADR-0015 as amended by T-1.7).
+
+    Looks within 50 m, then 100 m, for at least 5 volumes; fails loudly otherwise.
+    Returns (median, number of volumes used).
+    """
+    tree = STRtree(pool_geoms)
+    for radius in NEIGHBOUR_RADII_M:
+        idx = np.sort(tree.query(footprint, predicate="dwithin", distance=radius))
+        if len(idx) >= NEIGHBOUR_MIN_VOLUMES:
+            return float(np.median(pool_z[idx])), len(idx)
+    raise ValueError(
+        f"building {building_ref} has no POR 01 volume and fewer than {NEIGHBOUR_MIN_VOLUMES} "
+        f"POR 01 volumes of other buildings within {NEIGHBOUR_RADII_M[-1]:.0f} m"
+    )
+
+
+def no_negative_zero(df: pd.DataFrame) -> pd.DataFrame:
+    """Return ``df`` with -0.0 replaced by 0.0 in every float column (x + 0.0 does it)."""
+    out = df.copy()
+    for c in out.columns:
+        if pd.api.types.is_float_dtype(out[c]):
+            out[c] = out[c] + 0.0
+    return out
+
+
+def dbt_volume_heights(vols: pd.DataFrame) -> pd.DataFrame:
+    """Add ``ground_z_m``, ``ground_flag``, ``ground_neighbours``, ``bottom_m``, ``top_m``.
+
+    Needs columns ``building_ref``, ``por``, ``av_m``, ``qe_m``, ``base_z_min_m``, ``geometry``.
+    ``ground_z`` of a building is the minimum ``base_z_min_m`` of its POR 01 volumes. A building
+    without any (raised-only) takes the median ``base_z_min_m`` of the POR 01 volumes of other
+    buildings within 50 m of its footprint (100 m if fewer than 5; fails if still fewer than 5),
+    flagged ``neighbour_median`` with the number of volumes in ``ground_neighbours``. Then
     ``bottom = (qe - av) - ground_z`` and ``top = qe - ground_z``. No clamping.
     """
     out = vols.copy()
-    ground = out.loc[out["por"] == GROUND_POR].groupby("building_ref")["base_z_min_m"].min()
-    anyvol = out.groupby("building_ref")["base_z_min_m"].min()
+    por01 = out[out["por"] == GROUND_POR]
+    ground = por01.groupby("building_ref")["base_z_min_m"].min()
     z = out["building_ref"].map(ground)
     flag = z.isna()
-    z = z.where(~flag, out["building_ref"].map(anyvol))
+    n_nb = pd.Series(np.nan, index=out.index)
+    if flag.any():
+        pool_geoms = por01["geometry"].to_numpy()
+        pool_z = por01["base_z_min_m"].to_numpy(dtype=float)
+        for ref in sorted(out.loc[flag, "building_ref"].unique()):
+            rows = (out["building_ref"] == ref).to_numpy()
+            fp = shapely.union_all(out.loc[rows, "geometry"].to_numpy())
+            val, n = neighbour_ground_z(fp, pool_geoms, pool_z, ref)
+            z[rows] = val
+            n_nb[rows] = n
     out["ground_z_m"] = z
-    out["ground_flag"] = np.where(flag, "no_por01", None)
+    out["ground_flag"] = np.where(flag, "neighbour_median", None)
+    out["ground_neighbours"] = n_nb.astype("Int64")
     out["bottom_m"] = (out["qe_m"] - out["av_m"]) - z
     out["top_m"] = out["qe_m"] - z
-    return out
+    return no_negative_zero(out)
 
 
 # ----------------------------------------------------------------------------- matching
@@ -342,7 +384,10 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
                 "geometry": shapely.union_all(grp.geometry.to_numpy()),
                 "height_m": float(grp["top_m"].max()),
                 "n_volumes": len(grp),
-                "ground_flag": "no_por01" if (grp["ground_flag"] == "no_por01").any() else None,
+                "ground_flag": "neighbour_median"
+                if (grp["ground_flag"] == "neighbour_median").any()
+                else None,
+                "ground_neighbours": grp["ground_neighbours"].max(),
                 "building_class": grp["building_class"].iloc[0]
                 if "building_class" in grp.columns
                 else None,
@@ -455,6 +500,7 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "height_m",
             "height_source",
             "ground_flag",
+            "ground_neighbours",
             "rendered",
             "render_reason",
             "geometry",
@@ -470,6 +516,7 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "height_m": [x["top_m"] - x["bottom_m"] for x in osm_rows],
             "height_source": [x["height_source"] for x in osm_rows],
             "ground_flag": None,
+            "ground_neighbours": pd.array([pd.NA] * len(osm_rows), dtype="Int64"),
             "rendered": [x["rendered"] for x in osm_rows],
             "render_reason": [x["render_reason"] for x in osm_rows],
             "geometry": [x["geometry"] for x in osm_rows],
@@ -478,7 +525,7 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
     frames = [f for f in (rv_dbt, rv_osm) if len(f)]
     rv = pd.concat(frames, ignore_index=True)
     rv = gpd.GeoDataFrame(rv, geometry="geometry", crs=METRIC_CRS)
-    rv = rv.sort_values("vol_key", kind="stable").reset_index(drop=True)
+    rv = no_negative_zero(rv).sort_values("vol_key", kind="stable").reset_index(drop=True)
 
     # --- buildings
     b_dbt = pd.DataFrame(
@@ -521,7 +568,7 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
     bl["osm_id"] = bl["osm_id"].astype("Int64")
     bl["n_volumes"] = bl["n_volumes"].astype("int64")
     bl = gpd.GeoDataFrame(bl, geometry="geometry", crs=METRIC_CRS)
-    bl = bl.sort_values("building_key", kind="stable").reset_index(drop=True)
+    bl = no_negative_zero(bl).sort_values("building_key", kind="stable").reset_index(drop=True)
 
     return {
         "render_volumes": rv,
@@ -682,20 +729,25 @@ def make_report(res: dict) -> dict:
                 .items()
             },
         },
-        "dbt_ground_flag_no_por01_buildings": int((dbt_b["ground_flag"] == "no_por01").sum()),
+        "dbt_ground_flag_neighbour_median_buildings": int(
+            (dbt_b["ground_flag"] == "neighbour_median").sum()
+        ),
     }
 
 
 def write_csv(path: Path, header, rows) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as f:
+    with path.open("w", newline="\n", encoding="utf-8") as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(header)
         w.writerows(rows)
 
 
 def _fmt(v) -> str:
-    return "" if v is None else (f"{v:.3f}" if isinstance(v, float) else str(v))
+    if v is None:
+        return ""
+    text = f"{v:.3f}" if isinstance(v, float) else str(v)
+    return "0.000" if text == "-0.000" else text
 
 
 def write_heights_md(rep: dict, sha: str, path: Path) -> None:
@@ -788,8 +840,8 @@ def write_heights_md(rep: dict, sha: str, path: Path) -> None:
         f"- DBT buildings with no OSM attributes: {a['dbt_buildings_without_osm_attributes']}.",
         f"- DBT buildings with a landmark_id: {a['dbt_buildings_with_landmark_id']}.",
         (
-            f"- DBT buildings using the `no_por01` ground fallback: "
-            f"{rep['dbt_ground_flag_no_por01_buildings']}."
+            f"- DBT buildings using the `neighbour_median` ground fallback: "
+            f"{rep['dbt_ground_flag_neighbour_median_buildings']}."
         ),
         "",
         (
@@ -797,7 +849,7 @@ def write_heights_md(rep: dict, sha: str, path: Path) -> None:
             "parse log: `height_parse_log.csv`; outliers: `outliers.csv`."
         ),
     ]
-    path.write_text("\n".join(L) + "\n", encoding="utf-8")
+    path.write_text("\n".join(L) + "\n", encoding="utf-8", newline="\n")
 
 
 def write_outputs(res: dict, rep: dict, defaults: dict, sha: str, out_dir: Path) -> None:
@@ -806,9 +858,10 @@ def write_outputs(res: dict, rep: dict, defaults: dict, sha: str, out_dir: Path)
         json.dumps({**rep, "canonical_dump_sha256_pilot_gpkg": sha}, indent=2, sort_keys=True)
         + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     (out_dir / "defaults.json").write_text(
-        json.dumps(defaults, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(defaults, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
     )
     write_heights_md(rep, sha, out_dir / "heights.md")
     write_csv(

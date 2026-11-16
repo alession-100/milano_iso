@@ -1,0 +1,36 @@
+uv run python -m milano_iso.fetch comune_boundary
+comune_boundary: skip, sha256 ok (7417f88f3e584b690e4d3a0426e42fced44a5846175967b19444ca267a0f3ec1)
+uv run python -m milano_iso.osm_extract --extent pilot --summary reports/artifacts/T-1.1/summary.json
+osm_geofabrik: skip, sha256 ok (8b68eed2f4325134d89683ff3b01ef0fdf14647f88f3c720e71668887092debd)
+Created 5,065 records
+Created 2,704 records
+Created 1,236 records
+kept {'points': 5065, 'lines': 2704, 'areas': 1236}; failed relations 509
+canonical_sha256 3a2980a1dc50a5c25555b80e4a21b72166efa98d58f833e792309bd0f7094216
+gpkg_sha256 0233912ae8e6b045599af9ae53873eac29cb14b5fd52c51bd2452775b3bc4235
+uv run python -m milano_iso.dbt_fetch
+dbt2020: skip, sha256 ok (f11d20728d2a78b6f926dc0f55bc8344836d06287babd7a428fc3de08427db42)
+dbt_spec: skip, sha256 ok (29e189ebc8b0209d37da2faf7dd03beed0659efcff911db4b4fc1823240c3808)
+uv run python -m milano_iso.dbt_extract --extent pilot
+canonical dump sha256 of dbt_pilot.gpkg: 597e00a2ea07601dc5581c50af79b19ebb05209d581f59f31e23ef28bd6ad8d1
+{"edifc": 170, "edifc_me": 171, "edifc_me_sr": 665, "edi_min": 47, "edi_min_me": 47, "un_vol": 5821, "edifc_attr": 171, "edifc_uso": 171, "edi_min_attr": 47} match_rate 0.9919257859474317
+uv run python -m milano_iso.normalise --extent pilot
+Created 1 records
+Created 218 records
+Created 5,821 records
+Created 76 records
+Created 10 records
+Created 2,291 records
+Created 133 records
+Created 706 records
+Created 171 records
+Created 42 records
+Created 2,308 records
+Created 4 records
+canonical dump sha256 of pilot.gpkg: 01b0428de07f0146c9ae7e7813d2838b49e57549379b7578b3912c085908218a
+{"all_features_intersect_extent": true, "completeness_dbt_volumes_ge_99pct": true, "completeness_osm_buildings_ge_99pct": true, "crs_all_layers_epsg32632": true, "features_outside_extent_total": 0, "invalid_geometries_total": 0}
+uv run python -m milano_iso.heights --extent pilot
+canonical dump sha256 of pilot.gpkg: 85c50ccddf127b770658a24843e8855e0c50fdc4aac5fdc183d9660e8a68b4fb
+{"checks": {"buildings_ok": true, "render_volumes_ok": true}, "counts": {"buildings": 240, "dbt_buildings": 218, "dbt_volumes": 5821, "osm_only_buildings": 22, "render_volumes": 5843}}
+landmarks without assignment: {"buildings_with_landmark_id": 9, "no_osm_footprint": ["bosco_verticale_torre_confalonieri", "bosco_verticale_torre_de_castillia", "castello_sforzesco", "citylife_allianz", "citylife_generali", "citylife_pwc", "grattacielo_pirelli", "stadio_meazza", "stazione_centrale"], "no_rendered_overlap": [], "primary_buildings": 6}
+make data: done (data-boundary data-osm data-dbt data-normalise data-heights)

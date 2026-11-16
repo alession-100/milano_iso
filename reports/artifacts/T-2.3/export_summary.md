@@ -93,7 +93,7 @@
 | 1_-1 | road_areas | 4 | 77 | 79 |
 | 1_-1 | roads | 171 | 1612 | 1278 |
 | 1_-1 | rail | 21 | 217 | 175 |
-| 1_0 | buildings | 10 | 6424 | 11553 |
+| 1_0 | buildings | 10 | 6424 | 11570 |
 | 1_0 | landuse | 1 | 4 | 2 |
 | 1_0 | green | 5 | 71 | 59 |
 | 1_0 | water | 2 | 32 | 28 |
@@ -134,7 +134,7 @@
 | 0_2 | 48300 | 22636 | n/a | 0.181995 | no |
 | 1_-2 | 74356 | 33807 | n/a | 0.199519 | no |
 | 1_-1 | 90316 | 41119 | n/a | 0.193731 | no |
-| 1_0 | 175908 | 80731 | n/a | 0.233496 | no |
+| 1_0 | 176008 | 80789 | n/a | 0.233496 | no |
 | 1_1 | 143352 | 65779 | n/a | 0.26992 | no |
 | 1_2 | 47996 | 22663 | n/a | 0.203141 | no |
 | 2_-2 | 4044 | 1937 | n/a | 0.137858 | no |
@@ -143,7 +143,7 @@
 
 Worst offset from a tile centre: 265.989 m; int16 range +/-655.34 m (2 cm unit), headroom 389.351 m.
 
-Total: glb 2500880 bytes, gzip-9 1142200 bytes, max Hausdorff 0.26992 m. Budget per tile: 256000 bytes gzip.
+Total: glb 2500980 bytes, gzip-9 1142258 bytes, max Hausdorff 0.26992 m. Budget per tile: 256000 bytes gzip.
 
 ## Checks
 

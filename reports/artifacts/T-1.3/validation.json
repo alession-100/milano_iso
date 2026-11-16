@@ -7,7 +7,7 @@
     "features_outside_extent_total": 0,
     "invalid_geometries_total": 0
   },
-  "canonical_dump_sha256_pilot_gpkg": "0829878fa10f4d0d93dc95cb62d6919c165178ee37b466b42f1bebbe7ea9ac69",
+  "canonical_dump_sha256_pilot_gpkg": "01b0428de07f0146c9ae7e7813d2838b49e57549379b7578b3912c085908218a",
   "completeness": {
     "dbt_volumes": {
       "denominator": "UN_VOL features in dbt_pilot.gpkg",
@@ -57,11 +57,12 @@
       "crs": "EPSG:32632",
       "dropped": {},
       "duplicates": 0,
-      "input": 217,
+      "input": 218,
       "invalid": 0,
-      "output": 217,
+      "output": 218,
       "outside_extent": 0,
-      "repaired": 0
+      "repaired": 0,
+      "same_geometry_different_key": 0
     },
     "dbt_volumes": {
       "crs": "EPSG:32632",
@@ -73,6 +74,7 @@
       "outside_extent": 0,
       "outside_extent_kept_with_building": 1164,
       "repaired": 0,
+      "same_geometry_different_key": 0,
       "underground": 0
     },
     "green": {
@@ -83,7 +85,8 @@
       "invalid": 0,
       "output": 76,
       "outside_extent": 0,
-      "repaired": 0
+      "repaired": 0,
+      "same_geometry_different_key": 0
     },
     "landuse": {
       "crs": "EPSG:32632",
@@ -93,7 +96,8 @@
       "invalid": 0,
       "output": 10,
       "outside_extent": 0,
-      "repaired": 0
+      "repaired": 0,
+      "same_geometry_different_key": 0
     },
     "named_features": {
       "crs": "EPSG:32632",
@@ -103,7 +107,8 @@
       "invalid": 0,
       "output": 2291,
       "outside_extent": 0,
-      "repaired": 0
+      "repaired": 0,
+      "same_geometry_different_key": 0
     },
     "osm_building_parts": {
       "crs": "EPSG:32632",
@@ -114,6 +119,7 @@
       "output": 133,
       "outside_extent": 0,
       "repaired": 0,
+      "same_geometry_different_key": 0,
       "underground": 0
     },
     "osm_buildings": {
@@ -125,6 +131,7 @@
       "output": 706,
       "outside_extent": 0,
       "repaired": 0,
+      "same_geometry_different_key": 0,
       "underground": 0
     },
     "rail": {
@@ -136,6 +143,7 @@
       "output": 171,
       "outside_extent": 0,
       "repaired": 0,
+      "same_geometry_different_key": 0,
       "underground": 19
     },
     "road_areas": {
@@ -147,6 +155,7 @@
       "output": 42,
       "outside_extent": 0,
       "repaired": 0,
+      "same_geometry_different_key": 0,
       "underground": 2
     },
     "roads": {
@@ -158,6 +167,7 @@
       "output": 2308,
       "outside_extent": 0,
       "repaired": 0,
+      "same_geometry_different_key": 0,
       "underground": 454
     },
     "water": {
@@ -169,6 +179,7 @@
       "output": 4,
       "outside_extent": 0,
       "repaired": 0,
+      "same_geometry_different_key": 0,
       "underground": 0
     }
   },

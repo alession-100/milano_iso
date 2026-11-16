@@ -4,7 +4,7 @@
     "dbt_buildings_with_osm_attributes": 191,
     "dbt_buildings_without_osm_attributes": 27
   },
-  "canonical_dump_sha256_pilot_gpkg": "99e418cfead127d1e6be21559799962189f8680ad1dfb7a4397720013b070bc0",
+  "canonical_dump_sha256_pilot_gpkg": "85c50ccddf127b770658a24843e8855e0c50fdc4aac5fdc183d9660e8a68b4fb",
   "checks": {
     "buildings_ok": true,
     "render_volumes_ok": true
@@ -16,7 +16,7 @@
     "osm_only_buildings": 22,
     "render_volumes": 5843
   },
-  "dbt_ground_flag_no_por01_buildings": 1,
+  "dbt_ground_flag_neighbour_median_buildings": 1,
   "default": {
     "method": "median_edi_min_dbt_buildings",
     "n": 47,

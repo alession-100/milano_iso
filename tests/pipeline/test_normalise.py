@@ -112,6 +112,8 @@ def write_dbt(path):
     )
     put("edifc", pd.DataFrame({"CLASSREF": ["EDIFC_1"]}), [zpoly(0, 0, 100, 50)])
     put("edi_min", pd.DataFrame({"CLASSREF": ["EDI_MIN_5"]}), [zpoly(20, 0, 100)])
+    put("edifc_me", pd.DataFrame({"CLASSREF": ["EDIFC_1"]}), [zpoly(0, 0, 100, 50)])
+    put("edi_min_me", pd.DataFrame({"CLASSREF": ["EDI_MIN_5"]}), [zpoly(20, 0, 100)])
     put(
         "edifc_attr",
         pd.DataFrame(
@@ -349,3 +351,68 @@ def test_deterministic_ordering_and_hash(inputs):
     assert res3["log"].frame().equals(res1["log"].frame())
     keys = pyogrio.read_dataframe(out1, layer="osm_buildings")[["osm_type", "osm_id"]]
     assert keys.equals(keys.sort_values(["osm_type", "osm_id"]).reset_index(drop=True))
+
+
+def _dbt_frames(with_me: bool):
+    """In-memory DBT input: EDIFC_1 has an IS footprint, EDIFC_2 only volumes (and ME if asked)."""
+    ge = lambda *a: gpd.GeoDataFrame({"CLASSREF": [a[0]]}, geometry=[a[1]], crs="EPSG:7791")
+    empty = gpd.GeoDataFrame({"CLASSREF": []}, geometry=[], crs="EPSG:7791")
+    vols = gpd.GeoDataFrame(
+        {
+            "CLASSID": ["UN_VOL_1", "UN_VOL_2"],
+            "CEDIUV": ["EDIFC_1", "EDIFC_2"],
+            "UN_VOL_POR": ["01", "04"],
+            "UN_VOL_AV": [10.0, 3.0],
+            "UN_VOL_QE": [110.0, 108.0],
+        },
+        geometry=[zpoly(0, 0, 100), zpoly(40, 0, 100)],
+        crs="EPSG:7791",
+    )
+    return {
+        "un_vol": vols,
+        "edifc": ge("EDIFC_1", zpoly(0, 0, 100, 50)),
+        "edifc_me": ge("EDIFC_2", zpoly(38, -2, 100, 54)) if with_me else empty,
+        "edi_min": empty,
+        "edi_min_me": empty,
+        "edifc_attr": pd.DataFrame(
+            {
+                "CLASSID": ["EDIFC_1", "EDIFC_2"],
+                "EDIFC_MON": [0, 0],
+                "EDIFC_STAT": ["03", "03"],
+                "EDIFC_TY": ["11", "11"],
+                "NOME": [None, None],
+            }
+        ),
+        "edifc_uso": pd.DataFrame({"CLASSREF": ["EDIFC_1"], "EDIFC_USO": ["01"]}),
+        "edi_min_attr": pd.DataFrame(
+            {"CLASSID": [], "EDI_MIN_PR": [], "EDI_MIN_ST": [], "EDI_MIN_TY": []}
+        ),
+    }
+
+
+def test_building_without_is_footprint_uses_me_then_volumes():
+    for with_me, expect in ((True, "me"), (False, "volumes")):
+        log = normalise.DropLog()
+        layers, _, _ = normalise.normalise_dbt(_dbt_frames(with_me), log)
+        b = layers["dbt_buildings"].set_index("bld_id")
+        assert list(b.index) == ["EDIFC_1", "EDIFC_2"]
+        assert b.loc["EDIFC_1", "footprint_source"] == "is"
+        assert b.loc["EDIFC_2", "footprint_source"] == expect
+        assert b.loc["EDIFC_2", "geometry"].area > 0
+        assert [r for r in log.rows if r[3] == "substituted"] == [
+            ("dbt_buildings", "dbt", "EDIFC_2", "substituted", f"no_is_footprint_used_{expect}")
+        ]
+
+
+def test_same_geometry_different_key_is_flagged_except_named_features():
+    g = box(0, 0, 10, 10)
+    gdf = gpd.GeoDataFrame(
+        {"k": ["a", "b", "c"]}, geometry=[g, g, box(20, 0, 30, 10)], crs="EPSG:32632"
+    )
+    for layer, expected in (("roads", 1), ("named_features", 0)):
+        log = normalise.DropLog()
+        n = normalise.flag_same_geometry(gdf, list("abc"), layer, "osm", log)
+        assert n == expected
+        assert [r[2:] for r in log.rows] == (
+            [("b", "flagged", "same_geometry_different_key")] if expected else []
+        )

@@ -112,7 +112,9 @@ def fetch(
         new["md5"] = actual
         new["md5_verified"] = True
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(json.dumps(new, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(new, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     log.info("%s: manifest written to %s", source, manifest_path)
     return new
 

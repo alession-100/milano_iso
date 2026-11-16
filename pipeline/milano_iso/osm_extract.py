@@ -209,7 +209,7 @@ def main(argv=None) -> int:
     text = json.dumps(summary, indent=2, sort_keys=True) + "\n"
     if args.summary:
         args.summary.parent.mkdir(parents=True, exist_ok=True)
-        args.summary.write_text(text, encoding="utf-8")
+        args.summary.write_text(text, encoding="utf-8", newline="\n")
     log.info(
         "kept %s; failed relations %d", summary["kept"], summary["failed_area_assembly"]["count"]
     )
