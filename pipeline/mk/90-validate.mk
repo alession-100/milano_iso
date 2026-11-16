@@ -4,9 +4,10 @@
 
 VALIDATE_OUT := reports/artifacts/T-1.6
 
+# Depends on data and tiles (both idempotent, cheap with a warm cache, T-2.5).
 # Runs the tests marked `data` (deselected by default via pyproject.toml). The summary and
 # landmarks_check.csv are written by the test session itself, also when tests fail.
-validate: tiles
+validate: data tiles
 	mkdir -p $(VALIDATE_OUT)
 	uv run pytest -m data tests/data -v --junitxml=$(VALIDATE_OUT)/junit.xml
 
