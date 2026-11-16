@@ -30,7 +30,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-2.1 | done | - | ADR-0021 tile scheme |
 | T-2.2 | done (finding) | reports/R-2.2.md | Verified: 4 tiles load in Node, 0 mismatches. Budget exceeded (379-662 KB gzip vs 250 KB); the export is not indexed. ADR-0022 and T-2.2a |
 | T-2.2a | done (finding) | reports/R-2.2a.md | Verified independently: byte-identical rebuild, 12 tiles load, 1536 sampled positions max error 0.010 m, 233/233 buildings once. Tile 0_0 is 289,508 B gzip-9, over budget; orchestrator measured 250 m tiles (max 92.0 KB), so ADR-0023 |
-| T-2.3 | in progress | | 250 m tiles + manifest + schema + determinism + glTF validator (absorbs T-2.4) |
+| T-2.3 | done | reports/R-2.3.md | Verified independently: 30 tiles, largest 91.4 KB gzip; Khronos validator 0 errors, 0 warnings; data tile checks 9 pass; determinism check exits 1 under orchestrator sabotage (flipped byte), 0 normally. Accepted: the glb.py stride fix (validator finding) and the Comune attribution wording composed from the portal's quoted licence text |
 | T-2.4 | merged into T-2.3 | | |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
