@@ -2,8 +2,8 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 2 - gate G2 in review (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
-**Last gate passed:** G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
+**Current phase:** 2 complete (G2 PASS WITH RISKS); T-2.5 follow-ups before Phase 3 (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Last gate passed:** G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
 | Task | Status | Report | Notes |
@@ -33,6 +33,8 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-2.3 | done | reports/R-2.3.md | Verified independently: 30 tiles, largest 91.4 KB gzip; Khronos validator 0 errors, 0 warnings; data tile checks 9 pass; determinism check exits 1 under orchestrator sabotage (flipped byte), 0 normally. Accepted: the glb.py stride fix (validator finding) and the Comune attribution wording composed from the portal's quoted licence text |
 | T-2.4 | merged into T-2.3 | | |
 
+| T-2.5 | in progress | | G2 follow-ups: content bbox, flat coverage test, simplification test, empty tiles |
+
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
 ## Environment notes (dev machine, Windows 11)
@@ -61,3 +63,16 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 5. **Duplicate check:** it only catches same key plus same geometry; extend it to geometry-only.
 6. **Cosmetic:** -0.0 bottoms, CRLF artifacts, timestamps in junit.xml.
 7. **Torre Velasca:** 100.18 m at the eaves vs 106 m to the roof (en.wikipedia citing LIFE 1957; Wikidata P2048). Consistent with ADR-0015 (no roofs).
+
+## Carry-over from G2 (non-blocking)
+- **Fixed in T-2.5:**
+  - content bbox (buildings overhang their cell by up to about 141 m, which would break culling);
+  - flat-layer coverage test;
+  - real simplification test;
+  - 0-byte empty tiles;
+  - `validate` depends on `data`.
+- **Open:**
+  - 29 zero-area road triangles from quantisation (harmless);
+  - per-volume simplification slivers (cosmetic);
+  - the road width style table must cover the city classes in Phase 6;
+  - Torre Velasca's roof-cap centroid is 5.2 m from its OSM reference: an OSM/DBT difference in extent (ADR-0017), and the best-fit check passes.
