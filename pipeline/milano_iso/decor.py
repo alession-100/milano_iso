@@ -330,6 +330,19 @@ def crossing_rows(osm: dict, extent, log_: DropLog, stats: Counter) -> list:
     return rows
 
 
+# Numeric precision, not style. Markings are computed (buffer, interpolate, union), so the last
+# bits of their coordinates differ between GEOS builds (Linux vs Windows, FMA), and with them
+# the order of union parts and the diagonal Delaunay picks for a rectangle. Snapping to 1 mm,
+# far below the 2 cm tile quantisation, and sorting the parts makes the output platform-free.
+MARKING_GRID_M = 0.001
+
+
+def _canonical_polygons(g) -> list[Polygon]:
+    snapped = shapely.set_precision(g, MARKING_GRID_M)
+    polys = [shapely.normalize(p) for p in tgeom.polygons_of(snapped)]
+    return sorted(polys, key=lambda p: (tuple(round(v, 3) for v in p.bounds), p.wkb))
+
+
 def build_markings(osm: dict, layers: dict, extent, log_: DropLog):
     stats: Counter = Counter()
     roads = layers["roads"].rename(columns={"class": "class_"})
@@ -338,7 +351,7 @@ def build_markings(osm: dict, layers: dict, extent, log_: DropLog):
     for t, i, kind, flag, g in raw:
         # one valid MultiPolygon per source row, clipped to the processed extent
         g = shapely.intersection(shapely.union_all(list(g.geoms)), extent)
-        polys = tgeom.polygons_of(g)
+        polys = _canonical_polygons(g)
         if not polys:
             stats["marking_rows_outside_extent"] += 1
             continue
