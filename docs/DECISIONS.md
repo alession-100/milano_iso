@@ -213,3 +213,14 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Status:** Accepted (2026-11-16)
 - **Decision:** A DBT building with no `POR` 01 volume takes as its `ground_z` the median `base_z_min_m` of the `POR` 01 volumes of other buildings within 50 m of its footprint. It needs at least 5 such volumes; with fewer it widens to 100 m, and with still fewer it fails. It is flagged `ground_flag = neighbour_median` with the count in `ground_neighbours`. This replaces "the minimum base Z of all its volumes".
 - **Evidence:** EDIFC_2671, an underpass ceiling (`POR` 04): with 83 neighbours it now spans 3.44-19.34 m, where before it was 0-15.9 m and filled the passage.
+
+## ADR-0024 - CI toolchain pinning
+- **Status:** Accepted (2026-11-17)
+- **Context:**
+  - The first CI run (43979971184) failed in `npm ci`. npm 11.19.1 on the runner rejected `web/package-lock.json`, which npm 11.6.2 had written on Windows: "Missing: @emnapi/core@2.0.0-beta.2 from lock file". These are dependencies of the optional `@rolldown/binding-wasm32-wasi`.
+  - The run also warned that the actions in use target the deprecated Node 20.
+- **Decision:**
+  - The lockfile is regenerated with npm 11.19.1 (`npm install --package-lock-only`). It now records `@emnapi/*`, and both npm 11.6.2 and 11.19.1 accept it in `npm ci`.
+  - CI installs npm 11.19.1 explicitly.
+  - Locally, use npm 11.19.1 for any lockfile change (`npx npm@11.19.1 install ...`).
+  - Actions are pinned by full commit SHA: `actions/checkout` v7.0.1, `actions/setup-node` v7.1.0, `astral-sh/setup-uv` v10.3.3, all on the node24 runtime. uv is pinned to 0.13.8, and checkout does not persist credentials.

@@ -44,7 +44,7 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 - No GitHub remote yet; `gh` CLI not installed. CI cannot run until the owner creates the repo.
 
 ## Carry-over risks from G0
-- CI: first run 43979971184 failed at Setup (`make setup`, exit 2); log not readable without auth. Actions still pinned by tag (Node 20 deprecation warning on checkout@v4, setup-node@v4, setup-uv@v6). First run may trip the anchored GPU-stall filter on Linux (ADR-0012).
+- CI: first run 43979971184 failed in `npm ci` (lockfile missing optional @emnapi deps; log supplied by the owner). Fixed in ADR-0024: lockfile regenerated with npm 11.19.1, npm pinned in CI, actions pinned by SHA on node24. First run may trip the anchored GPU-stall filter on Linux (ADR-0012).
 - CI actions pinned by tag, not SHA. Pin by SHA when the remote exists.
 - Attribution is still a placeholder. It must read "(c) OpenStreetMap contributors" (+ Comune di Milano CC BY if DBT is used) before any OSM geometry renders (Phase 3).
 - The web client needs an origin constant that matches `pipeline/milano_iso/config.py`, with a test (Phase 2/3).
