@@ -44,6 +44,9 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-3.6 | done | reports/R-3.6.md | Verified on main: vitest 66; 5 consecutive full e2e runs at default workers, 28/28 each. Visual baselines are candidate win32 only (skipped in CI with a reason); Linux baselines and the approval date follow the owner checkpoint. The B1 cause was the test's real mouse timing under load (the app already used event timestamps) |
 
 | T-3.7 | done | reports/R-3.7.md | Verified on main: vitest 66, e2e 30 pass, visual 24/24 on repeat; every colour sabotage fails at least 1 view (executor table); thresholds per ADR-0028. Linux baselines from the owner's `visual-baselines` workflow run committed 2026-11-17 (reviewed: same scene as win32, font rendering differs only); CI skip removed |
+| T-4.1 | in progress | - | Trees (OSM-mapped plus seeded fill, flagged) and road markings; worktree, e2e port 4181 |
+| T-4.3 | in progress | - | Land-use/green/water kinds, lighting polish, day/night toggle; worktree, e2e port 4183 |
+| T-4.2 | pending | - | Landmark details from DBT massing; starts after T-4.1 and T-4.3 merge |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
