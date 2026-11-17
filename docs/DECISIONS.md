@@ -263,3 +263,13 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - The console filter (ADR-0012) is not widened.
   - Visual-regression baselines (G3 and later) are captured under `?e2e=1`, so baselines and test runs stay consistent.
 - **Consequence:** e2e screenshots are not antialiased. Antialiasing is checked on real devices at the checkpoints.
+
+## ADR-0028 - Phase 4 scope (owner answers, 2026-11-17)
+- **Status:** Accepted (2026-11-17)
+- **Decisions by the owner:**
+  1. **Landmark models** are built from the real DBT volume massing, with a few stylised details added on top (for example the Duomo's spires, a tower crown). Positions and heights stay data-driven. Every added detail is flagged as stylisation, and none changes a footprint or a height taken from data.
+  2. **Landmarks outside the pilot** (San Siro, CityLife, Bosco Verticale, Pirelli, Stazione Centrale, and the Castello if it is outside) have their models built in Phase 4, but are placed and verified in Phase 6 with the whole city (ADR-0011).
+  3. **Trees:** trees mapped in OSM (`natural=tree`, `natural=tree_row`) are placed at their positions. Parks also get decorative fill from a fixed seed. Fill trees carry `decorative = true` in the data and never count as real features (no picking info as a mapped tree).
+  4. **Day/night:** a toggle with a night palette. The owner approves the night look at the Phase 4 checkpoint.
+- **Also accepted:** the owner approved palette v1 (the day look) at the Phase 3 checkpoint.
+- **Visual regression:** `threshold` 0.02 and `maxDiffPixelRatio` 0.001 (T-3.7: 0 px noise over 70 captures on Windows; Linux noise to be measured once the Linux baselines exist).
