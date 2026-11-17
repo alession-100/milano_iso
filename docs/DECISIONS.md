@@ -246,3 +246,11 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - `debug.ts`: T-3.4.
   - `main.ts` is the composition root. Tasks add only small, clearly delimited blocks to it, and the orchestrator resolves merges.
 - **Attribution:** the attribution shown in the UI comes from `tiles.json` (hard rule 10). It is shown as soon as any tile data is rendered, and the i18n dictionary holds only its label.
+
+## ADR-0026 - Per-tile building materials (amends T-3.3 spec)
+- **Status:** Accepted (2026-11-17)
+- **Context:** Building colour comes from a per-tile lookup texture indexed by `_feature_id`. three.js does not re-upload a shared material's uniforms between draws of different meshes, so one shared building material cannot switch the lookup per tile.
+- **Decision:**
+  - Building meshes use one material instance per (tile, mesh). All of these share a single compiled shader program through `customProgramCacheKey`, so the draw-call count is unchanged (measured: 111 draw calls at the default real view with shadows).
+  - Flat layers keep one shared material each.
+  - Colours, sun direction and shadow settings are style constants in `web/src/style/` and are not data.
