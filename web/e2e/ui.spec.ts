@@ -1,5 +1,3 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
-import path from 'node:path';
 import { type Page, expect, test } from '@playwright/test';
 import { dictionary } from '../src/i18n';
 import { collectProblems, frameRendered, routeFixtureTiles, setView, settleRendered, stableCalls } from './support';
@@ -7,7 +5,6 @@ import { collectProblems, frameRendered, routeFixtureTiles, setView, settleRende
 // T-5.4: the G5 checklist (VERIFICATION 4a) on the synthetic fixture, at 1280x720 and 412x915, by day
 // and by night. Every wait polls state until it settles; no assertion has a wall-clock limit.
 
-const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
 const SIZES = [
   { name: 'desktop-1280x720', width: 1280, height: 720 },
   { name: 'mobile-412x915', width: 412, height: 915 },
@@ -601,8 +598,7 @@ test.describe('reduced motion (VERIFICATION 4a item 6)', () => {
 // --- 8. Screen readers ------------------------------------------------------------------------
 
 test.describe('screen reader semantics (VERIFICATION 4a item 8)', () => {
-  test('every control has an accessible name; the card is a dialog; search is a combobox with a listbox; notices are live regions', async ({ page }) => {
-    mkdirSync(OUT, { recursive: true });
+  test('every control has an accessible name; the card is a dialog; search is a combobox with a listbox; notices are live regions', async ({ page }, testInfo) => {
     const problems = await open(page, { failTile: true });
     await selectFeature(page, B3, 'Fixture B3');
     await page.locator('#search-input').fill('fixture');
@@ -637,7 +633,7 @@ test.describe('screen reader semantics (VERIFICATION 4a item 8)', () => {
     // The accessibility snapshot (attached to the report): default view, card, results, help.
     const snap = async (name: string): Promise<string> => {
       const text = await page.locator('body').ariaSnapshot();
-      writeFileSync(path.join(OUT, `a11y-${name}.txt`), text);
+      await testInfo.attach(`a11y-${name}`, { body: text, contentType: 'text/plain' }); // unique per run: parallel repeats do not collide
       return text;
     };
     const withCard = await snap('card-and-notice');
