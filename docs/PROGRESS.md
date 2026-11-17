@@ -35,7 +35,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 
 | T-2.5 | done | reports/R-2.5.md | Verified on main: make validate 111 pass / 1 skip (deferred Galleria). Region-Hausdorff reading accepted (max 0.271 m). The orchestrator fixed the root cause of the shared ATTRIBUTION mutation (deepcopy in manifest.py). Warm `make validate` takes about 333 s because `make data` is not incremental (to improve later) |
 
-| T-3.1 | in progress | | camera controls |
+| T-3.1 | done | reports/R-3.1.md | Verified on main: vitest 19 pass, e2e 12 pass (desktop and Pixel 7-class touch); screenshot reviewed. Accepted: the ADR-0012 suffix amendment, ground-axis arrow steps, instant zoom. `rig.setBounds` is wired at the T-3.2 merge |
 | T-3.2 | in progress | | tile streaming, attribution, fixture |
 | T-3.3 | todo | | palette v1 |
 | T-3.4 | todo | | debug overlay |
