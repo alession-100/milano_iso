@@ -48,6 +48,11 @@ export const PALETTE = {
   treeTrunk: 0x8b6f55,
   /** Road markings (dashed centre lines, zebra stripes). */
   markingWhite: 0xf1eee6,
+  // --- T-4.2 additions (appended after T-4.1): stylised landmark details ---
+  /** Spires, pinnacles and crowns on landmarks: the landmark accent (0xd2745c) mixed 35% with white. */
+  landmarkDetail: 0xe2a595,
+  /** Glass roofs (Galleria vault, station shed): a pale cool tint. */
+  landmarkGlass: 0xc9dde0,
 } as const;
 
 export type PaletteName = keyof typeof PALETTE;
@@ -80,6 +85,8 @@ export const PALETTE_ORDER: readonly PaletteName[] = [
   'treeCrown',
   'treeTrunk',
   'markingWhite',
+  'landmarkDetail',
+  'landmarkGlass',
 ];
 
 export const MAX_PALETTE_COLOURS = 32;
@@ -119,6 +126,8 @@ export const NIGHT_PALETTE: Record<PaletteName, number> = {
   treeCrown: 0x3b6350,
   treeTrunk: 0x4d4048,
   markingWhite: 0x9aa0b8,
+  landmarkDetail: 0xd9907f,
+  landmarkGlass: 0x6f9bb8,
 };
 
 export type StyleMode = 'day' | 'night';
@@ -202,6 +211,14 @@ export function buildingColour(
 ): PaletteName {
   if (landmarkId != null) return 'landmark';
   return BUILDING_GROUP_COLOUR[buildingGroup(buildingType)];
+}
+
+/** Detail kinds that are glass roofs (flagged `stylised` in the data); every other kind is masonry. */
+const GLASS_DETAILS: ReadonlySet<string> = new Set(['roof_vault', 'shed_vault']);
+
+/** Palette name of a `landmark_details` row, from its `detail` kind. */
+export function landmarkDetailColour(detail: string | null | undefined): PaletteName {
+  return detail != null && GLASS_DETAILS.has(detail) ? 'landmarkGlass' : 'landmarkDetail';
 }
 
 export type RoadGroup = 'major' | 'minor' | 'pedestrian';

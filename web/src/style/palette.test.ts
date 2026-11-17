@@ -10,6 +10,7 @@ import {
   buildingGroup,
   greenColour,
   greenGroup,
+  landmarkDetailColour,
   landuseColour,
   landuseGroup,
   paletteFor,
@@ -131,6 +132,13 @@ describe('building type mapping', () => {
   it('gives landmarks the accent, whatever their type', () => {
     expect(buildingColour('cathedral', 'lm:duomo')).toBe('landmark');
     expect(buildingColour('cathedral', null)).toBe('buildingCivic');
+  });
+
+  it('colours landmark details: glass vaults get the glass tint, the rest the accent tint', () => {
+    expect(landmarkDetailColour('spire')).toBe('landmarkDetail');
+    expect(landmarkDetailColour('roof_vault')).toBe('landmarkGlass');
+    expect(landmarkDetailColour(null)).toBe('landmarkDetail');
+    expect(PALETTE_ORDER.slice(-2)).toEqual(['landmarkDetail', 'landmarkGlass']);
   });
 
   it('groups road classes', () => {

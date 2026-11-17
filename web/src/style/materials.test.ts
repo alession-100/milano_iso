@@ -45,6 +45,28 @@ describe('colourIndices, flat layers', () => {
   });
 });
 
+describe('colourIndices, landmark details (T-4.2)', () => {
+  it('colours glass roofs apart from masonry details; unknown kinds are masonry', () => {
+    expect(
+      Array.from(
+        colourIndices('landmark_details', [
+          { detail: 'spire' },
+          { detail: 'roof_vault' },
+          { detail: 'shed_vault' },
+          { detail: 'zzz' },
+          {},
+        ]),
+      ),
+    ).toEqual([
+      paletteIndex('landmarkDetail'),
+      paletteIndex('landmarkGlass'),
+      paletteIndex('landmarkGlass'),
+      paletteIndex('landmarkDetail'),
+      paletteIndex('landmarkDetail'),
+    ]);
+  });
+});
+
 describe('packLookup', () => {
   it('packs one byte per feature into a zero-padded W x H array', () => {
     const { data, width, height } = packLookup(Uint8Array.from([9, 13, 14]), 4);
