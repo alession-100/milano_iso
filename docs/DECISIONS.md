@@ -289,3 +289,15 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - the Duomo pinnacles, the Torre Velasca crown and the Galleria glass vault.
 - **Evidence:** G4 PASS WITH RISKS (`docs/PROGRESS.md`, `reports/artifacts/G4/`).
 - **Consequences:** the win32 baselines of T-4.2 are the approved references. The Linux baselines are regenerated from them by the `visual-baselines` workflow.
+
+## ADR-0031 - Search index and minimap formats (T-5.3a)
+- **Status:** Accepted (2026-11-17)
+- **Decision:** The tile export writes `index.json` and `minimap.svg` next to the tiles. Both are listed in `tiles.json` with sha256 and gzip size.
+  - **Index:** one entry per named rendered feature: building, street (grouped by exact name; ref = OSM ways and relations), green, water or landmark.
+    - Landmark names come from `tests/landmarks.yaml` and take precedence over transferred building names.
+    - Centre and bbox are local metres rounded to 0.1 m; sort is deterministic.
+    - Names are verbatim (ADR-0006); the client folds accents for matching.
+  - **Minimap:** an SVG with a local-metre `viewBox`, north up, and CSS classes per layer (themeable for day and night). Paths are simplified at 1.0 m, snapped to 0.1 m and sorted. It uses no GEOS union, for Linux/Windows byte identity.
+- **Consequences:**
+  - Fill trees, markings and landmark details never enter the index.
+  - The whole-city minimap needs a coarser level of detail in Phase 6 to stay near 100 KB gzip.
