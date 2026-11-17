@@ -85,3 +85,49 @@ test('the attribution is visible on a mobile viewport', async ({ page }) => {
   await expect(page.locator('#attribution')).toContainText('OpenStreetMap contributors');
   await expect(page.locator('#attribution')).toBeInViewport();
 });
+
+test('a tile that keeps failing is retried once, then a dismissible notice appears and the app survives', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error') errors.push(m.text());
+  });
+  const pageErrors: string[] = [];
+  page.on('pageerror', (e) => pageErrors.push(e.message));
+  await routeFixtureTiles(page);
+  const manifest = readFixtureManifest() as unknown as {
+    tiles: { id: string; glb: { file: string } }[];
+  };
+  const bad = manifest.tiles[0];
+  let hits = 0;
+  // Registered after the fixture route, so it takes precedence for this one file.
+  await page.route(`**/tiles/pilot/${bad.glb.file}`, async (route) => {
+    hits += 1;
+    await route.fulfill({ status: 404, body: 'not found' });
+  });
+  await page.goto('/?e2e=1');
+  await expect(page.locator('canvas')).toHaveCount(1);
+  await setView(page, 0, 0, 1200);
+  await expect.poll(async () => (await state(page)).tiles.failed, { timeout: 20_000 }).toBe(1);
+  expect(hits).toBe(2); // first try plus exactly one retry
+  const s = await state(page);
+  expect(s.tiles.loaded).toBe(manifest.tiles.length - 1);
+  const notice = page.locator('#tiles-notice');
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText('Alcune zone della mappa non sono state caricate');
+  await expect(page.locator('#attribution')).toBeInViewport();
+  const nb = await notice.boundingBox();
+  const ab = await page.locator('#attribution').boundingBox();
+  expect(nb && ab && (nb.x + nb.width <= ab.x || nb.y + nb.height <= ab.y)).toBe(true);
+  // Exactly one app console error per finally-failed tile; the browser's own network-failure
+  // lines ("Failed to load resource") are not app errors and are counted separately.
+  const appErrors = errors.filter((e) => !e.startsWith('Failed to load resource'));
+  expect(appErrors).toHaveLength(1);
+  expect(appErrors[0]).toContain(`tile ${bad.id} failed to load`);
+  expect(pageErrors).toEqual([]);
+  // The app still reacts after the failure; the notice can be dismissed.
+  await page.keyboard.press('ArrowLeft');
+  await notice.getByRole('button').click();
+  await expect(notice).toHaveCount(0);
+});

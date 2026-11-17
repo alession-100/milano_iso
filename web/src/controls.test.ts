@@ -140,6 +140,15 @@ describe('inertia', () => {
   it('is disabled by prefers-reduced-motion (injected)', () => {
     expect(releaseVelocity(samples, 105, true)).toBeNull();
   });
+  it('uses event timestamps, so events processed late still start inertia', () => {
+    // The events happened 10 ms apart; the code handling them may run seconds later. The window is
+    // measured against the release event's own timestamp, never the wall clock at processing time.
+    const t0 = 1_000_000;
+    const ev = Array.from({ length: 11 }, (_, i) => ({ t: t0 + i * 10, x: i * 20, y: 0 }));
+    const v = releaseVelocity(ev, t0 + 110, false);
+    expect(v).not.toBeNull();
+    expect(v?.vx).toBeCloseTo(2000, 6);
+  });
   it('is not started when the pointer rested before release', () => {
     expect(releaseVelocity(samples, 400, false)).toBeNull();
   });

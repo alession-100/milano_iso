@@ -27,7 +27,12 @@ export interface StreamerOptions<T> {
   onChange?: () => void;
   maxConcurrent?: number;
   cacheLimit?: number;
+  /** Wait before the single retry of a failed tile (ms). */
+  retryDelayMs?: number;
 }
+
+/** One retry of a failed tile after this delay; style/UX constant. */
+export const RETRY_DELAY_MS = 2000;
 
 interface Entry<T> {
   obj: T;
@@ -37,7 +42,8 @@ interface Entry<T> {
 /**
  * Loads wanted tiles nearest first with a concurrency limit, keeps at most `cacheLimit` tiles,
  * and evicts the least recently visible first. Tiles that are currently wanted are never evicted.
- * A failed tile is recorded once and not retried.
+ * A failed tile is retried once after `retryDelayMs` (it stays counted as loading meanwhile); if
+ * the retry fails too it is recorded and reported once.
  */
 export class TileStreamer<T> {
   private readonly tilesById: Map<string, TileEntry>;
@@ -49,6 +55,8 @@ export class TileStreamer<T> {
   private tick = 0;
   private readonly maxConcurrent: number;
   private readonly cacheLimit: number;
+  private readonly retryDelayMs: number;
+  private readonly retried = new Set<string>();
 
   constructor(
     tiles: TileEntry[],
@@ -57,6 +65,7 @@ export class TileStreamer<T> {
     this.tilesById = new Map(tiles.map((t) => [t.id, t]));
     this.maxConcurrent = opts.maxConcurrent ?? MAX_CONCURRENT;
     this.cacheLimit = opts.cacheLimit ?? CACHE_LIMIT;
+    this.retryDelayMs = opts.retryDelayMs ?? RETRY_DELAY_MS;
   }
 
   /**
@@ -112,6 +121,12 @@ export class TileStreamer<T> {
         this.evict();
       })
       .catch((err: unknown) => {
+        if (!this.retried.has(tile.id)) {
+          // First failure: stay in `loading` and try once more after the delay.
+          this.retried.add(tile.id);
+          setTimeout(() => this.start(tile), this.retryDelayMs);
+          return;
+        }
         this.loadingSet.delete(tile.id);
         this.failedSet.add(tile.id);
         this.opts.onError(tile.id, err);

@@ -67,7 +67,7 @@ describe('TileStreamer', () => {
     expect(m.max()).toBe(4);
   });
 
-  it('a failed tile is reported once, counted, and never retried', async () => {
+  it('a tile that fails twice is retried once, then reported once, counted, and not retried again', async () => {
     const m = manual();
     const errors: string[] = [];
     const s = new TileStreamer<string>(entries(2), {
@@ -75,16 +75,43 @@ describe('TileStreamer', () => {
       onLoaded: () => {},
       onEvict: () => {},
       onError: (id) => errors.push(id),
+      retryDelayMs: 20,
     });
     s.update(['t0', 't1'], ['t0', 't1']);
     m.pending.get('t0')?.ko(new Error('boom'));
     m.pending.get('t1')?.ok('b');
     await tick();
+    // Waiting for the retry: not reported, still counted as loading.
+    expect(errors).toEqual([]);
+    expect(s.stats).toEqual({ loaded: 1, loading: 1, failed: 0 });
+    await new Promise((r) => setTimeout(r, 40));
+    expect(m.started).toEqual(['t0', 't1', 't0']);
+    m.pending.get('t0')?.ko(new Error('boom again'));
+    await tick();
     s.update(['t0', 't1'], ['t0', 't1']);
     s.update(['t0', 't1'], ['t0', 't1']);
     expect(errors).toEqual(['t0']);
     expect(s.stats).toEqual({ loaded: 1, loading: 0, failed: 1 });
-    expect(m.started).toEqual(['t0', 't1']);
+    expect(m.started).toEqual(['t0', 't1', 't0']);
+  });
+
+  it('a tile that fails once and then loads is loaded with no error', async () => {
+    const m = manual();
+    const errors: string[] = [];
+    const s = new TileStreamer<string>(entries(1), {
+      load: m.load,
+      onLoaded: () => {},
+      onEvict: () => {},
+      onError: (id) => errors.push(id),
+      retryDelayMs: 20,
+    });
+    s.update(['t0'], ['t0']);
+    m.pending.get('t0')?.ko(new Error('boom'));
+    await new Promise((r) => setTimeout(r, 40));
+    m.pending.get('t0')?.ok('a');
+    await tick();
+    expect(errors).toEqual([]);
+    expect(s.stats).toEqual({ loaded: 1, loading: 0, failed: 0 });
   });
 
   it('evicts the least recently visible tile that is not wanted, and disposes it', async () => {
