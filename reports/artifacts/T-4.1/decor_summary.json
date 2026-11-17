@@ -1,0 +1,47 @@
+{
+  "bbox_epsg32632": [
+    514479,
+    5034036,
+    515479,
+    5035036
+  ],
+  "canonical_dump_sha256_pilot_gpkg": "efa03747a1396e57a353064b0d911c3af9f025b4b13ec8ec24f7ed4108b0aa94",
+  "drop_log_rows": 10,
+  "stats": {
+    "markings": {
+      "centre_line_dashes": 1897,
+      "centre_line_roads_considered": 390,
+      "centre_line_roads_too_short": 67,
+      "crossing_nodes_in_extract_unused": 283,
+      "crossing_ways_in_extract": 245,
+      "crossing_ways_not_marked": 8,
+      "crossing_ways_too_short": 2,
+      "marking_rows_outside_extent": 6,
+      "zebra_crossings": 235,
+      "zebra_stripes": 2301
+    },
+    "trees": {
+      "fill_trees": 174,
+      "height_style_default": 185,
+      "height_tag_parsed": 1,
+      "mapped_trees_total": 186,
+      "tree_nodes_in_extract": 186
+    }
+  },
+  "style": {
+    "fill_clearance_m": {
+      "building": 2.0,
+      "road": 1.0,
+      "road_area": 1.0,
+      "tree": 4.0,
+      "water": 1.5
+    },
+    "fill_seed": 4101,
+    "fill_spacing_m": 12.0,
+    "tree_row_spacing_m": 7.0
+  },
+  "trees_by_source": {
+    "fill": 174,
+    "osm_tree": 186
+  }
+}

@@ -247,7 +247,12 @@ def centre_line_rows(roads: gpd.GeoDataFrame, stats: Counter) -> list:
             for d in dashes(part, style.CENTRE_DASH_M, style.CENTRE_GAP_M, style.CENTRE_END_TRIM_M):
                 if d.length > 0:
                     polys.append(
-                        d.buffer(style.CENTRE_WIDTH_M / 2, cap_style="flat", join_style="round", quad_segs=2)
+                        d.buffer(
+                            style.CENTRE_WIDTH_M / 2,
+                            cap_style="flat",
+                            join_style="round",
+                            quad_segs=2,
+                        )
                     )
         if not polys:
             stats["centre_line_roads_too_short"] += 1

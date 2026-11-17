@@ -1,0 +1,11 @@
+layer,source,id,action,reason
+markings,osm,w1013694638,dropped,crossing_too_short
+markings,osm,w1013696570,dropped,crossing_not_marked:unmarked
+markings,osm,w1073899167,dropped,crossing_not_marked:unmarked
+markings,osm,w1074152262,dropped,crossing_not_marked:unmarked
+markings,osm,w1222755569,dropped,crossing_not_marked:unmarked
+markings,osm,w1491107200,dropped,crossing_not_marked:None
+markings,osm,w1491107204,dropped,crossing_not_marked:None
+markings,osm,w1509504737,dropped,crossing_not_marked:unmarked
+markings,osm,w677669311,dropped,crossing_not_marked:unmarked
+markings,osm,w750042020,dropped,crossing_too_short

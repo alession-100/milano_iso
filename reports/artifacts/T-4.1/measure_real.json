@@ -1,0 +1,164 @@
+{
+  "desktop-1280x720/default": {
+    "render": {
+      "calls": 136,
+      "triangles": 316640
+    },
+    "tiles": {
+      "loaded": 29,
+      "loading": 0,
+      "failed": 0,
+      "visible": 17
+    },
+    "camera": {
+      "target": [
+        0,
+        0
+      ],
+      "visibleWidth": 600,
+      "elevationDeg": 30,
+      "azimuthDeg": 45,
+      "bounds": {
+        "minX": -625.96,
+        "maxX": 608.16,
+        "minZ": -681.36,
+        "maxZ": 648.78
+      }
+    }
+  },
+  "desktop-1280x720/park150": {
+    "render": {
+      "calls": 29,
+      "triangles": 59983
+    },
+    "tiles": {
+      "loaded": 29,
+      "loading": 0,
+      "failed": 0,
+      "visible": 4
+    },
+    "camera": {
+      "target": [
+        444,
+        454.7
+      ],
+      "visibleWidth": 150,
+      "elevationDeg": 30,
+      "azimuthDeg": 45,
+      "bounds": {
+        "minX": -625.96,
+        "maxX": 608.16,
+        "minZ": -681.36,
+        "maxZ": 648.78
+      }
+    }
+  },
+  "desktop-1280x720/wide4000": {
+    "render": {
+      "calls": 167,
+      "triangles": 356748
+    },
+    "tiles": {
+      "loaded": 30,
+      "loading": 0,
+      "failed": 0,
+      "visible": 30
+    },
+    "camera": {
+      "target": [
+        0,
+        0
+      ],
+      "visibleWidth": 4000,
+      "elevationDeg": 30,
+      "azimuthDeg": 45,
+      "bounds": {
+        "minX": -625.96,
+        "maxX": 608.16,
+        "minZ": -681.36,
+        "maxZ": 648.78
+      }
+    }
+  },
+  "mobile-412x915/default": {
+    "render": {
+      "calls": 142,
+      "triangles": 318990
+    },
+    "tiles": {
+      "loaded": 29,
+      "loading": 0,
+      "failed": 0,
+      "visible": 22
+    },
+    "camera": {
+      "target": [
+        0,
+        0
+      ],
+      "visibleWidth": 600,
+      "elevationDeg": 30,
+      "azimuthDeg": 45,
+      "bounds": {
+        "minX": -625.96,
+        "maxX": 608.16,
+        "minZ": -681.36,
+        "maxZ": 648.78
+      }
+    }
+  },
+  "mobile-412x915/park150": {
+    "render": {
+      "calls": 49,
+      "triangles": 116693
+    },
+    "tiles": {
+      "loaded": 29,
+      "loading": 0,
+      "failed": 0,
+      "visible": 5
+    },
+    "camera": {
+      "target": [
+        444,
+        454.7
+      ],
+      "visibleWidth": 150,
+      "elevationDeg": 30,
+      "azimuthDeg": 45,
+      "bounds": {
+        "minX": -625.96,
+        "maxX": 608.16,
+        "minZ": -681.36,
+        "maxZ": 648.78
+      }
+    }
+  },
+  "mobile-412x915/wide4000": {
+    "render": {
+      "calls": 167,
+      "triangles": 356748
+    },
+    "tiles": {
+      "loaded": 30,
+      "loading": 0,
+      "failed": 0,
+      "visible": 30
+    },
+    "camera": {
+      "target": [
+        0,
+        0
+      ],
+      "visibleWidth": 4000,
+      "elevationDeg": 30,
+      "azimuthDeg": 45,
+      "bounds": {
+        "minX": -625.96,
+        "maxX": 608.16,
+        "minZ": -681.36,
+        "maxZ": 648.78
+      }
+    }
+  }
+}
