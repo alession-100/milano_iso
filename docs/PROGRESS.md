@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 2 complete; repo published at https://github.com/alession-100/milano_iso (main only, history rewritten without third-party HTML snapshots, which are kept locally in evidence_local/). First CI run FAILED at the `make setup` step (exit 2); cause unknown because job logs need a GitHub login (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Current phase:** 2 complete; CI green; repo published at https://github.com/alession-100/milano_iso (main only, history rewritten without third-party HTML snapshots, which are kept locally in evidence_local/). First CI run FAILED at the `make setup` step (exit 2); cause unknown because job logs need a GitHub login (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
 **Last gate passed:** G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -44,7 +44,7 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 - No GitHub remote yet; `gh` CLI not installed. CI cannot run until the owner creates the repo.
 
 ## Carry-over risks from G0
-- CI: first run 43979971184 failed in `npm ci` (lockfile missing optional @emnapi deps; log supplied by the owner). Fixed in ADR-0024: lockfile regenerated with npm 11.19.1, npm pinned in CI, actions pinned by SHA on node24. First run may trip the anchored GPU-stall filter on Linux (ADR-0012).
+- CI: first run 43979971184 failed in `npm ci` (lockfile missing optional @emnapi deps; log supplied by the owner). Fixed in ADR-0024. **CI green:** run 43984706073 on commit 7378994 passed every step: setup, make test, web build, Playwright install and e2e on Linux. The e2e console filter (ADR-0012) did not trip on the runner. First run may trip the anchored GPU-stall filter on Linux (ADR-0012).
 - CI actions pinned by tag, not SHA. Pin by SHA when the remote exists.
 - Attribution is still a placeholder. It must read "(c) OpenStreetMap contributors" (+ Comune di Milano CC BY if DBT is used) before any OSM geometry renders (Phase 3).
 - The web client needs an origin constant that matches `pipeline/milano_iso/config.py`, with a test (Phase 2/3).
