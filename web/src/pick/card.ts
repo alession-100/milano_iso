@@ -161,10 +161,14 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = DEFAULT_
     const gap = Math.max(0, window.innerHeight - top) + 6;
     if (window.matchMedia('(max-width: 600px)').matches) {
       root.style.bottom = `${gap}px`;
+      root.style.right = '';
       root.style.maxHeight = '';
     } else {
       root.style.bottom = '';
       root.style.maxHeight = `${Math.max(120, top - 6 - 104)}px`;
+      // The ?debug overlay (T-3.4) sits at the right too: the card moves left of it.
+      const dbg = document.getElementById('debug-overlay');
+      root.style.right = dbg ? `${Math.round(window.innerWidth - dbg.getBoundingClientRect().left + 6)}px` : '';
     }
   }
   window.addEventListener('resize', layout);

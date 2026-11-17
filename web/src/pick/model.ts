@@ -89,15 +89,12 @@ export function cardModel(ref: FeatureRef, tables: Tables, index: IndexLookup, l
   }
 
   if (ref.layer === 'roads') {
-    if (ref.streetName !== undefined && ref.osmId === undefined) {
-      return base(ref.streetName, KIND_LABELS.street[lang]);
-    }
     const named = ref.osmType && ref.osmId !== undefined ? index.byOsm('roads', ref.osmType, ref.osmId) : undefined;
     const cls = row ? str(row.class) : null;
     return {
-      ...base(str(named?.name), cls ? labelOf(ROAD_CLASS_LABELS, cls, lang) : KIND_LABELS.roads[lang]),
+      ...base(ref.streetName ?? str(named?.name), cls ? labelOf(ROAD_CLASS_LABELS, cls, lang) : KIND_LABELS.roads[lang]),
       osmUrl: osmUrl(ref.osmType, ref.osmId),
-      pending: !row && !named,
+      pending: !row && !named && ref.streetName === undefined,
     };
   }
 

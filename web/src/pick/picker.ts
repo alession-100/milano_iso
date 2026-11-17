@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { DEFAULT_LANG, type Lang } from '../i18n';
+import { layerVisible } from '../layers';
 import { type FeatureRef, currentSelection, onSelect, select } from '../selection';
 import { MASK_HOVER, MASK_SELECTED, clearMask, hasMask, layerOf, setMask } from '../style/materials';
 import type { FeatureTable } from '../style/materials';
@@ -140,7 +141,9 @@ export class Picker {
     const out: THREE.Object3D[] = [];
     for (const g of this.deps.tileRoot.children) {
       for (const m of g.children) {
-        if ((m as THREE.Mesh).isMesh && PICKABLE_LAYERS.has(layerOf(m.name))) out.push(m);
+        const layer = layerOf(m.name);
+        // A layer hidden by a toggle (T-5.3b) is not pickable either.
+        if ((m as THREE.Mesh).isMesh && m.visible && PICKABLE_LAYERS.has(layer) && layerVisible(layer)) out.push(m);
       }
     }
     return out;

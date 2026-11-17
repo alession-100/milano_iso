@@ -166,7 +166,7 @@ export function matcherFor(ref: FeatureRef, index: IndexLookup): (layer: string,
     case 'buildings':
       return (layer, row) => layer === 'buildings' && row.key === ref.key && ref.key !== undefined;
     case 'roads': {
-      if (ref.osmId === undefined && ref.streetName !== undefined) {
+      if (ref.streetName !== undefined) {
         const keys = index.streetOsmKeys(ref.streetName);
         return (layer, row) => layer === 'roads' && keys.has(`${String(row.osm_type)}${String(row.osm_id)}`);
       }

@@ -36,12 +36,12 @@ interface SelectionState {
 const selection = (page: Page): Promise<SelectionState> =>
   page.evaluate(() => (window as unknown as { __milanoIso: { selection: SelectionState } }).__milanoIso.selection);
 
-async function open(page: Page, width = 600, x = 0, z = 0, hold?: () => Promise<void>): Promise<string[]> {
+async function open(page: Page, width = 600, x = 0, z = 0, hold?: () => Promise<void>, query = ''): Promise<string[]> {
   const problems = collectProblems(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await routeFixtureTiles(page);
   if (hold) await hold();
-  await page.goto('/?e2e=1');
+  await page.goto(`/?e2e=1${query}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await page.waitForFunction(
     () =>
@@ -182,6 +182,8 @@ test.describe('picking (desktop 1280x720)', () => {
     expect(picked.layer).toBe('landmark_details');
     await clickAt(page, p);
     await expect.poll(async () => (await selection(page)).current?.layer).toBe('landmark');
+    // The name comes from index.json, fetched on the first selection: poll until it has arrived.
+    await expect.poll(async () => (await selection(page)).card.title).toBe('Fixture Landmark');
     const s = await selection(page);
     expect(s.current).toMatchObject({ layer: 'landmark', landmarkId: 'fixture_landmark' });
     expect(s.card.title).toBe('Fixture Landmark');
@@ -202,6 +204,7 @@ test.describe('picking (desktop 1280x720)', () => {
     const problems = await open(page);
     await clickAt(page, await findPoint(page, { layer: 'roads', osmId: 3001 }));
     await expect.poll(async () => (await selection(page)).current?.osmId).toBe(3001);
+    await expect.poll(async () => (await selection(page)).card.title).toBe('Via Fixture');
     let s = await selection(page);
     expect(s.card).toMatchObject({ title: 'Via Fixture', named: true, type: 'Strada residenziale' });
     expect(s.card.height).toBeNull();
@@ -217,6 +220,7 @@ test.describe('picking (desktop 1280x720)', () => {
     const problems = await open(page);
     await clickAt(page, await findPoint(page, { layer: 'green', osmId: 2001 }));
     await expect.poll(async () => (await selection(page)).current?.layer).toBe('green');
+    await expect.poll(async () => (await selection(page)).card.title).toBe('Parco Fixture');
     expect((await selection(page)).card).toMatchObject({ title: 'Parco Fixture', type: 'Parco' });
     await clickAt(page, await findPoint(page, { layer: 'water', osmId: 2003 }));
     await expect.poll(async () => (await selection(page)).current?.layer).toBe('water');
@@ -337,6 +341,8 @@ test.describe('picking (desktop 1280x720)', () => {
     await expect.poll(async () => (await selection(page)).card.open).toBe(true);
     let s = await selection(page);
     expect(s.source).toBe('search');
+    await expect.poll(async () => (await selection(page)).card.title).toBe('Fixture B3'); // index.json arrives
+    s = await selection(page);
     expect(s.card).toMatchObject({ title: 'Fixture B3', pending: true, height: null });
     release();
     await settle(page);
@@ -360,6 +366,60 @@ test.describe('picking (desktop 1280x720)', () => {
   });
 });
 
+/** Boxes of every visible fixed UI element that must not overlap the card. */
+async function overlaps(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const card = document.getElementById('info-card')?.getBoundingClientRect();
+    if (!card) return ['no card'];
+    const bad: string[] = [];
+    for (const sel of ['#toolbar-zone', '#minimap', '#tiles-notice', '#debug-overlay', '#rotation-controls', '#mode-toggle', '#attribution']) {
+      for (const el of Array.from(document.querySelectorAll(sel))) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0 || getComputedStyle(el).visibility === 'hidden') continue;
+        const hit = r.left < card.right && r.right > card.left && r.top < card.bottom && r.bottom > card.top;
+        if (hit) bad.push(`${sel} ${JSON.stringify(r)} vs card ${JSON.stringify(card)}`);
+      }
+    }
+    return bad;
+  });
+}
+
+test('with the ?debug overlay open, the desktop card overlaps no other control', async ({ page }) => {
+  const problems = await open(page, 600, 0, 0, undefined, '&debug');
+  await expect(page.locator('#debug-overlay')).toBeVisible();
+  await clickAt(page, await screenOf(page, 40, 10, -35));
+  await expect.poll(async () => (await selection(page)).card.open).toBe(true);
+  expect(await overlaps(page)).toEqual([]);
+  expect(problems).toEqual([]);
+});
+
+test('a layer hidden by a toggle is not pickable; a street search ref shows the street name', async ({ page }) => {
+  const problems = await open(page, 600, 0, 0, undefined, '&layers=roads,trees');
+  const p = await screenOf(page, 40, 10, -35);
+  const picked = await page.evaluate(
+    ([x, y]) => (window as unknown as { __milanoIsoPickAt: (x: number, y: number) => { ref: Ref | null } }).__milanoIsoPickAt(x, y),
+    [p.x, p.y],
+  );
+  expect(picked.ref?.layer).not.toBe('buildings');
+  await page.evaluate(() =>
+    (window as unknown as { __milanoIsoSelect: (r: unknown, s: string) => void }).__milanoIsoSelect(
+      { layer: 'roads', streetName: 'Via Fixture', osmType: 'w', osmId: 3001 },
+      'search',
+    ),
+  );
+  await expect.poll(async () => (await selection(page)).card.open).toBe(true);
+  await expect.poll(async () => (await selection(page)).card.title).toBe('Via Fixture');
+  expect((await selection(page)).card).toMatchObject({ title: 'Via Fixture', type: 'Strada residenziale', pending: false });
+  expect(problems).toEqual([]);
+});
+
+test('on desktop the card overlaps no toolbar, minimap, notice or button', async ({ page }) => {
+  await open(page);
+  await clickAt(page, await screenOf(page, 40, 10, -35));
+  await expect.poll(async () => (await selection(page)).card.open).toBe(true);
+  expect(await overlaps(page)).toEqual([]);
+});
+
 test.describe('picking (mobile 412x915, touch)', () => {
   test.use({ viewport: { width: 412, height: 915 }, hasTouch: true, isMobile: true });
 
@@ -377,6 +437,7 @@ test.describe('picking (mobile 412x915, touch)', () => {
     expect(card.x + card.width).toBeLessThanOrEqual(412);
     expect(card.y + card.height).toBeLessThanOrEqual(attr.y);
     expect(card.y).toBeGreaterThan(915 / 2); // a sheet at the bottom
+    expect(await overlaps(page)).toEqual([]);
     // A tap on empty ground closes it.
     await page.touchscreen.tap(5, 300);
     await expect.poll(async () => (await selection(page)).card.open).toBe(false);

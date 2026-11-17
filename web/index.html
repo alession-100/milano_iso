@@ -19,6 +19,50 @@
         font: 16px sans-serif; background: #fff; color: #b71c1c; padding: 12px 16px;
         border: 1px solid #b71c1c; max-width: 80vw;
       }
+      /* T-5.3b toolbar: one top-left stack (toolbar, results, layers, minimap on narrow screens,
+         tiles notice). Nothing in it is absolutely positioned except the desktop minimap. */
+      :root { --tb-bg: rgba(255, 255, 255, 0.94); --tb-fg: #263238; --tb-border: #607d8b; --tb-focus: #0d47a1; --tb-active: #cfe3f7; }
+      html[data-mode="night"] { --tb-bg: rgba(38, 50, 56, 0.95); --tb-fg: #eceff1; --tb-border: #90a4ae; --tb-focus: #ffd54f; --tb-active: #3b5360; }
+      #toolbar-zone {
+        position: fixed; left: 6px; top: 6px; z-index: 20; display: flex; flex-direction: column;
+        align-items: flex-start; gap: 6px; width: calc(100vw - 12px); max-width: 560px;
+        pointer-events: none; font: 14px sans-serif; color: var(--tb-fg);
+      }
+      #toolbar-zone > * { pointer-events: auto; }
+      #toolbar { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; align-items: center; pointer-events: none; }
+      #toolbar > * { pointer-events: auto; }
+      #search-box { flex: 0 0 240px; }
+      #search-input, .tb-btn, #layers-panel label, #search-list li {
+        box-sizing: border-box; min-height: 44px; font: 14px sans-serif; color: var(--tb-fg);
+        background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px;
+      }
+      #search-input { width: 100%; padding: 0 10px; }
+      .tb-btn { min-width: 44px; padding: 0 12px; cursor: pointer; }
+      #toolbar-zone :focus-visible { outline: 3px solid var(--tb-focus); outline-offset: 2px; }
+      #search-list { list-style: none; margin: 0; padding: 0; width: 100%; max-width: 360px; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      #search-list[hidden], #layers-panel[hidden] { display: none; }
+      #search-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 10px; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
+      #search-list li + li { border-top: 1px solid var(--tb-border); }
+      #search-list li.active { background: var(--tb-active); }
+      #search-list .kind { font-size: 12px; white-space: nowrap; }
+      #search-status.visible { padding: 6px 10px; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      #layers-panel { display: flex; flex-direction: column; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      #layers-panel label { display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
+      #layers-panel input { width: 20px; height: 20px; margin: 0; }
+      #minimap { box-sizing: border-box; position: fixed; left: 6px; bottom: 6px; width: 160px; line-height: 0; border: 1px solid var(--tb-border); background: var(--tb-bg); cursor: crosshair; }
+      #minimap svg { width: 100%; height: auto; display: block; }
+      #minimap .mm-view { fill: rgba(13, 71, 161, 0.18); stroke: #0d47a1; stroke-width: 2; vector-effect: non-scaling-stroke; }
+      #minimap[data-mode="night"] .mm-view { fill: rgba(255, 213, 79, 0.07); stroke: #ffd54f; }
+      #minimap-button { display: none; }
+      @media (max-width: 600px) {
+        /* Keep clear of the day/night toggle and the rotation buttons (top right, T-4.3 / T-5.2). */
+        #toolbar-zone { width: calc(100vw - 12px - 104px); }
+        #search-box { flex: 1 1 100%; }
+        #minimap-button { display: inline-block; }
+        #minimap { position: static; display: none; width: 200px; }
+        #minimap.open { display: block; }
+      }
     </style>
   </head>
   <body>
