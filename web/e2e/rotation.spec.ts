@@ -48,7 +48,7 @@ async function settle(page: Page): Promise<void> {
   await expect
     .poll(async () => {
       const s = await tiles(page);
-      return s.loading === 0 && s.loaded + s.failed >= s.visible;
+      return s.visible > 0 && s.loading === 0 && s.loaded + s.failed >= s.visible;
     }, { timeout: 20_000 })
     .toBe(true);
 }
@@ -158,11 +158,17 @@ test('tiles loaded and failed stay correct after every rotation', async ({ page 
   const total = readFixtureManifest().tiles.length;
   await page.locator('#app').focus();
   for (let i = 0; i < 4; i++) {
-    await settle(page);
-    const s = await tiles(page);
-    expect(s.failed).toBe(0);
-    expect(s.visible).toBe(total);
-    expect(s.loaded).toBe(total);
+    // Wait on state, not time: the step is reached, the cull has run (visible is only updated by
+    // a render, so it can still read 0 right after setView or a key press) and all tiles are in.
+    await expect
+      .poll(
+        async () => {
+          const [c, s] = await Promise.all([cam(page), tiles(page)]);
+          return { step: c.azimuthStep, az: c.azimuthDeg, ...s };
+        },
+        { timeout: 20_000 },
+      )
+      .toEqual({ step: (4 - i) % 4, az: 45 + 90 * ((4 - i) % 4), loaded: total, loading: 0, failed: 0, visible: total });
     await page.keyboard.press('e');
   }
   expect((await cam(page)).azimuthDeg).toBe(45);
