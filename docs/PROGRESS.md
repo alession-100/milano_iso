@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 2 complete; CI green; repo published at https://github.com/alession-100/milano_iso (main only, history rewritten without third-party HTML snapshots, which are kept locally in evidence_local/). First CI run FAILED at the `make setup` step (exit 2); cause unknown because job logs need a GitHub login (owner approved on 2026-11-15: ADR-0020 best-fit landmark check, then Phase 2) (owner go-ahead 2026-11-15; 30 degrees confirmed; data downloads of about 600 MB each approved)
+**Current phase:** 3 - Isometric viewer, vertical slice (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -34,6 +34,11 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-2.4 | merged into T-2.3 | | |
 
 | T-2.5 | done | reports/R-2.5.md | Verified on main: make validate 111 pass / 1 skip (deferred Galleria). Region-Hausdorff reading accepted (max 0.271 m). The orchestrator fixed the root cause of the shared ATTRIBUTION mutation (deepcopy in manifest.py). Warm `make validate` takes about 333 s because `make data` is not incremental (to improve later) |
+
+| T-3.1 | in progress | | camera controls |
+| T-3.2 | in progress | | tile streaming, attribution, fixture |
+| T-3.3 | todo | | palette v1 |
+| T-3.4 | todo | | debug overlay |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
