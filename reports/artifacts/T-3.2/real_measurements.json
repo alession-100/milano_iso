@@ -1,0 +1,8 @@
+{
+  "note": "Local measurement, real pilot tiles (make web-tiles + npm run build + vite preview), headless Chromium SwiftShader, 1280x720, elevation 30. Counts come from window.__milanoIso (e2e=1). Camera set with the temporary ?view=x,z,width query.",
+  "tiles_in_manifest": 30,
+  "views": [
+    {"name": "default-600m", "view": "0,0,600", "loaded": 29, "loading": 0, "failed": 0, "visible": 17, "draw_calls": 82, "triangles": 139858, "console_errors_or_warnings": 0},
+    {"name": "wide-4000m", "view": "0,0,4000", "loaded": 30, "loading": 0, "failed": 0, "visible": 30, "draw_calls": 106, "triangles": 177193, "console_errors_or_warnings": 0}
+  ]
+}
