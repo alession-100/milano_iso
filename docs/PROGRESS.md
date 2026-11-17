@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 4 - Style and landmarks (scope in ADR-0028). G4 PASS WITH RISKS; owner approved the Phase 4 look as is on 2026-11-17 (ADR-0030). Next: Linux baselines (owner runs `visual-baselines`), Pixel 7a FPS, then Phase 5. Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 4 - Style and landmarks (scope in ADR-0028). G4 PASS WITH RISKS; owner approved the Phase 4 look as is on 2026-11-17 (ADR-0030). Linux baselines committed. Next: Pixel 7a FPS (owner), then Phase 5. Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G3 PASS WITH RISKS (2026-11-17; first review FAIL on flaky inertia e2e, fixed in T-3.6). Earlier: G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -123,7 +123,7 @@ Reviewer re-ran everything in a fresh clone of local main 4e89f4e. Evidence: `re
 - Toggle: keyboard and `aria-pressed` OK, no overlap at 412 px; contrast >= 5.37:1.
 
 **G4 carry-over (non-blocking):**
-1. Linux visual baselines are stale (8 day) or missing (4 night). Main is not pushed until the owner approves the look and reruns `visual-baselines`.
+1. Linux visual baselines: resolved 2026-11-17 (owner reran `visual-baselines`; 12 images committed).
 2. Toggle focus ring nearly invisible in night mode (G5).
 3. The fill clearance has no rail/tram entry (Phase 6).
 4. `test_no_detail_base_below_the_volume_it_sits_on` passes vacuously when a detail sits on no volume.
