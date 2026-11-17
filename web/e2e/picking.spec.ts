@@ -49,7 +49,7 @@ async function open(page: Page, width = 600, x = 0, z = 0, hold?: () => Promise<
       (window as unknown as { __milanoIso: { camera: { bounds: { maxX: number } } } }).__milanoIso.camera.bounds.maxX !== 500,
   );
   await setView(page, x, z, width);
-  if (!hold) await settle(page);
+  if (!hold) await settleRendered(page);
   return problems;
 }
 
@@ -69,6 +69,37 @@ async function settle(page: Page): Promise<void> {
           const s = (window as unknown as { __milanoIso: { tiles: { loading: number; visible: number; loaded: number; failed: number } } }).__milanoIso.tiles;
           return s.visible > 0 && s.loading === 0 && s.loaded + s.failed >= s.visible;
         }),
+      { timeout: 20_000 },
+    )
+    .toBe(true);
+}
+
+/**
+ * Tiles settled AND rendered: the tile counts are final and the draw-call count is the same on
+ * several consecutive polls (after a frame), so a value read next is the settled one.
+ */
+async function settleRendered(page: Page): Promise<void> {
+  await settle(page);
+  let prev = -1;
+  let same = 0;
+  await expect
+    .poll(
+      async () => {
+        const st = await page.evaluate(
+          () =>
+            new Promise<{ calls: number; loading: number; ok: boolean }>((r) =>
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => {
+                  const w = (window as unknown as { __milanoIso: { render: { calls: number }; tiles: { loading: number; visible: number; loaded: number; failed: number } } }).__milanoIso;
+                  r({ calls: w.render.calls, loading: w.tiles.loading, ok: w.tiles.visible > 0 && w.tiles.loaded + w.tiles.failed >= w.tiles.visible });
+                }),
+              ),
+            ),
+        );
+        same = st.calls === prev && st.calls > 1 && st.ok && st.loading === 0 ? same + 1 : 0;
+        prev = st.calls;
+        return same >= 3;
+      },
       { timeout: 20_000 },
     )
     .toBe(true);
