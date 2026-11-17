@@ -11,6 +11,11 @@ Layout (local metres, x east, y north; tile size 250 m, so tiles 0_0, -1_0, 0_-1
   industrial, other, landmark), one of them (B3) with a courtyard, a few roads (major, minor,
   pedestrian), one green
   area, plus one tiny water, landuse, road-area and rail feature so that every layer exists.
+
+T-4.1 additions, produced by the real ``milano_iso.decor`` code from invented OSM-like rows:
+  three mapped trees (one with a height tag), one tree_row, fill trees in the park, dashed centre
+  lines on the residential and tertiary roads, and two crossings (a marked zebra on the tertiary
+  road, one more on the residential road, plus an ``unmarked`` one that must be dropped).
 """
 
 import argparse
@@ -20,10 +25,11 @@ from pathlib import Path
 
 import geopandas as gpd
 import pyogrio
-from milano_iso import config
+from milano_iso import config, decor
+from milano_iso.normalise import DropLog
 from milano_iso.tiles import export
 from shapely import affinity
-from shapely.geometry import LineString, Polygon, box
+from shapely.geometry import LineString, Point, Polygon, box
 
 DEFAULT_OUT = config.REPO_ROOT / "web" / "e2e" / "fixtures" / "tiles"
 CRS = "EPSG:32632"
@@ -58,6 +64,40 @@ def _building_polygon(bb, hole):
     if hole is None:
         return shell
     return Polygon(shell.exterior.coords, [box(*hole).exterior.coords])
+
+
+# Invented OSM-like rows (osm_type, osm_id, tags, local geometry) for the T-4.1 layers.
+OSM_POINTS = [
+    ("n", 5001, {"natural": "tree"}, Point(80, 20)),
+    ("n", 5002, {"natural": "tree", "height": "12"}, Point(90, 30)),
+    ("n", 5003, {"natural": "tree"}, Point(-120, 120)),
+]
+OSM_LINES = [
+    ("w", 6001, {"natural": "tree_row"}, LineString([(-180, -110), (-100, -110)])),
+    ("w", 4001, {"highway": "footway", "footway": "crossing", "crossing": "zebra"}, None),
+    ("w", 4002, {"highway": "footway", "footway": "crossing", "crossing": "marked"}, None),
+    ("w", 4003, {"highway": "footway", "footway": "crossing", "crossing": "unmarked"}, None),
+]
+
+
+def _decor_layers(layers: dict) -> dict:
+    """``trees`` and ``markings`` from the real decor code, on the fixture's own layers."""
+    road_geom = {r.osm_id: r.geometry for r in layers["roads"].itertuples()}
+
+    def frame(rows):
+        return gpd.GeoDataFrame(
+            {
+                "osm_type": [r[0] for r in rows],
+                "osm_id": [r[1] for r in rows],
+                "tags": [r[2] for r in rows],
+            },
+            geometry=[road_geom[r[1]] if r[3] is None else _utm(r[3]) for r in rows],
+            crs=CRS,
+        )
+
+    osm = {"points": frame(OSM_POINTS), "lines": frame(OSM_LINES)}
+    res = decor.build_layers(osm, layers, config.PILOT_AOI_BBOX, DropLog())
+    return {"trees": res["trees"], "markings": res["markings"]}
 
 
 def write_gpkg(path: Path) -> None:
@@ -131,9 +171,13 @@ def write_gpkg(path: Path) -> None:
             ("w", 3002, "tertiary", None, False, LineString([(0, -240), (0, 240)])),
             ("w", 3003, "service", "5", False, LineString([(-100, -150), (100, -150)])),
             ("w", 3004, "footway", None, False, LineString([(-75, -25), (75, -5)])),
+            ("w", 4001, "footway", None, False, LineString([(-4.5, 100), (4.5, 100)])),
+            ("w", 4002, "footway", None, False, LineString([(-120, -4), (-120, 4)])),
+            ("w", 4003, "footway", None, False, LineString([(120, 3.5), (120, -3.5)])),
         ],
         roads_cols,
     )
+    layers.update(_decor_layers(layers))
     for name, gdf in layers.items():
         pyogrio.write_dataframe(gdf, path, layer=name, driver="GPKG")
 

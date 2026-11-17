@@ -75,7 +75,9 @@ def tile_entry(
     }
 
 
-def build_manifest(entries: list[dict], layers: list[str]) -> dict:
+def build_manifest(
+    entries: list[dict], layers: list[str], instanced_layers: list[str] | None = None
+) -> dict:
     entries = sorted(entries, key=lambda e: e["id"])
     counts: dict[str, int] = {}
     for e in entries:
@@ -89,6 +91,8 @@ def build_manifest(entries: list[dict], layers: list[str]) -> dict:
         "axis": AXIS,
         "quantization": {"unit_m": QUANT_UNIT_M, "anchor": "tile_center"},
         "layers": list(layers),
+        # layers without a mesh in the glb: their feature table rows carry x, z per instance
+        "instanced_layers": list(instanced_layers or []),
         "attribution": copy.deepcopy(ATTRIBUTION),
         "tiles": entries,
         "totals": {

@@ -1,6 +1,8 @@
 """The committed e2e fixture tileset regenerates byte-identically (T-3.2)."""
 
 import importlib.util
+import json
+from collections import Counter
 from pathlib import Path
 
 from milano_iso import config
@@ -27,3 +29,24 @@ def test_fixture_regenerates_byte_identically(tmp_path):
     assert len(fresh) == 9  # 4 tiles x (glb + json) + tiles.json
     for name in fresh:
         assert fresh[name] == committed[name], name
+
+
+def test_fixture_has_mapped_row_and_fill_trees_and_markings():
+    """T-4.1: the fixture carries every kind of tree and marking, produced by the real code."""
+    trees: Counter = Counter()
+    markings: Counter = Counter()
+    for p in sorted(COMMITTED.glob("*_*.json")):
+        layers = json.loads(p.read_text(encoding="utf-8"))["layers"]
+        for r in layers.get("trees", []):
+            trees[r["source"]] += 1
+            assert r["decorative"] is (r["source"] == "fill")
+            assert (r["osm_id"] is None) is (r["source"] == "fill")
+        for r in layers.get("markings", []):
+            markings[r["kind"]] += 1
+            assert r["stylised"] is True
+    assert trees == {"osm_tree": 3, "osm_tree_row": 11, "fill": 76}
+    # a marking feature is counted once per tile it falls in (the zebras cross tile borders)
+    assert markings == {"centre_line": 8, "zebra": 4}
+    manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
+    assert manifest["instanced_layers"] == ["trees"]
+    assert manifest["totals"]["counts"]["trees"] == 90

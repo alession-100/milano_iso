@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": [
     "format_version", "crs", "origin", "tile_size_m", "axis", "quantization", "layers",
-    "attribution", "tiles", "totals"
+    "attribution", "tiles", "totals", "instanced_layers"
   ],
   "properties": {
     "format_version": {"const": 1},
@@ -25,6 +25,10 @@
       "properties": {"unit_m": {"const": 0.02}, "anchor": {"const": "tile_center"}}
     },
     "layers": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "instanced_layers": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
     "attribution": {
       "type": "array",
       "minItems": 2,

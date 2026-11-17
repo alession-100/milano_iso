@@ -24,7 +24,7 @@ function fixtureRows(layer: string): Record<string, unknown>[] {
 }
 
 describe('palette', () => {
-  it('has at most 16 colours, and the order lists every one exactly once', () => {
+  it('has at most 32 colours, and the order lists every one exactly once', () => {
     expect(Object.keys(PALETTE).length).toBeLessThanOrEqual(MAX_PALETTE_COLOURS);
     expect([...PALETTE_ORDER].sort()).toEqual(Object.keys(PALETTE).sort());
   });

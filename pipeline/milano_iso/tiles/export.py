@@ -13,6 +13,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import shapely
 from shapely import affinity
 from shapely.geometry import box
@@ -25,7 +26,10 @@ METRIC_CRS = 32632
 GPKG_NAME = "pilot.gpkg"
 BUDGET_GZIP_BYTES = 256_000  # ADR-0022, docs/VERIFICATION.md section 5
 SAMPLE_VERTICES = 128  # per tile, written to the summary for the client position check
-FLAT_LAYERS = ("landuse", "green", "water", "road_areas", "roads", "rail")
+FLAT_LAYERS = ("landuse", "green", "water", "road_areas", "roads", "markings", "rail")
+# Instanced layers (T-4.1): no mesh in the glb. Their per-tile feature table rows carry the
+# position (x, z in client metres) of each instance; the client draws them as one InstancedMesh.
+INSTANCED_LAYERS = ("trees",)
 # Feature-table columns per flat layer (osm_type, osm_id and the class or kind).
 FLAT_FIELDS = {
     "landuse": ("osm_type", "osm_id", "kind"),
@@ -33,6 +37,7 @@ FLAT_FIELDS = {
     "water": ("osm_type", "osm_id", "kind"),
     "road_areas": ("osm_type", "osm_id", "class"),
     "roads": ("osm_type", "osm_id", "class"),
+    "markings": ("osm_type", "osm_id", "kind", "stylised"),
     "rail": ("osm_type", "osm_id", "class"),
 }
 
@@ -91,6 +96,8 @@ def _flat_features(layer: str, gdf: gpd.GeoDataFrame) -> list[dict]:
             entry["class"] = _clean(row.class_)
         else:
             entry["kind"] = _clean(row.kind)
+        if layer == "markings":
+            entry["stylised"] = bool(row.stylised)
         gl = _to_local(g)
         if layer in ("roads", "rail"):
             table = style.ROAD_WIDTH_M if layer == "roads" else style.RAIL_WIDTH_M
@@ -105,6 +112,31 @@ def _flat_features(layer: str, gdf: gpd.GeoDataFrame) -> list[dict]:
             polys = geom.polygons_of(gl)
         if polys:
             out.append({"entry": entry, "polys": polys})
+    return out
+
+
+def _tree_tables(trees: gpd.GeoDataFrame) -> dict[tuple[int, int], list[dict]]:
+    """Feature-table rows of the trees, per tile (by the tile the point falls in).
+
+    Row order: mapped trees by (osm_type, osm_id), then fill trees in layer order (the order the
+    pipeline wrote them). x and z are client-frame metres (x = E - E0, z = -(N - N0)) to 1 cm.
+    """
+    out: dict[tuple[int, int], list[dict]] = {}
+    for r in trees.itertuples(index=False):
+        p = r.geometry
+        ij = grid.tile_ij(p.x, p.y)
+        out.setdefault(ij, []).append(
+            {
+                "osm_type": _clean(r.osm_type),
+                "osm_id": None if pd.isna(r.osm_id) else int(r.osm_id),
+                "source": _clean(r.source),
+                "decorative": bool(r.decorative),
+                "height_m": _clean(r.height_m),
+                "height_source": _clean(r.height_source),
+                "x": round(p.x - config.ORIGIN_E, 2) + 0.0,
+                "z": round(-(p.y - config.ORIGIN_N), 2) + 0.0,
+            }
+        )
     return out
 
 
@@ -229,6 +261,8 @@ def build(
         if "class" in gdf.columns:
             gdf = gdf.rename(columns={"class": "class_"})
         flat[layer] = _flat_features(layer, gdf)
+    trees_gdf = _read(gpkg, "trees")
+    trees_by_tile = _tree_tables(trees_gdf)
 
     aoi_tiles = set(grid.tiles_covering(config.PILOT_AOI_BBOX))
     tiles = sorted(aoi_tiles | set(tile_of.values()))  # ADR-0022 point 5
@@ -312,6 +346,11 @@ def build(
                     "triangles": mf.n_triangles,
                 }
 
+        trees = trees_by_tile.pop((i, j), [])
+        if trees:
+            tables["trees"] = trees
+            layer_stats["trees"] = {"features": len(trees), "vertices": 0, "triangles": 0}
+
         written = write_tile(out_dir, name, i, j, meshes, tables, layer_stats, centre)
         if written is None:
             continue  # T-2.5: an empty tile is skipped (no file, not in the manifest)
@@ -339,7 +378,15 @@ def build(
             "layers": layer_stats,
         }
 
-    manifest.write_manifest(out_dir, manifest.build_manifest(entries, ["buildings", *FLAT_LAYERS]))
+    manifest.write_manifest(
+        out_dir,
+        manifest.build_manifest(
+            entries, ["buildings", *FLAT_LAYERS, *INSTANCED_LAYERS], list(INSTANCED_LAYERS)
+        ),
+    )
+    n_trees_in_tiles = sum(
+        t["layers"].get("trees", {}).get("features", 0) for t in summary_tiles.values()
+    )
     per_tile_buildings = sum(
         t["layers"].get("buildings", {}).get("features", 0) for t in summary_tiles.values()
     )
@@ -357,6 +404,9 @@ def build(
             "buildings_rendered": len(rendered),
             "buildings_in_tiles": per_tile_buildings,
             "buildings_count_matches": per_tile_buildings == len(rendered),
+            "trees_in_layer": len(trees_gdf),
+            "trees_in_tiles": n_trees_in_tiles,
+            "trees_count_matches": n_trees_in_tiles == len(trees_gdf),
             "buildings_in_two_tiles": sorted(set(duplicates)),
             "rendered_volumes_without_rendered_building": len(stray),
             "tiles_outside_pilot_aoi": sorted(

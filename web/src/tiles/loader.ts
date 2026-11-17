@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { type FeatureTable, applyStyle, disposeLookupMaterial } from '../style/materials';
+import { buildTreeMesh } from '../style/trees';
 import type { TileEntry } from './manifest';
 
 /** Most tiles fetched and decoded at the same time. */
@@ -164,6 +165,11 @@ export function disposeTile(obj: THREE.Object3D): void {
   obj.traverse((o) => {
     const mesh = o as THREE.Mesh;
     if (!mesh.isMesh) return;
+    if ((mesh as THREE.InstancedMesh).isInstancedMesh) {
+      // Tree geometry and material are shared by every tile; only the instance buffer is ours.
+      (mesh as THREE.InstancedMesh).dispose();
+      return;
+    }
     mesh.geometry.dispose();
     const mat = mesh.material as THREE.Material;
     if (mat.userData.lookup) disposeLookupMaterial(mat);
@@ -198,6 +204,9 @@ export function createGltfTileLoader(base: URL): (tile: TileEntry) => Promise<TH
       for (const m of Array.isArray(own) ? own : [own]) m.dispose();
       applyStyle(mesh, table);
     });
+    // Trees (T-4.1): instance data lives in the feature table, one InstancedMesh per tile.
+    const trees = buildTreeMesh(table.layers.trees ?? []);
+    if (trees) group.add(trees);
     return group;
   };
 }

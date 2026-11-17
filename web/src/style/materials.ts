@@ -30,6 +30,7 @@ const FLAT_COLOURS: Record<string, PaletteName> = {
   water: 'water',
   road_areas: 'roadAreas',
   rail: 'rail',
+  markings: 'markingWhite',
 };
 
 /** Mesh names are layer names, with a `#n` suffix when a layer is split in chunks. */
@@ -87,6 +88,12 @@ export function materialFor(layer: string): THREE.MeshLambertMaterial {
       flatShading: true,
     });
     m.name = layer;
+    if (layer === 'markings') {
+      // Painted on the road: win the depth test against the road ribbons below (T-4.1).
+      m.polygonOffset = true;
+      m.polygonOffsetFactor = -2;
+      m.polygonOffsetUnits = -2;
+    }
     flatCache.set(layer, m);
   }
   return m;

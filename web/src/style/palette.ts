@@ -3,7 +3,7 @@
  * Milano Iso look. None of them is measured or derived from a source; what is data is only the
  * *category* a feature falls into (its `building_type`, road `class`, `landmark_id`).
  *
- * The surface palette is defined once, has at most 16 entries (checked by palette.test.ts) and is
+ * The surface palette is defined once, has at most 32 entries (checked by palette.test.ts) and is
  * uploaded as one uniform array. A byte in the per-tile lookup texture is an index into it, so the
  * order of PALETTE_ORDER is part of the contract. Roofs and walls of one building share one
  * colour: they differ only through lighting.
@@ -26,6 +26,13 @@ export const PALETTE = {
   buildingOther: 0xd6d0c8,
   /** Accent for buildings that carry a `landmark_id`. */
   landmark: 0xd2745c,
+  // Appended in T-4.1 (palette v1 above is unchanged).
+  /** Tree crown (low-poly cone), a little darker than the green areas it stands on. */
+  treeCrown: 0x7ea468,
+  /** Tree trunk. */
+  treeTrunk: 0x8b6f55,
+  /** Road markings (dashed centre lines, zebra stripes). */
+  markingWhite: 0xf1eee6,
 } as const;
 
 export type PaletteName = keyof typeof PALETTE;
@@ -47,9 +54,13 @@ export const PALETTE_ORDER: readonly PaletteName[] = [
   'buildingIndustrial',
   'buildingOther',
   'landmark',
+  'treeCrown',
+  'treeTrunk',
+  'markingWhite',
 ];
 
-export const MAX_PALETTE_COLOURS = 16;
+/** ADR-0029: raised from 16 to 32 (uniform array size is not a constraint at this size). */
+export const MAX_PALETTE_COLOURS = 32;
 
 export function paletteIndex(name: PaletteName): number {
   return PALETTE_ORDER.indexOf(name);
