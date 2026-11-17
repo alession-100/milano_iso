@@ -1,0 +1,194 @@
+uv run python -m milano_iso.fetch comune_boundary
+comune_boundary: skip, sha256 ok (7417f88f3e584b690e4d3a0426e42fced44a5846175967b19444ca267a0f3ec1)
+uv run python -m milano_iso.osm_extract --extent pilot --summary reports/artifacts/T-1.1/summary.json
+osm_geofabrik: skip, sha256 ok (8b68eed2f4325134d89683ff3b01ef0fdf14647f88f3c720e71668887092debd)
+Created 5,065 records
+Created 2,704 records
+Created 1,236 records
+kept {'points': 5065, 'lines': 2704, 'areas': 1236}; failed relations 509
+canonical_sha256 3a2980a1dc50a5c25555b80e4a21b72166efa98d58f833e792309bd0f7094216
+gpkg_sha256 ffe88ed7f399a15c31dd3adcc44be26f455093dab36f57ce57e5a0ee6ae3196e
+uv run python -m milano_iso.dbt_fetch
+dbt2020: skip, sha256 ok (f11d20728d2a78b6f926dc0f55bc8344836d06287babd7a428fc3de08427db42)
+dbt_spec: skip, sha256 ok (29e189ebc8b0209d37da2faf7dd03beed0659efcff911db4b4fc1823240c3808)
+uv run python -m milano_iso.dbt_extract --extent pilot
+canonical dump sha256 of dbt_pilot.gpkg: 597e00a2ea07601dc5581c50af79b19ebb05209d581f59f31e23ef28bd6ad8d1
+{"edifc": 170, "edifc_me": 171, "edifc_me_sr": 665, "edi_min": 47, "edi_min_me": 47, "un_vol": 5821, "edifc_attr": 171, "edifc_uso": 171, "edi_min_attr": 47} match_rate 0.9919257859474317
+uv run python -m milano_iso.normalise --extent pilot
+Created 1 records
+Created 218 records
+Created 5,821 records
+Created 76 records
+Created 10 records
+Created 2,291 records
+Created 133 records
+Created 706 records
+Created 171 records
+Created 42 records
+Created 2,308 records
+Created 4 records
+canonical dump sha256 of pilot.gpkg: 01b0428de07f0146c9ae7e7813d2838b49e57549379b7578b3912c085908218a
+{"all_features_intersect_extent": true, "completeness_dbt_volumes_ge_99pct": true, "completeness_osm_buildings_ge_99pct": true, "crs_all_layers_epsg32632": true, "features_outside_extent_total": 0, "invalid_geometries_total": 0}
+uv run python -m milano_iso.heights --extent pilot
+canonical dump sha256 of pilot.gpkg: 85c50ccddf127b770658a24843e8855e0c50fdc4aac5fdc183d9660e8a68b4fb
+{"checks": {"buildings_ok": true, "render_volumes_ok": true}, "counts": {"buildings": 240, "dbt_buildings": 218, "dbt_volumes": 5821, "osm_only_buildings": 22, "render_volumes": 5843}}
+landmarks without assignment: {"buildings_with_landmark_id": 9, "no_osm_footprint": ["bosco_verticale_torre_confalonieri", "bosco_verticale_torre_de_castillia", "castello_sforzesco", "citylife_allianz", "citylife_generali", "citylife_pwc", "grattacielo_pirelli", "stadio_meazza", "stazione_centrale"], "no_rendered_overlap": [], "primary_buildings": 6}
+uv run python -m milano_iso.decor --extent pilot
+Created 360 records
+Created 552 records
+{"stats": {"markings": {"centre_line_dashes": 1897, "centre_line_roads_considered": 390, "centre_line_roads_too_short": 67, "crossing_nodes_in_extract_unused": 283, "crossing_ways_in_extract": 245, "crossing_ways_not_marked": 8, "crossing_ways_too_short": 2, "marking_rows_outside_extent": 6, "zebra_crossings": 235, "zebra_stripes": 2301}, "trees": {"fill_trees": 174, "height_style_default": 185, "height_tag_parsed": 1, "mapped_trees_total": 186, "tree_nodes_in_extract": 186}}, "trees_by_source": {"fill": 174, "osm_tree": 186}}
+canonical dump sha256 of pilot.gpkg: efa03747a1396e57a353064b0d911c3af9f025b4b13ec8ec24f7ed4108b0aa94
+make data: done (data-boundary data-osm data-dbt data-normalise data-heights data-decor)
+uv run python -m milano_iso.tiles.export --extent pilot
+tiles: -3_-3, -3_-2, -3_-1, -3_0, -3_1, -2_-3, -2_-2, -2_-1, -2_0, -2_1, -2_2, -1_-3, -1_-2, -1_-1, -1_0, -1_1, -1_2, 0_-2, 0_-1, 0_0, 0_1, 0_2, 1_-2, 1_-1, 1_0, 1_1, 1_2, 2_-2, 2_-1, 2_0
+checks: {'buildings_total_in_layer': 240, 'buildings_rendered': 233, 'buildings_in_tiles': 233, 'buildings_count_matches': True, 'landmark_details_in_tiles': 122, 'landmark_details_built': 122, 'trees_in_layer': 360, 'trees_in_tiles': 360, 'trees_count_matches': True, 'buildings_in_two_tiles': [], 'rendered_volumes_without_rendered_building': 0, 'tiles_outside_pilot_aoi': ['-1_-3', '-1_2', '-2_-3', '-2_2', '-3_-1', '-3_-2', '-3_-3', '-3_0', '-3_1', '0_2', '1_2', '2_-1', '2_-2', '2_0']}
+make tiles: done (tiles-export)
+mkdir -p reports/artifacts/T-1.6
+uv run pytest -m data tests/data -v --junitxml=reports/artifacts/T-1.6/junit.xml
+============================= test session starts =============================
+platform win32 -- Python 3.12.16, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-abf6a82847003180d\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-abf6a82847003180d
+configfile: pyproject.toml
+collecting ... collected 136 items
+
+tests/data/test_data_completeness.py::test_completeness_dbt_volumes PASSED [  0%]
+tests/data/test_data_completeness.py::test_completeness_osm_buildings PASSED [  1%]
+tests/data/test_data_completeness.py::test_drop_log_has_a_reason_for_every_drop PASSED [  2%]
+tests/data/test_data_completeness.py::test_every_missing_source_feature_is_in_drop_log PASSED [  2%]
+tests/data/test_data_completeness.py::test_drop_log_counts_match_t13_validation PASSED [  3%]
+tests/data/test_data_geometry.py::test_crs_every_layer_is_epsg32632 PASSED [  4%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[buildings] PASSED [  5%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[comune_boundary] PASSED [  5%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[dbt_buildings] PASSED [  6%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[dbt_volumes] PASSED [  7%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[green] PASSED [  8%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[landuse] PASSED [  8%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[markings] PASSED [  9%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[named_features] PASSED [ 10%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[osm_building_parts] PASSED [ 11%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[osm_buildings] PASSED [ 11%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[rail] PASSED [ 12%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[render_volumes] PASSED [ 13%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[road_areas] PASSED [ 13%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[roads] PASSED [ 14%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[trees] PASSED [ 15%]
+tests/data/test_data_geometry.py::test_geometry_valid_and_nonempty[water] PASSED [ 16%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[buildings] PASSED [ 16%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[comune_boundary] PASSED [ 17%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[dbt_buildings] PASSED [ 18%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[dbt_volumes] PASSED [ 19%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[green] PASSED [ 19%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[landuse] PASSED [ 20%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[markings] PASSED [ 21%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[named_features] PASSED [ 22%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[osm_building_parts] PASSED [ 22%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[osm_buildings] PASSED [ 23%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[rail] PASSED [ 24%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[render_volumes] PASSED [ 25%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[road_areas] PASSED [ 25%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[roads] PASSED [ 26%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[trees] PASSED [ 27%]
+tests/data/test_data_geometry.py::test_geometry_no_zero_area_or_zero_length[water] PASSED [ 27%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[buildings] PASSED [ 28%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[comune_boundary] PASSED [ 29%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[dbt_buildings] PASSED [ 30%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[dbt_volumes] PASSED [ 30%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[green] PASSED [ 31%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[landuse] PASSED [ 32%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[markings] PASSED [ 33%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[named_features] PASSED [ 33%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[osm_building_parts] PASSED [ 34%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[osm_buildings] PASSED [ 35%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[rail] PASSED [ 36%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[render_volumes] PASSED [ 36%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[road_areas] PASSED [ 37%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[roads] PASSED [ 38%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[trees] PASSED [ 38%]
+tests/data/test_data_geometry.py::test_geometry_no_exact_duplicates[water] PASSED [ 39%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[buildings] PASSED [ 40%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[comune_boundary] PASSED [ 41%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[dbt_buildings] PASSED [ 41%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[dbt_volumes] PASSED [ 42%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[green] PASSED [ 43%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[landuse] PASSED [ 44%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[markings] PASSED [ 44%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[named_features] PASSED [ 45%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[osm_building_parts] PASSED [ 46%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[osm_buildings] PASSED [ 47%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[rail] PASSED [ 47%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[render_volumes] PASSED [ 48%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[road_areas] PASSED [ 49%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[roads] PASSED [ 50%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[trees] PASSED [ 50%]
+tests/data/test_data_geometry.py::test_geometry_no_same_geometry_different_key[water] PASSED [ 51%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[buildings] PASSED [ 52%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[comune_boundary] PASSED [ 52%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[dbt_buildings] PASSED [ 53%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[dbt_volumes] PASSED [ 54%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[green] PASSED [ 55%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[landuse] PASSED [ 55%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[markings] PASSED [ 56%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[named_features] PASSED [ 57%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[osm_building_parts] PASSED [ 58%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[osm_buildings] PASSED [ 58%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[rail] PASSED [ 59%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[render_volumes] PASSED [ 60%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[road_areas] PASSED [ 61%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[roads] PASSED [ 61%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[trees] PASSED [ 62%]
+tests/data/test_data_geometry.py::test_extent_every_feature_intersects_pilot[water] PASSED [ 63%]
+tests/data/test_data_heights.py::test_every_row_has_height_and_source[buildings] PASSED [ 63%]
+tests/data/test_data_heights.py::test_every_row_has_height_and_source[render_volumes] PASSED [ 64%]
+tests/data/test_data_heights.py::test_height_distribution_and_baseline_share PASSED [ 65%]
+tests/data/test_data_heights.py::test_height_outliers_reported PASSED    [ 66%]
+tests/data/test_data_heights.py::test_tallest_building_is_plausible PASSED [ 66%]
+tests/data/test_data_landmark_details.py::test_manifest_lists_the_layer_and_counts_match PASSED [ 67%]
+tests/data/test_data_landmark_details.py::test_every_row_is_flagged_and_kinds_come_from_the_spec PASSED [ 68%]
+tests/data/test_data_landmark_details.py::test_in_pilot_landmarks_have_details_and_out_of_pilot_none PASSED [ 69%]
+tests/data/test_data_landmark_details.py::test_details_lie_within_the_landmark_footprint_union PASSED [ 69%]
+tests/data/test_data_landmark_details.py::test_no_detail_base_below_the_volume_it_sits_on PASSED [ 70%]
+tests/data/test_data_landmark_details.py::test_galleria_vault_base_is_the_lowest_adjacent_eave PASSED [ 71%]
+tests/data/test_data_landmarks.py::test_filled_union_distance_courtyard_synthetic PASSED [ 72%]
+tests/data/test_data_landmarks.py::test_landmark_entries_present PASSED  [ 72%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[duomo] PASSED [ 73%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[galleria_vittorio_emanuele_ii] PASSED [ 74%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[palazzo_assicurazioni_generali] PASSED [ 75%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[palazzo_marino] PASSED [ 75%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[palazzo_reale] PASSED [ 76%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[teatro_alla_scala] PASSED [ 77%]
+tests/data/test_data_landmarks.py::test_landmark_a_osm_footprint_position[torre_velasca] PASSED [ 77%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[duomo] PASSED [ 78%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[galleria_vittorio_emanuele_ii] SKIPPED [ 79%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_assicurazioni_generali] PASSED [ 80%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_marino] PASSED [ 80%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[palazzo_reale] PASSED [ 81%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[teatro_alla_scala] PASSED [ 82%]
+tests/data/test_data_landmarks.py::test_landmark_b_rendered_position[torre_velasca] PASSED [ 83%]
+tests/data/test_data_landmarks.py::test_landmark_c_osm_dbt_registration PASSED [ 83%]
+tests/data/test_data_simplification.py::test_simplification_tolerance PASSED [ 84%]
+tests/data/test_data_tile_content.py::test_tiles_content_bbox_bounds_every_decoded_vertex PASSED [ 85%]
+tests/data/test_data_tile_content.py::test_flat_every_source_feature_inside_the_extent_is_in_a_tile PASSED [ 86%]
+tests/data/test_data_tile_content.py::test_flat_pieces_of_one_feature_do_not_overlap_across_tiles PASSED [ 86%]
+tests/data/test_data_tile_content.py::test_flat_summed_tile_area_equals_clipped_source_area PASSED [ 87%]
+tests/data/test_data_tiles.py::test_tiles_manifest_validates_against_schema PASSED [ 88%]
+tests/data/test_data_tiles.py::test_tiles_manifest_file_is_canonical PASSED [ 88%]
+tests/data/test_data_tiles.py::test_tiles_manifest_header_matches_config PASSED [ 89%]
+tests/data/test_data_tiles.py::test_tiles_bboxes_tile_the_grid_exactly PASSED [ 90%]
+tests/data/test_data_tiles.py::test_tiles_counts_sum_to_totals_and_match_feature_tables PASSED [ 91%]
+tests/data/test_data_tiles.py::test_tiles_building_count_equals_processed_rendered_count PASSED [ 91%]
+tests/data/test_data_tiles.py::test_tiles_every_rendered_building_in_exactly_one_tile PASSED [ 92%]
+tests/data/test_data_tiles.py::test_tiles_gzip9_within_budget PASSED     [ 93%]
+tests/data/test_data_tiles.py::test_tiles_sha256_and_sizes_match_files PASSED [ 94%]
+tests/data/test_data_trees.py::test_tree_counts PASSED                   [ 94%]
+tests/data/test_data_trees.py::test_mapped_trees_are_not_decorative_and_carry_osm_ids PASSED [ 95%]
+tests/data/test_data_trees.py::test_every_fill_tree_is_decorative_style_default_without_osm_id PASSED [ 96%]
+tests/data/test_data_trees.py::test_fill_trees_not_in_buildings_on_roads_or_water_and_inside_parks PASSED [ 97%]
+tests/data/test_data_trees.py::test_fill_keeps_its_clearance_from_buildings_and_mapped_trees PASSED [ 97%]
+tests/data/test_data_trees.py::test_fill_is_deterministic_across_two_runs PASSED [ 98%]
+tests/data/test_data_trees.py::test_markings_are_all_stylised_and_trace_to_a_road_or_crossing PASSED [ 99%]
+tests/data/test_data_trees.py::test_tile_tables_carry_every_tree_with_its_fields PASSED [100%]
+
+- generated xml file: C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-abf6a82847003180d\reports\artifacts\T-1.6\junit.xml -
+======================= 135 passed, 1 skipped in 13.97s =======================
+exit 0

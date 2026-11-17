@@ -431,7 +431,6 @@ FIXTURE_SPEC = LandmarkSpec(
 )
 
 # Every constant of this module is a style constant. None is sourced from data or a URL.
-STYLE_ONLY_CONSTANT_PREFIXES = ()
 
 
 def style_constants() -> list[tuple[str, object, str]]:

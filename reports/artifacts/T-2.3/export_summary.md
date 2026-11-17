@@ -47,6 +47,7 @@
 | -1_-2 | roads | 192 | 1672 | 1288 |
 | -1_-2 | markings | 70 | 2127 | 1115 |
 | -1_-2 | rail | 32 | 423 | 359 |
+| -1_-2 | landmark_details | 11 | 514 | 688 |
 | -1_-2 | trees | 2 | 0 | 0 |
 | -1_-1 | buildings | 19 | 2794 | 4960 |
 | -1_-1 | landuse | 1 | 4 | 2 |
@@ -55,6 +56,7 @@
 | -1_-1 | roads | 162 | 1439 | 1107 |
 | -1_-1 | markings | 42 | 1215 | 637 |
 | -1_-1 | rail | 17 | 285 | 251 |
+| -1_-1 | landmark_details | 25 | 225 | 300 |
 | -1_-1 | trees | 16 | 0 | 0 |
 | -1_0 | buildings | 7 | 3349 | 5990 |
 | -1_0 | landuse | 1 | 4 | 2 |
@@ -63,6 +65,7 @@
 | -1_0 | roads | 167 | 1481 | 1141 |
 | -1_0 | markings | 20 | 564 | 288 |
 | -1_0 | rail | 2 | 32 | 28 |
+| -1_0 | landmark_details | 26 | 1020 | 1668 |
 | -1_0 | trees | 8 | 0 | 0 |
 | -1_1 | buildings | 9 | 3789 | 6735 |
 | -1_1 | landuse | 3 | 42 | 36 |
@@ -88,6 +91,7 @@
 | 0_-1 | roads | 158 | 1660 | 1352 |
 | 0_-1 | markings | 65 | 1690 | 904 |
 | 0_-1 | rail | 24 | 336 | 288 |
+| 0_-1 | landmark_details | 31 | 279 | 372 |
 | 0_-1 | trees | 20 | 0 | 0 |
 | 0_0 | buildings | 11 | 6967 | 12498 |
 | 0_0 | landuse | 1 | 4 | 2 |
@@ -95,6 +99,7 @@
 | 0_0 | road_areas | 3 | 57 | 51 |
 | 0_0 | roads | 156 | 1390 | 1086 |
 | 0_0 | markings | 14 | 353 | 181 |
+| 0_0 | landmark_details | 29 | 261 | 348 |
 | 0_0 | trees | 16 | 0 | 0 |
 | 0_1 | buildings | 6 | 5161 | 9093 |
 | 0_1 | landuse | 2 | 8 | 4 |
@@ -153,14 +158,14 @@
 | -2_1 | 139792 | 62575 | n/a | 0.199673 | no |
 | -2_2 | 26892 | 12674 | n/a | 0.197919 | no |
 | -1_-3 | 49480 | 23271 | n/a | 0.196516 | no |
-| -1_-2 | 146792 | 65492 | n/a | 0.252527 | no |
-| -1_-1 | 117272 | 50538 | n/a | 0.207275 | no |
-| -1_0 | 116256 | 50221 | n/a | 0.198716 | no |
+| -1_-2 | 157812 | 70540 | n/a | 0.252527 | no |
+| -1_-1 | 122496 | 52539 | n/a | 0.207275 | no |
+| -1_0 | 139236 | 60013 | n/a | 0.198716 | no |
 | -1_1 | 137500 | 61509 | n/a | 0.196077 | no |
 | -1_2 | 23396 | 11121 | n/a | 0.194583 | no |
 | 0_-2 | 115444 | 51393 | n/a | 0.203139 | no |
-| 0_-1 | 147496 | 64537 | n/a | 0.198681 | no |
-| 0_0 | 193008 | 88375 | n/a | 0.217821 | no |
+| 0_-1 | 153804 | 66960 | n/a | 0.198681 | no |
+| 0_0 | 198952 | 90710 | n/a | 0.217821 | no |
 | 0_1 | 149216 | 67514 | n/a | 0.19931 | no |
 | 0_2 | 48300 | 22636 | n/a | 0.181995 | no |
 | 1_-2 | 84876 | 37951 | n/a | 0.199519 | no |
@@ -174,7 +179,7 @@
 
 Worst offset from a tile centre: 265.989 m; int16 range +/-655.34 m (2 cm unit), headroom 389.351 m.
 
-Total: glb 2767908 bytes, gzip-9 1247213 bytes, max Hausdorff 0.26992 m. Budget per tile: 256000 bytes gzip.
+Total: glb 2819384 bytes, gzip-9 1268812 bytes, max Hausdorff 0.26992 m. Budget per tile: 256000 bytes gzip.
 
 ## Checks
 
@@ -182,6 +187,8 @@ Total: glb 2767908 bytes, gzip-9 1247213 bytes, max Hausdorff 0.26992 m. Budget 
 - buildings_rendered: 233
 - buildings_in_tiles: 233
 - buildings_count_matches: True
+- landmark_details_in_tiles: 122
+- landmark_details_built: 122
 - trees_in_layer: 360
 - trees_in_tiles: 360
 - trees_count_matches: True
