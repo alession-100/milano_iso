@@ -279,3 +279,13 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Context:** Palette v1 (T-3.3) uses 15 of 16 entries. Phase 4 (ADR-0028) adds trees, road markings and land-use and green kinds, which need more colours. The limit of 16 was a style restraint, not a technical one: the shader array is sized from `PALETTE_ORDER.length` and the lookup texture stores one byte per feature (up to 256 values).
 - **Decision:** `MAX_PALETTE_COLOURS` = 32. New entries are appended after the existing ones, so the indices of palette v1 do not change. The night palette (T-4.3) must define a colour for every entry, enforced by its type.
 - **Consequences:** the restrained look is kept by review at the Phase 4 checkpoint, not by the cap. The cost is a uniform array of up to 32 vec3.
+
+## ADR-0030 - Phase 4 look approved
+- **Status:** Accepted (2026-11-17)
+- **Decision:** At the Phase 4 checkpoint the owner approved the Phase 4 look "as is":
+  - the night palette and lights;
+  - trees, with mapped and fill trees drawn alike;
+  - road markings, including centre lines on residential streets;
+  - the Duomo pinnacles, the Torre Velasca crown and the Galleria glass vault.
+- **Evidence:** G4 PASS WITH RISKS (`docs/PROGRESS.md`, `reports/artifacts/G4/`).
+- **Consequences:** the win32 baselines of T-4.2 are the approved references. The Linux baselines are regenerated from them by the `visual-baselines` workflow.

@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 4 - Style and landmarks (scope in ADR-0028). G4 PASS WITH RISKS; awaiting the owner at the Phase 4 checkpoint. Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 4 - Style and landmarks (scope in ADR-0028). G4 PASS WITH RISKS; owner approved the Phase 4 look as is on 2026-11-17 (ADR-0030). Next: Linux baselines (owner runs `visual-baselines`), Pixel 7a FPS, then Phase 5. Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G3 PASS WITH RISKS (2026-11-17; first review FAIL on flaky inertia e2e, fixed in T-3.6). Earlier: G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
