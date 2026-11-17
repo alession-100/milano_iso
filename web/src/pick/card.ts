@@ -157,9 +157,15 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = getLang(
     if (window.matchMedia('(max-width: 600px)').matches) {
       // Bottom sheet above the attribution and, in ?debug mode, above the debug overlay (T-5.4).
       const edge = dbg ? Math.min(top, dbg.getBoundingClientRect().top) : top;
-      root.style.bottom = `${Math.max(0, window.innerHeight - edge) + 6}px`;
+      const bottom = Math.max(0, window.innerHeight - edge) + 6;
+      root.style.bottom = `${bottom}px`;
       root.style.right = '';
-      root.style.maxHeight = '';
+      // Keep clear of the toolbar zone above (search results, panels, notice): the card scrolls
+      // inside its own box instead of growing into it. Never taller than 45% of the screen.
+      const zone = document.getElementById('toolbar-zone');
+      const zoneBottom = zone ? zone.getBoundingClientRect().bottom : 0;
+      const room = window.innerHeight - bottom - zoneBottom - 6;
+      root.style.maxHeight = `${Math.max(96, Math.min(0.45 * window.innerHeight, room))}px`;
     } else {
       root.style.bottom = '';
       root.style.maxHeight = `${Math.max(120, top - 6 - CARD_TOP_PX)}px`;
@@ -168,6 +174,17 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = getLang(
     }
   }
   window.addEventListener('resize', layout);
+  // The toolbar zone grows and shrinks (results, panels, notice): re-fit the card under it (T-5.4).
+  // The attribution wraps differently per language and width: the card follows it too.
+  if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(() => {
+      if (!root.hidden) layout();
+    });
+    for (const id of ['toolbar-zone', 'attribution']) {
+      const target = document.getElementById(id);
+      if (target) observer.observe(target);
+    }
+  }
 
   return {
     element: root,
