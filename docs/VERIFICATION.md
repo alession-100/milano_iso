@@ -38,6 +38,36 @@
 - **Console:** zero errors and warnings in e2e runs.
 - **Accessibility:** keyboard-reachable controls, sufficient contrast, `prefers-reduced-motion` honoured.
 
+### 4a. Phase 5 UI and accessibility checklist (G5)
+The reviewer checks each item on the fixture (e2e) and on real pilot data, at 1280x720 and 412x915, by day and by night.
+1. **Keyboard:**
+   - Every control can be reached with Tab in a logical order, and works with Enter or Space.
+   - The map can be panned, zoomed and rotated from the keyboard.
+   - Escape closes the info card and search results.
+   - No keyboard trap.
+2. **Focus:**
+   - A visible focus indicator on every control, in day and night mode (contrast >= 3:1 against its surroundings).
+   - Focus moves to the info card when it opens, and back to where it was when it closes.
+3. **Contrast:** text >= 4.5:1, and UI component boundaries >= 3:1, over any map background in both modes.
+4. **Touch:**
+   - Touch targets >= 44x44 CSS px.
+   - Pan, pinch-zoom, tap-to-pick and rotate buttons work under touch emulation at 412x915.
+5. **Layout:**
+   - At 412x915 and 1280x720, no control covers the attribution, the tile notice, the info card or another control.
+   - No horizontal page scroll; the info card fits on screen.
+6. **Reduced motion:** with `prefers-reduced-motion`, rotation, fly-to after search, and inertia are instant.
+7. **Language:**
+   - Italian by default; switching to English changes every UI string, including the tile notice, the info card labels and the aria-labels.
+   - Feature names are not translated (ADR-0006).
+8. **Screen readers:**
+   - Controls have accessible names.
+   - The info card is announced (a dialog or live region).
+   - Search results are a listbox with the active option announced.
+9. **Data honesty in the UI:**
+   - The info card shows the height source.
+   - Stylised items (fill trees, markings, landmark details) are either not pickable or labelled as stylised, never shown as mapped features.
+10. **Console:** zero errors and warnings in the e2e runs (ADR-0012 filter only).
+
 ## 5. Budgets (initial targets, adjust only via ADR with measurements)
 
 | Metric | Target |

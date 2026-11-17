@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 4 - Style and landmarks (scope in ADR-0028). G4 PASS WITH RISKS; owner approved the Phase 4 look as is on 2026-11-17 (ADR-0030). Linux baselines committed; CI green after T-4.4 (the G4 claim that only baselines blocked CI was wrong: `make test` failed on Linux). Next: Pixel 7a FPS (owner), then Phase 5. Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 5 - Interaction and UI (started 2026-11-17). Phase 4 approved as is (ADR-0030), G4 PASS WITH RISKS, CI green after T-4.4. Desktop FPS 118.3 (Phase 3 build); Pixel 7a FPS still pending from the owner. Repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G3 PASS WITH RISKS (2026-11-17; first review FAIL on flaky inertia e2e, fixed in T-3.6). Earlier: G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -48,6 +48,11 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-4.3 | done | reports/R-4.3.md | Verified in worktree: vitest 77, e2e 40/40, build 165 KB gzip; screenshots reviewed. Draw calls unchanged day/night (111 at 1280x720). Palette 23/32. Lit windows skipped (optional); water edge band not possible without per-vertex data. Night look awaits owner approval. Linux baselines now stale: main is not pushed until the owner reruns `visual-baselines` at the checkpoint |
 | T-4.2 | done | reports/R-4.2.md | Verified: pytest 232, vitest 85, e2e 40/40; screenshots reviewed. 122 details (Duomo 110, Velasca 11, Galleria vault 1), all `stylised=true`, 56 style constants, none presented as real figures. Buildings layer: 0 of 30 tiles changed (per-layer hash). Galleria vault base 25.750 m = lowest top of the 8 adjacent EDIFC_4893 volumes. Draw calls 140 default / 172 at 4000 m. Out-of-pilot specs unit-tested only; previews in Phase 6 (pipeline has no small-AOI mode). Velasca crown looks busy: owner to judge |
 | T-4.4 | done | tasks/T-4.4.md | CI fix: markings snapped to 1 mm and sorted, so tiles are identical on Linux and Windows (GEOS last-bit float differences reordered dashes and flipped rectangle diagonals). Two new tests fail without the fix. CI green on run 44151393731 (all steps, including Linux visual) |
+| T-5.2 | in progress | - | Rotation in 90-degree steps; worktree, e2e port 4181 |
+| T-5.3a | in progress | - | Search index and minimap data (pipeline); worktree, port 4183 |
+| T-5.1 | pending | - | Picking and info card; after T-5.3a |
+| T-5.3b | pending | - | Toolbar: layer toggles, search, minimap; after T-5.3a |
+| T-5.4 | pending | - | Responsive, touch, keyboard, contrast, language switch, G3/G4 UI carry-overs; last |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
