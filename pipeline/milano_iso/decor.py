@@ -247,7 +247,7 @@ def centre_line_rows(roads: gpd.GeoDataFrame, stats: Counter) -> list:
             for d in dashes(part, style.CENTRE_DASH_M, style.CENTRE_GAP_M, style.CENTRE_END_TRIM_M):
                 if d.length > 0:
                     polys.append(
-                        d.buffer(style.CENTRE_WIDTH_M / 2, cap_style="flat", join_style="mitre")
+                        d.buffer(style.CENTRE_WIDTH_M / 2, cap_style="flat", join_style="round", quad_segs=2)
                     )
         if not polys:
             stats["centre_line_roads_too_short"] += 1
@@ -328,7 +328,16 @@ def crossing_rows(osm: dict, extent, log_: DropLog, stats: Counter) -> list:
 def build_markings(osm: dict, layers: dict, extent, log_: DropLog):
     stats: Counter = Counter()
     roads = layers["roads"].rename(columns={"class": "class_"})
-    rows = centre_line_rows(roads, stats) + crossing_rows(osm, extent, log_, stats)
+    raw = centre_line_rows(roads, stats) + crossing_rows(osm, extent, log_, stats)
+    rows = []
+    for t, i, kind, flag, g in raw:
+        # one valid MultiPolygon per source row, clipped to the processed extent
+        g = shapely.intersection(shapely.union_all(list(g.geoms)), extent)
+        polys = tgeom.polygons_of(g)
+        if not polys:
+            stats["marking_rows_outside_extent"] += 1
+            continue
+        rows.append((t, i, kind, flag, MultiPolygon(polys)))
     # nodes: highway=crossing points exist in the extract but are not used (no orientation).
     stats["crossing_nodes_in_extract_unused"] = int(
         sum(t.get("highway") == "crossing" for t in osm["points"]["tags"])
