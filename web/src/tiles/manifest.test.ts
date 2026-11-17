@@ -4,6 +4,8 @@ import {
   ManifestError,
   attributionUrl,
   contentBounds,
+  indexUrl,
+  minimapUrl,
   parseManifest,
   resolveTilesBase,
 } from './manifest';
@@ -36,6 +38,39 @@ function valid(): Record<string, unknown> {
     ],
   };
 }
+
+const SHA = 'a'.repeat(64);
+
+describe('index and minimap entries (T-5.3a)', () => {
+  const base = new URL('https://example.test/tiles/pilot/');
+  function withFiles(): Record<string, unknown> {
+    const m = valid();
+    m.index = { file: 'index.json', bytes: 10, gzip9_bytes: 5, sha256: SHA };
+    m.minimap = { file: 'minimap.svg', bytes: 20, gzip9_bytes: 8, sha256: SHA };
+    return m;
+  }
+  it('exposes both files and resolves their URLs next to the tiles', () => {
+    const m = parseManifest(withFiles());
+    expect(m.index?.file).toBe('index.json');
+    expect(m.minimap?.gzip9_bytes).toBe(8);
+    expect(indexUrl(m, base)?.href).toBe('https://example.test/tiles/pilot/index.json');
+    expect(minimapUrl(m, base)?.href).toBe('https://example.test/tiles/pilot/minimap.svg');
+  });
+  it('still accepts a manifest without them (older tilesets)', () => {
+    const m = parseManifest(valid());
+    expect(m.index).toBeUndefined();
+    expect(indexUrl(m, base)).toBeUndefined();
+    expect(minimapUrl(m, base)).toBeUndefined();
+  });
+  it('rejects a malformed entry', () => {
+    const m = withFiles();
+    m.index = { file: 'index.json', bytes: 10, gzip9_bytes: 5, sha256: 'xyz' };
+    expect(() => parseManifest(m)).toThrow(/index entry invalid/);
+    const n = withFiles();
+    n.minimap = { bytes: 1 };
+    expect(() => parseManifest(n)).toThrow(/minimap entry invalid/);
+  });
+});
 
 describe('parseManifest', () => {
   it('accepts a valid manifest', () => {

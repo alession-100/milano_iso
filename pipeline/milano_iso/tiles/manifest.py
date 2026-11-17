@@ -44,6 +44,17 @@ def manifest_bytes(obj: dict) -> bytes:
     return (s + "\n").encode("utf-8")
 
 
+def file_entry(path: Path) -> dict:
+    """Manifest entry of a standalone file (index.json, minimap.svg): name, sizes, sha256."""
+    blob = path.read_bytes()
+    return {
+        "file": path.name,
+        "bytes": len(blob),
+        "gzip9_bytes": len(gzip.compress(blob, 9, mtime=0)),
+        "sha256": hashlib.sha256(blob).hexdigest(),
+    }
+
+
 def tile_entry(
     out_dir: Path, name: str, i: int, j: int, counts: dict[str, int], content_bbox_local: dict
 ) -> dict:
@@ -76,14 +87,24 @@ def tile_entry(
 
 
 def build_manifest(
-    entries: list[dict], layers: list[str], instanced_layers: list[str] | None = None
+    entries: list[dict],
+    layers: list[str],
+    instanced_layers: list[str] | None = None,
+    index: dict | None = None,
+    minimap: dict | None = None,
 ) -> dict:
     entries = sorted(entries, key=lambda e: e["id"])
     counts: dict[str, int] = {}
     for e in entries:
         for k, v in e["counts"].items():
             counts[k] = counts.get(k, 0) + v
+    extra = {}
+    if index is not None:
+        extra["index"] = index  # T-5.3a: search index file entry
+    if minimap is not None:
+        extra["minimap"] = minimap  # T-5.3a: minimap drawing file entry
     return {
+        **extra,
         "format_version": FORMAT_VERSION,
         "crs": CRS,
         "origin": {"e": config.ORIGIN_E, "n": config.ORIGIN_N},

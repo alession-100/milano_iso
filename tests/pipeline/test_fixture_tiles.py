@@ -26,7 +26,7 @@ def test_fixture_regenerates_byte_identically(tmp_path):
     _load().build(tmp_path)
     fresh, committed = _files(tmp_path), _files(COMMITTED)
     assert sorted(fresh) == sorted(committed)
-    assert len(fresh) == 9  # 4 tiles x (glb + json) + tiles.json
+    assert len(fresh) == 11  # 4 tiles x (glb + json) + tiles.json + index + minimap
     for name in fresh:
         assert fresh[name] == committed[name], name
 
@@ -66,3 +66,23 @@ def test_fixture_has_stylised_landmark_details():
     manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
     assert "landmark_details" in manifest["layers"]
     assert manifest["totals"]["counts"]["landmark_details"] == sum(kinds.values())
+
+
+def test_fixture_has_names_in_index_and_a_minimap():
+    """T-5.3a: a 2-way street, a named park, the landmark, named buildings; water is unnamed."""
+    manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
+    for key, file in (("index", "index.json"), ("minimap", "minimap.svg")):
+        assert manifest[key]["file"] == file
+        assert manifest[key]["bytes"] == (COMMITTED / file).stat().st_size
+    idx = json.loads((COMMITTED / "index.json").read_text(encoding="utf-8"))
+    by_kind: dict[str, list] = {}
+    for e in idx["entries"]:
+        by_kind.setdefault(e["kind"], []).append(e)
+    assert [e["name"] for e in by_kind["street"]] == ["Via Fixture"]
+    assert by_kind["street"][0]["ref"] == {"osm_ids": {"w": [3001, 3003]}}
+    assert [e["name"] for e in by_kind["green"]] == ["Parco Fixture"]
+    assert [e["name"] for e in by_kind["landmark"]] == ["Fixture Landmark"]
+    assert "water" not in by_kind
+    # the landmark building is not also listed under its building name
+    assert len(by_kind["building"]) == 5
+    assert "Fixture B6" not in [e["name"] for e in idx["entries"]]

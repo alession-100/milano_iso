@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-241 -240 482 482">
+<style>.mm-ground{fill:#e3ded4}.mm-green{fill:#a9c58f}.mm-water{fill:#8cb9cf}.mm-building{fill:#d6d0c8}.mm-road-minor,.mm-road-major{fill:none;stroke-linecap:round;stroke-linejoin:round}.mm-road-minor{stroke:#a9a9a6;stroke-width:4}.mm-road-major{stroke:#8d8f94;stroke-width:9}</style>
+<rect class="mm-ground" x="-241" y="-240" width="482" height="482"/>
+<path class="mm-green" d="M-200 -190l110 0 0 110 -110 0z"/>
+<path class="mm-water" d="M-230 20l40 0 0 40 -40 0z"/>
+<path class="mm-road-minor" d="M-240 0l480 0"/>
+<path class="mm-road-major" d="M0 -240l0 480"/>
+<path class="mm-building" d="M-90 40l35 0 0 35 -35 0zM-80 -70l40 0 0 40 -40 0zM-45 55l30 0 0 30 -30 0zM-35 -60l25 0 0 25 -25 0zM20 -50l40 0 0 30 -40 0zM40 40l80 0 0 80 -80 0zM65 65l0 30 30 0 0 -30z"/>
+</svg>

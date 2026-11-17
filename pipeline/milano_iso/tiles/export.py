@@ -19,7 +19,8 @@ from shapely import affinity
 from shapely.geometry import box
 
 from milano_iso import config, landmark_details, landmark_style, style
-from milano_iso.tiles import geom, glb, grid, manifest
+from milano_iso.tiles import geom, glb, grid, manifest, minimap
+from milano_iso.tiles import index as search_index
 
 SUMMARY_DIR = config.REPO_ROOT / "reports" / "artifacts" / "T-2.3"
 METRIC_CRS = 32632
@@ -113,7 +114,8 @@ def _flat_features(layer: str, gdf: gpd.GeoDataFrame) -> list[dict]:
                 gl = shapely.make_valid(gl)
             polys = geom.polygons_of(gl)
         if polys:
-            out.append({"entry": entry, "polys": polys})
+            # "geom" (local line or polygon) is for the minimap only; it never reaches a table
+            out.append({"entry": entry, "polys": polys, "geom": gl})
     return out
 
 
@@ -142,11 +144,13 @@ def _tree_tables(trees: gpd.GeoDataFrame) -> dict[tuple[int, int], list[dict]]:
     return out
 
 
-def _collect_details(specs, rendered, vols, gpkg) -> tuple[list, dict]:
+def _collect_details(specs, rendered, vols, gpkg) -> tuple[list, dict, dict]:
     """STYLISED details (T-4.2) of every spec whose landmark is in the data, plus a report.
 
     A landmark's volumes are the rendered DBT volumes of the rendered buildings that carry its
     ``landmark_id``. A spec without any (out-of-pilot landmarks, Phase 6) is skipped and reported.
+    The third result is {landmark id: local roof footprint} of the roof landmarks (T-5.3a: the
+    Galleria has no rendered building of its own, so the index takes its extent from the roof).
     A spec with a ``roof`` source (the Galleria) takes the OSM footprint named by the spec and the
     rendered volumes next to it; the footprint must be exactly one row, and the adjacent volumes
     must exist, or the build fails (the card's escalation rule).
@@ -160,6 +164,7 @@ def _collect_details(specs, rendered, vols, gpkg) -> tuple[list, dict]:
         by_building.setdefault(v.building_key, []).append(lv)
     details: list = []
     report: dict = {}
+    roof_footprints: dict = {}
     osm_buildings = None
     for lid in sorted(specs):
         spec = specs[lid]
@@ -177,6 +182,7 @@ def _collect_details(specs, rendered, vols, gpkg) -> tuple[list, dict]:
                     f"{lid}: roof footprint {r.osm_type}{r.osm_id} gives {len(sel)} rows"
                 )
             roof_geom = _to_local(sel.geometry.iloc[0])
+            roof_footprints[lid] = roof_geom
             adj = landmark_details.adjacent_volumes(roof_geom, all_vols, r)
             adj_ids = {id(a) for a in adj}
             owners = sorted(
@@ -199,7 +205,7 @@ def _collect_details(specs, rendered, vols, gpkg) -> tuple[list, dict]:
             kinds[x.kind] = kinds.get(x.kind, 0) + 1
         report[lid] = {"details": len(d), "kinds": dict(sorted(kinds.items())), **facts}
         details += d
-    return details, report
+    return details, report, roof_footprints
 
 
 def _detail_tables(details) -> dict[tuple[int, int], list]:
@@ -208,6 +214,15 @@ def _detail_tables(details) -> dict[tuple[int, int], list]:
     for d in details:
         ij = grid.tile_ij(d.anchor[0] + config.ORIGIN_E, d.anchor[1] + config.ORIGIN_N)
         out.setdefault(ij, []).append(d)
+    return out
+
+
+def _names(named: gpd.GeoDataFrame) -> dict[tuple[str, int], str]:
+    """{(osm_type, osm_id): name} from the named_features layer (non-empty names only)."""
+    out = {}
+    for r in named.itertuples(index=False):
+        if isinstance(r.name, str) and r.name.strip() != "":
+            out[(r.osm_type, int(r.osm_id))] = r.name
     return out
 
 
@@ -297,6 +312,7 @@ def build(
     out_dir: Path | None = None,
     summary_dir: Path | None = None,
     specs: dict | None = None,
+    landmark_names: dict[str, str] | None = None,
 ):
     if extent != "pilot":
         raise ValueError("only --extent pilot is supported")
@@ -304,7 +320,7 @@ def build(
     out_dir = out_dir or config.DATA_DIR / "tiles" / "pilot"
     summary_dir = summary_dir or SUMMARY_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
-    for stale in sorted([*out_dir.glob("*.glb"), *out_dir.glob("*.json")]):
+    for stale in sorted([*out_dir.glob("*.glb"), *out_dir.glob("*.json"), *out_dir.glob("*.svg")]):
         stale.unlink()
     summary_dir.mkdir(parents=True, exist_ok=True)
 
@@ -333,10 +349,15 @@ def build(
         if "class" in gdf.columns:
             gdf = gdf.rename(columns={"class": "class_"})
         flat[layer] = _flat_features(layer, gdf)
+    names = _names(_read(gpkg, "named_features"))
+    if landmark_names is None:
+        landmark_names = search_index.load_landmark_names()
+    # rendered pieces of the named streets, green and water areas, for index.json (T-5.3a)
+    named_pieces: dict[tuple[str, str, int], dict] = {}
     trees_gdf = _read(gpkg, "trees")
     trees_by_tile = _tree_tables(trees_gdf)
 
-    details, detail_report = _collect_details(
+    details, detail_report, roof_footprints = _collect_details(
         landmark_style.SPECS if specs is None else specs, rendered, vols, gpkg
     )
     details_by_tile = _detail_tables(details)
@@ -349,6 +370,7 @@ def build(
     )
     summary_tiles = {}
     entries = []
+    index_buildings = []
     seen_buildings: dict[str, str] = {}
     duplicates = []
     for i, j in tiles:
@@ -372,6 +394,15 @@ def build(
             if b.building_key in seen_buildings:
                 duplicates.append(b.building_key)
             seen_buildings[b.building_key] = name
+            index_buildings.append(
+                {
+                    "key": b.building_key,
+                    "name": _clean(b.name),
+                    "landmark_id": _clean(b.landmark_id),
+                    "geom": _to_local(b.geometry),
+                    "tile": name,
+                }
+            )
             fid = len(table)
             table.append(
                 {
@@ -414,6 +445,13 @@ def build(
                     mf.add_flat(p, style.LAYER_HEIGHT_M[layer], fid)
                 if mf.n_vertices > before:
                     table.append(f["entry"])
+                    pkey = (f["entry"]["osm_type"], f["entry"]["osm_id"])
+                    if layer in ("roads", "green", "water") and pkey in names:
+                        piece = named_pieces.setdefault(
+                            (layer, *pkey), {"geoms": [], "tiles": set(), "name": names[pkey]}
+                        )
+                        piece["geoms"].extend(clipped)
+                        piece["tiles"].add(name)
             if table:
                 meshes.extend(_named(layer, mf))
                 tables[layer] = table
@@ -472,12 +510,60 @@ def build(
             "layers": layer_stats,
         }
 
+    streets, areas = [], []
+    for (layer, osm_type, osm_id), piece in sorted(named_pieces.items()):
+        rec = {"osm_type": osm_type, "osm_id": osm_id, "name": piece["name"], **piece}
+        if layer == "roads":
+            streets.append(rec)
+        else:
+            areas.append({"kind": layer, **rec})
+    roof_landmarks = [
+        {
+            "landmark_id": lid,
+            "geom": geom,
+            "tiles": sorted(
+                grid.tile_name(*ij)
+                for ij, ds in details_by_tile.items()
+                if any(d.landmark_id == lid for d in ds)
+            ),
+        }
+        for lid, geom in sorted(roof_footprints.items())
+    ]
+    index_entries = search_index.build_entries(
+        index_buildings, streets, areas, landmark_names, roof_landmarks
+    )
+    index_path = out_dir / search_index.INDEX_NAME
+    index_path.write_bytes(_json_bytes(search_index.index_document(index_entries)))
+
+    boxes = [
+        (
+            e["content_bbox_local"]["min"][0],
+            e["content_bbox_local"]["min"][2],
+            e["content_bbox_local"]["max"][0],
+            e["content_bbox_local"]["max"][2],
+        )
+        for e in entries
+    ]
+    polys_of = {layer: [p for f in flat[layer] for p in f["polys"]] for layer in ("water", "green")}
+    minimap_path = out_dir / minimap.MINIMAP_NAME
+    minimap_path.write_bytes(
+        minimap.render(
+            minimap.viewbox_of(boxes),
+            polys_of["water"],
+            polys_of["green"],
+            [r["geom"] for r in index_buildings],
+            [(f["entry"]["class"], f["geom"]) for f in flat["roads"]],
+        )
+    )
+
     manifest.write_manifest(
         out_dir,
         manifest.build_manifest(
             entries,
             ["buildings", *FLAT_LAYERS, DETAIL_LAYER, *INSTANCED_LAYERS],
             list(INSTANCED_LAYERS),
+            index=manifest.file_entry(index_path),
+            minimap=manifest.file_entry(minimap_path),
         ),
     )
     n_trees_in_tiles = sum(
