@@ -13,7 +13,13 @@ import { e2eEnabled, registerSetView, registerTestState } from './testhook';
 import { renderAttribution } from './tiles/attribution';
 import { cullTiles, frustumOf, sortNearestFirst, viewCentre } from './tiles/culling';
 import { TileStreamer, createGltfTileLoader, disposeTile } from './tiles/loader';
-import { type Manifest, contentBounds, fetchManifest, resolveTilesBase } from './tiles/manifest';
+import { FlyAnimator, fitWidth } from './fly';
+import { applyLayerVisibility, initialLayers, layerState, setLayerState, storeLayers } from './layers';
+import { parseMinimapSvg, viewFootprint } from './minimap';
+import { type IndexEntry, parseIndex, refOf } from './search';
+import { currentSelection, select } from './selection';
+import { createToolbar } from './toolbar';
+import { type Manifest, contentBounds, fetchManifest, indexUrl, minimapUrl, resolveTilesBase } from './tiles/manifest';
 
 const host = document.getElementById('app') as HTMLElement;
 document.title = t('title', DEFAULT_LANG);
@@ -54,6 +60,7 @@ function setMode(mode: StyleMode, remember: boolean): void {
   setGroundMode(mode);
   document.documentElement.style.background = '#' + paletteFor(mode).ground.toString(16).padStart(6, '0');
   modeToggle.sync(mode);
+  toolbar.setMode(mode); // T-5.3b
   if (remember) storeMode(mode);
   requestRender(); // one frame on demand, no loop
 }
@@ -100,8 +107,9 @@ function showTilesNotice(): void {
   const el = document.createElement('div');
   el.id = 'tiles-notice';
   el.setAttribute('role', 'status');
+  // T-5.3b: the notice stacks in the toolbar zone (top left, below the toolbar), never over it.
   el.style.cssText =
-    'position:fixed;left:6px;top:6px;max-width:calc(100vw - 24px);font:12px sans-serif;' +
+    'max-width:100%;box-sizing:border-box;font:12px sans-serif;' +
     'color:#263238;background:rgba(255,255,255,0.9);padding:4px 6px;border:1px solid #90a4ae;' +
     'display:flex;gap:8px;align-items:center;';
   const text = document.createElement('span');
@@ -116,7 +124,7 @@ function showTilesNotice(): void {
     notice = null;
   });
   el.append(text, close);
-  document.body.appendChild(el);
+  toolbar.zone.appendChild(el);
   notice = el;
 }
 
@@ -156,6 +164,7 @@ async function startTiles(): Promise<void> {
     const message = err instanceof Error ? err.message : String(err);
     console.error(message);
     showError(message);
+    manifestFailed(err);
     return;
   }
   renderAttribution(
@@ -163,11 +172,14 @@ async function startTiles(): Promise<void> {
     manifest.attribution,
     t('dataLabel', DEFAULT_LANG),
   );
+  manifestReady(manifest); // T-5.3b
+  void loadMinimap(manifest, base);
   rig.setBounds(contentBounds(manifest));
   rig.apply();
   streamer = new TileStreamer<THREE.Group>(manifest.tiles, {
     load: createGltfTileLoader(base),
     onLoaded: (_id, obj) => {
+      applyLayerVisibility(obj); // T-5.3b: tiles loaded later honour the layer toggles
       tileRoot.add(obj);
       requestRender();
     },
@@ -196,6 +208,67 @@ new Controls(host, rig, {
   ariaLabel: t('mapLabel', DEFAULT_LANG),
   onRotate: (dir) => rotation.rotate(dir),
 });
+
+// --- T-5.3b toolbar ---
+// Search (index fetched lazily), layer toggles, minimap. Selection goes through selection.ts.
+setLayerState(initialLayers(window.location.search));
+const fly = new FlyAnimator(rig, { requestRender });
+let manifestReady: (m: Manifest) => void = () => undefined;
+let manifestFailed: (e: unknown) => void = () => undefined;
+const manifestPromise = new Promise<Manifest>((resolve, reject) => {
+  manifestReady = resolve;
+  manifestFailed = reject;
+});
+manifestPromise.catch(() => undefined); // the failure itself is reported by startTiles
+
+const toolbar = createToolbar({
+  loadIndex: async (): Promise<IndexEntry[]> => {
+    const m = await manifestPromise;
+    const url = indexUrl(m, resolveTilesBase(window.location.search, window.location.href));
+    if (!url) throw new Error('this tileset has no search index');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`index.json: HTTP ${res.status}`);
+    return parseIndex(await res.json());
+  },
+  onChoose: (hit) => {
+    rotation.finish();
+    const aspect = window.innerWidth / window.innerHeight;
+    fly.flyTo(hit.centre, fitWidth(hit.bbox, azimuthOfStep(rig.azimuthStep), rig.elevationDeg, aspect));
+    const ref = refOf(hit);
+    if (ref) select({ ref, source: 'search' });
+  },
+  layers: layerState(),
+  onToggle: (id, visible) => {
+    setLayerState({ ...layerState(), [id]: visible });
+    storeLayers(layerState());
+    applyLayerVisibility(tileRoot);
+    requestRender();
+  },
+  onMinimapPick: (x, z) => fly.flyTo([x, z], rig.visibleWidth),
+});
+registerTestState('toolbar', () => ({
+  ...toolbar.state(),
+  minimapView: viewFootprint(rig, window.innerWidth, window.innerHeight), // live, not the last drawn
+  layers: layerState(),
+  selection: currentSelection(),
+}));
+frameHooks.push(() => toolbar.setView(viewFootprint(rig, window.innerWidth, window.innerHeight)));
+
+async function loadMinimap(m: Manifest, base: URL): Promise<void> {
+  const url = minimapUrl(m, base);
+  if (!url) return;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`minimap.svg: HTTP ${res.status}`);
+    const svg = parseMinimapSvg(await res.text());
+    if (!svg) throw new Error('minimap.svg: not a valid SVG');
+    toolbar.setMinimap(svg);
+    requestRender(); // refresh the view polygon
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+  }
+}
+// --- end T-5.3b toolbar ---
 
 // e2e only (`e2e=1`): look at ground point (x, z) with `width` metres across the viewport.
 registerSetView((x, z, width, step) => {
