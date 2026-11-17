@@ -1,0 +1,73 @@
+{
+ "tiles_in_manifest": null,
+ "results": [
+  {
+   "name": "real-default-600m",
+   "view": [
+    0,
+    0,
+    600
+   ],
+   "loaded": 29,
+   "loading": 0,
+   "failed": 0,
+   "visible": 17,
+   "draw_calls": 82,
+   "triangles": 139858,
+   "target": [
+    0,
+    0
+   ],
+   "visibleWidth": 600,
+   "bounds": {
+    "minX": -625.96,
+    "maxX": 608.16,
+    "minZ": -681.36,
+    "maxZ": 648.78
+   }
+  },
+  {
+   "name": "real-wide-4000m",
+   "view": [
+    0,
+    0,
+    4000
+   ],
+   "loaded": 30,
+   "loading": 0,
+   "failed": 0,
+   "visible": 30,
+   "draw_calls": 106,
+   "triangles": 177193,
+   "target": [
+    0,
+    0
+   ],
+   "visibleWidth": 4000,
+   "bounds": {
+    "minX": -625.96,
+    "maxX": 608.16,
+    "minZ": -681.36,
+    "maxZ": 648.78
+   }
+  },
+  {
+   "name": "pan-edge-x",
+   "target": [
+    -625.96,
+    648.78
+   ],
+   "bounds": {
+    "minX": -625.96,
+    "maxX": 608.16,
+    "minZ": -681.36,
+    "maxZ": 648.78
+   },
+   "loaded": 30,
+   "visible": 6,
+   "draw_calls": 10,
+   "triangles": 32341
+  }
+ ],
+ "console_errors_or_warnings": []
+}

@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { type CDPSession, type ConsoleMessage, type Page, expect, test } from '@playwright/test';
+import { type CDPSession, type Page, expect, test } from '@playwright/test';
+import { collectProblems, fixtureContentBounds, routeFixtureTiles } from './support';
 
 const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
 
@@ -14,22 +15,7 @@ interface CameraState {
 
 const DEG = Math.PI / 180;
 
-// ADR-0012 filter: only the SwiftShader ReadPixels stall warning is ignored. Deviation: repeated
-// renders (many frames, not only screenshots) make Chromium append " (this message will no longer
-// repeat)" to the last occurrence, so that exact suffix is allowed. See report R-3.1.
-const screenshotNoise =
-  /^\[\.WebGL-[0-9a-fx]+\]GL Driver Message \(OpenGL, Performance, GL_CLOSE_PATH_NV, High\): GPU stall due to ReadPixels(?: \(this message will no longer repeat\))?$/;
 
-function watchConsole(page: Page): string[] {
-  const problems: string[] = [];
-  page.on('console', (m: ConsoleMessage) => {
-    if ((m.type() === 'error' || m.type() === 'warning') && !screenshotNoise.test(m.text())) {
-      problems.push(`${m.type()}: ${m.text()}`);
-    }
-  });
-  page.on('pageerror', (e: Error) => problems.push(`pageerror: ${e.message}`));
-  return problems;
-}
 
 async function cam(page: Page): Promise<CameraState> {
   return page.evaluate(
@@ -52,9 +38,16 @@ function ground(c: CameraState, px: number, py: number, vw: number, vh: number):
 
 async function open(page: Page, reduced: boolean): Promise<void> {
   await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
+  await routeFixtureTiles(page);
   await page.goto('/?e2e=1');
   await expect(page.locator('canvas')).toHaveCount(1);
   await page.waitForFunction(() => '__milanoIso' in window);
+  // The camera bounds come from the manifest: wait until they replace the 500 m fallback.
+  await page.waitForFunction(
+    () =>
+      (window as unknown as { __milanoIso: { camera: { bounds: { maxX: number } } } }).__milanoIso
+        .camera.bounds.maxX !== 500,
+  );
 }
 
 /** Drags with real mouse events, then rests 150 ms so no release velocity is measured. */
@@ -77,7 +70,7 @@ test.describe('desktop 1280x720', () => {
   test('mouse drag of 200 px moves the target by the expected metres (within 2%)', async ({
     page,
   }) => {
-    const problems = watchConsole(page);
+    const problems = collectProblems(page);
     await open(page, true);
     const before = await cam(page);
     await mouseDrag(page, [400, 300], [600, 300]);
@@ -109,7 +102,7 @@ test.describe('desktop 1280x720', () => {
   test('wheel zooms within limits and keeps the ground point under the cursor', async ({
     page,
   }) => {
-    const problems = watchConsole(page);
+    const problems = collectProblems(page);
     await open(page, true);
     const [px, py] = [900, 200];
     const before = await cam(page);
@@ -130,7 +123,7 @@ test.describe('desktop 1280x720', () => {
   });
 
   test('arrow keys pan by 10% of the width, +/- zoom by 1.25, 0 resets', async ({ page }) => {
-    const problems = watchConsole(page);
+    const problems = collectProblems(page);
     await open(page, true);
     await page.locator('#app').focus();
     const label = await page.locator('#app').getAttribute('aria-label');
@@ -162,10 +155,12 @@ test.describe('desktop 1280x720', () => {
   });
 
   test('dragging far beyond the bounds clamps the target', async ({ page }) => {
-    const problems = watchConsole(page);
+    const problems = collectProblems(page);
     await open(page, true);
     for (let i = 0; i < 6; i++) await mouseDrag(page, [100, 360], [1200, 360], 4);
     const c = await cam(page);
+    // The bounds are the content rectangle of the tile manifest, not the 500 m fallback.
+    expect(c.bounds).toEqual(fixtureContentBounds());
     expect(c.target[0]).toBeCloseTo(c.bounds.minX, 6);
     expect(c.target[1]).toBeCloseTo(c.bounds.maxZ, 6);
     for (let i = 0; i < 6; i++) await mouseDrag(page, [1200, 100], [100, 700], 4);
@@ -215,7 +210,7 @@ test.describe('desktop 1280x720', () => {
 
   test('screenshot after a pan and zoom', async ({ page }) => {
     mkdirSync(OUT, { recursive: true });
-    const problems = watchConsole(page);
+    const problems = collectProblems(page);
     await open(page, true);
     await mouseDrag(page, [500, 360], [560, 330]);
     await page.mouse.move(640, 360);
@@ -224,7 +219,7 @@ test.describe('desktop 1280x720', () => {
     expect(c.visibleWidth).toBeLessThan(200);
     await page.waitForTimeout(200);
     await page.screenshot({ path: path.join(OUT, 'pan-zoom-desktop.png') });
-    expect(problems.filter((p) => !screenshotNoise.test(p))).toEqual([]);
+    expect(problems).toEqual([]);
   });
 });
 
@@ -248,7 +243,7 @@ test.describe('mobile Pixel 7-class, touch', () => {
   }
 
   test('one-finger touch drag pans the target', async ({ page }) => {
-    const problems = watchConsole(page);
+    const problems = collectProblems(page);
     await open(page, true);
     const cdp = await page.context().newCDPSession(page);
     const before = await cam(page);
@@ -269,7 +264,7 @@ test.describe('mobile Pixel 7-class, touch', () => {
   });
 
   test('two-finger pinch zooms in about the midpoint', async ({ page }) => {
-    const problems = watchConsole(page);
+    const problems = collectProblems(page);
     await open(page, true);
     const cdp = await page.context().newCDPSession(page);
     const before = await cam(page);

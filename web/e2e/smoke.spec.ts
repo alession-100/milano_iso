@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { type ConsoleMessage, expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { collectProblems, readFixtureManifest, routeFixtureTiles } from './support';
 
 // Screenshots go to a gitignored folder so e2e never rewrites tracked files.
 const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
@@ -10,20 +11,21 @@ test('renders a canvas with no console errors or warnings, at both elevations, a
   page,
 }) => {
   mkdirSync(OUT, { recursive: true });
-  const problems: string[] = [];
-  // Chromium's software GL (SwiftShader) emits a driver "GPU stall due to ReadPixels" warning
-  // whenever a WebGL canvas is read back for a screenshot. It is caused by the screenshot, not
-  // by the app, so exactly that message is ignored; every other warning or error fails the test.
-  const screenshotNoise = /^\[\.WebGL-[0-9a-fx]+\]GL Driver Message \(OpenGL, Performance, GL_CLOSE_PATH_NV, High\): GPU stall due to ReadPixels$/;
-  page.on('console', (m: ConsoleMessage) => {
-    if ((m.type() === 'error' || m.type() === 'warning') && !screenshotNoise.test(m.text())) {
-      problems.push(`${m.type()}: ${m.text()}`);
-    }
-  });
-  page.on('pageerror', (e: Error) => problems.push(`pageerror: ${e.message}`));
+  await routeFixtureTiles(page); // the page now streams tiles; serve the synthetic fixture
+  const problems = collectProblems(page); // ADR-0012 filter, see support.ts
+  const expectedTiles = readFixtureManifest().tiles.length;
 
   for (const elev of ELEVATIONS) {
-    await page.goto(`/?elev=${elev}`);
+    await page.goto(`/?e2e=1&elev=${elev}`);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as unknown as { __milanoIso: { tiles: { loaded: number } } }).__milanoIso.tiles
+              .loaded,
+        ),
+      )
+      .toBe(expectedTiles);
     await expect(page.locator('canvas')).toHaveCount(1);
     await expect(page.locator('#attribution')).not.toBeEmpty();
     await page.screenshot({ path: path.join(OUT, `elev-${elev}.png`) });
