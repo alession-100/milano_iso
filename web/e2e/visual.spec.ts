@@ -10,6 +10,8 @@ const VIEWS: [string, number, number, number][] = [
   ['default', 0, 0, 600],
   ['close', 0, 0, 150],
   ['wide', 0, 0, 1200],
+  // Offset close view: keeps the industrial and other buildings in frame on the narrow mobile size.
+  ['west', -40, 40, 150],
 ];
 
 const SIZES: [string, number, number][] = [

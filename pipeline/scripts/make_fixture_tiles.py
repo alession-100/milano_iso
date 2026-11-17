@@ -7,7 +7,9 @@ directory and ``milano_iso.tiles.export.build`` is run on it, so the output has 
 of the real tiles. Everything is deterministic: fixed coordinates, no randomness, no timestamps.
 
 Layout (local metres, x east, y north; tile size 250 m, so tiles 0_0, -1_0, 0_-1 and -1_-1):
-  six buildings with known heights, one of them (B3) with a courtyard, a few roads, one green
+  six buildings with known heights, one per colour group (residential, commercial, civic,
+  industrial, other, landmark), one of them (B3) with a courtyard, a few roads (major, minor,
+  pedestrian), one green
   area, plus one tiny water, landuse, road-area and rail feature so that every layer exists.
 """
 
@@ -26,14 +28,16 @@ from shapely.geometry import LineString, Polygon, box
 DEFAULT_OUT = config.REPO_ROOT / "web" / "e2e" / "fixtures" / "tiles"
 CRS = "EPSG:32632"
 
-# key, local (xmin, ymin, xmax, ymax) in metres, height in metres, courtyard hole or None.
+# key, local (xmin, ymin, xmax, ymax) in metres, height in metres, courtyard hole or None,
+# OSM building value, landmark_id. One building per palette colour group (T-3.7): B1 residential,
+# B2 commercial/office, B3 civic/religious, B4 industrial, B5 other, B6 landmark accent.
 BUILDINGS = [
-    ("B1", (20, 20, 60, 50), 10.0, None),
-    ("B2", (-80, 30, -40, 70), 15.0, None),
-    ("B3", (40, -120, 120, -40), 20.0, (65, -95, 95, -65)),  # courtyard
-    ("B4", (-120, -90, -70, -40), 30.0, None),
-    ("B5", (-60, -200, -20, -160), 12.0, None),
-    ("B6", (150, 120, 190, 160), 8.0, None),
+    ("B1", (20, 20, 60, 50), 10.0, None, "apartments", None),
+    ("B2", (-80, 30, -40, 70), 15.0, None, "office", None),
+    ("B3", (40, -120, 120, -40), 20.0, (65, -95, 95, -65), "church", None),  # courtyard
+    ("B4", (-90, -75, -55, -40), 30.0, None, "warehouse", None),
+    ("B5", (-45, -85, -15, -55), 12.0, None, "yes", None),
+    ("B6", (-35, 35, -10, 60), 8.0, None, "yes", "fixture_landmark"),
 ]
 
 
@@ -58,7 +62,7 @@ def _building_polygon(bb, hole):
 
 def write_gpkg(path: Path) -> None:
     b_rows, v_rows = [], []
-    for n, (key, bb, h, hole) in enumerate(BUILDINGS, start=1):
+    for n, (key, bb, h, hole, btype, lm) in enumerate(BUILDINGS, start=1):
         poly = _building_polygon(bb, hole)
         b_rows.append(
             (
@@ -69,8 +73,8 @@ def write_gpkg(path: Path) -> None:
                 "w",
                 1000 + n,
                 f"Fixture {key}",
-                "yes",
-                None,
+                btype,
+                lm,
                 False,
                 1,
                 True,
@@ -126,6 +130,7 @@ def write_gpkg(path: Path) -> None:
             ("w", 3001, "residential", None, False, LineString([(-240, 0), (240, 0)])),
             ("w", 3002, "tertiary", None, False, LineString([(0, -240), (0, 240)])),
             ("w", 3003, "service", "5", False, LineString([(-100, -150), (100, -150)])),
+            ("w", 3004, "footway", None, False, LineString([(-75, -25), (75, -5)])),
         ],
         roads_cols,
     )
