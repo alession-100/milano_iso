@@ -1,0 +1,28 @@
+{
+  "environment": {
+    "browser": "Chromium 159.0.8154.6",
+    "mode": "headless",
+    "gl": "SwiftShader software GL (--use-angle=swiftshader), no GPU",
+    "viewport": "1280x720",
+    "dpr": 1,
+    "build": "vite build + preview, real pilot tiles (make web-tiles)",
+    "note": "indicative only; not a device measurement"
+  },
+  "bench": {
+    "frames": 127,
+    "durationS": 10.009700000286102,
+    "meanFps": 12.687692937487638,
+    "p5Fps": 10.955346654707023,
+    "meanFrameMs": 78.81653543532364,
+    "p95FrameMs": 91.27999973297119,
+    "maxDrawCalls": 106,
+    "maxTriangles": 177193
+  },
+  "tiles": {
+    "loaded": 30,
+    "loading": 0,
+    "failed": 0,
+    "visible": 13
+  },
+  "consoleErrors": []
+}
