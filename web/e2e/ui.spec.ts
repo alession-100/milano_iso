@@ -345,6 +345,7 @@ test.describe('keyboard on the map, escape and focus return', () => {
     const problems = await open(page);
     // From the search box (a keyboard pick).
     await page.locator('#search-input').fill('fixture b3');
+    await expect(page.locator('#search-opt-0')).toBeVisible(); // the index loads on the first input
     await page.keyboard.press('Enter');
     await expect.poll(async () => (await card(page)).open).toBe(true);
     await expect(page.locator('#info-card')).toBeFocused();
@@ -589,6 +590,7 @@ test.describe('reduced motion (VERIFICATION 4a item 6)', () => {
     await expect.poll(async () => (await cam(page)).azimuthDeg).toBe(315);
     // The fly-to ends exactly on target.
     await page.locator('#search-input').fill('fixture b3');
+    await expect(page.locator('#search-opt-0')).toBeVisible(); // the index loads on the first input
     await page.keyboard.press('Enter');
     await expect.poll(async () => (await cam(page)).target).toEqual([80, 80]);
   });
