@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { LIGHT_COLOURS } from './palette';
+import { LIGHT_COLOURS, NIGHT_LIGHT_COLOURS, type StyleMode } from './palette';
 
 /**
  * STYLE constants of the lighting (not data). One fixed sun, no time of day (Phase 4).
@@ -15,6 +15,9 @@ export const SUN_DIRECTION: readonly [number, number, number] = (() => {
 })();
 export const SUN_INTENSITY = 2.6;
 export const FILL_INTENSITY = 1.3;
+/** Night (style): a cool low moon key and a dim fill; same direction, so the shadow fit is shared. */
+export const MOON_INTENSITY = 1.8;
+export const NIGHT_FILL_INTENSITY = 1.4;
 
 /** Shadow map resolution (style/budget constant, at most 2048). */
 export const SHADOW_MAP_SIZE = 2048;
@@ -48,6 +51,17 @@ export function createLights(shadows: boolean): Lights {
     FILL_INTENSITY,
   );
   return { sun, fill };
+}
+
+/** Switches the sun/moon and fill lights to the day or night values. */
+export function applyLightMode(lights: Lights, mode: StyleMode): void {
+  const night = mode === 'night';
+  const c = night ? NIGHT_LIGHT_COLOURS : LIGHT_COLOURS;
+  lights.sun.color.set(c.sun);
+  lights.sun.intensity = night ? MOON_INTENSITY : SUN_INTENSITY;
+  lights.fill.color.set(c.skyFill);
+  lights.fill.groundColor.set(c.groundFill);
+  lights.fill.intensity = night ? NIGHT_FILL_INTENSITY : FILL_INTENSITY;
 }
 
 export function configureShadowRenderer(renderer: THREE.WebGLRenderer, shadows: boolean): void {

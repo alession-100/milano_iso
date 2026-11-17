@@ -28,6 +28,23 @@ describe('colourIndices', () => {
   });
 });
 
+describe('colourIndices, flat layers', () => {
+  it('maps land-use, green and water kinds; unknown kinds keep the layer colour', () => {
+    expect(Array.from(colourIndices('landuse', [{ kind: 'residential' }, { kind: 'zzz' }, {}]))).toEqual([
+      paletteIndex('landuseResidential'),
+      paletteIndex('landuse'),
+      paletteIndex('landuse'),
+    ]);
+    expect(
+      Array.from(colourIndices('green', [{ kind: 'grass' }, { kind: 'forest' }, { kind: 'zzz' }])),
+    ).toEqual([paletteIndex('greenGrass'), paletteIndex('greenWood'), paletteIndex('green')]);
+    expect(Array.from(colourIndices('water', [{ kind: 'reflecting_pool' }, { kind: 'water' }]))).toEqual([
+      paletteIndex('waterPool'),
+      paletteIndex('water'),
+    ]);
+  });
+});
+
 describe('packLookup', () => {
   it('packs one byte per feature into a zero-padded W x H array', () => {
     const { data, width, height } = packLookup(Uint8Array.from([9, 13, 14]), 4);
