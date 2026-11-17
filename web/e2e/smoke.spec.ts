@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { expect, test } from '@playwright/test';
-import { collectProblems, readFixtureManifest, routeFixtureTiles } from './support';
+import { collectProblems, readFixtureManifest, routeFixtureTiles, settleRendered } from './support';
 
 // Screenshots go to a gitignored folder so e2e never rewrites tracked files.
 const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
@@ -27,6 +27,7 @@ test('renders a canvas with no console errors or warnings, at both elevations, a
       )
       .toBe(expectedTiles);
     await expect(page.locator('canvas')).toHaveCount(1);
+    await settleRendered(page);
     await expect(page.locator('#attribution')).not.toBeEmpty();
     await page.screenshot({ path: path.join(OUT, `elev-${elev}.png`) });
   }

@@ -1,5 +1,5 @@
 import { type Page, expect, test } from '@playwright/test';
-import { collectProblems, routeFixtureTiles } from './support';
+import { collectProblems, routeFixtureTiles, setView, settleRendered, settleTiles } from './support';
 
 // T-5.1: picking, hover highlight and the info card, on the synthetic fixture (never real data).
 // Every wait polls the test state until it settles; nothing is read one frame after an action.
@@ -51,58 +51,6 @@ async function open(page: Page, width = 600, x = 0, z = 0, hold?: () => Promise<
   await setView(page, x, z, width);
   if (!hold) await settleRendered(page);
   return problems;
-}
-
-async function setView(page: Page, x: number, z: number, w: number): Promise<void> {
-  await page.evaluate(
-    ([a, b, c]) =>
-      (window as unknown as { __milanoIsoSetView: (x: number, z: number, w: number) => void }).__milanoIsoSetView(a, b, c),
-    [x, z, w],
-  );
-}
-
-async function settle(page: Page): Promise<void> {
-  await expect
-    .poll(
-      () =>
-        page.evaluate(() => {
-          const s = (window as unknown as { __milanoIso: { tiles: { loading: number; visible: number; loaded: number; failed: number } } }).__milanoIso.tiles;
-          return s.visible > 0 && s.loading === 0 && s.loaded + s.failed >= s.visible;
-        }),
-      { timeout: 20_000 },
-    )
-    .toBe(true);
-}
-
-/**
- * Tiles settled AND rendered: the tile counts are final and the draw-call count is the same on
- * several consecutive polls (after a frame), so a value read next is the settled one.
- */
-async function settleRendered(page: Page): Promise<void> {
-  await settle(page);
-  let prev = -1;
-  let same = 0;
-  await expect
-    .poll(
-      async () => {
-        const st = await page.evaluate(
-          () =>
-            new Promise<{ calls: number; loading: number; ok: boolean }>((r) =>
-              requestAnimationFrame(() =>
-                requestAnimationFrame(() => {
-                  const w = (window as unknown as { __milanoIso: { render: { calls: number }; tiles: { loading: number; visible: number; loaded: number; failed: number } } }).__milanoIso;
-                  r({ calls: w.render.calls, loading: w.tiles.loading, ok: w.tiles.visible > 0 && w.tiles.loaded + w.tiles.failed >= w.tiles.visible });
-                }),
-              ),
-            ),
-        );
-        same = st.calls === prev && st.calls > 1 && st.ok && st.loading === 0 ? same + 1 : 0;
-        prev = st.calls;
-        return same >= 3;
-      },
-      { timeout: 20_000 },
-    )
-    .toBe(true);
 }
 
 /** Client pixel of a point (x, y up, z) in client metres, from the app's own camera. */
@@ -273,7 +221,7 @@ test.describe('picking (desktop 1280x720)', () => {
     expect(s.card).toMatchObject({ type: 'Albero mappato in OSM', height: '12 m', heightSource: 'OSM (altezza indicata)' });
     // Fill trees stand in the park of tile -1_0: the ray goes through them to the park or nothing.
     await setView(page, -150, -130, 120);
-    await settle(page);
+    await settleTiles(page);
     const hits = await page.evaluate(() => {
       const win = window as unknown as {
         __milanoIsoScreenOf: (x: number, y: number, z: number) => { x: number; y: number };
@@ -376,7 +324,7 @@ test.describe('picking (desktop 1280x720)', () => {
     s = await selection(page);
     expect(s.card).toMatchObject({ title: 'Fixture B3', pending: true, height: null });
     release();
-    await settle(page);
+    await settleTiles(page);
     await expect.poll(async () => (await selection(page)).card.pending).toBe(false);
     s = await selection(page);
     expect(s.card).toMatchObject({ title: 'Fixture B3', height: '20 m', type: 'Edificio civico o religioso' });

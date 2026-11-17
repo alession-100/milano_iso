@@ -1,5 +1,5 @@
 import { type Page, expect, test } from '@playwright/test';
-import { collectProblems, readFixtureManifest, routeFixtureTiles } from './support';
+import { collectProblems, readFixtureManifest, routeFixtureTiles, settleTiles } from './support';
 
 // T-5.2: rotation in 90-degree steps. Azimuths: step 0 = 45, 1 = 135, 2 = 225, 3 = 315.
 // Q turns the city counter-clockwise (azimuth +90), E clockwise (azimuth -90).
@@ -42,15 +42,6 @@ async function open(
       (window as unknown as { __milanoIso: { camera: { bounds: { maxX: number } } } }).__milanoIso.camera
         .bounds.maxX !== 500,
   );
-}
-
-async function settle(page: Page): Promise<void> {
-  await expect
-    .poll(async () => {
-      const s = await tiles(page);
-      return s.visible > 0 && s.loading === 0 && s.loaded + s.failed >= s.visible;
-    }, { timeout: 20_000 })
-    .toBe(true);
 }
 
 test('Q and E rotate in opposite directions, four steps return to the start view', async ({ page }) => {
@@ -197,7 +188,7 @@ test('a failed tile stays failed (and counted once) through all four views; cont
   await page.locator('#app').focus();
   for (let i = 0; i < 4; i++) {
     await page.keyboard.press('e');
-    await settle(page);
+    await settleTiles(page);
     const s = await tiles(page);
     expect(s.failed).toBe(1);
     expect(s.loaded).toBe(manifest.tiles.length - 1);

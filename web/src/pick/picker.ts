@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { DEFAULT_LANG, type Lang } from '../i18n';
+import { type Lang, getLang } from '../i18n';
 import { layerVisible } from '../layers';
 import { type FeatureRef, currentSelection, onSelect, select } from '../selection';
 import { MASK_HOVER, MASK_SELECTED, clearMask, hasMask, layerOf, setMask } from '../style/materials';
@@ -62,7 +62,7 @@ export class Picker {
   private readonly ndc = new THREE.Vector2();
   private readonly card: InfoCard;
   private index = new IndexLookup();
-  private lang: Lang = DEFAULT_LANG;
+  private lang: Lang = getLang();
   private hover: FeatureRef | null = null;
   private hoverCount = 0;
   private selected: FeatureRef | null = null;

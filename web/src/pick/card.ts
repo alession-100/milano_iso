@@ -1,4 +1,5 @@
-import { DEFAULT_LANG, type Lang, t } from '../i18n';
+import { mountBeforeAttribution } from '../dom';
+import { type Lang, getLang, t } from '../i18n';
 import type { StyleMode } from '../style/palette';
 import type { CardModel } from './model';
 
@@ -28,39 +29,33 @@ const CLOSED: CardState = {
 };
 
 /**
- * Layout (T-5.1): desktop, a panel at the right below the rotation buttons (top 104 px, above the
- * attribution); narrow screens, a bottom sheet above the attribution. Style constants, not data.
+ * Layout (T-5.1, T-5.4): desktop, a panel at the right below the rotation buttons (top 108 px, above
+ * the attribution); narrow screens, a bottom sheet above the attribution. Style constants, not
+ * data. Colours are the shared UI variables of index.html, so day and night follow `<html>`.
  */
+const CARD_TOP_PX = 108;
 const CSS = `
 #info-card {
-  position: fixed; right: 6px; top: 104px; width: 300px; max-height: calc(100vh - 104px - 44px);
+  position: fixed; right: 6px; top: ${CARD_TOP_PX}px; width: 300px; max-height: calc(100vh - ${CARD_TOP_PX}px - 56px);
   overflow-y: auto; box-sizing: border-box; z-index: 11; padding: 10px 12px 12px;
-  font: 14px/1.4 sans-serif; color: #263238; background: rgba(255,255,255,0.96);
-  border: 1px solid #90a4ae; border-radius: 3px;
+  font: 14px/1.4 sans-serif; color: var(--tb-fg); background: var(--tb-bg);
+  border: 1px solid var(--tb-border); border-radius: 3px;
 }
 #info-card[hidden] { display: none; }
-#info-card.night { color: #eceff1; background: rgba(38,50,56,0.97); border-color: #90a4ae; }
-#info-card:focus-visible { outline: 2px solid #1565c0; outline-offset: 1px; }
-#info-card:focus:not(:focus-visible) { outline: none; }
-#info-card.night:focus-visible { outline-color: #90caf9; }
-#info-card h2 { margin: 0 36px 6px 0; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
+#info-card h2 { margin: 0 48px 6px 0; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
 #info-card h2.unnamed { font-style: italic; font-weight: 600; }
 #info-card dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px 10px; }
 #info-card dt { font-weight: 600; }
 #info-card dd { margin: 0; overflow-wrap: anywhere; }
 #info-card p { margin: 8px 0 0; }
-#info-card a { color: #0d47a1; }
-#info-card.night a { color: #90caf9; }
+#info-card a { display: inline-flex; align-items: center; min-height: 44px; color: var(--tb-link); }
 #info-card .close {
   position: absolute; right: 4px; top: 4px; width: 44px; height: 44px; box-sizing: border-box; padding: 0;
   font: 22px sans-serif; cursor: pointer; color: inherit; background: transparent;
-  border: 1px solid transparent; border-radius: 3px;
+  border: 1px solid var(--tb-border); border-radius: 3px;
 }
-#info-card .close:hover { border-color: #90a4ae; }
-#info-card .close:focus-visible { outline: 2px solid #1565c0; outline-offset: 1px; }
-#info-card.night .close:focus-visible { outline-color: #90caf9; }
 @media (max-width: 600px) {
-  #info-card { left: 6px; right: 6px; top: auto; bottom: 34px; width: auto; max-height: 45vh; }
+  #info-card { left: 6px; right: 6px; top: auto; bottom: 56px; width: auto; max-height: 45vh; }
 }
 `;
 
@@ -78,7 +73,7 @@ export interface InfoCard {
  * opens and returns to the element that had it when it closes. `onClose` runs when the user closes
  * it with the close button (the caller clears the selection).
  */
-export function createInfoCard(onClose: () => void, initialLang: Lang = DEFAULT_LANG): InfoCard {
+export function createInfoCard(onClose: () => void, initialLang: Lang = getLang()): InfoCard {
   const style = document.createElement('style');
   style.textContent = CSS;
   document.head.appendChild(style);
@@ -89,7 +84,7 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = DEFAULT_
   root.setAttribute('aria-labelledby', 'info-card-title');
   root.tabIndex = -1;
   root.hidden = true;
-  document.body.appendChild(root);
+  mountBeforeAttribution(root); // tab order: ..., controls at the right, the card, the attribution
 
   let lang = initialLang;
   let model: CardModel | null = null;
@@ -157,17 +152,18 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = DEFAULT_
    */
   function layout(): void {
     const attr = document.getElementById('attribution');
+    const dbg = document.getElementById('debug-overlay');
     const top = attr ? attr.getBoundingClientRect().top : window.innerHeight;
-    const gap = Math.max(0, window.innerHeight - top) + 6;
     if (window.matchMedia('(max-width: 600px)').matches) {
-      root.style.bottom = `${gap}px`;
+      // Bottom sheet above the attribution and, in ?debug mode, above the debug overlay (T-5.4).
+      const edge = dbg ? Math.min(top, dbg.getBoundingClientRect().top) : top;
+      root.style.bottom = `${Math.max(0, window.innerHeight - edge) + 6}px`;
       root.style.right = '';
       root.style.maxHeight = '';
     } else {
       root.style.bottom = '';
-      root.style.maxHeight = `${Math.max(120, top - 6 - 104)}px`;
+      root.style.maxHeight = `${Math.max(120, top - 6 - CARD_TOP_PX)}px`;
       // The ?debug overlay (T-3.4) sits at the right too: the card moves left of it.
-      const dbg = document.getElementById('debug-overlay');
       root.style.right = dbg ? `${Math.round(window.innerWidth - dbg.getBoundingClientRect().left + 6)}px` : '';
     }
   }

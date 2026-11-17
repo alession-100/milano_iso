@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { type Page, expect, test } from '@playwright/test';
-import { readFixtureManifest, routeFixtureTiles } from './support';
+import { expect, test } from '@playwright/test';
+import { frameRendered, readFixtureManifest, routeFixtureTiles, setView, settleRendered } from './support';
 
 // Visual regression (VERIFICATION section 4). Baselines are per platform (see
 // playwright.config.ts snapshotPathTemplate) and live in visual.spec.ts-snapshots/. They are
@@ -28,21 +28,6 @@ const SIZES: [string, number, number][] = [
   ['mobile-412x915', 412, 915],
 ];
 
-async function setView(page: Page, x: number, z: number, w: number): Promise<void> {
-  await page.waitForFunction(
-    () =>
-      typeof (window as unknown as { __milanoIsoSetView?: unknown }).__milanoIsoSetView ===
-      'function',
-  );
-  await page.evaluate(
-    ([a, b, c]) =>
-      (
-        window as unknown as { __milanoIsoSetView: (x: number, z: number, w: number) => void }
-      ).__milanoIsoSetView(a, b, c),
-    [x, z, w],
-  );
-}
-
 test.describe('visual regression (fixture tiles)', () => {
   for (const [sizeName, width, height] of SIZES) {
     test.describe(sizeName, () => {
@@ -62,38 +47,9 @@ test.describe('visual regression (fixture tiles)', () => {
           );
           await expect(page.locator('canvas')).toHaveCount(1);
           await setView(page, x, z, w);
-          await expect
-            .poll(
-              async () =>
-                page.evaluate(
-                  () =>
-                    (window as unknown as { __milanoIso: { tiles: { loaded: number } } }).__milanoIso
-                      .tiles.loaded,
-                ),
-              { timeout: 20_000 },
-            )
-            .toBeGreaterThan(0);
-          // Wait until every tile the view needs is loaded and nothing is in flight.
-          await expect
-            .poll(
-              async () =>
-                page.evaluate(() => {
-                  const s = (
-                    window as unknown as {
-                      __milanoIso: { tiles: { loading: number; visible: number; loaded: number } };
-                    }
-                  ).__milanoIso.tiles;
-                  return s.loading === 0 && s.loaded >= s.visible;
-                }),
-              { timeout: 20_000 },
-            )
-            .toBe(true);
           expect(expected).toBeGreaterThan(0);
-          // Let the last render land.
-          await page.evaluate(
-            () =>
-              new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
-          );
+          // Every tile the view needs is loaded, nothing is in flight, and the last render has landed.
+          await settleRendered(page);
           await expect(page).toHaveScreenshot(
             `${mode === 'night' ? 'night-' : ''}${viewName}-${sizeName}.png`,
             { stylePath: path.resolve(process.cwd(), 'e2e', 'visual-hide-controls.css') },
@@ -118,20 +74,7 @@ test.describe('visual regression: info card (fixture tiles)', () => {
         await page.goto('/?e2e=1');
         await expect(page.locator('canvas')).toHaveCount(1);
         await setView(page, 30, -30, 150);
-        await expect
-          .poll(
-            () =>
-              page.evaluate(() => {
-                const s = (
-                  window as unknown as {
-                    __milanoIso: { tiles: { loading: number; visible: number; loaded: number } };
-                  }
-                ).__milanoIso.tiles;
-                return s.visible > 0 && s.loading === 0 && s.loaded >= s.visible;
-              }),
-            { timeout: 20_000 },
-          )
-          .toBe(true);
+        await settleRendered(page);
         const p = await page.evaluate(() =>
           (
             window as unknown as {
@@ -151,9 +94,7 @@ test.describe('visual regression: info card (fixture tiles)', () => {
           .toBe(true);
         // Park the pointer away from the building so the hover tint does not mix with the selection.
         await page.mouse.move(2, 2);
-        await page.evaluate(
-          () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
-        );
+        await frameRendered(page);
         await expect(page).toHaveScreenshot(`info-card-${sizeName}.png`, {
           stylePath: path.resolve(process.cwd(), 'e2e', 'visual-hide-controls.css'),
         });

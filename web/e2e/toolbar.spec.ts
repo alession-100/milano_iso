@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { type Page, expect, test } from '@playwright/test';
-import { FIXTURE_DIR, collectProblems, fixtureContentBounds, routeFixtureTiles } from './support';
+import { FIXTURE_DIR, collectProblems, fixtureContentBounds, routeFixtureTiles, settleTiles, stableCalls } from './support';
 
 // T-5.3b: toolbar (search, layer toggles, minimap). Every wait on render state polls until it
 // settles; nothing reads the state one frame after an action (R-5.2 amendment).
@@ -37,42 +37,9 @@ async function open(page: Page, query = '', reduced = true): Promise<string[]> {
   await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
   await routeFixtureTiles(page);
   await page.goto(`/?e2e=1${query}`);
-  await settle(page);
+  await settleTiles(page);
   await expect.poll(async () => (await tb(page)).minimapLoaded).toBe(true);
   return problems;
-}
-
-async function settle(page: Page): Promise<void> {
-  await expect
-    .poll(
-      () =>
-        page.evaluate(() => {
-          const s = (window as unknown as Win).__milanoIso.tiles as {
-            loaded: number;
-            loading: number;
-            visible: number;
-            failed: number;
-          };
-          return s.visible > 0 && s.loading === 0 && s.loaded + s.failed >= s.visible;
-        }),
-      { timeout: 20_000 },
-    )
-    .toBe(true);
-}
-
-/** Calls stay equal for three polls in a row. */
-async function stableCalls(page: Page): Promise<number> {
-  let last = -1;
-  let same = 0;
-  await expect
-    .poll(async () => {
-      const c = await calls(page);
-      same = c === last ? same + 1 : 0;
-      last = c;
-      return same >= 3;
-    }, { timeout: 15_000 })
-    .toBe(true);
-  return last;
 }
 
 const type = async (page: Page, text: string): Promise<void> => {
@@ -178,7 +145,7 @@ test('with motion allowed the flight takes a few frames and ends exactly on targ
   await expect.poll(async () => (await cam(page)).target, { timeout: 5_000 }).toEqual([80, 80]);
   // Fitted: 80 m box at azimuth 45 spans 80*sqrt(2) m across, with the 1.4 margin.
   expect((await cam(page)).visibleWidth).toBeCloseTo(80 * Math.SQRT2 * 1.4, 2);
-  await settle(page);
+  await settleTiles(page);
 });
 
 test('index.json is not fetched until the search box is used', async ({ page }) => {
@@ -222,7 +189,7 @@ test('each toggle hides its layer (draw calls, test state) and survives a reload
     const hidden = await stableCalls(page);
     // Reload: the choice is remembered.
     await page.reload();
-    await settle(page);
+    await settleTiles(page);
     expect((await tb(page)).layers[id]).toBe(false);
     expect(await stableCalls(page)).toBe(hidden);
     await page.locator('#layers-button').click();
@@ -250,14 +217,14 @@ test('?layers= sets the toggles, tiles loaded later honour them, and the URL is 
   });
   const some = await stableCalls(page);
   await page.goto('/?e2e=1&layers=none');
-  await settle(page);
+  await settleTiles(page);
   expect(Object.values((await tb(page)).layers).every((v) => v === false)).toBe(true);
   // Only the ground plane is drawn; every tile was loaded after the state was set.
   expect(await stableCalls(page)).toBeLessThan(some);
   expect(await stableCalls(page)).toBeLessThanOrEqual(1);
   // A ?layers= value is for tests: it is not stored, so a plain reload shows everything again.
   await page.goto('/?e2e=1');
-  await settle(page);
+  await settleTiles(page);
   expect(Object.values((await tb(page)).layers).every((v) => v === true)).toBe(true);
 });
 
@@ -530,7 +497,7 @@ test.describe('toolbar visual baseline', () => {
       await page.evaluate(() =>
         (window as unknown as { __milanoIsoSetView: (x: number, z: number, w: number) => void }).__milanoIsoSetView(0, 0, 600),
       );
-      await settle(page);
+      await settleTiles(page);
       if (w < 600) await page.locator('#minimap-button').click();
       await type(page, 'fixture');
       await expect(page.locator('#search-list')).toBeVisible();
