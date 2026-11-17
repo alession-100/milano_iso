@@ -199,3 +199,29 @@ def test_a_stylised_polygon_layer_is_valid():
     line = LineString([(10, 100), (190, 100)])
     res = decor.build_layers(_osm(), _layers(roads=[(1, "tertiary", line)]), BBOX, DropLog())
     assert all(isinstance(g, shapely.MultiPolygon) and g.is_valid for g in res["markings"].geometry)
+
+
+def _markings_wkb(dx: float) -> list[bytes]:
+    """Markings of one diagonal road and one diagonal crossing, inputs shifted by ``dx``."""
+    road = LineString([(20 + dx, 30), (170, 160 + dx), (185, 120)])
+    cross = LineString([(90, 110 + dx), (110 + dx, 85)])
+    osm = _osm(lines=[(10, {"footway": "crossing", "crossing": "zebra"}, cross)])
+    res = decor.build_layers(osm, _layers(roads=[(1, "tertiary", road)]), BBOX, DropLog())
+    return [g.wkb for g in res["markings"].geometry]
+
+
+def test_markings_do_not_depend_on_last_bit_float_noise():
+    # T-4.4: Linux and Windows GEOS builds differ in the last bits of buffer and interpolation
+    # results, which reordered dash parts and flipped rectangle diagonals in the CI fixture.
+    # A 1e-9 m input shift stands in for that noise; the snapped, sorted output must not move.
+    base = _markings_wkb(0.0)
+    assert len(base) == 2
+    for dx in (1e-9, -1e-9, 3e-10):
+        assert _markings_wkb(dx) == base
+
+
+def test_marking_coordinates_are_on_the_millimetre_grid():
+    line = LineString([(10.0003, 100.0007), (190.0001, 140.0009)])
+    res = decor.build_layers(_osm(), _layers(roads=[(1, "tertiary", line)]), BBOX, DropLog())
+    coords = shapely.get_coordinates(res["markings"].geometry.iloc[0])
+    assert (abs(coords * 1000 - (coords * 1000).round()) < 1e-6).all()
