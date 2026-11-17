@@ -41,6 +41,13 @@ export const PALETTE = {
   greenPitch: 0x9fc3a2,
   /** Small basins (reflecting pools, fountains); `water` above is the fallback. */
   waterPool: 0x9cc7d9,
+  // --- T-4.1 additions (appended after T-4.3) ---
+  /** Tree crown (low-poly cone), a little darker than the green areas it stands on. */
+  treeCrown: 0x7ea468,
+  /** Tree trunk. */
+  treeTrunk: 0x8b6f55,
+  /** Road markings (dashed centre lines, zebra stripes). */
+  markingWhite: 0xf1eee6,
 } as const;
 
 export type PaletteName = keyof typeof PALETTE;
@@ -70,6 +77,9 @@ export const PALETTE_ORDER: readonly PaletteName[] = [
   'greenWood',
   'greenPitch',
   'waterPool',
+  'treeCrown',
+  'treeTrunk',
+  'markingWhite',
 ];
 
 export const MAX_PALETTE_COLOURS = 32;
@@ -106,6 +116,9 @@ export const NIGHT_PALETTE: Record<PaletteName, number> = {
   greenWood: 0x365e4f,
   greenPitch: 0x447a6c,
   waterPool: 0x3d7599,
+  treeCrown: 0x3b6350,
+  treeTrunk: 0x4d4048,
+  markingWhite: 0x9aa0b8,
 };
 
 export type StyleMode = 'day' | 'night';

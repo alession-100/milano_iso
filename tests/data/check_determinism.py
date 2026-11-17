@@ -16,11 +16,11 @@ import sys
 import time
 from pathlib import Path
 
-from milano_iso import config, dbt_extract, fetch, heights, normalise, osm_extract
+from milano_iso import config, dbt_extract, decor, fetch, heights, normalise, osm_extract
 from milano_iso.dbt_fetch import target_path
 from milano_iso.geo import canonical_dump_sha256
 
-KNOWN = {"data-boundary", "data-osm", "data-dbt", "data-normalise", "data-heights"}
+KNOWN = {"data-boundary", "data-osm", "data-dbt", "data-normalise", "data-heights", "data-decor"}
 
 
 def _pbf() -> Path:
@@ -43,7 +43,7 @@ def run_once(steps: list[str], work: Path) -> dict[str, str]:
     out = processed / "pilot.gpkg"
     boundary = config.RAW_DIR / "comune_boundary" / fetch.BOUNDARY_FILE
     hashes: dict[str, str] = {}
-    for step in steps:  # DATA_STEPS order: boundary, osm, dbt, normalise, heights
+    for step in steps:  # DATA_STEPS order: boundary, osm, dbt, normalise, heights, decor
         t = time.time()
         if step == "data-boundary":
             if not boundary.exists():
@@ -61,6 +61,9 @@ def run_once(steps: list[str], work: Path) -> dict[str, str]:
         elif step == "data-heights":
             heights.run(out, art)
             hashes[out.name] = canonical_dump_sha256(out)
+        elif step == "data-decor":
+            decor.run(out, osm_gpkg, art)
+            hashes["pilot.gpkg (after decor)"] = canonical_dump_sha256(out)
         print(f"  {step}: {time.time() - t:.0f} s", flush=True)
     return hashes
 

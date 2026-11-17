@@ -34,6 +34,7 @@ const FLAT_COLOURS: Record<string, PaletteName> = {
   water: 'water',
   road_areas: 'roadAreas',
   rail: 'rail',
+  markings: 'markingWhite',
 };
 
 /** Mesh names are layer names, with a `#n` suffix when a layer is split in chunks. */
@@ -91,6 +92,8 @@ export function buildLookupTexture(indices: Uint8Array): THREE.DataTexture {
   return tex;
 }
 
+import { setTreeMode } from './trees';
+
 const flatCache = new Map<string, THREE.MeshLambertMaterial>();
 let currentMode: StyleMode = 'day';
 
@@ -103,6 +106,12 @@ export function materialFor(layer: string): THREE.MeshLambertMaterial {
       flatShading: true,
     });
     m.name = layer;
+    if (layer === 'markings') {
+      // Painted on the road: win the depth test against the road ribbons below (T-4.1).
+      m.polygonOffset = true;
+      m.polygonOffsetFactor = -2;
+      m.polygonOffsetUnits = -2;
+    }
     flatCache.set(layer, m);
   }
   return m;
@@ -124,6 +133,7 @@ export function setPaletteMode(mode: StyleMode): void {
   const p = paletteFor(mode);
   PALETTE_ORDER.forEach((n, i) => paletteUniform.value[i].set(p[n]));
   for (const [layer, mat] of flatCache) mat.color.set(p[FLAT_COLOURS[layer] ?? 'ground']);
+  setTreeMode(mode);
 }
 
 const PROGRAM_KEY = 'milano-iso-feature-colour-v1';
