@@ -1,0 +1,103 @@
+[
+  {
+    "file": "default-desktop.png",
+    "viewport": "1280x720",
+    "width_m": 600,
+    "shadows": true,
+    "calls": 111,
+    "triangles": 297097,
+    "tiles_loaded": 29,
+    "tiles_visible": 17,
+    "ms_per_frame_swiftshader": 383,
+    "console_problems": [
+      "[.WebGL-0xfbc00608800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0xfbc00608800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0xfbc00608800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0xfbc00608800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    ]
+  },
+  {
+    "file": "close-desktop.png",
+    "viewport": "1280x720",
+    "width_m": 150,
+    "shadows": true,
+    "calls": 52,
+    "triangles": 159038,
+    "tiles_loaded": 23,
+    "tiles_visible": 5,
+    "ms_per_frame_swiftshader": 213,
+    "console_problems": []
+  },
+  {
+    "file": "wide-desktop.png",
+    "viewport": "1280x720",
+    "width_m": 4000,
+    "shadows": true,
+    "calls": 136,
+    "triangles": 335650,
+    "tiles_loaded": 30,
+    "tiles_visible": 30,
+    "ms_per_frame_swiftshader": 155,
+    "console_problems": []
+  },
+  {
+    "file": "default-noshadow-desktop.png",
+    "viewport": "1280x720",
+    "width_m": 600,
+    "shadows": false,
+    "calls": 82,
+    "triangles": 139858,
+    "tiles_loaded": 29,
+    "tiles_visible": 17,
+    "ms_per_frame_swiftshader": 113,
+    "console_problems": []
+  },
+  {
+    "file": "default-mobile.png",
+    "viewport": "412x915",
+    "width_m": 600,
+    "shadows": true,
+    "calls": 117,
+    "triangles": 299447,
+    "tiles_loaded": 29,
+    "tiles_visible": 22,
+    "ms_per_frame_swiftshader": 99,
+    "console_problems": []
+  },
+  {
+    "file": "close-mobile.png",
+    "viewport": "412x915",
+    "width_m": 150,
+    "shadows": true,
+    "calls": 76,
+    "triangles": 224310,
+    "tiles_loaded": 26,
+    "tiles_visible": 10,
+    "ms_per_frame_swiftshader": 114,
+    "console_problems": []
+  },
+  {
+    "file": "wide-mobile.png",
+    "viewport": "412x915",
+    "width_m": 4000,
+    "shadows": true,
+    "calls": 136,
+    "triangles": 335650,
+    "tiles_loaded": 30,
+    "tiles_visible": 30,
+    "ms_per_frame_swiftshader": 93,
+    "console_problems": []
+  },
+  {
+    "file": "default-noshadow-mobile.png",
+    "viewport": "412x915",
+    "width_m": 600,
+    "shadows": false,
+    "calls": 88,
+    "triangles": 142208,
+    "tiles_loaded": 29,
+    "tiles_visible": 22,
+    "ms_per_frame_swiftshader": 62,
+    "console_problems": []
+  }
+]
