@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { type Page, expect, test } from '@playwright/test';
 import { dictionary } from '../src/i18n';
-import { collectProblems, routeFixtureTiles, setView, settleRendered, stableCalls } from './support';
+import { collectProblems, frameRendered, routeFixtureTiles, setView, settleRendered, stableCalls } from './support';
 
 // T-5.4: the G5 checklist (VERIFICATION 4a) on the synthetic fixture, at 1280x720 and 412x915, by day
 // and by night. Every wait polls state until it settles; no assertion has a wall-clock limit.
@@ -59,9 +59,12 @@ async function open(page: Page, o: OpenOptions = {}): Promise<string[]> {
 /** Problems that are not the 404 the tests provoke on purpose (the browser logs it itself). */
 const real = (problems: string[]): string[] => problems.filter((p) => !p.includes('Failed to load resource') && !p.includes('-1_0'));
 
-async function selectFeature(page: Page, ref: unknown): Promise<void> {
+/** Selects a feature and waits until its card has settled (open, final title, no pending data, laid out). */
+async function selectFeature(page: Page, ref: unknown, title: string): Promise<void> {
   await page.evaluate((r) => (window as unknown as Win).__milanoIsoSelect(r, 'search'), ref);
   await expect.poll(async () => (await card(page)).open).toBe(true);
+  await expect.poll(async () => (await card(page)).title).toBe(title);
+  await frameRendered(page);
 }
 
 const boxOf = async (page: Page, sel: string): Promise<Box | null> => {
@@ -117,7 +120,7 @@ test.describe('language (VERIFICATION 4a item 7)', () => {
     await expect(page.locator('#lang-toggle')).toHaveText('EN');
     await expect(page.locator('#tiles-notice')).toContainText('Alcune zone della mappa non sono state caricate');
     // Open everything that holds strings: card, search results, layers panel.
-    await selectFeature(page, B3);
+    await selectFeature(page, B3, 'Fixture B3');
     await page.locator('#search-input').fill('fixture');
     await expect(page.locator('#search-list')).toBeVisible();
     const it = await uiStrings(page);
@@ -192,6 +195,8 @@ test.describe('language (VERIFICATION 4a item 7)', () => {
     const nameIt = await page.locator('#search-opt-0 .name').textContent();
     await page.keyboard.press('Enter');
     await expect.poll(async () => (await card(page)).open).toBe(true);
+    // The card first shows what the tile holds, then the index name: wait for it to settle (T-5.4 lesson).
+    await expect.poll(async () => (await card(page)).title).toBe('Fixture Landmark');
     const titleIt = (await card(page)).title;
     await page.locator('#lang-toggle').click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
@@ -232,7 +237,7 @@ for (const size of SIZES) {
     for (const mode of MODES) {
       test(`${mode}: Tab reaches every control in a logical order, each with a visible focus ring, and never traps`, async ({ page }) => {
         const problems = await open(page, { query: `&time=${mode}`, failTile: true });
-        await selectFeature(page, B3);
+        await selectFeature(page, B3, 'Fixture B3');
         await page.locator('#layers-button').click(); // opens the layers panel: its six rows are controls
         await expect(page.locator('#layers-panel')).toBeVisible();
         await page.locator('#search-input').focus();
@@ -348,7 +353,7 @@ test.describe('keyboard on the map, escape and focus return', () => {
     await expect(page.locator('#search-input')).toBeFocused();
     // From the map, closed with the close button.
     await page.locator('#app').focus();
-    await selectFeature(page, LANDMARK);
+    await selectFeature(page, LANDMARK, 'Fixture Landmark');
     await expect(page.locator('#info-card')).toBeFocused();
     await page.locator('#info-card .close').click();
     await expect.poll(async () => (await card(page)).open).toBe(false);
@@ -405,6 +410,7 @@ const LAYOUT_BLOCKS = [
 ];
 
 async function expectLayoutOk(page: Page, label: string, w: number, h: number): Promise<void> {
+  await frameRendered(page); // resize observers have re-fitted the card and the overlay
   const present: { sel: string; box: Box }[] = [];
   for (const sel of LAYOUT_BLOCKS) {
     const b = await boxOf(page, sel);
@@ -442,7 +448,7 @@ for (const size of SIZES) {
           const problems = await open(page, { query: `&time=${mode}&lang=${lang}`, failTile: true });
           const narrow = size.width <= 600;
           // Card + notice + search results.
-          await selectFeature(page, LANDMARK);
+          await selectFeature(page, LANDMARK, 'Fixture Landmark');
           await page.locator('#search-input').fill('fixture');
           await expect(page.locator('#search-list')).toBeVisible();
           await expectLayoutOk(page, 'card+results+notice', size.width, size.height);
@@ -479,7 +485,7 @@ for (const size of SIZES) {
     test('with ?debug the overlay does not cover the tiles notice, the card or the attribution', async ({ page }) => {
       const problems = await open(page, { query: '&debug', failTile: true });
       await expect(page.locator('#debug-overlay')).toBeVisible();
-      await selectFeature(page, LANDMARK);
+      await selectFeature(page, LANDMARK, 'Fixture Landmark');
       await page.locator('#layers-button').click();
       await expectLayoutOk(page, 'debug', size.width, size.height);
       const notice = await boxOf(page, '#tiles-notice');
@@ -596,7 +602,7 @@ test.describe('screen reader semantics (VERIFICATION 4a item 8)', () => {
   test('every control has an accessible name; the card is a dialog; search is a combobox with a listbox; notices are live regions', async ({ page }) => {
     mkdirSync(OUT, { recursive: true });
     const problems = await open(page, { failTile: true });
-    await selectFeature(page, B3);
+    await selectFeature(page, B3, 'Fixture B3');
     await page.locator('#search-input').fill('fixture');
     await expect(page.locator('#search-list')).toBeVisible();
     // Accessible name of every control, by the rules of the platform (aria-label, label, content).
