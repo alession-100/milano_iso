@@ -36,7 +36,7 @@ test('the benchmark button works with the keyboard', async ({ page }) => {
   await expect(page.locator('#debug-overlay')).toBeVisible();
   await page.locator('#debug-bench').focus();
   await page.keyboard.press('Enter');
-  await expect.poll(async () => (await benchState(page))?.status).toBe('running');
+  await expect.poll(async () => (await benchState(page))?.status).toMatch(/running|done/); // a starved page may answer only after the 10 s run is over
 });
 
 test('?debug=bench completes with numeric results', async ({ page }) => {
@@ -46,7 +46,7 @@ test('?debug=bench completes with numeric results', async ({ page }) => {
   await page.goto('/?debug=bench&e2e=1');
   // App start-up (module load, first frames) is CPU-bound under parallel software GL; the limits below
   // only stop a run that never ends (the benchmark itself lasts 10 s of app time; no duration is asserted).
-  await expect.poll(async () => (await benchState(page))?.status, { timeout: 120_000 }).toBe('running');
+  await expect.poll(async () => (await benchState(page))?.status, { timeout: 120_000 }).toMatch(/running|done/); // the run lasts 10 s of app time: a starved page may answer only after it
   await expect.poll(async () => (await benchState(page))?.status, { timeout: 120_000 }).toBe('done');
   const r = ((await benchState(page)) as Bench).results as Record<string, number>;
   for (const k of [
