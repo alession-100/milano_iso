@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 3 - gate G3 in review (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 3 - G3 FAIL (flaky inertia e2e), corrective T-3.6 (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -40,6 +40,8 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-3.5 | done | reports/R-3.5.md | Verified on main: vitest 40, e2e 15 pass (fixture); JS 160 KB gzip; no permanent render loop. Orchestrator checked real data in the browser pane: 29 tiles loaded, 0 failed, 87 draw calls, attribution OSM + Comune, 0 console errors |
 | T-3.3 | done | reports/R-3.3.md | Verified on main after merge: vitest 63, e2e 19 pass (bench excluded pending T-3.4 fix), JS 163 KB gzip; screenshots reviewed. Real default view: 111 draw calls with shadows. Material deviation ratified in ADR-0026. Look awaiting owner approval at checkpoint |
 | T-3.4 | done (retry 1/2) | reports/R-3.4.md | Verified on main after merging T-3.3 + T-3.4 (one import conflict resolved by the orchestrator): vitest 63, e2e 21 pass, debug.spec 40/40 repeats pass; JS 163 KB gzip plus a 1.7 KB debug chunk. Cause: browser MSAA resolve under SwiftShader, so ADR-0027. The owner approved stopping a stray preview server (PID 40380) |
+
+| T-3.6 | in progress | | G3 fixes: deterministic inertia, visual-regression diff, tile retry + notice |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
@@ -82,3 +84,18 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
   - per-volume simplification slivers (cosmetic);
   - the road width style table must cover the city classes in Phase 6;
   - Torre Velasca's roof-cap centroid is 5.2 m from its OSM reference: an OSM/DBT difference in extent (ADR-0017), and the best-fit check passes.
+
+## G3 review 2026-11-17: FAIL (1 blocker)
+- **B1:** the e2e inertia test is flaky under load (4 of 12 full runs failed). Fixed in T-3.6.
+- **Passed:**
+  - JS 163 KB gzip;
+  - initial payload at most about 1.3-1.6 MB gzip (upper bound, all tiles);
+  - first render with tiles about 0.2 s on localhost;
+  - draw calls 44-136;
+  - 0 console errors;
+  - attribution visible on desktop and 412 px;
+  - keyboard and reduced motion OK;
+  - no idle render loop;
+  - a 404, garbage or truncated tile leaves the app working with 1 error;
+  - builds are byte-identical.
+- **Pending the owner:** FPS on a real desktop and on the Pixel 7a (headless SwiftShader benchmark: 10.6 fps desktop, 19.7 fps at 412 px; indicative only), and approval of the visual baselines.
