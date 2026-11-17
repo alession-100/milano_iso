@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 3 - HUMAN CHECKPOINT (awaiting owner: look approval, real-device FPS) (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 3 checkpoint: the owner APPROVED the palette v1 look on 2026-11-17. Real-device FPS (desktop and Pixel 7a) still pending from the owner. T-3.7 is tightening visual regression before Phase 4. (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G3 PASS WITH RISKS (2026-11-17; first review FAIL on flaky inertia e2e, fixed in T-3.6). Earlier: G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -42,6 +42,8 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-3.4 | done (retry 1/2) | reports/R-3.4.md | Verified on main after merging T-3.3 + T-3.4 (one import conflict resolved by the orchestrator): vitest 63, e2e 21 pass, debug.spec 40/40 repeats pass; JS 163 KB gzip plus a 1.7 KB debug chunk. Cause: browser MSAA resolve under SwiftShader, so ADR-0027. The owner approved stopping a stray preview server (PID 40380) |
 
 | T-3.6 | done | reports/R-3.6.md | Verified on main: vitest 66; 5 consecutive full e2e runs at default workers, 28/28 each. Visual baselines are candidate win32 only (skipped in CI with a reason); Linux baselines and the approval date follow the owner checkpoint. The B1 cause was the test's real mouse timing under load (the app already used event timestamps) |
+
+| T-3.7 | in progress | | tighten visual threshold, richer fixture, CI Linux baselines workflow |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
