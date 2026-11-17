@@ -16,6 +16,10 @@ T-4.1 additions, produced by the real ``milano_iso.decor`` code from invented OS
   three mapped trees (one with a height tag), one tree_row, fill trees in the park, dashed centre
   lines on the residential and tertiary roads, and two crossings (a marked zebra on the tertiary
   road, one more on the residential road, plus an ``unmarked`` one that must be dropped).
+
+T-4.2 addition: the landmark building (B6, ``fixture_landmark``) gets a small STYLISED detail spec
+(``landmark_style.FIXTURE_SPEC``: a spire on its roof and a pinnacle row along its edge), built
+by the real exporter into the ``landmark_details`` layer.
 """
 
 import argparse
@@ -25,7 +29,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import pyogrio
-from milano_iso import config, decor
+from milano_iso import config, decor, landmark_style
 from milano_iso.normalise import DropLog
 from milano_iso.tiles import export
 from shapely import affinity
@@ -182,7 +186,11 @@ def write_gpkg(path: Path) -> None:
         pyogrio.write_dataframe(gdf, path, layer=name, driver="GPKG")
 
 
-def build(out_dir: Path) -> None:
+def build(out_dir: Path, specs: dict | None = None) -> None:
+    """Run the real exporter on the synthetic layers. ``specs`` are the landmark detail specs
+    (T-4.2): by default the fixture landmark's own small spec; ``{}`` builds without details."""
+    if specs is None:
+        specs = {landmark_style.FIXTURE_SPEC.landmark_id: landmark_style.FIXTURE_SPEC}
     with tempfile.TemporaryDirectory(prefix="milano_fixture_") as tmp:
         tmp_path = Path(tmp)
         proc = tmp_path / "processed"
@@ -191,7 +199,7 @@ def build(out_dir: Path) -> None:
         saved = config.PROCESSED_DIR
         config.PROCESSED_DIR = proc  # export.build reads config.PROCESSED_DIR at call time
         try:
-            export.build("pilot", out_dir=out_dir, summary_dir=tmp_path / "summary")
+            export.build("pilot", out_dir=out_dir, summary_dir=tmp_path / "summary", specs=specs)
         finally:
             config.PROCESSED_DIR = saved
 

@@ -24,7 +24,12 @@
       "required": ["unit_m", "anchor"],
       "properties": {"unit_m": {"const": 0.02}, "anchor": {"const": "tile_center"}}
     },
-    "layers": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "layers": {
+      "description": "Layer names of the tileset, in export order. Mesh layers: buildings, landuse, green, water, road_areas, roads, markings, rail, landmark_details (T-4.2: stylised details, every feature table row has stylised = true). Instanced layers (no mesh): see instanced_layers.",
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1
+    },
     "instanced_layers": {
       "type": "array",
       "items": {"type": "string", "minLength": 1}

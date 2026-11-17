@@ -8,7 +8,7 @@ An unknown keyword raises, so the schema cannot silently outgrow the validator.
 
 import re
 
-_ANNOTATIONS = {"$schema", "title", "$defs"}
+_ANNOTATIONS = {"$schema", "title", "$defs", "description"}
 _TYPES = {
     "object": lambda v: isinstance(v, dict),
     "array": lambda v: isinstance(v, list),

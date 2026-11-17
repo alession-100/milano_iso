@@ -5,6 +5,7 @@ import {
   type StyleMode,
   buildingColour,
   greenColour,
+  landmarkDetailColour,
   landuseColour,
   paletteFor,
   paletteIndex,
@@ -22,7 +23,14 @@ export interface FeatureTable {
 export const LOOKUP_WIDTH = 256;
 
 /** Layers whose colour depends on the feature (via the lookup texture). */
-const LOOKUP_LAYERS: ReadonlySet<string> = new Set(['buildings', 'roads', 'landuse', 'green', 'water']);
+const LOOKUP_LAYERS: ReadonlySet<string> = new Set([
+  'buildings',
+  'roads',
+  'landuse',
+  'green',
+  'water',
+  'landmark_details',
+]);
 /** Layers that cast shadows (STYLE choice: only buildings). */
 const CASTING_LAYERS: ReadonlySet<string> = new Set(['buildings']);
 
@@ -35,6 +43,7 @@ const FLAT_COLOURS: Record<string, PaletteName> = {
   road_areas: 'roadAreas',
   rail: 'rail',
   markings: 'markingWhite',
+  landmark_details: 'landmarkDetail',
 };
 
 /** Mesh names are layer names, with a `#n` suffix when a layer is split in chunks. */
@@ -57,6 +66,8 @@ function rowColour(layer: string, row: Record<string, unknown>): PaletteName {
       return greenColour(str(row.kind));
     case 'water':
       return waterColour(str(row.kind));
+    case 'landmark_details':
+      return landmarkDetailColour(str(row.detail));
     default:
       return roadColour(str(row.class));
   }

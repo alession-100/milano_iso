@@ -50,3 +50,19 @@ def test_fixture_has_mapped_row_and_fill_trees_and_markings():
     manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
     assert manifest["instanced_layers"] == ["trees"]
     assert manifest["totals"]["counts"]["trees"] == 90
+
+
+def test_fixture_has_stylised_landmark_details():
+    """T-4.2: the fixture landmark carries a flagged spire and a pinnacle row (real exporter)."""
+    kinds: Counter = Counter()
+    for p in sorted(COMMITTED.glob("*_*.json")):
+        layers = json.loads(p.read_text(encoding="utf-8"))["layers"]
+        for r in layers.get("landmark_details", []):
+            kinds[r["detail"]] += 1
+            assert r["stylised"] is True
+            assert r["landmark_id"] == "fixture_landmark"
+    assert kinds["spire"] == 1
+    assert kinds["pinnacle"] > 4
+    manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
+    assert "landmark_details" in manifest["layers"]
+    assert manifest["totals"]["counts"]["landmark_details"] == sum(kinds.values())

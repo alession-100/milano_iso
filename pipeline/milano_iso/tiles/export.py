@@ -18,7 +18,7 @@ import shapely
 from shapely import affinity
 from shapely.geometry import box
 
-from milano_iso import config, style
+from milano_iso import config, landmark_details, landmark_style, style
 from milano_iso.tiles import geom, glb, grid, manifest
 
 SUMMARY_DIR = config.REPO_ROOT / "reports" / "artifacts" / "T-2.3"
@@ -30,6 +30,8 @@ FLAT_LAYERS = ("landuse", "green", "water", "road_areas", "roads", "markings", "
 # Instanced layers (T-4.1): no mesh in the glb. Their per-tile feature table rows carry the
 # position (x, z in client metres) of each instance; the client draws them as one InstancedMesh.
 INSTANCED_LAYERS = ("trees",)
+# T-4.2: stylised landmark details, one mesh per tile that has any; every row has stylised = true.
+DETAIL_LAYER = "landmark_details"
 # Feature-table columns per flat layer (osm_type, osm_id and the class or kind).
 FLAT_FIELDS = {
     "landuse": ("osm_type", "osm_id", "kind"),
@@ -140,6 +142,75 @@ def _tree_tables(trees: gpd.GeoDataFrame) -> dict[tuple[int, int], list[dict]]:
     return out
 
 
+def _collect_details(specs, rendered, vols, gpkg) -> tuple[list, dict]:
+    """STYLISED details (T-4.2) of every spec whose landmark is in the data, plus a report.
+
+    A landmark's volumes are the rendered DBT volumes of the rendered buildings that carry its
+    ``landmark_id``. A spec without any (out-of-pilot landmarks, Phase 6) is skipped and reported.
+    A spec with a ``roof`` source (the Galleria) takes the OSM footprint named by the spec and the
+    rendered volumes next to it; the footprint must be exactly one row, and the adjacent volumes
+    must exist, or the build fails (the card's escalation rule).
+    """
+    all_vols = [
+        landmark_details.Volume(v.vol_key, _to_local(v.geometry), float(v.bottom_m), float(v.top_m))
+        for v in vols.itertuples(index=False)
+    ]
+    by_building: dict[str, list] = {}
+    for v, lv in zip(vols.itertuples(index=False), all_vols, strict=True):
+        by_building.setdefault(v.building_key, []).append(lv)
+    details: list = []
+    report: dict = {}
+    osm_buildings = None
+    for lid in sorted(specs):
+        spec = specs[lid]
+        own_keys = sorted(rendered.loc[rendered["landmark_id"] == lid, "building_key"])
+        own = [lv for k in own_keys for lv in by_building.get(k, [])]
+        if spec.roof is not None:
+            if osm_buildings is None:
+                osm_buildings = _read(gpkg, "osm_buildings")
+            r = spec.roof
+            sel = osm_buildings[
+                (osm_buildings["osm_type"] == r.osm_type) & (osm_buildings["osm_id"] == r.osm_id)
+            ]
+            if len(sel) != 1:
+                raise ValueError(
+                    f"{lid}: roof footprint {r.osm_type}{r.osm_id} gives {len(sel)} rows"
+                )
+            roof_geom = _to_local(sel.geometry.iloc[0])
+            adj = landmark_details.adjacent_volumes(roof_geom, all_vols, r)
+            adj_ids = {id(a) for a in adj}
+            owners = sorted(
+                {k for k, lvs in by_building.items() for lv in lvs if id(lv) in adj_ids}
+            )
+            if len(owners) != 1:
+                raise ValueError(
+                    f"{lid}: the volumes next to the roof belong to {len(owners)} buildings {owners}"
+                )
+            d, facts = landmark_details.build_landmark(spec, own, roof_geom, adj)
+            facts["adjacent_building"] = owners[0]
+            facts["roof_area_m2"] = round(float(roof_geom.area), 1)
+        elif own:
+            d, facts = landmark_details.build_landmark(spec, own)
+        else:
+            report[lid] = {"details": 0, "skipped": "no rendered volumes (out of the pilot)"}
+            continue
+        kinds: dict[str, int] = {}
+        for x in d:
+            kinds[x.kind] = kinds.get(x.kind, 0) + 1
+        report[lid] = {"details": len(d), "kinds": dict(sorted(kinds.items())), **facts}
+        details += d
+    return details, report
+
+
+def _detail_tables(details) -> dict[tuple[int, int], list]:
+    """Details per tile, by the tile of each detail's anchor (local metres)."""
+    out: dict[tuple[int, int], list] = {}
+    for d in details:
+        ij = grid.tile_ij(d.anchor[0] + config.ORIGIN_E, d.anchor[1] + config.ORIGIN_N)
+        out.setdefault(ij, []).append(d)
+    return out
+
+
 def _clip_polys(polys, tile_box) -> list:
     out = []
     for p in polys:
@@ -225,6 +296,7 @@ def build(
     extent: str = "pilot",
     out_dir: Path | None = None,
     summary_dir: Path | None = None,
+    specs: dict | None = None,
 ):
     if extent != "pilot":
         raise ValueError("only --extent pilot is supported")
@@ -264,8 +336,13 @@ def build(
     trees_gdf = _read(gpkg, "trees")
     trees_by_tile = _tree_tables(trees_gdf)
 
+    details, detail_report = _collect_details(
+        landmark_style.SPECS if specs is None else specs, rendered, vols, gpkg
+    )
+    details_by_tile = _detail_tables(details)
+
     aoi_tiles = set(grid.tiles_covering(config.PILOT_AOI_BBOX))
-    tiles = sorted(aoi_tiles | set(tile_of.values()))  # ADR-0022 point 5
+    tiles = sorted(aoi_tiles | set(tile_of.values()) | set(details_by_tile))  # ADR-0022 point 5
     ax0, ay0, ax1, ay1 = config.PILOT_AOI_BBOX
     extent_box = box(
         ax0 - config.ORIGIN_E, ay0 - config.ORIGIN_N, ax1 - config.ORIGIN_E, ay1 - config.ORIGIN_N
@@ -346,6 +423,23 @@ def build(
                     "triangles": mf.n_triangles,
                 }
 
+        # Landmark details (T-4.2): STYLISED; one row per detail, `stylised` is always true.
+        tile_details = details_by_tile.get((i, j), [])
+        if tile_details:
+            md = geom.MeshBuilder()
+            table = []
+            for d in tile_details:
+                fid = len(table)
+                md.add_triangles(d.tris, fid)
+                table.append({"landmark_id": d.landmark_id, "detail": d.kind, "stylised": True})
+            meshes.extend(_named(DETAIL_LAYER, md))
+            tables[DETAIL_LAYER] = table
+            layer_stats[DETAIL_LAYER] = {
+                "features": len(table),
+                "vertices": md.n_vertices,
+                "triangles": md.n_triangles,
+            }
+
         trees = trees_by_tile.pop((i, j), [])
         if trees:
             tables["trees"] = trees
@@ -381,7 +475,9 @@ def build(
     manifest.write_manifest(
         out_dir,
         manifest.build_manifest(
-            entries, ["buildings", *FLAT_LAYERS, *INSTANCED_LAYERS], list(INSTANCED_LAYERS)
+            entries,
+            ["buildings", *FLAT_LAYERS, DETAIL_LAYER, *INSTANCED_LAYERS],
+            list(INSTANCED_LAYERS),
         ),
     )
     n_trees_in_tiles = sum(
@@ -394,6 +490,7 @@ def build(
         "extent": "pilot",
         "budget_gzip_bytes": BUDGET_GZIP_BYTES,
         "tiles": summary_tiles,
+        "landmark_details": detail_report,
         "totals": {
             "glb_bytes": sum(t["glb_bytes"] for t in summary_tiles.values()),
             "gzip9_bytes": sum(t["gzip9_bytes"] for t in summary_tiles.values()),
@@ -404,6 +501,10 @@ def build(
             "buildings_rendered": len(rendered),
             "buildings_in_tiles": per_tile_buildings,
             "buildings_count_matches": per_tile_buildings == len(rendered),
+            "landmark_details_in_tiles": sum(
+                t["layers"].get(DETAIL_LAYER, {}).get("features", 0) for t in summary_tiles.values()
+            ),
+            "landmark_details_built": len(details),
             "trees_in_layer": len(trees_gdf),
             "trees_in_tiles": n_trees_in_tiles,
             "trees_count_matches": n_trees_in_tiles == len(trees_gdf),
