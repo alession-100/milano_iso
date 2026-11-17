@@ -1,0 +1,6 @@
+/* T-5.2: the rotation buttons are not part of the approved look baselines (ADR-0030). They are
+   hidden (layout unchanged) in screenshots so the existing baselines stay valid; rotation.spec.ts
+   tests the buttons themselves. */
+#rotation-controls {
+  visibility: hidden !important;
+}
