@@ -5,7 +5,7 @@ name: visual-baselines
 permissions:
   contents: read
 
-on:
+"on":
   workflow_dispatch:
 
 jobs:
