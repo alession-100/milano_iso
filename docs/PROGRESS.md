@@ -37,9 +37,9 @@ Single source of truth for state. The orchestrator updates it after every accept
 
 | T-3.1 | done | reports/R-3.1.md | Verified on main: vitest 19 pass, e2e 12 pass (desktop and Pixel 7-class touch); screenshot reviewed. Accepted: the ADR-0012 suffix amendment, ground-axis arrow steps, instant zoom. `rig.setBounds` is wired at the T-3.2 merge |
 | T-3.2 | done, integration pending | reports/R-3.2.md | Executor results: e2e 4 pass on the fixture; real pilot 82 draw calls (default) / 106 (widest), 0 failed tiles. Merge conflicts with T-3.1 (render loop, tempview), so integration is in T-3.5. Accepted: the shared console filter helper, and attribution links to osm.org/copyright and CC BY 4.0 |
-| T-3.5 | in progress | | integrate T-3.1 + T-3.2 |
-| T-3.3 | todo | | palette v1 |
-| T-3.4 | todo | | debug overlay |
+| T-3.5 | done | reports/R-3.5.md | Verified on main: vitest 40, e2e 15 pass (fixture); JS 160 KB gzip; no permanent render loop. Orchestrator checked real data in the browser pane: 29 tiles loaded, 0 failed, 87 draw calls, attribution OSM + Comune, 0 console errors |
+| T-3.3 | in progress | | palette v1 |
+| T-3.4 | in progress | | debug overlay |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
