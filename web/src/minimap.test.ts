@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CameraRig, azimuthOfStep } from './camera';
-import { type SanNode, clientToLocal, nightCss, parseViewBox, polygonPoints, sanitiseTree, viewFootprint } from './minimap';
+import { type SanNode, clientToLocal, mixRgb, nightCss, parseViewBox, polygonPoints, sanitiseTree, viewFootprint } from './minimap';
 
 interface FakeNode extends SanNode {
   attrs: { name: string; value: string }[];
@@ -121,5 +121,9 @@ describe('helpers', () => {
       expect(css).toContain(c);
     }
     expect(css).toContain('#2e3650'); // night ground
+    expect(css).toContain('#5e6378'); // building: 55% 0x858899 + 45% 0x2e3650
+  });
+  it('mixes colours per channel', () => {
+    expect(mixRgb(0xffffff, 0x000000, 0.5)).toBe(0x808080);
   });
 });

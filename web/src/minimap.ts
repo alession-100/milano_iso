@@ -85,15 +85,26 @@ export function polygonPoints(poly: readonly (readonly [number, number])[]): str
   return poly.map(([x, z]) => `${Math.round(x * 10) / 10},${Math.round(z * 10) / 10}`).join(' ');
 }
 
+/** Style constant: night minimap buildings are the night building colour pulled towards the ground, so they do not read brighter than the lit 3D buildings. */
+export const NIGHT_BUILDING_MIX = 0.55;
+
+/** Linear mix of two 0xRRGGBB colours: fraction t of a, the rest of b, rounded per channel. */
+export function mixRgb(a: number, b: number, t: number): number {
+  const ch = (shift: number): number =>
+    Math.round(((a >> shift) & 255) * t + ((b >> shift) & 255) * (1 - t));
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0);
+}
+
 /** CSS mapping the minimap classes (mm-*, ADR-0031) to the night palette; day uses the file's own. */
 export function nightCss(): string {
   const p = paletteFor('night');
   const hex = (n: number): string => '#' + n.toString(16).padStart(6, '0');
+  const building = mixRgb(p.buildingOther, p.ground, NIGHT_BUILDING_MIX);
   return [
     `#minimap[data-mode="night"] .mm-ground{fill:${hex(p.ground)}}`,
     `#minimap[data-mode="night"] .mm-green{fill:${hex(p.green)}}`,
     `#minimap[data-mode="night"] .mm-water{fill:${hex(p.water)}}`,
-    `#minimap[data-mode="night"] .mm-building{fill:${hex(p.buildingOther)}}`,
+    `#minimap[data-mode="night"] .mm-building{fill:${hex(building)}}`,
     `#minimap[data-mode="night"] .mm-road-minor{stroke:${hex(p.roadMinor)}}`,
     `#minimap[data-mode="night"] .mm-road-major{stroke:${hex(p.roadMajor)}}`,
   ].join('\n');

@@ -339,16 +339,56 @@ test('the minimap file is sanitised: scripts and on* attributes never reach the 
   expect(problems).toEqual([]);
 });
 
-test('night mode themes the minimap with the night palette', async ({ page }) => {
+const FILLS = {
+  day: { ground: 'rgb(227, 222, 212)', building: 'rgb(214, 208, 200)' }, // 0xe3ded4, 0xd6d0c8
+  night: { ground: 'rgb(46, 54, 80)', building: 'rgb(94, 99, 120)' }, // 0x2e3650, 55% 0x858899 + 45% ground
+};
+async function fills(page: Page): Promise<{ ground: string; building: string }> {
+  return page.evaluate(() => {
+    const f = (sel: string): string => getComputedStyle(document.querySelector(sel) as Element).fill;
+    return { ground: f('#minimap .mm-ground'), building: f('#minimap .mm-building') };
+  });
+}
+
+test('starting in night, the minimap ground and buildings use the night colours', async ({ page }) => {
   await open(page, '&time=night');
   await expect(page.locator('#minimap')).toHaveAttribute('data-mode', 'night');
-  const fill = await page.locator('#minimap .mm-ground').evaluate((e) => getComputedStyle(e).fill);
-  expect(fill).toBe('rgb(46, 54, 80)'); // 0x2e3650
+  expect(await fills(page)).toEqual(FILLS.night);
+});
+
+test('day to night to day recolours the minimap (desktop: always visible)', async ({ page }) => {
+  await open(page);
+  expect(await fills(page)).toEqual(FILLS.day);
   await page.locator('#mode-toggle').click();
-  await expect(page.locator('#minimap')).toHaveAttribute('data-mode', 'day');
-  expect(await page.locator('#minimap .mm-ground').evaluate((e) => getComputedStyle(e).fill)).toBe(
-    'rgb(227, 222, 212)', // 0xe3ded4
-  );
+  await expect.poll(() => fills(page)).toEqual(FILLS.night);
+  await page.locator('#mode-toggle').click();
+  await expect.poll(() => fills(page)).toEqual(FILLS.day);
+});
+
+test.describe('minimap theming at 412 px, panel opened before or after the toggle', () => {
+  test.use({ viewport: { width: 412, height: 915 } });
+  test('opened before the toggle', async ({ page }) => {
+    await open(page);
+    await page.locator('#minimap-button').click();
+    await expect(page.locator('#minimap')).toBeVisible();
+    expect(await fills(page)).toEqual(FILLS.day);
+    await page.locator('#mode-toggle').click();
+    await expect.poll(() => fills(page)).toEqual(FILLS.night);
+    await page.locator('#mode-toggle').click();
+    await expect.poll(() => fills(page)).toEqual(FILLS.day);
+  });
+  test('opened after the toggle', async ({ page }) => {
+    await open(page);
+    await page.locator('#mode-toggle').click();
+    await page.locator('#minimap-button').click();
+    await expect(page.locator('#minimap')).toBeVisible();
+    await expect.poll(() => fills(page)).toEqual(FILLS.night);
+    await page.locator('#minimap-button').click(); // close
+    await page.locator('#mode-toggle').click(); // back to day while closed
+    await page.locator('#minimap-button').click();
+    await expect(page.locator('#minimap')).toBeVisible();
+    await expect.poll(() => fills(page)).toEqual(FILLS.day);
+  });
 });
 
 type Box = { x: number; y: number; width: number; height: number };
