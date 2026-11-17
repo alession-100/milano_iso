@@ -1,4 +1,4 @@
-/* global process, console, window, performance, requestAnimationFrame */
+/* global process, console, window, document, performance, requestAnimationFrame */
 // T-5.1 evidence: picking on the REAL pilot tiles (web/public/tiles/pilot), screenshots of the info
 // card and draw-call / pick-time numbers. Not part of the test suite.
 // Usage (a preview server must already run on E2E_PORT, tiles copied by `make web-tiles`):
@@ -52,6 +52,7 @@ function scan(page, step, avoidRight) {
       const out = new Map();
       for (let y = 8; y < window.innerHeight - 40; y += st) {
         for (let x = 8; x < window.innerWidth - avoid; x += st) {
+          if (!document.elementFromPoint(x, y)?.closest('#app')) continue; // a control is on top
           const h = window.__milanoIsoPickAt(x, y);
           if (!h.ref) continue;
           const k = JSON.stringify(h.ref);
@@ -91,7 +92,7 @@ for (const [name, w, h] of [
   // Draw calls at the real default view, before and during hover; pick cost.
   const callsBefore = (await page.evaluate(() => window.__milanoIso.render)).calls;
   const hits = await scan(page, 24, 0);
-  const b = hits.find((x) => x.ref.layer === 'buildings') ?? hits[0];
+  const b = hits.find((x) => x.ref.layer === 'buildings' && x.y > 150 && x.y < h - 120 && x.x > 20 && x.x < w - 340 + (w < 600 ? 330 : 0)) ?? hits[0];
   await page.mouse.move(Math.max(0, b.x - 40), b.y + 30);
   await page.mouse.move(b.x, b.y, { steps: 5 });
   await page.waitForFunction(() => window.__milanoIso.selection.hover !== null);
@@ -160,6 +161,7 @@ for (const [name, w, h] of [
         let best = null;
         for (let y = 8; y < H - 40; y += 6) {
           for (let x = 8; x < W - (W > 600 ? 340 : 0); x += 6) {
+            if (!document.elementFromPoint(x, y)?.closest('#app')) continue;
             const hh = window.__milanoIsoPickAt(x, y);
             if (!hh.ref || JSON.stringify(hh.ref) !== k) continue;
             const d = Math.hypot(x - W / 2, y - H / 2);

@@ -12,23 +12,23 @@
   "desktop-1280x720/pick-time": {
     "direct": {
       "calls": 300,
-      "meanMs": 3.54,
-      "medianMs": 2.2,
-      "p95Ms": 8.3,
-      "maxMs": 75.1
+      "meanMs": 0.97,
+      "medianMs": 0.9,
+      "p95Ms": 1.8,
+      "maxMs": 2.5
     },
     "hoverMoves": {
-      "count": 66,
-      "lastMs": 2.1999998092651367,
-      "maxMs": 7
+      "count": 63,
+      "lastMs": 2.4000000953674316,
+      "maxMs": 6.299999713897705
     }
   },
   "desktop-1280x720/targets": {
     "dbt": {
       "ref": {
         "layer": "buildings",
-        "tile": "-2_-1",
-        "key": "dbt:EDIFC_4823"
+        "tile": "-2_0",
+        "key": "dbt:EDIFC_4941"
       },
       "layer": "buildings",
       "card": {
@@ -36,7 +36,7 @@
         "title": "Senza nome",
         "named": false,
         "type": "Edificio",
-        "height": "26,8 m",
+        "height": "31 m",
         "heightSource": "rilievo DBT 2020",
         "osmUrl": null,
         "note": null,
@@ -46,19 +46,19 @@
     "street": {
       "ref": {
         "layer": "roads",
-        "tile": "-2_0",
+        "tile": "-1_1",
         "osmType": "w",
-        "osmId": 274103572
+        "osmId": 163757321
       },
       "layer": "roads",
       "card": {
         "open": true,
-        "title": "Via Orefici",
+        "title": "Galleria Vittorio Emanuele II",
         "named": true,
-        "type": "Strada residenziale",
+        "type": "Strada pedonale",
         "height": null,
         "heightSource": null,
-        "osmUrl": "https://www.openstreetmap.org/way/274103572",
+        "osmUrl": "https://www.openstreetmap.org/way/163757321",
         "note": null,
         "pending": false
       }
@@ -109,7 +109,7 @@
       "title": "Senza nome",
       "named": false,
       "type": "Edificio",
-      "height": "26,8 m",
+      "height": "31 m",
       "heightSource": "rilievo DBT 2020",
       "osmUrl": null,
       "note": null,
@@ -120,12 +120,12 @@
     "file": "..\\reports\\artifacts\\T-5.1\\street-desktop-1280x720.png",
     "card": {
       "open": true,
-      "title": "Via Orefici",
+      "title": "Galleria Vittorio Emanuele II",
       "named": true,
-      "type": "Strada residenziale",
+      "type": "Strada pedonale",
       "height": null,
       "heightSource": null,
-      "osmUrl": "https://www.openstreetmap.org/way/274103572",
+      "osmUrl": "https://www.openstreetmap.org/way/163757321",
       "note": null,
       "pending": false
     }
@@ -172,15 +172,15 @@
   "mobile-412x915/pick-time": {
     "direct": {
       "calls": 300,
-      "meanMs": 0.59,
-      "medianMs": 0.4,
-      "p95Ms": 1.9,
-      "maxMs": 2.6
+      "meanMs": 0.39,
+      "medianMs": 0.2,
+      "p95Ms": 1.2,
+      "maxMs": 1.9
     },
     "hoverMoves": {
-      "count": 66,
-      "lastMs": 2.0999999046325684,
-      "maxMs": 5.400000095367432
+      "count": 63,
+      "lastMs": 1.299999713897705,
+      "maxMs": 3.200000286102295
     }
   },
   "mobile-412x915/targets": {
