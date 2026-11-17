@@ -30,7 +30,7 @@ async function open(
   page: Page,
   reduced: boolean,
   query = '',
-  beforeGoto?: () => Promise<void>,
+  beforeGoto?: () => Promise<unknown>,
 ): Promise<void> {
   await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
   await routeFixtureTiles(page);
