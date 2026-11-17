@@ -7,12 +7,14 @@ export const dictionary = {
     title: 'Milano Iso',
     mapLabel:
       'Mappa isometrica di Milano. Frecce per spostare, più e meno per lo zoom, zero per ripristinare la vista.',
-    attribution: 'Attribuzione: segnaposto (le fonti dati reali arriveranno più avanti)',
+    dataLabel: 'Dati',
+    tilesError: 'Impossibile caricare i dati della mappa',
   },
   en: {
     title: 'Milano Iso',
     mapLabel: 'Isometric map of Milan. Arrow keys pan, plus and minus zoom, zero resets the view.',
-    attribution: 'Attribution: placeholder (real data sources will be added later)',
+    dataLabel: 'Data',
+    tilesError: 'Could not load the map data',
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 

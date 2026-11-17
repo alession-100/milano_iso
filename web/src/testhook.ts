@@ -24,3 +24,9 @@ export function registerTestState(key: string, getter: Getter): void {
     configurable: true,
   });
 }
+
+/** e2e only (`e2e=1`): exposes `window.__milanoIsoSetView(x, z, width)`; otherwise a no-op. */
+export function registerSetView(setView: (x: number, z: number, width: number) => void): void {
+  if (!e2eEnabled()) return;
+  (window as unknown as { __milanoIsoSetView?: typeof setView }).__milanoIsoSetView = setView;
+}
