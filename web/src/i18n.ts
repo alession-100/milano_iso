@@ -14,6 +14,7 @@ export const dictionary = {
     benchmark: 'Benchmark',
     close: 'Chiudi',
     benchRunning: 'Benchmark in corso (10 s)...',
+    nightMode: 'Notte',
   },
   en: {
     title: 'Milano Iso',
@@ -25,6 +26,7 @@ export const dictionary = {
     benchmark: 'Benchmark',
     close: 'Close',
     benchRunning: 'Benchmark running (10 s)...',
+    nightMode: 'Night',
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 

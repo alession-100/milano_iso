@@ -3,7 +3,11 @@ import { CameraRig, createCamera, parseElevation, resizeCamera } from './camera'
 import { Controls } from './controls';
 import { DEFAULT_LANG, t } from './i18n';
 import { createScene } from './scene';
-import { configureShadowRenderer, fitSunShadow, parseShadows } from './style/lights';
+import { createModeToggle } from './modeToggle';
+import { applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows } from './style/lights';
+import { setPaletteMode } from './style/materials';
+import { initialMode, storeMode } from './style/mode';
+import { type StyleMode, paletteFor } from './style/palette';
 import { e2eEnabled, registerSetView, registerTestState } from './testhook';
 import { renderAttribution } from './tiles/attribution';
 import { cullTiles, frustumOf, sortNearestFirst, viewCentre } from './tiles/culling';
@@ -23,7 +27,7 @@ host.appendChild(renderer.domElement);
 const shadowsOn = parseShadows(window.location.search);
 configureShadowRenderer(renderer, shadowsOn);
 // --- end T-3.3 style ---
-const { scene, tileRoot, sun } = createScene(shadowsOn);
+const { scene, tileRoot, sun, lights, setGroundMode } = createScene(shadowsOn);
 const elevation = parseElevation(window.location.search);
 const camera = createCamera(window.innerWidth / window.innerHeight, elevation);
 const rig = new CameraRig(camera, elevation);
@@ -31,6 +35,23 @@ const rig = new CameraRig(camera, elevation);
 let lastRender = { calls: 0, triangles: 0 };
 registerTestState('render', () => lastRender);
 registerTestState('camera', () => rig.snapshot());
+
+// --- T-4.3 day/night (style only, never data) ---
+let styleMode: StyleMode = initialMode(window.location.search);
+registerTestState('style', () => ({ mode: styleMode }));
+const modeToggle = createModeToggle(styleMode, () => setMode(styleMode === 'night' ? 'day' : 'night', true));
+
+function setMode(mode: StyleMode, remember: boolean): void {
+  styleMode = mode;
+  setPaletteMode(mode);
+  applyLightMode(lights, mode);
+  setGroundMode(mode);
+  document.documentElement.style.background = '#' + paletteFor(mode).ground.toString(16).padStart(6, '0');
+  modeToggle.sync(mode);
+  if (remember) storeMode(mode);
+  requestRender(); // one frame on demand, no loop
+}
+// --- end T-4.3 day/night ---
 
 let manifest: Manifest | null = null;
 let streamer: TileStreamer<THREE.Group> | null = null;
@@ -171,6 +192,7 @@ registerSetView((x, z, width) => {
 });
 
 window.addEventListener('resize', resize);
+setMode(styleMode, false);
 resize();
 rig.apply();
 void startTiles();

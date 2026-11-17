@@ -1,0 +1,18 @@
+day default 1280x720 calls 111 tiles {"loaded":29,"loading":0,"failed":0,"visible":17} errs 4 [
+]
+day default 412x915 calls 117 tiles {"loaded":29,"loading":0,"failed":0,"visible":22} errs 0 []
+night default 1280x720 calls 111 tiles {"loaded":29,"loading":0,"failed":0,"visible":17} errs 0 []
+night default 412x915 calls 117 tiles {"loaded":29,"loading":0,"failed":0,"visible":22} errs 0 []
+night close-duomo 1280x720 calls 52 tiles {"loaded":24,"loading":0,"failed":0,"visible":5} errs 4 [
+]
+night close-duomo 412x915 calls 76 tiles {"loaded":26,"loading":0,"failed":0,"visible":10} errs 0 []
+day close-before-after 1280x720 calls 52 tiles {"loaded":29,"loading":0,"failed":0,"visible":6} errs 3 [
+]
+day close-before-after 412x915 calls 74 tiles {"loaded":26,"loading":0,"failed":0,"visible":10} errs 1 [
+]
+day kinds 1280x720 calls 53 tiles {"loaded":29,"loading":0,"failed":0,"visible":7} errs 3 [
+]
+day kinds 412x915 calls 90 tiles {"loaded":28,"loading":0,"failed":0,"visible":13} errs 1 [
+]
+night kinds 1280x720 calls 53 tiles {"loaded":22,"loading":0,"failed":0,"visible":7} errs 0 []
+night kinds 412x915 calls 90 tiles {"loaded":28,"loading":0,"failed":0,"visible":13} errs 0 []

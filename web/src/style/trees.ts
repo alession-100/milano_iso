@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { PALETTE } from './palette';
+import { type StyleMode, paletteFor } from './palette';
 
 /**
  * Trees (T-4.1). STYLE, not data: the shape and colours are ours. What is data is the position
@@ -24,8 +24,11 @@ const CROWN_BASE = 0.2;
 const CROWN_SEGMENTS = 7;
 const TRUNK_SEGMENTS = 5;
 
-function paint(g: THREE.BufferGeometry, hex: number): THREE.BufferGeometry {
-  const c = new THREE.Color(hex); // sRGB hex converted to the linear working space by three
+let treeMode: StyleMode = 'day';
+
+/** Vertex colours of one part, from the palette of the current mode (day or night, T-4.3). */
+function paint(g: THREE.BufferGeometry, name: 'treeCrown' | 'treeTrunk'): THREE.BufferGeometry {
+  const c = new THREE.Color(paletteFor(treeMode)[name]); // sRGB hex converted to linear by three
   const n = g.getAttribute('position').count;
   const colours = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) {
@@ -44,7 +47,7 @@ export function createTreeGeometry(): THREE.BufferGeometry {
   const crownHeight = TREE_UNIT_HEIGHT - CROWN_BASE;
   const crown = new THREE.ConeGeometry(CROWN_RADIUS, crownHeight, CROWN_SEGMENTS);
   crown.translate(0, CROWN_BASE + crownHeight / 2, 0);
-  const merged = mergeGeometries([paint(trunk, PALETTE.treeTrunk), paint(crown, PALETTE.treeCrown)]);
+  const merged = mergeGeometries([paint(trunk, 'treeTrunk'), paint(crown, 'treeCrown')]);
   trunk.dispose();
   crown.dispose();
   return merged;
@@ -61,6 +64,14 @@ export function treeAssets(): { geometry: THREE.BufferGeometry; material: THREE.
     sharedMaterial.name = 'trees';
   }
   return { geometry: sharedGeometry, material: sharedMaterial };
+}
+
+/** Re-colours the shared tree geometry for the day or night palette; the caller requests a render. */
+export function setTreeMode(mode: StyleMode): void {
+  treeMode = mode;
+  if (!sharedGeometry) return; // built lazily with the right mode
+  sharedGeometry.dispose();
+  sharedGeometry.copy(createTreeGeometry());
 }
 
 /** The fields of a `trees` feature table row the client reads. */
