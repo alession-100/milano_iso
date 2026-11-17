@@ -36,6 +36,7 @@ registerTestState('tiles', () => ({
 // Render on demand: any number of requests coalesce into one animation frame; there is no
 // permanent loop. Everything that can change the picture (controls, inertia, resize, tile
 // load or evict, manifest load) calls requestRender().
+const frameHooks: (() => void)[] = [];
 let renderQueued = false;
 let lastKey = '';
 
@@ -75,6 +76,7 @@ function render(): void {
   }
   renderer.render(scene, camera);
   lastRender = { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
+  for (const hook of frameHooks) hook(); // T-3.4: empty unless ?debug
 }
 
 function resize(): void {
@@ -135,3 +137,34 @@ window.addEventListener('resize', resize);
 resize();
 rig.apply();
 void startTiles();
+
+// --- T-3.4 debug ---
+{
+  const debugParam = new URLSearchParams(window.location.search).get('debug');
+  if (debugParam !== null) {
+    void import('./debug').then((m) =>
+      m.initDebug(
+        {
+          renderInfo: () => lastRender,
+          tiles: () => ({
+            ...(streamer?.stats ?? { loaded: 0, loading: 0, failed: 0 }),
+            visible: visibleCount,
+          }),
+          camera: () => rig.snapshot(),
+          canvas: renderer.domElement,
+          pixelRatio: () => renderer.getPixelRatio(),
+          setView: (x, z, width) => {
+            rig.target = [x, z];
+            rig.visibleWidth = width;
+            rig.clampTarget();
+            rig.apply();
+          },
+          requestRender,
+          addFrameHook: (hook) => frameHooks.push(hook),
+        },
+        debugParam === 'bench',
+      ),
+    );
+  }
+}
+// --- end T-3.4 debug ---

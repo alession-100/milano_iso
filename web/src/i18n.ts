@@ -9,12 +9,20 @@ export const dictionary = {
       'Mappa isometrica di Milano. Frecce per spostare, più e meno per lo zoom, zero per ripristinare la vista.',
     dataLabel: 'Dati',
     tilesError: 'Impossibile caricare i dati della mappa',
+    debugTitle: 'Debug',
+    benchmark: 'Benchmark',
+    close: 'Chiudi',
+    benchRunning: 'Benchmark in corso (10 s)...',
   },
   en: {
     title: 'Milano Iso',
     mapLabel: 'Isometric map of Milan. Arrow keys pan, plus and minus zoom, zero resets the view.',
     dataLabel: 'Data',
     tilesError: 'Could not load the map data',
+    debugTitle: 'Debug',
+    benchmark: 'Benchmark',
+    close: 'Close',
+    benchRunning: 'Benchmark running (10 s)...',
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 
