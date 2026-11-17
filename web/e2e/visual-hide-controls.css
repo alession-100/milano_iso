@@ -4,3 +4,10 @@
 #rotation-controls {
   visibility: hidden !important;
 }
+
+/* T-5.3b: the toolbar and the minimap are not part of the approved look baselines either; they are
+   hidden (layout unchanged). toolbar.spec.ts has its own baseline for them. */
+#toolbar-zone,
+#minimap {
+  visibility: hidden !important;
+}

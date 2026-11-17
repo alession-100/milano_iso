@@ -122,7 +122,7 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   root.id = 'debug-overlay';
   root.setAttribute('aria-label', t('debugTitle', lang));
   root.style.cssText =
-    'position:fixed;left:6px;top:6px;z-index:10;box-sizing:border-box;max-width:min(380px,calc(100vw - 12px));' +
+    'position:fixed;right:6px;top:104px;z-index:10;box-sizing:border-box;max-width:min(380px,calc(100vw - 12px));' +
     'max-height:calc(100vh - 48px);overflow:auto;background:rgba(20,24,28,0.85);color:#e8f5e9;' +
     'font:11px/1.35 monospace;padding:6px 8px;border-radius:3px;';
 
