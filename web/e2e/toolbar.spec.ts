@@ -174,13 +174,15 @@ const TOGGLES: [string, string][] = [
   ['landmarkDetails', 'Dettagli dei monumenti'],
 ];
 
-test('each toggle hides its layer (draw calls, test state) and survives a reload', async ({ page }) => {
-  const problems = await open(page);
-  const base = await stableCalls(page);
-  expect(base).toBeGreaterThan(5);
-  await page.locator('#layers-button').click();
-  await expect(page.locator('#layers-button')).toHaveAttribute('aria-expanded', 'true');
-  for (const [id, label] of TOGGLES) {
+// One test per toggle (T-5.4): one test for all six took six reloads, which a loaded machine (ten copies of
+// each test under --repeat-each) stretched past any limit. The toggles are independent of each other.
+for (const [id, label] of TOGGLES) {
+  test(`the ${id} toggle hides its layer (draw calls, test state) and survives a reload`, async ({ page }) => {
+    const problems = await open(page);
+    const base = await stableCalls(page);
+    expect(base).toBeGreaterThan(5);
+    await page.locator('#layers-button').click();
+    await expect(page.locator('#layers-button')).toHaveAttribute('aria-expanded', 'true');
     const box = page.getByRole('checkbox', { name: label });
     await expect(box).toBeChecked();
     await box.uncheck();
@@ -198,9 +200,9 @@ test('each toggle hides its layer (draw calls, test state) and survives a reload
     await again.check();
     await expect.poll(async () => (await tb(page)).layers[id]).toBe(true);
     expect(await stableCalls(page)).toBe(base);
-  }
-  expect(problems).toEqual([]);
-});
+    expect(problems).toEqual([]);
+  });
+}
 
 test('?layers= sets the toggles, tiles loaded later honour them, and the URL is not remembered', async ({
   page,
