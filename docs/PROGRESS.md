@@ -2,8 +2,8 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 3 - G3 re-review after T-3.6 (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
-**Last gate passed:** G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
+**Current phase:** 3 - HUMAN CHECKPOINT (awaiting owner: look approval, real-device FPS) (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Last gate passed:** G3 PASS WITH RISKS (2026-11-17; first review FAIL on flaky inertia e2e, fixed in T-3.6). Earlier: G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
 | Task | Status | Report | Notes |
@@ -99,3 +99,12 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
   - a 404, garbage or truncated tile leaves the app working with 1 error;
   - builds are byte-identical.
 - **Pending the owner:** FPS on a real desktop and on the Pixel 7a (headless SwiftShader benchmark: 10.6 fps desktop, 19.7 fps at 412 px; indicative only), and approval of the visual baselines.
+
+## Carry-over from G3 re-review (non-blocking)
+1. **Visual diff misses visible colour changes.** The default per-pixel `threshold` is 0.2 (a ground darkening of 16 levels passes). The fixture has only `building_type=yes`. Tighten the threshold and enrich the fixture before the baselines are approved.
+2. **CI visual skip:** removed by hand only after the Linux baselines exist. Needs a tracked task.
+3. **Inertia settle check:** loosened to 15 s in e2e (stop timing is covered by unit tests).
+4. **404 test:** uses a local prefix filter for browser "Failed to load resource" lines.
+5. **The debug overlay covers the tile notice** (debug mode only).
+6. **Retry edge cases:** a slot is held for 2 s, retries run for unwanted tiles, and a transient 404 still logs a browser console error (matters for G5).
+7. **The notice is Italian only** (`DEFAULT_LANG`); language switching comes in Phase 5.
