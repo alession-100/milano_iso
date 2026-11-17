@@ -12,6 +12,8 @@ import { type StyleMode, paletteFor } from './style/palette';
 import { e2eEnabled, registerSetView, registerTestState } from './testhook';
 import { renderAttribution } from './tiles/attribution';
 import { cullTiles, frustumOf, sortNearestFirst, viewCentre } from './tiles/culling';
+import { Picker } from './pick/picker';
+import type { IndexEntry } from './pick/rows';
 import { TileStreamer, createGltfTileLoader, disposeTile } from './tiles/loader';
 import { type Manifest, contentBounds, fetchManifest, resolveTilesBase } from './tiles/manifest';
 
@@ -54,6 +56,7 @@ function setMode(mode: StyleMode, remember: boolean): void {
   setGroundMode(mode);
   document.documentElement.style.background = '#' + paletteFor(mode).ground.toString(16).padStart(6, '0');
   modeToggle.sync(mode);
+  picker.setMode(mode); // T-5.1
   if (remember) storeMode(mode);
   requestRender(); // one frame on demand, no loop
 }
@@ -163,17 +166,20 @@ async function startTiles(): Promise<void> {
     manifest.attribution,
     t('dataLabel', DEFAULT_LANG),
   );
+  void loadSearchIndex(base, manifest); // T-5.1: names for streets, areas and landmarks
   rig.setBounds(contentBounds(manifest));
   rig.apply();
   streamer = new TileStreamer<THREE.Group>(manifest.tiles, {
     load: createGltfTileLoader(base),
     onLoaded: (_id, obj) => {
       tileRoot.add(obj);
+      picker.tilesChanged(); // T-5.1
       requestRender();
     },
     onEvict: (_id, obj) => {
       tileRoot.remove(obj);
       disposeTile(obj);
+      picker.tilesChanged(); // T-5.1
       requestRender();
     },
     onError: (id, err) => {
@@ -196,6 +202,22 @@ new Controls(host, rig, {
   ariaLabel: t('mapLabel', DEFAULT_LANG),
   onRotate: (dir) => rotation.rotate(dir),
 });
+
+// --- T-5.1 picking ---
+const picker = new Picker({ host, camera, tileRoot, requestRender });
+
+async function loadSearchIndex(base: URL, m: Manifest): Promise<void> {
+  if (!m.index) return; // tilesets before T-5.3a have no index: the card then shows tile data only
+  try {
+    const res = await fetch(new URL(m.index.file, base).href);
+    if (!res.ok) throw new Error(`index ${m.index.file}: HTTP ${res.status}`);
+    const body = (await res.json()) as { entries: IndexEntry[] };
+    picker.setIndex(body.entries);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+  }
+}
+// --- end T-5.1 picking ---
 
 // e2e only (`e2e=1`): look at ground point (x, z) with `width` metres across the viewport.
 registerSetView((x, z, width, step) => {
