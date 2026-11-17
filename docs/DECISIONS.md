@@ -273,3 +273,9 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   4. **Day/night:** a toggle with a night palette. The owner approves the night look at the Phase 4 checkpoint.
 - **Also accepted:** the owner approved palette v1 (the day look) at the Phase 3 checkpoint.
 - **Visual regression:** `threshold` 0.02 and `maxDiffPixelRatio` 0.001 (T-3.7: 0 px noise over 70 captures on Windows; Linux noise to be measured once the Linux baselines exist).
+
+## ADR-0029 - Surface palette limit raised from 16 to 32 colours
+- **Status:** Accepted (2026-11-17)
+- **Context:** Palette v1 (T-3.3) uses 15 of 16 entries. Phase 4 (ADR-0028) adds trees, road markings and land-use and green kinds, which need more colours. The limit of 16 was a style restraint, not a technical one: the shader array is sized from `PALETTE_ORDER.length` and the lookup texture stores one byte per feature (up to 256 values).
+- **Decision:** `MAX_PALETTE_COLOURS` = 32. New entries are appended after the existing ones, so the indices of palette v1 do not change. The night palette (T-4.3) must define a colour for every entry, enforced by its type.
+- **Consequences:** the restrained look is kept by review at the Phase 4 checkpoint, not by the cap. The cost is a uniform array of up to 32 vec3.

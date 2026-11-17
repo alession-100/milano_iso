@@ -1,5 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
+// E2E_PORT lets parallel worktrees run e2e without colliding (default 4173).
+const port = Number(process.env.E2E_PORT ?? 4173);
+
 export default defineConfig({
   testDir: 'e2e',
   reporter: 'list',
@@ -14,14 +17,14 @@ export default defineConfig({
     },
   },
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: `http://localhost:${port}`,
     viewport: { width: 1280, height: 720 },
     browserName: 'chromium',
     launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
   },
   webServer: {
-    command: 'npm run preview',
-    url: 'http://localhost:4173',
+    command: `npx vite preview --port ${port} --strictPort`,
+    url: `http://localhost:${port}`,
     reuseExistingServer: false,
   },
 });
