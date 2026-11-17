@@ -13,3 +13,7 @@ Files are named `<view>-<size>-<platform>.png`. Both `win32` (local) and `linux`
 3. Copy the PNGs into this directory, review them, and commit them.
 
 The workflow never pushes commits. The first Linux baselines came from the workflow run of 2026-11-17 (owner-run) and the CI skip was removed then.
+
+## T-4.3 (day/night)
+
+The page now shows the day/night toggle (top right), so every day baseline changed, and `night-default` and `night-close` candidates (`?time=night`) were added, at both sizes. The `win32` files were regenerated in T-4.3 after deleting the old ones. The `*-linux.png` files are stale until the orchestrator regenerates them with the workflow above; the night look awaits owner approval at the Phase 4 checkpoint.
