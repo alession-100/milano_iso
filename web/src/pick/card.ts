@@ -40,8 +40,9 @@ const CSS = `
 }
 #info-card[hidden] { display: none; }
 #info-card.night { color: #eceff1; background: rgba(38,50,56,0.97); border-color: #90a4ae; }
-#info-card:focus { outline: 2px solid #1565c0; outline-offset: 1px; }
-#info-card.night:focus { outline-color: #90caf9; }
+#info-card:focus-visible { outline: 2px solid #1565c0; outline-offset: 1px; }
+#info-card:focus:not(:focus-visible) { outline: none; }
+#info-card.night:focus-visible { outline-color: #90caf9; }
 #info-card h2 { margin: 0 36px 6px 0; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
 #info-card h2.unnamed { font-style: italic; font-weight: 600; }
 #info-card dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px 10px; }
@@ -150,6 +151,24 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = DEFAULT_
     }
   }
 
+  /**
+   * Keeps the card clear of the attribution, whatever height it wraps to: bottom sheet above it on
+   * narrow screens, a right panel that ends above it on wide ones.
+   */
+  function layout(): void {
+    const attr = document.getElementById('attribution');
+    const top = attr ? attr.getBoundingClientRect().top : window.innerHeight;
+    const gap = Math.max(0, window.innerHeight - top) + 6;
+    if (window.matchMedia('(max-width: 600px)').matches) {
+      root.style.bottom = `${gap}px`;
+      root.style.maxHeight = '';
+    } else {
+      root.style.bottom = '';
+      root.style.maxHeight = `${Math.max(120, top - 6 - 104)}px`;
+    }
+  }
+  window.addEventListener('resize', layout);
+
   return {
     element: root,
     show(next, focus) {
@@ -169,6 +188,7 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = DEFAULT_
       }
       render();
       root.hidden = false;
+      layout();
       if (focus || !wasOpen) root.focus({ preventScroll: true });
     },
     setMode(mode) {

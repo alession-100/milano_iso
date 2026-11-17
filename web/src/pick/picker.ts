@@ -69,6 +69,8 @@ export class Picker {
   private press: PressState | null = null;
   private readonly pointers = new Set<number>();
   private frame = 0;
+  /** Layer of the mesh of the last accepted hit (e2e: tells a landmark detail from its body). */
+  private lastLayer: string | null = null;
   private last = { x: 0, y: 0 };
   private readonly timing = { count: 0, lastMs: 0, maxMs: 0 };
 
@@ -89,11 +91,18 @@ export class Picker {
       hoverCount: this.hoverCount,
       card: this.card.state(),
       pick: { ...this.timing },
+      lastLayer: this.lastLayer,
     }));
     if (e2eEnabled()) {
       const w = window as unknown as Record<string, unknown>;
       /** Ref under a client point, without selecting it. */
-      w.__milanoIsoPickAt = (x: number, y: number): FeatureRef | null => this.pickAt(x, y);
+      w.__milanoIsoPickAt = (x: number, y: number): { ref: FeatureRef | null; layer: string | null } => {
+        const ref = this.pickAt(x, y);
+        return { ref, layer: this.lastLayer };
+      };
+      /** Selects like a search hit would (T-5.3b calls select() itself). */
+      w.__milanoIsoSelect = (ref: FeatureRef | null, source: 'pick' | 'search'): void =>
+        select(ref ? { ref, source } : null);
       /** Client pixel of a ground point (x, y up, z) in client metres. */
       w.__milanoIsoScreenOf = (x: number, y: number, z: number): { x: number; y: number } => {
         const r = host.getBoundingClientRect();
@@ -154,8 +163,12 @@ export class Picker {
       const row = this.rowOfHit(hit, mesh, layer, group);
       if (!isPickable(layer, row) || !row) continue;
       const ref = refForRow(layer, group.name, row);
-      if (ref) return ref;
+      if (ref) {
+        this.lastLayer = layer;
+        return ref;
+      }
     }
+    this.lastLayer = null;
     return null;
   }
 
