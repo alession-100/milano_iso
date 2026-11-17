@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { layerOf } from '../materials';
+import { layerOf } from '../style/materials';
 import { TileStreamer } from './loader';
 import type { TileEntry } from './manifest';
 

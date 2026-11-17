@@ -3,6 +3,7 @@ import { CameraRig, createCamera, parseElevation, resizeCamera } from './camera'
 import { Controls } from './controls';
 import { DEFAULT_LANG, t } from './i18n';
 import { createScene } from './scene';
+import { configureShadowRenderer, fitSunShadow, parseShadows } from './style/lights';
 import { registerSetView, registerTestState } from './testhook';
 import { renderAttribution } from './tiles/attribution';
 import { cullTiles, frustumOf, sortNearestFirst, viewCentre } from './tiles/culling';
@@ -16,7 +17,11 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(1);
 host.appendChild(renderer.domElement);
 
-const { scene, tileRoot } = createScene();
+// --- T-3.3 style ---
+const shadowsOn = parseShadows(window.location.search);
+configureShadowRenderer(renderer, shadowsOn);
+// --- end T-3.3 style ---
+const { scene, tileRoot, sun } = createScene(shadowsOn);
 const elevation = parseElevation(window.location.search);
 const camera = createCamera(window.innerWidth / window.innerHeight, elevation);
 const rig = new CameraRig(camera, elevation);
@@ -73,6 +78,7 @@ function render(): void {
     lastKey = key;
     updateTiles();
   }
+  if (shadowsOn) fitSunShadow(sun, camera, rig.bounds); // T-3.3 style
   renderer.render(scene, camera);
   lastRender = { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
 }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { layerOf, materialFor } from '../materials';
+import { type FeatureTable, applyStyle, disposeLookupMaterial } from '../style/materials';
 import type { TileEntry } from './manifest';
 
 /** Most tiles fetched and decoded at the same time. */
@@ -141,22 +141,39 @@ export class TileStreamer<T> {
   }
 }
 
-/** Dispose every geometry below `obj`. Materials are shared per layer and are never disposed here. */
+/**
+ * Dispose every geometry below `obj`, and the per-tile lookup materials (with their textures).
+ * The flat per-layer materials are shared and are never disposed here.
+ */
 export function disposeTile(obj: THREE.Object3D): void {
   obj.traverse((o) => {
-    if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).geometry.dispose();
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    mesh.geometry.dispose();
+    const mat = mesh.material as THREE.Material;
+    if (mat.userData.lookup) disposeLookupMaterial(mat);
   });
+}
+
+async function fetchFeatureTable(url: string): Promise<FeatureTable> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`feature table ${url}: HTTP ${res.status}`);
+  return (await res.json()) as FeatureTable;
 }
 
 /**
  * GLTFLoader-based tile loader (`KHR_mesh_quantization` is native). `_FEATURE_ID` stays on each
  * geometry as the attribute `_feature_id` (three lower-cases custom attribute names) for Phase 5.
- * The file's placeholder materials are replaced by the shared `materialFor(layer)` instance.
+ * The file's placeholder materials are replaced by the style (T-3.3): the tile's feature table
+ * is fetched next to the glb and drives the per-building colours (see style/materials.ts).
  */
 export function createGltfTileLoader(base: URL): (tile: TileEntry) => Promise<THREE.Group> {
   const loader = new GLTFLoader();
   return async (tile) => {
-    const gltf = await loader.loadAsync(new URL(tile.glb.file, base).href);
+    const [gltf, table] = await Promise.all([
+      loader.loadAsync(new URL(tile.glb.file, base).href),
+      fetchFeatureTable(new URL(tile.features.file, base).href),
+    ]);
     const group = gltf.scene;
     group.name = tile.id;
     group.traverse((o) => {
@@ -164,7 +181,7 @@ export function createGltfTileLoader(base: URL): (tile: TileEntry) => Promise<TH
       if (!mesh.isMesh) return;
       const own = mesh.material;
       for (const m of Array.isArray(own) ? own : [own]) m.dispose();
-      mesh.material = materialFor(layerOf(mesh.name));
+      applyStyle(mesh, table);
     });
     return group;
   };
