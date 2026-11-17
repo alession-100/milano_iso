@@ -224,3 +224,25 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - CI installs npm 11.19.1 explicitly.
   - Locally, use npm 11.19.1 for any lockfile change (`npx npm@11.19.1 install ...`).
   - Actions are pinned by full commit SHA: `actions/checkout` v7.0.1, `actions/setup-node` v7.1.0, `astral-sh/setup-uv` v10.3.3, all on the node24 runtime. uv is pinned to 0.13.8, and checkout does not persist credentials.
+
+## ADR-0025 - Viewer architecture for Phase 3
+- **Status:** Accepted (2026-11-17)
+- **Tile serving:**
+  - Built tiles stay outside git (`data/tiles/pilot`).
+  - `make web-tiles` copies them to `web/public/tiles/pilot/` (gitignored), so `npm run dev` and `npm run build` serve them as static files.
+  - The client fetches `tiles/pilot/tiles.json` relative to the page. The query `?tiles=<base>` may override this for development.
+- **e2e and CI without real data:**
+  - CI has no 1.2 GB download, so the e2e tests use a small **synthetic fixture tileset**.
+  - A committed, deterministic script runs the real exporter on synthetic input (a few buildings and roads around the origin) and writes it to `web/e2e/fixtures/tiles/`, where it is committed.
+  - Tests serve it by intercepting `**/tiles/**` requests in Playwright.
+  - The fixture is never presented as real data.
+- **Test hook:**
+  - With `?e2e=1`, `window.__milanoIso` exposes read-only state for tests through `web/src/testhook.ts` (`registerTestState(key, getter)`). The keys are `camera`, `tiles` and `render` (draw calls, triangles).
+  - Without the flag it does not exist.
+- **Module ownership** (so parallel tasks do not collide):
+  - `camera.ts` and `controls.ts`: camera and input (T-3.1).
+  - `tiles/` (loader, culling, manifest) and `scene.ts`: tiles (T-3.2).
+  - `style/` (palette, materials, lights): T-3.3.
+  - `debug.ts`: T-3.4.
+  - `main.ts` is the composition root. Tasks add only small, clearly delimited blocks to it, and the orchestrator resolves merges.
+- **Attribution:** the attribution shown in the UI comes from `tiles.json` (hard rule 10). It is shown as soon as any tile data is rendered, and the i18n dictionary holds only its label.
