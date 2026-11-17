@@ -3,11 +3,18 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   MAX_PALETTE_COLOURS,
+  NIGHT_PALETTE,
   PALETTE,
   PALETTE_ORDER,
   buildingColour,
   buildingGroup,
+  greenColour,
+  greenGroup,
+  landuseColour,
+  landuseGroup,
+  paletteFor,
   roadGroup,
+  waterColour,
 } from './palette';
 
 const FIXTURES = path.resolve(process.cwd(), 'e2e', 'fixtures', 'tiles');
@@ -24,9 +31,78 @@ function fixtureRows(layer: string): Record<string, unknown>[] {
 }
 
 describe('palette', () => {
-  it('has at most 16 colours, and the order lists every one exactly once', () => {
+  it('has at most 32 colours (ADR-0029), and the order lists every one exactly once', () => {
+    expect(MAX_PALETTE_COLOURS).toBe(32);
     expect(Object.keys(PALETTE).length).toBeLessThanOrEqual(MAX_PALETTE_COLOURS);
     expect([...PALETTE_ORDER].sort()).toEqual(Object.keys(PALETTE).sort());
+  });
+
+  it('keeps the palette v1 entries first, in their original order and colour', () => {
+    expect(PALETTE_ORDER.slice(0, 15)).toEqual([
+      'ground',
+      'roadMajor',
+      'roadMinor',
+      'roadPedestrian',
+      'roadAreas',
+      'rail',
+      'water',
+      'green',
+      'landuse',
+      'buildingResidential',
+      'buildingCommercial',
+      'buildingCivic',
+      'buildingIndustrial',
+      'buildingOther',
+      'landmark',
+    ]);
+    expect(PALETTE.ground).toBe(0xe3ded4);
+    expect(PALETTE.water).toBe(0x8cb9cf);
+    expect(PALETTE.green).toBe(0xa9c58f);
+    expect(PALETTE.landuse).toBe(0xd5d0c1);
+    expect(PALETTE.landmark).toBe(0xd2745c);
+  });
+
+  it('has a night colour for every entry, different from the day colour', () => {
+    expect(Object.keys(NIGHT_PALETTE).sort()).toEqual(Object.keys(PALETTE).sort());
+    for (const n of PALETTE_ORDER) {
+      expect(Number.isInteger(NIGHT_PALETTE[n])).toBe(true);
+      expect(NIGHT_PALETTE[n]).not.toBe(PALETTE[n]);
+    }
+    expect(paletteFor('night')).toBe(NIGHT_PALETTE);
+    expect(paletteFor('day')).toBe(PALETTE);
+  });
+});
+
+describe('flat layer kind mapping', () => {
+  it('groups land-use kinds; unknown, null and prototype names fall back to landuse', () => {
+    expect(landuseColour('residential')).toBe('landuseResidential');
+    expect(landuseColour('retail')).toBe('landuseCommercial');
+    expect(landuseColour('railway')).toBe('landuseIndustrial');
+    expect(landuseColour('religious')).toBe('landuseCivic');
+    expect(landuseColour('construction')).toBe('landuse');
+    expect(landuseColour('something_new')).toBe('landuse');
+    expect(landuseColour('toString')).toBe('landuse');
+    expect(landuseColour(null)).toBe('landuse');
+    expect(landuseGroup('nope')).toBeNull();
+  });
+
+  it('groups green kinds; the fallback is the v1 green', () => {
+    expect(greenColour('park')).toBe('green');
+    expect(greenColour('garden')).toBe('green');
+    expect(greenColour('grass')).toBe('greenGrass');
+    expect(greenColour('forest')).toBe('greenWood');
+    expect(greenColour('playground')).toBe('greenPitch');
+    expect(greenColour('something_new')).toBe('green');
+    expect(greenColour('hasOwnProperty')).toBe('green');
+    expect(greenColour(undefined)).toBe('green');
+    expect(greenGroup('nope')).toBeNull();
+  });
+
+  it('gives small basins their own water colour, everything else the v1 water', () => {
+    expect(waterColour('reflecting_pool')).toBe('waterPool');
+    expect(waterColour('water')).toBe('water');
+    expect(waterColour('river')).toBe('water');
+    expect(waterColour(null)).toBe('water');
   });
 });
 

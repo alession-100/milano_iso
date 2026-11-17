@@ -3,10 +3,13 @@
  * Milano Iso look. None of them is measured or derived from a source; what is data is only the
  * *category* a feature falls into (its `building_type`, road `class`, `landmark_id`).
  *
- * The surface palette is defined once, has at most 16 entries (checked by palette.test.ts) and is
- * uploaded as one uniform array. A byte in the per-tile lookup texture is an index into it, so the
+ * The surface palette is defined once, has at most 32 entries (ADR-0029, checked by palette.test.ts)
+ * and is uploaded as one uniform array. A byte in the per-tile lookup texture is an index into it, so the
  * order of PALETTE_ORDER is part of the contract. Roofs and walls of one building share one
  * colour: they differ only through lighting.
+ *
+ * T-4.3 appended the land-use, green and water kind colours after palette v1 (never reorder or
+ * recolour the v1 entries: the owner approved them). Every entry has a night colour in NIGHT_PALETTE.
  */
 export const PALETTE = {
   /** Ground plane and page background (muted warm grey). */
@@ -26,6 +29,18 @@ export const PALETTE = {
   buildingOther: 0xd6d0c8,
   /** Accent for buildings that carry a `landmark_id`. */
   landmark: 0xd2745c,
+  // --- T-4.3 additions (appended; the entries above are palette v1) ---
+  /** Land-use kinds; `landuse` above stays the colour of "other" and of unknown kinds. */
+  landuseResidential: 0xd9d1c0,
+  landuseCommercial: 0xddcec3,
+  landuseIndustrial: 0xcdcfcb,
+  landuseCivic: 0xddd7bd,
+  /** Green kinds; `green` above is park/garden and the fallback. */
+  greenGrass: 0xbfd49b,
+  greenWood: 0x8caf7c,
+  greenPitch: 0x9fc3a2,
+  /** Small basins (reflecting pools, fountains); `water` above is the fallback. */
+  waterPool: 0x9cc7d9,
 } as const;
 
 export type PaletteName = keyof typeof PALETTE;
@@ -47,12 +62,56 @@ export const PALETTE_ORDER: readonly PaletteName[] = [
   'buildingIndustrial',
   'buildingOther',
   'landmark',
+  'landuseResidential',
+  'landuseCommercial',
+  'landuseIndustrial',
+  'landuseCivic',
+  'greenGrass',
+  'greenWood',
+  'greenPitch',
+  'waterPool',
 ];
 
-export const MAX_PALETTE_COLOURS = 16;
+export const MAX_PALETTE_COLOURS = 32;
 
 export function paletteIndex(name: PaletteName): number {
   return PALETTE_ORDER.indexOf(name);
+}
+
+/**
+ * Night palette (STYLE, not data): a cool, dark version of every day colour. The type forces a
+ * night colour for each palette entry, so adding a day colour without a night one does not compile.
+ */
+export const NIGHT_PALETTE: Record<PaletteName, number> = {
+  ground: 0x2e3650,
+  roadMajor: 0x4b5168,
+  roadMinor: 0x58607a,
+  roadPedestrian: 0x6a6a7a,
+  roadAreas: 0x565d78,
+  rail: 0x3d4157,
+  water: 0x2f6488,
+  green: 0x44705a,
+  landuse: 0x363f5a,
+  buildingResidential: 0x8f7e86,
+  buildingCommercial: 0x7f7283,
+  buildingCivic: 0x8c8794,
+  buildingIndustrial: 0x6c7488,
+  buildingOther: 0x858899,
+  landmark: 0xc9715e,
+  landuseResidential: 0x384260,
+  landuseCommercial: 0x3d4160,
+  landuseIndustrial: 0x343e58,
+  landuseCivic: 0x3f4563,
+  greenGrass: 0x4c7a5e,
+  greenWood: 0x365e4f,
+  greenPitch: 0x447a6c,
+  waterPool: 0x3d7599,
+};
+
+export type StyleMode = 'day' | 'night';
+
+export function paletteFor(mode: StyleMode): Record<PaletteName, number> {
+  return mode === 'night' ? NIGHT_PALETTE : PALETTE;
 }
 
 /** Light colours (style, not part of the surface palette). */
@@ -60,6 +119,13 @@ export const LIGHT_COLOURS = {
   sun: 0xfff4e0,
   skyFill: 0xffffff,
   groundFill: 0xa89f94,
+} as const;
+
+/** Night lights (style): a cool, low "moon" key and a dim cool fill. */
+export const NIGHT_LIGHT_COLOURS = {
+  sun: 0x9db4ff,
+  skyFill: 0x7f93c9,
+  groundFill: 0x2b2f45,
 } as const;
 
 // Category mapping (data category -> palette name). The categories are data, the colours style.
@@ -161,4 +227,95 @@ const ROAD_GROUP_COLOUR: Record<RoadGroup, PaletteName> = {
 
 export function roadColour(cls: string | null | undefined): PaletteName {
   return ROAD_GROUP_COLOUR[roadGroup(cls)];
+}
+
+// Kind mappings for the flat layers (T-4.3). The kinds are data (the `kind` column of the feature
+// tables, see pipeline classify.py); the grouping and the colours are style. Unknown kinds return
+// null and the caller falls back to the layer colour.
+
+export type LanduseGroup = 'residential' | 'commercial' | 'industrial' | 'civic';
+const LANDUSE_GROUPS: Record<string, LanduseGroup> = {
+  residential: 'residential',
+  commercial: 'commercial',
+  retail: 'commercial',
+  industrial: 'industrial',
+  railway: 'industrial',
+  religious: 'civic',
+  education: 'civic',
+  institutional: 'civic',
+  civic_admin: 'civic',
+  military: 'civic',
+};
+const LANDUSE_COLOUR: Record<LanduseGroup, PaletteName> = {
+  residential: 'landuseResidential',
+  commercial: 'landuseCommercial',
+  industrial: 'landuseIndustrial',
+  civic: 'landuseCivic',
+};
+
+export type GreenGroup = 'park' | 'grass' | 'wood' | 'pitch';
+const GREEN_GROUPS: Record<string, GreenGroup> = {
+  park: 'park',
+  garden: 'park',
+  flowerbed: 'park',
+  village_green: 'park',
+  common: 'park',
+  dog_park: 'park',
+  cemetery: 'park',
+  grave_yard: 'park',
+  grass: 'grass',
+  meadow: 'grass',
+  grassland: 'grass',
+  heath: 'grass',
+  allotments: 'grass',
+  plant_nursery: 'grass',
+  recreation_ground: 'grass',
+  forest: 'wood',
+  wood: 'wood',
+  scrub: 'wood',
+  orchard: 'wood',
+  vineyard: 'wood',
+  nature_reserve: 'wood',
+  pitch: 'pitch',
+  playground: 'pitch',
+  golf_course: 'pitch',
+};
+const GREEN_COLOUR: Record<GreenGroup, PaletteName> = {
+  park: 'green',
+  grass: 'greenGrass',
+  wood: 'greenWood',
+  pitch: 'greenPitch',
+};
+
+const POOL_KINDS: ReadonlySet<string> = new Set([
+  'reflecting_pool',
+  'fountain',
+  'basin',
+  'pond',
+  'swimming_pool',
+]);
+
+function lookupKind<T>(table: Record<string, T>, kind: string | null | undefined): T | null {
+  if (kind == null) return null;
+  return Object.hasOwn(table, kind) ? table[kind] : null;
+}
+
+export function landuseGroup(kind: string | null | undefined): LanduseGroup | null {
+  return lookupKind(LANDUSE_GROUPS, kind);
+}
+export function greenGroup(kind: string | null | undefined): GreenGroup | null {
+  return lookupKind(GREEN_GROUPS, kind);
+}
+
+/** Palette name of a land-use feature; unknown or missing kinds keep the layer colour. */
+export function landuseColour(kind: string | null | undefined): PaletteName {
+  const g = landuseGroup(kind);
+  return g ? LANDUSE_COLOUR[g] : 'landuse';
+}
+export function greenColour(kind: string | null | undefined): PaletteName {
+  const g = greenGroup(kind);
+  return g ? GREEN_COLOUR[g] : 'green';
+}
+export function waterColour(kind: string | null | undefined): PaletteName {
+  return kind != null && POOL_KINDS.has(kind) ? 'waterPool' : 'water';
 }

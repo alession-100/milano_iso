@@ -14,6 +14,9 @@ const VIEWS: [string, number, number, number][] = [
   ['west', -40, 40, 150],
 ];
 
+// Night candidates (T-4.3): default and close views only, `?time=night`. Names are prefixed night-.
+const NIGHT_VIEWS = new Set(['default', 'close']);
+
 const SIZES: [string, number, number][] = [
   ['desktop-1280x720', 1280, 720],
   ['mobile-412x915', 412, 915],
@@ -39,12 +42,16 @@ test.describe('visual regression (fixture tiles)', () => {
     test.describe(sizeName, () => {
       test.use({ viewport: { width, height } });
 
-      for (const [viewName, x, z, w] of VIEWS) {
-        test(`${viewName} view`, async ({ page }) => {
+      for (const [mode, viewName, x, z, w] of VIEWS.flatMap(([n, a, b, c]) =>
+        (['day', 'night'] as const)
+          .filter((m) => m === 'day' || NIGHT_VIEWS.has(n))
+          .map((m) => [m, n, a, b, c] as const),
+      )) {
+        test(`${mode === 'night' ? 'night ' : ''}${viewName} view`, async ({ page }) => {
           await page.emulateMedia({ reducedMotion: 'reduce' });
           await routeFixtureTiles(page);
           const expected = readFixtureManifest().tiles.length;
-          await page.goto('/?e2e=1');
+          await page.goto(mode === 'night' ? '/?e2e=1&time=night' : '/?e2e=1');
           await expect(page.locator('canvas')).toHaveCount(1);
           await setView(page, x, z, w);
           await expect
@@ -79,7 +86,7 @@ test.describe('visual regression (fixture tiles)', () => {
             () =>
               new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
           );
-          await expect(page).toHaveScreenshot(`${viewName}-${sizeName}.png`);
+          await expect(page).toHaveScreenshot(`${mode === 'night' ? 'night-' : ''}${viewName}-${sizeName}.png`);
         });
       }
     });
