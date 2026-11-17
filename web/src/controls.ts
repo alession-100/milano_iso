@@ -63,6 +63,8 @@ export interface ControlsOptions {
   /** Called after every state change; the host coalesces and renders on demand. */
   requestRender: () => void;
   ariaLabel: string;
+  /** Q (-1, counter-clockwise) and E (+1, clockwise), T-5.2. */
+  onRotate?: (dir: -1 | 1) => void;
   /** Injectable for tests; defaults to the media query. */
   reducedMotion?: () => boolean;
 }
@@ -230,6 +232,16 @@ export class Controls {
         break;
       case '0':
         this.rig.reset();
+        break;
+      case 'q':
+      case 'Q':
+        if (!this.opts.onRotate) return;
+        this.opts.onRotate(-1);
+        break;
+      case 'e':
+      case 'E':
+        if (!this.opts.onRotate) return;
+        this.opts.onRotate(1);
         break;
       default:
         return;

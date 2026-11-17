@@ -2,6 +2,9 @@ import * as THREE from 'three';
 
 export const DEFAULT_ELEVATION_DEG = 30;
 export const AZIMUTH_DEG = 45;
+/** Four views, 90 degrees apart (T-5.2): step 0 is the default 45 degrees (ADR-0003). */
+export const ROTATION_STEPS = 4;
+export const ROTATION_STEP_DEG = 90;
 export const ALLOWED_ELEVATIONS: readonly number[] = [30, 35.264];
 
 const DEG = Math.PI / 180;
@@ -17,6 +20,23 @@ export function cameraDirection(
   const az = azimuthDeg * DEG;
   const el = elevationDeg * DEG;
   return [Math.cos(el) * Math.sin(az), Math.sin(el), Math.cos(el) * Math.cos(az)];
+}
+
+/** Wraps any integer step into 0..ROTATION_STEPS-1, both ways. */
+export function wrapStep(step: number): number {
+  return ((Math.round(step) % ROTATION_STEPS) + ROTATION_STEPS) % ROTATION_STEPS;
+}
+
+/** Azimuth of rotation step `step` (any integer, wrapped): exactly 45, 135, 225 or 315. */
+export function azimuthOfStep(step: number): number {
+  return AZIMUTH_DEG + wrapStep(step) * ROTATION_STEP_DEG;
+}
+
+/** Parse the `?rot=` query (0..3); anything else gives step 0. */
+export function parseRotation(search: string): number {
+  const raw = new URLSearchParams(search).get('rot');
+  if (raw === null || !/^[0-3]$/.test(raw.trim())) return 0;
+  return Number(raw.trim());
 }
 
 /** Parse the `?elev=` query; only 30 or 35.264 are accepted, anything else gives the default. */
@@ -72,6 +92,7 @@ export interface Bounds {
 export function createCamera(
   aspect: number,
   elevationDeg: number = DEFAULT_ELEVATION_DEG,
+  azimuthDeg: number = AZIMUTH_DEG,
 ): THREE.OrthographicCamera {
   const camera = new THREE.OrthographicCamera(
     -1,
@@ -82,7 +103,7 @@ export function createCamera(
     VIEW_DEFAULTS.far,
   );
   camera.userData.visibleWidth = VIEW_DEFAULTS.visibleWidthM;
-  placeCamera(camera, VIEW_DEFAULTS.target[0], VIEW_DEFAULTS.target[1], elevationDeg);
+  placeCamera(camera, VIEW_DEFAULTS.target[0], VIEW_DEFAULTS.target[1], elevationDeg, azimuthDeg);
   resizeCamera(camera, aspect);
   return camera;
 }
@@ -92,8 +113,9 @@ function placeCamera(
   tx: number,
   tz: number,
   elevationDeg: number,
+  azimuthDeg: number,
 ): void {
-  const [x, y, z] = cameraDirection(AZIMUTH_DEG, elevationDeg);
+  const [x, y, z] = cameraDirection(azimuthDeg, elevationDeg);
   const d = VIEW_DEFAULTS.cameraDistanceM;
   camera.position.set(tx + x * d, y * d, tz + z * d);
   camera.lookAt(tx, 0, tz);
@@ -125,21 +147,32 @@ export class CameraRig {
   visibleWidth: number = VIEW_DEFAULTS.visibleWidthM;
   bounds: Bounds;
   readonly elevationDeg: number;
-  readonly azimuthDeg = AZIMUTH_DEG;
+  /** Current azimuth; equals azimuthOfStep(azimuthStep) except while a rotation animates. */
+  azimuthDeg: number = AZIMUTH_DEG;
+  /** Rotation step 0..3 the view is at, or animating towards. */
+  azimuthStep = 0;
   private readonly camera: THREE.OrthographicCamera | null;
 
   constructor(
     camera: THREE.OrthographicCamera | null = null,
     elevationDeg: number = DEFAULT_ELEVATION_DEG,
+    step = 0,
   ) {
     this.camera = camera;
+    this.setStep(step);
     this.elevationDeg = elevationDeg;
     const h = VIEW_DEFAULTS.fallbackBoundsHalfM;
     this.bounds = { minX: -h, maxX: h, minZ: -h, maxZ: h };
   }
 
+  /** Jumps to rotation step `step` (wrapped); the target is untouched. */
+  setStep(step: number): void {
+    this.azimuthStep = wrapStep(step);
+    this.azimuthDeg = azimuthOfStep(this.azimuthStep);
+  }
+
   private axes(): { r: [number, number]; f: [number, number]; sinEl: number } {
-    const az = AZIMUTH_DEG * DEG;
+    const az = this.azimuthDeg * DEG;
     return {
       r: [Math.cos(az), -Math.sin(az)],
       f: [-Math.sin(az), -Math.cos(az)],
@@ -224,7 +257,7 @@ export class CameraRig {
     const cam = this.camera;
     if (!cam) return;
     cam.userData.visibleWidth = this.visibleWidth;
-    placeCamera(cam, this.target[0], this.target[1], this.elevationDeg);
+    placeCamera(cam, this.target[0], this.target[1], this.elevationDeg, this.azimuthDeg);
     resizeCamera(cam, (cam.userData.aspect as number | undefined) ?? 1);
   }
 
@@ -233,6 +266,7 @@ export class CameraRig {
     visibleWidth: number;
     elevationDeg: number;
     azimuthDeg: number;
+    azimuthStep: number;
     bounds: Bounds;
   } {
     return {
@@ -240,6 +274,7 @@ export class CameraRig {
       visibleWidth: this.visibleWidth,
       elevationDeg: this.elevationDeg,
       azimuthDeg: this.azimuthDeg,
+      azimuthStep: this.azimuthStep,
       bounds: { ...this.bounds },
     };
   }

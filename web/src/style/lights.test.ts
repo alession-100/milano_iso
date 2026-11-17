@@ -64,6 +64,27 @@ describe('fitSunShadow', () => {
     });
   }
 
+  for (let step = 0; step < 4; step++) {
+    it(`contains the view footprint and its casters in rotation step ${step}`, () => {
+      const cam = createCamera(16 / 9);
+      const rig = new CameraRig(cam, 30, step);
+      rig.target = [40, -30];
+      rig.visibleWidth = 600;
+      rig.apply();
+      const { sun } = createLights(true);
+      fitSunShadow(sun, cam);
+      for (const p of viewFootprint(cam)) {
+        for (const y of [0, SHADOW_CASTER_MAX_HEIGHT_M]) {
+          const q = project(sun, new THREE.Vector3(p.x, y, p.z));
+          expect(Math.abs(q.x)).toBeLessThanOrEqual(1 + 1e-6);
+          expect(Math.abs(q.y)).toBeLessThanOrEqual(1 + 1e-6);
+          expect(q.z).toBeGreaterThanOrEqual(-1 - 1e-6);
+          expect(q.z).toBeLessThanOrEqual(1 + 1e-6);
+        }
+      }
+    });
+  }
+
   it('shrinks to the content bounds', () => {
     const cam = createCamera(16 / 9);
     new CameraRig(cam).apply();

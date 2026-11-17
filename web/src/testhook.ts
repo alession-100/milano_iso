@@ -25,8 +25,13 @@ export function registerTestState(key: string, getter: Getter): void {
   });
 }
 
-/** e2e only (`e2e=1`): exposes `window.__milanoIsoSetView(x, z, width)`; otherwise a no-op. */
-export function registerSetView(setView: (x: number, z: number, width: number) => void): void {
+/**
+ * e2e only (`e2e=1`): exposes `window.__milanoIsoSetView(x, z, width, step?)`; otherwise a no-op.
+ * The optional `step` (0..3) sets the rotation step instantly.
+ */
+export function registerSetView(
+  setView: (x: number, z: number, width: number, step?: number) => void,
+): void {
   if (!e2eEnabled()) return;
   (window as unknown as { __milanoIsoSetView?: typeof setView }).__milanoIsoSetView = setView;
 }

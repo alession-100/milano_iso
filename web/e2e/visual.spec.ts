@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { type Page, expect, test } from '@playwright/test';
 import { readFixtureManifest, routeFixtureTiles } from './support';
 
@@ -6,12 +7,17 @@ import { readFixtureManifest, routeFixtureTiles } from './support';
 // captured under ?e2e=1 (no MSAA, ADR-0027) from the synthetic fixture tileset, reduced motion.
 
 // Fixture camera views: [name, ground x (m), ground z (m), visible width (m)].
-const VIEWS: [string, number, number, number][] = [
+// The optional fifth element is the rotation step (`?rot=`, T-5.2).
+const VIEWS: [string, number, number, number, number?][] = [
   ['default', 0, 0, 600],
   ['close', 0, 0, 150],
   ['wide', 0, 0, 1200],
   // Offset close view: keeps the industrial and other buildings in frame on the narrow mobile size.
   ['west', -40, 40, 150],
+  // T-5.2: the default view turned by 90, 180 and 270 degrees (derived views of the approved look).
+  ['default-rot1', 0, 0, 600, 1],
+  ['default-rot2', 0, 0, 600, 2],
+  ['default-rot3', 0, 0, 600, 3],
 ];
 
 // Night candidates (T-4.3): default and close views only, `?time=night`. Names are prefixed night-.
@@ -42,16 +48,18 @@ test.describe('visual regression (fixture tiles)', () => {
     test.describe(sizeName, () => {
       test.use({ viewport: { width, height } });
 
-      for (const [mode, viewName, x, z, w] of VIEWS.flatMap(([n, a, b, c]) =>
+      for (const [mode, viewName, x, z, w, rot] of VIEWS.flatMap(([n, a, b, c, r]) =>
         (['day', 'night'] as const)
           .filter((m) => m === 'day' || NIGHT_VIEWS.has(n))
-          .map((m) => [m, n, a, b, c] as const),
+          .map((m) => [m, n, a, b, c, r ?? 0] as const),
       )) {
         test(`${mode === 'night' ? 'night ' : ''}${viewName} view`, async ({ page }) => {
           await page.emulateMedia({ reducedMotion: 'reduce' });
           await routeFixtureTiles(page);
           const expected = readFixtureManifest().tiles.length;
-          await page.goto(mode === 'night' ? '/?e2e=1&time=night' : '/?e2e=1');
+          await page.goto(
+            `/?e2e=1${mode === 'night' ? '&time=night' : ''}${rot ? `&rot=${rot}` : ''}`,
+          );
           await expect(page.locator('canvas')).toHaveCount(1);
           await setView(page, x, z, w);
           await expect
@@ -86,7 +94,10 @@ test.describe('visual regression (fixture tiles)', () => {
             () =>
               new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
           );
-          await expect(page).toHaveScreenshot(`${mode === 'night' ? 'night-' : ''}${viewName}-${sizeName}.png`);
+          await expect(page).toHaveScreenshot(
+            `${mode === 'night' ? 'night-' : ''}${viewName}-${sizeName}.png`,
+            { stylePath: path.resolve(process.cwd(), 'e2e', 'visual-hide-controls.css') },
+          );
         });
       }
     });

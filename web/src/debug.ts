@@ -105,7 +105,7 @@ export function summarise(
 export interface DebugContext {
   renderInfo: () => { calls: number; triangles: number };
   tiles: () => { loaded: number; loading: number; failed: number; visible: number };
-  camera: () => { target: [number, number]; visibleWidth: number };
+  camera: () => { target: [number, number]; visibleWidth: number; azimuthDeg: number };
   canvas: HTMLCanvasElement;
   pixelRatio: () => number;
   /** Move the camera (clamped by the rig) and apply it. */
@@ -171,7 +171,7 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
       `frame ${fmt(lastFrameMs)} ms (${fmt(lastFrameMs > 0 ? 1000 / lastFrameMs : NaN, 0)} fps)\n` +
       `draw calls ${info.calls}  triangles ${info.triangles}\n` +
       `tiles loaded ${tl.loaded} loading ${tl.loading} failed ${tl.failed} visible ${tl.visible}\n` +
-      `target ${fmt(cam.target[0], 0)}, ${fmt(cam.target[1], 0)} m  width ${fmt(cam.visibleWidth, 0)} m\n` +
+      `target ${fmt(cam.target[0], 0)}, ${fmt(cam.target[1], 0)} m  width ${fmt(cam.visibleWidth, 0)} m  az ${fmt(cam.azimuthDeg, 0)}\n` +
       `dpr ${ctx.pixelRatio()} (device ${window.devicePixelRatio})  canvas ${ctx.canvas.width}x${ctx.canvas.height}`;
   }
 

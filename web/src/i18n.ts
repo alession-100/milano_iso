@@ -6,7 +6,7 @@ export const dictionary = {
   it: {
     title: 'Milano Iso',
     mapLabel:
-      'Mappa isometrica di Milano. Frecce per spostare, più e meno per lo zoom, zero per ripristinare la vista.',
+      'Mappa isometrica di Milano. Frecce per spostare, più e meno per lo zoom, zero per ripristinare la vista, Q ed E per ruotare.',
     dataLabel: 'Dati',
     tilesError: 'Impossibile caricare i dati della mappa',
     tilesPartial: 'Alcune zone della mappa non sono state caricate',
@@ -15,10 +15,12 @@ export const dictionary = {
     close: 'Chiudi',
     benchRunning: 'Benchmark in corso (10 s)...',
     nightMode: 'Notte',
+    rotateLeft: 'Ruota a sinistra',
+    rotateRight: 'Ruota a destra',
   },
   en: {
     title: 'Milano Iso',
-    mapLabel: 'Isometric map of Milan. Arrow keys pan, plus and minus zoom, zero resets the view.',
+    mapLabel: 'Isometric map of Milan. Arrow keys pan, plus and minus zoom, zero resets the view, Q and E rotate.',
     dataLabel: 'Data',
     tilesError: 'Could not load the map data',
     tilesPartial: 'Some map areas could not be loaded',
@@ -27,6 +29,8 @@ export const dictionary = {
     close: 'Close',
     benchRunning: 'Benchmark running (10 s)...',
     nightMode: 'Night',
+    rotateLeft: 'Rotate left',
+    rotateRight: 'Rotate right',
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 

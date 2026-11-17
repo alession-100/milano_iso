@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { CameraRig, createCamera, parseElevation, resizeCamera } from './camera';
+import { CameraRig, azimuthOfStep, createCamera, parseElevation, parseRotation, resizeCamera } from './camera';
 import { Controls } from './controls';
 import { DEFAULT_LANG, t } from './i18n';
+import { RotationAnimator, createRotationButtons } from './rotation';
 import { createScene } from './scene';
 import { createModeToggle } from './modeToggle';
 import { applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows } from './style/lights';
@@ -29,8 +30,13 @@ configureShadowRenderer(renderer, shadowsOn);
 // --- end T-3.3 style ---
 const { scene, tileRoot, sun, lights, setGroundMode } = createScene(shadowsOn);
 const elevation = parseElevation(window.location.search);
-const camera = createCamera(window.innerWidth / window.innerHeight, elevation);
-const rig = new CameraRig(camera, elevation);
+const initialStep = parseRotation(window.location.search); // T-5.2
+const camera = createCamera(
+  window.innerWidth / window.innerHeight,
+  elevation,
+  azimuthOfStep(initialStep),
+);
+const rig = new CameraRig(camera, elevation, initialStep);
 
 let lastRender = { calls: 0, triangles: 0 };
 registerTestState('render', () => lastRender);
@@ -180,10 +186,23 @@ async function startTiles(): Promise<void> {
   requestRender();
 }
 
-new Controls(host, rig, { requestRender, ariaLabel: t('mapLabel', DEFAULT_LANG) });
+// --- T-5.2 rotation ---
+const rotation = new RotationAnimator(rig, { requestRender });
+createRotationButtons((dir) => rotation.rotate(dir));
+// --- end T-5.2 rotation ---
+
+new Controls(host, rig, {
+  requestRender,
+  ariaLabel: t('mapLabel', DEFAULT_LANG),
+  onRotate: (dir) => rotation.rotate(dir),
+});
 
 // e2e only (`e2e=1`): look at ground point (x, z) with `width` metres across the viewport.
-registerSetView((x, z, width) => {
+registerSetView((x, z, width, step) => {
+  if (step !== undefined) {
+    rotation.finish();
+    rig.setStep(step);
+  }
   rig.target = [x, z];
   rig.visibleWidth = width;
   rig.clampTarget();
