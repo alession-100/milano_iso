@@ -3,7 +3,7 @@ import { CameraRig, createCamera, parseElevation, resizeCamera } from './camera'
 import { Controls } from './controls';
 import { DEFAULT_LANG, t } from './i18n';
 import { createScene } from './scene';
-import { registerSetView, registerTestState } from './testhook';
+import { e2eEnabled, registerSetView, registerTestState } from './testhook';
 import { renderAttribution } from './tiles/attribution';
 import { cullTiles, frustumOf, sortNearestFirst, viewCentre } from './tiles/culling';
 import { TileStreamer, createGltfTileLoader, disposeTile } from './tiles/loader';
@@ -12,7 +12,9 @@ import { type Manifest, contentBounds, fetchManifest, resolveTilesBase } from '.
 const host = document.getElementById('app') as HTMLElement;
 document.title = t('title', DEFAULT_LANG);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+// e2e (software GL) runs without MSAA: Chromium's SwiftShader MSAA resolve intermittently raises a
+// GL_INVALID_OPERATION blit feedback loop under continuous rendering (see R-3.4). Production keeps AA.
+const renderer = new THREE.WebGLRenderer({ antialias: !e2eEnabled() });
 renderer.setPixelRatio(1);
 host.appendChild(renderer.domElement);
 
