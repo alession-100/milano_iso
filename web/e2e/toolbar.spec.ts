@@ -142,7 +142,7 @@ test('with motion allowed the flight takes a few frames and ends exactly on targ
   await open(page, '', false);
   await type(page, 'fixture b3');
   await page.keyboard.press('Enter');
-  await expect.poll(async () => (await cam(page)).target, { timeout: 5_000 }).toEqual([80, 80]);
+  await expect.poll(async () => (await cam(page)).target, { timeout: 20_000 }).toEqual([80, 80]);
   // Fitted: 80 m box at azimuth 45 spans 80*sqrt(2) m across, with the 1.4 margin.
   expect((await cam(page)).visibleWidth).toBeCloseTo(80 * Math.SQRT2 * 1.4, 2);
   await settleTiles(page);

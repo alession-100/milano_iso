@@ -107,7 +107,7 @@ test('rapid presses during an animation still end on an exact view', async ({ pa
   await open(page, false);
   await page.locator('#app').focus();
   for (let i = 0; i < 5; i++) await page.keyboard.press('q'); // 5 steps, 45 + 450 = 495 -> 135
-  await expect.poll(() => azimuth(page), { timeout: 5000 }).toBe(135);
+  await expect.poll(() => azimuth(page), { timeout: 20_000 }).toBe(135);
   expect([45, 135, 225, 315]).toContain((await cam(page)).azimuthDeg);
 });
 

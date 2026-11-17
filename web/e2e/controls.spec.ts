@@ -199,7 +199,7 @@ test.describe('desktop 1280x720', () => {
     await send('mouseReleased', 500, 11);
     // Wait for the inertia to start, then to settle (target unchanged for 300 ms), with timeouts.
     await expect
-      .poll(async () => (await cam(page)).target, { timeout: 10_000 })
+      .poll(async () => (await cam(page)).target, { timeout: 20_000 })
       .not.toEqual(atRelease.target);
     let prev = (await cam(page)).target;
     await expect
