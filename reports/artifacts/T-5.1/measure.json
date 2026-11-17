@@ -1,0 +1,322 @@
+{
+  "desktop-1280x720/draw-calls-default-view": {
+    "withoutHover": 140,
+    "withHover": 140,
+    "tiles": {
+      "loaded": 29,
+      "loading": 0,
+      "failed": 0,
+      "visible": 17
+    }
+  },
+  "desktop-1280x720/pick-time": {
+    "direct": {
+      "calls": 300,
+      "meanMs": 0.97,
+      "medianMs": 0.9,
+      "p95Ms": 1.8,
+      "maxMs": 2.5
+    },
+    "hoverMoves": {
+      "count": 63,
+      "lastMs": 2.4000000953674316,
+      "maxMs": 6.299999713897705
+    }
+  },
+  "desktop-1280x720/targets": {
+    "dbt": {
+      "ref": {
+        "layer": "buildings",
+        "tile": "-2_0",
+        "key": "dbt:EDIFC_4941"
+      },
+      "layer": "buildings",
+      "card": {
+        "open": true,
+        "title": "Senza nome",
+        "named": false,
+        "type": "Edificio",
+        "height": "31 m",
+        "heightSource": "rilievo DBT 2020",
+        "osmUrl": null,
+        "note": null,
+        "pending": false
+      }
+    },
+    "street": {
+      "ref": {
+        "layer": "roads",
+        "tile": "-1_1",
+        "osmType": "w",
+        "osmId": 163757321
+      },
+      "layer": "roads",
+      "card": {
+        "open": true,
+        "title": "Galleria Vittorio Emanuele II",
+        "named": true,
+        "type": "Strada pedonale",
+        "height": null,
+        "heightSource": null,
+        "osmUrl": "https://www.openstreetmap.org/way/163757321",
+        "note": null,
+        "pending": false
+      }
+    },
+    "duomo": {
+      "ref": {
+        "layer": "landmark",
+        "tile": "0_-1",
+        "landmarkId": "duomo"
+      },
+      "layer": "landmark_details",
+      "card": {
+        "open": true,
+        "title": "Duomo di Milano",
+        "named": true,
+        "type": "Punto di riferimento",
+        "height": null,
+        "heightSource": null,
+        "osmUrl": null,
+        "note": "I dettagli aggiunti al modello (guglie, pinnacoli, coperture) sono stilizzati: non provengono dai dati rilevati.",
+        "pending": false
+      }
+    },
+    "osmDefault": {
+      "ref": {
+        "layer": "buildings",
+        "tile": "1_-1",
+        "key": "osm:w1432785208"
+      },
+      "layer": "buildings",
+      "card": {
+        "open": true,
+        "title": "Senza nome",
+        "named": false,
+        "type": "Edificio",
+        "height": "3,2 m",
+        "heightSource": "default stimato",
+        "osmUrl": "https://www.openstreetmap.org/way/1432785208",
+        "note": null,
+        "pending": false
+      }
+    }
+  },
+  "desktop-1280x720/dbt/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\dbt-desktop-1280x720.png",
+    "card": {
+      "open": true,
+      "title": "Senza nome",
+      "named": false,
+      "type": "Edificio",
+      "height": "31 m",
+      "heightSource": "rilievo DBT 2020",
+      "osmUrl": null,
+      "note": null,
+      "pending": false
+    }
+  },
+  "desktop-1280x720/street/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\street-desktop-1280x720.png",
+    "card": {
+      "open": true,
+      "title": "Galleria Vittorio Emanuele II",
+      "named": true,
+      "type": "Strada pedonale",
+      "height": null,
+      "heightSource": null,
+      "osmUrl": "https://www.openstreetmap.org/way/163757321",
+      "note": null,
+      "pending": false
+    }
+  },
+  "desktop-1280x720/duomo/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\duomo-desktop-1280x720.png",
+    "card": {
+      "open": true,
+      "title": "Duomo di Milano",
+      "named": true,
+      "type": "Punto di riferimento",
+      "height": null,
+      "heightSource": null,
+      "osmUrl": null,
+      "note": "I dettagli aggiunti al modello (guglie, pinnacoli, coperture) sono stilizzati: non provengono dai dati rilevati.",
+      "pending": false
+    }
+  },
+  "desktop-1280x720/osmDefault/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\osmDefault-desktop-1280x720.png",
+    "card": {
+      "open": true,
+      "title": "Senza nome",
+      "named": false,
+      "type": "Edificio",
+      "height": "3,2 m",
+      "heightSource": "default stimato",
+      "osmUrl": "https://www.openstreetmap.org/way/1432785208",
+      "note": null,
+      "pending": false
+    }
+  },
+  "desktop-1280x720/console-problems": [],
+  "mobile-412x915/draw-calls-default-view": {
+    "withoutHover": 146,
+    "withHover": 146,
+    "tiles": {
+      "loaded": 29,
+      "loading": 0,
+      "failed": 0,
+      "visible": 22
+    }
+  },
+  "mobile-412x915/pick-time": {
+    "direct": {
+      "calls": 300,
+      "meanMs": 0.39,
+      "medianMs": 0.2,
+      "p95Ms": 1.2,
+      "maxMs": 1.9
+    },
+    "hoverMoves": {
+      "count": 63,
+      "lastMs": 1.299999713897705,
+      "maxMs": 3.200000286102295
+    }
+  },
+  "mobile-412x915/targets": {
+    "dbt": {
+      "ref": {
+        "layer": "buildings",
+        "tile": "-3_1",
+        "key": "dbt:EDIFC_5131"
+      },
+      "layer": "buildings",
+      "card": {
+        "open": true,
+        "title": "Senza nome",
+        "named": false,
+        "type": "Edificio residenziale",
+        "height": "41,2 m",
+        "heightSource": "rilievo DBT 2020",
+        "osmUrl": null,
+        "note": null,
+        "pending": false
+      }
+    },
+    "street": {
+      "ref": {
+        "layer": "roads",
+        "tile": "-1_1",
+        "osmType": "w",
+        "osmId": 273287558
+      },
+      "layer": "roads",
+      "card": {
+        "open": true,
+        "title": "Via Giuseppe Verdi",
+        "named": true,
+        "type": "Strada residenziale",
+        "height": null,
+        "heightSource": null,
+        "osmUrl": "https://www.openstreetmap.org/way/273287558",
+        "note": null,
+        "pending": false
+      }
+    },
+    "duomo": {
+      "ref": {
+        "layer": "landmark",
+        "tile": "0_-1",
+        "landmarkId": "duomo"
+      },
+      "layer": "buildings",
+      "card": {
+        "open": true,
+        "title": "Duomo di Milano",
+        "named": true,
+        "type": "Punto di riferimento",
+        "height": null,
+        "heightSource": null,
+        "osmUrl": null,
+        "note": "I dettagli aggiunti al modello (guglie, pinnacoli, coperture) sono stilizzati: non provengono dai dati rilevati.",
+        "pending": false
+      }
+    },
+    "osmDefault": {
+      "ref": {
+        "layer": "buildings",
+        "tile": "1_-2",
+        "key": "osm:w172261244"
+      },
+      "layer": "buildings",
+      "card": {
+        "open": true,
+        "title": "Senza nome",
+        "named": false,
+        "type": "Edificio",
+        "height": "3,2 m",
+        "heightSource": "default stimato",
+        "osmUrl": "https://www.openstreetmap.org/way/172261244",
+        "note": null,
+        "pending": false
+      }
+    }
+  },
+  "mobile-412x915/dbt/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\dbt-mobile-412x915.png",
+    "card": {
+      "open": true,
+      "title": "Senza nome",
+      "named": false,
+      "type": "Edificio residenziale",
+      "height": "41,2 m",
+      "heightSource": "rilievo DBT 2020",
+      "osmUrl": null,
+      "note": null,
+      "pending": false
+    }
+  },
+  "mobile-412x915/street/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\street-mobile-412x915.png",
+    "card": {
+      "open": true,
+      "title": "Via Giuseppe Verdi",
+      "named": true,
+      "type": "Strada residenziale",
+      "height": null,
+      "heightSource": null,
+      "osmUrl": "https://www.openstreetmap.org/way/273287558",
+      "note": null,
+      "pending": false
+    }
+  },
+  "mobile-412x915/duomo/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\duomo-mobile-412x915.png",
+    "card": {
+      "open": true,
+      "title": "Duomo di Milano",
+      "named": true,
+      "type": "Punto di riferimento",
+      "height": null,
+      "heightSource": null,
+      "osmUrl": null,
+      "note": "I dettagli aggiunti al modello (guglie, pinnacoli, coperture) sono stilizzati: non provengono dai dati rilevati.",
+      "pending": false
+    }
+  },
+  "mobile-412x915/osmDefault/screenshot": {
+    "file": "..\\reports\\artifacts\\T-5.1\\osmDefault-mobile-412x915.png",
+    "card": {
+      "open": true,
+      "title": "Senza nome",
+      "named": false,
+      "type": "Edificio",
+      "height": "3,2 m",
+      "heightSource": "default stimato",
+      "osmUrl": "https://www.openstreetmap.org/way/172261244",
+      "note": null,
+      "pending": false
+    }
+  },
+  "mobile-412x915/console-problems": []
+}

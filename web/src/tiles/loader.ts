@@ -197,6 +197,7 @@ export function createGltfTileLoader(base: URL): (tile: TileEntry) => Promise<TH
     ]);
     const group = gltf.scene;
     group.name = tile.id;
+    group.userData.table = table; // feature table, read by picking and the info card (T-5.1)
     group.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh) return;

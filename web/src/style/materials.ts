@@ -147,6 +147,44 @@ export function setPaletteMode(mode: StyleMode): void {
   setTreeMode(mode);
 }
 
+/**
+ * Highlight tint (STYLE, not data and not a palette entry): the building/road/area colour is mixed
+ * towards this warm accent, a little for hover and more for the selection (T-5.1).
+ */
+const HIGHLIGHT_TINT = { value: new THREE.Color(0xffc23d) };
+const HOVER_MIX = '0.42';
+const SELECTED_MIX = '0.62';
+
+/** Highlight levels written to the per-material mask. */
+export const MASK_HOVER = 1;
+export const MASK_SELECTED = 2;
+
+/** True when the material carries a highlight mask (lookup materials only). */
+export function hasMask(m: THREE.Material): boolean {
+  return m.userData.maskData instanceof Uint8Array;
+}
+
+/** Sets the mask of feature ids `ids` to `level` (0 clears them). Uploads on the next render. */
+export function setMask(m: THREE.Material, ids: Iterable<number>, level: number): void {
+  const data = m.userData.maskData as Uint8Array | undefined;
+  if (!data) return;
+  for (const id of ids) {
+    if (id >= 0 && id < data.length) data[id] = level;
+  }
+  m.userData.maskDirty = true;
+  (m.userData.mask as THREE.Texture).needsUpdate = true;
+}
+
+/** Clears the whole mask if anything was marked; returns whether it was dirty. */
+export function clearMask(m: THREE.Material): boolean {
+  const data = m.userData.maskData as Uint8Array | undefined;
+  if (!data || !m.userData.maskDirty) return false;
+  data.fill(0);
+  m.userData.maskDirty = false;
+  (m.userData.mask as THREE.Texture).needsUpdate = true;
+  return true;
+}
+
 const PROGRAM_KEY = 'milano-iso-feature-colour-v1';
 const WATER_PROGRAM_KEY = 'milano-iso-feature-colour-water-v1';
 
@@ -172,8 +210,22 @@ export function createLookupMaterial(layer: string, lookup: THREE.DataTexture): 
   m.name = layer;
   m.userData.lookup = lookup;
   const featureIndex = { value: lookup };
+  // Highlight mask (T-5.1): one byte per feature, 0 none, 1 hover, 2 selected. Same size as the
+  // lookup texture, so the same texel address is used. A tint of the existing colour, no palette entry.
+  const maskData = new Uint8Array(lookup.image.width * lookup.image.height);
+  const mask = new THREE.DataTexture(maskData, lookup.image.width, lookup.image.height, THREE.RedFormat, THREE.UnsignedByteType);
+  mask.minFilter = THREE.NearestFilter;
+  mask.magFilter = THREE.NearestFilter;
+  mask.generateMipmaps = false;
+  mask.needsUpdate = true;
+  m.userData.mask = mask;
+  m.userData.maskData = maskData;
+  m.userData.maskDirty = false;
+  const featureMask = { value: mask };
   m.onBeforeCompile = (shader) => {
     shader.uniforms.featureIndex = featureIndex;
+    shader.uniforms.featureMask = featureMask;
+    shader.uniforms.highlightTint = HIGHLIGHT_TINT;
     shader.uniforms.paletteColours = paletteUniform;
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -192,6 +244,8 @@ vFeatureId = _feature_id;${water ? 'vWaterPos = (modelMatrix * vec4(transformed,
         '#include <common>',
         `#include <common>
 uniform sampler2D featureIndex;
+uniform sampler2D featureMask;
+uniform vec3 highlightTint;
 uniform vec3 paletteColours[${PALETTE_ORDER.length}];
 flat varying float vFeatureId;${water ? 'varying vec2 vWaterPos;' : ''}`,
       )
@@ -202,6 +256,9 @@ flat varying float vFeatureId;${water ? 'varying vec2 vWaterPos;' : ''}`,
   int fid = int(vFeatureId + 0.5);
   int pal = int(texelFetch(featureIndex, ivec2(fid % ${LOOKUP_WIDTH}, fid / ${LOOKUP_WIDTH}), 0).r * 255.0 + 0.5);
   diffuseColor.rgb *= paletteColours[pal];
+  int hl = int(texelFetch(featureMask, ivec2(fid % ${LOOKUP_WIDTH}, fid / ${LOOKUP_WIDTH}), 0).r * 255.0 + 0.5);
+  if (hl == 1) diffuseColor.rgb = mix(diffuseColor.rgb, highlightTint, ${HOVER_MIX});
+  else if (hl == 2) diffuseColor.rgb = mix(diffuseColor.rgb, highlightTint, ${SELECTED_MIX});
 ${water ? WATER_SHEEN : ''}
 }`,
       );
@@ -213,6 +270,7 @@ ${water ? WATER_SHEEN : ''}
 export function disposeLookupMaterial(m: THREE.Material): void {
   const tex = m.userData.lookup as THREE.Texture | undefined;
   tex?.dispose();
+  (m.userData.mask as THREE.Texture | undefined)?.dispose();
   m.dispose();
 }
 

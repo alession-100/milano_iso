@@ -103,3 +103,61 @@ test.describe('visual regression (fixture tiles)', () => {
     });
   }
 });
+
+// T-5.1: the info card open on the fixture building B1, at both sizes. The baseline is recorded on
+// win32 only (no Linux baseline exists for it yet), so the test is skipped elsewhere.
+test.describe('visual regression: info card (fixture tiles)', () => {
+  test.skip(process.platform !== 'win32', 'info card baseline is win32 only');
+  for (const [sizeName, width, height] of SIZES) {
+    test.describe(sizeName, () => {
+      test.use({ viewport: { width, height } });
+
+      test('info card open on B1', async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await routeFixtureTiles(page);
+        await page.goto('/?e2e=1');
+        await expect(page.locator('canvas')).toHaveCount(1);
+        await setView(page, 30, -30, 150);
+        await expect
+          .poll(
+            () =>
+              page.evaluate(() => {
+                const s = (
+                  window as unknown as {
+                    __milanoIso: { tiles: { loading: number; visible: number; loaded: number } };
+                  }
+                ).__milanoIso.tiles;
+                return s.visible > 0 && s.loading === 0 && s.loaded >= s.visible;
+              }),
+            { timeout: 20_000 },
+          )
+          .toBe(true);
+        const p = await page.evaluate(() =>
+          (
+            window as unknown as {
+              __milanoIsoScreenOf: (x: number, y: number, z: number) => { x: number; y: number };
+            }
+          ).__milanoIsoScreenOf(40, 10, -35),
+        );
+        await page.mouse.click(p.x, p.y);
+        await expect
+          .poll(() =>
+            page.evaluate(
+              () =>
+                (window as unknown as { __milanoIso: { selection: { card: { open: boolean } } } })
+                  .__milanoIso.selection.card.open,
+            ),
+          )
+          .toBe(true);
+        // Park the pointer away from the building so the hover tint does not mix with the selection.
+        await page.mouse.move(2, 2);
+        await page.evaluate(
+          () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
+        );
+        await expect(page).toHaveScreenshot(`info-card-${sizeName}.png`, {
+          stylePath: path.resolve(process.cwd(), 'e2e', 'visual-hide-controls.css'),
+        });
+      });
+    });
+  }
+});

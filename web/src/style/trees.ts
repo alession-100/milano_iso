@@ -115,6 +115,8 @@ export function buildTreeMesh(rows: readonly Record<string, unknown>[]): THREE.I
   mesh.instanceMatrix.array.set(matrices);
   mesh.instanceMatrix.needsUpdate = true;
   mesh.name = 'trees';
+  // Instance i is the i-th valid row (T-5.1 picking maps an instance id back to its feature row).
+  mesh.userData.treeRows = rows.filter(isTreeRow);
   mesh.castShadow = false; // STYLE choice: only buildings cast shadows (materials.ts)
   mesh.receiveShadow = true;
   return mesh;

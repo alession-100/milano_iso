@@ -12,12 +12,14 @@ import { type StyleMode, paletteFor } from './style/palette';
 import { e2eEnabled, registerSetView, registerTestState } from './testhook';
 import { renderAttribution } from './tiles/attribution';
 import { cullTiles, frustumOf, sortNearestFirst, viewCentre } from './tiles/culling';
+import { Picker } from './pick/picker';
+import type { IndexEntry as PickIndexEntry } from './pick/rows';
 import { TileStreamer, createGltfTileLoader, disposeTile } from './tiles/loader';
 import { FlyAnimator, fitWidth } from './fly';
 import { applyLayerVisibility, initialLayers, layerState, setLayerState, storeLayers } from './layers';
 import { parseMinimapSvg, viewFootprint } from './minimap';
 import { type IndexEntry, parseIndex, refOf } from './search';
-import { currentSelection, select } from './selection';
+import { currentSelection, onSelect, select } from './selection';
 import { createToolbar } from './toolbar';
 import { type Manifest, contentBounds, fetchManifest, indexUrl, minimapUrl, resolveTilesBase } from './tiles/manifest';
 
@@ -60,6 +62,7 @@ function setMode(mode: StyleMode, remember: boolean): void {
   setGroundMode(mode);
   document.documentElement.style.background = '#' + paletteFor(mode).ground.toString(16).padStart(6, '0');
   modeToggle.sync(mode);
+  picker.setMode(mode); // T-5.1
   toolbar.setMode(mode); // T-5.3b
   if (remember) storeMode(mode);
   requestRender(); // one frame on demand, no loop
@@ -172,6 +175,7 @@ async function startTiles(): Promise<void> {
     manifest.attribution,
     t('dataLabel', DEFAULT_LANG),
   );
+  tilesBase = base; // T-5.1: the card fetches index.json on the first selection
   manifestReady(manifest); // T-5.3b
   void loadMinimap(manifest, base);
   rig.setBounds(contentBounds(manifest));
@@ -181,11 +185,13 @@ async function startTiles(): Promise<void> {
     onLoaded: (_id, obj) => {
       applyLayerVisibility(obj); // T-5.3b: tiles loaded later honour the layer toggles
       tileRoot.add(obj);
+      picker.tilesChanged(); // T-5.1
       requestRender();
     },
     onEvict: (_id, obj) => {
       tileRoot.remove(obj);
       disposeTile(obj);
+      picker.tilesChanged(); // T-5.1
       requestRender();
     },
     onError: (id, err) => {
@@ -269,6 +275,31 @@ async function loadMinimap(m: Manifest, base: URL): Promise<void> {
   }
 }
 // --- end T-5.3b toolbar ---
+
+// --- T-5.1 picking ---
+const picker = new Picker({ host, camera, tileRoot, requestRender });
+// index.json holds the names of streets, areas and landmarks. It is fetched on the first selection,
+// not at start (T-5.3b keeps it lazy until the search box is used).
+let tilesBase: URL | null = null;
+let indexRequested = false;
+onSelect((sel) => {
+  if (!sel || indexRequested || !manifest || !tilesBase) return;
+  indexRequested = true;
+  void loadSearchIndex(tilesBase, manifest);
+});
+
+async function loadSearchIndex(base: URL, m: Manifest): Promise<void> {
+  if (!m.index) return; // tilesets before T-5.3a have no index: the card then shows tile data only
+  try {
+    const res = await fetch(new URL(m.index.file, base).href);
+    if (!res.ok) throw new Error(`index ${m.index.file}: HTTP ${res.status}`);
+    const body = (await res.json()) as { entries: PickIndexEntry[] };
+    picker.setIndex(body.entries);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+  }
+}
+// --- end T-5.1 picking ---
 
 // e2e only (`e2e=1`): look at ground point (x, z) with `width` metres across the viewport.
 registerSetView((x, z, width, step) => {
