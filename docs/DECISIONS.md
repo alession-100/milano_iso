@@ -254,3 +254,12 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   - Building meshes use one material instance per (tile, mesh). All of these share a single compiled shader program through `customProgramCacheKey`, so the draw-call count is unchanged (measured: 111 draw calls at the default real view with shadows).
   - Flat layers keep one shared material each.
   - Colours, sun direction and shadow settings are style constants in `web/src/style/` and are not data.
+
+## ADR-0027 - No MSAA in e2e runs
+- **Status:** Accepted (2026-11-17)
+- **Context:** With continuous rendering (T-3.4 benchmark), headless Chromium on SwiftShader logs `GL_INVALID_OPERATION: glBlitFramebuffer: Blit feedback loop` at random moments. Our code has no render targets and never reads the canvas. The experiment by the executor: about 3 occurrences in 24 runs with `antialias: true`, 0 in 48 runs with `antialias: false`. The orchestrator confirmed after the fix: 40/40 runs of `debug.spec.ts` passed. The most likely source is the browser's own resolve of the multisampled default framebuffer.
+- **Decision:**
+  - The renderer is created with `antialias: !e2eEnabled()`. Production and `?debug` keep antialiasing; only `?e2e=1` runs drop it.
+  - The console filter (ADR-0012) is not widened.
+  - Visual-regression baselines (G3 and later) are captured under `?e2e=1`, so baselines and test runs stay consistent.
+- **Consequence:** e2e screenshots are not antialiased. Antialiasing is checked on real devices at the checkpoints.

@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 3 - Isometric viewer, vertical slice (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 3 - gate G3 in review (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -39,7 +39,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-3.2 | done, integration pending | reports/R-3.2.md | Executor results: e2e 4 pass on the fixture; real pilot 82 draw calls (default) / 106 (widest), 0 failed tiles. Merge conflicts with T-3.1 (render loop, tempview), so integration is in T-3.5. Accepted: the shared console filter helper, and attribution links to osm.org/copyright and CC BY 4.0 |
 | T-3.5 | done | reports/R-3.5.md | Verified on main: vitest 40, e2e 15 pass (fixture); JS 160 KB gzip; no permanent render loop. Orchestrator checked real data in the browser pane: 29 tiles loaded, 0 failed, 87 draw calls, attribution OSM + Comune, 0 console errors |
 | T-3.3 | done | reports/R-3.3.md | Verified on main after merge: vitest 63, e2e 19 pass (bench excluded pending T-3.4 fix), JS 163 KB gzip; screenshots reviewed. Real default view: 111 draw calls with shadows. Material deviation ratified in ADR-0026. Look awaiting owner approval at checkpoint |
-| T-3.4 | retry 1/2 | reports/R-3.4.md | Merged locally (not pushed). Unit 45 and make test pass; the bench e2e fails intermittently (2/25) with a real GL_INVALID_OPERATION 'Blit feedback loop' warning, so a root-cause fix is in progress. The owner approved stopping a stray preview server (PID 40380) that blocked port 4173 |
+| T-3.4 | done (retry 1/2) | reports/R-3.4.md | Verified on main after merging T-3.3 + T-3.4 (one import conflict resolved by the orchestrator): vitest 63, e2e 21 pass, debug.spec 40/40 repeats pass; JS 163 KB gzip plus a 1.7 KB debug chunk. Cause: browser MSAA resolve under SwiftShader, so ADR-0027. The owner approved stopping a stray preview server (PID 40380) |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
