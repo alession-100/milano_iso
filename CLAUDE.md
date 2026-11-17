@@ -39,3 +39,6 @@ milano-iso/
 8. Ambiguity, or blocked after 2 attempts: stop and escalate (see `docs/ROLES.md`). Do not guess.
 9. Keep `docs/PROGRESS.md` and `docs/DECISIONS.md` current.
 10. Attribution ("(c) OpenStreetMap contributors" plus any other source) must be visible in the UI.
+
+## Lessons learned
+- Byte-identical outputs must hold on Linux (CI), not only on Windows. Any geometry computed with trig, buffer, interpolate or union is snapped to a grid and sorted before export (T-4.4). A review that cannot run Linux must not claim CI will pass.
