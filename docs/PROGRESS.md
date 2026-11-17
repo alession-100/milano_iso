@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 4 - Style and landmarks (scope in ADR-0028). Phase 3 look approved 2026-11-17; real-device FPS (desktop and Pixel 7a) still pending from the owner. (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 4 - Style and landmarks (scope in ADR-0028). Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G3 PASS WITH RISKS (2026-11-17; first review FAIL on flaky inertia e2e, fixed in T-3.6). Earlier: G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -43,7 +43,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 
 | T-3.6 | done | reports/R-3.6.md | Verified on main: vitest 66; 5 consecutive full e2e runs at default workers, 28/28 each. Visual baselines are candidate win32 only (skipped in CI with a reason); Linux baselines and the approval date follow the owner checkpoint. The B1 cause was the test's real mouse timing under load (the app already used event timestamps) |
 
-| T-3.7 | done | reports/R-3.7.md | Verified on main: vitest 66, e2e 30 pass, visual 24/24 on repeat; every colour sabotage fails at least 1 view (executor table); thresholds per ADR-0028. Linux baselines: run the manual `visual-baselines` workflow (owner, needs GitHub login), then commit the artifact and remove the CI skip |
+| T-3.7 | done | reports/R-3.7.md | Verified on main: vitest 66, e2e 30 pass, visual 24/24 on repeat; every colour sabotage fails at least 1 view (executor table); thresholds per ADR-0028. Linux baselines from the owner's `visual-baselines` workflow run committed 2026-11-17 (reviewed: same scene as win32, font rendering differs only); CI skip removed |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
@@ -100,11 +100,11 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
   - no idle render loop;
   - a 404, garbage or truncated tile leaves the app working with 1 error;
   - builds are byte-identical.
-- **Pending the owner:** FPS on a real desktop and on the Pixel 7a (headless SwiftShader benchmark: 10.6 fps desktop, 19.7 fps at 412 px; indicative only), and approval of the visual baselines.
+- **Real desktop FPS:** 118.3 mean, owner-measured with `?debug=bench` on 2026-11-17 (VERIFICATION section 5 target >= 60: met). **Pending the owner:** FPS on the Pixel 7a (headless SwiftShader benchmark: 10.6 fps desktop, 19.7 fps at 412 px; indicative only), and approval of the visual baselines.
 
 ## Carry-over from G3 re-review (non-blocking)
 1. **Visual diff misses visible colour changes.** The default per-pixel `threshold` is 0.2 (a ground darkening of 16 levels passes). The fixture has only `building_type=yes`. Tighten the threshold and enrich the fixture before the baselines are approved.
-2. **CI visual skip:** removed by hand only after the Linux baselines exist. Needs a tracked task.
+2. **CI visual skip:** resolved 2026-11-17; Linux baselines committed and the skip removed.
 3. **Inertia settle check:** loosened to 15 s in e2e (stop timing is covered by unit tests).
 4. **404 test:** uses a local prefix filter for browser "Failed to load resource" lines.
 5. **The debug overlay covers the tile notice** (debug mode only).

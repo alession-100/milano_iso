@@ -4,13 +4,12 @@ Baselines from the synthetic fixture tileset (`e2e/fixtures/tiles`), captured un
 
 Owner approval: The owner approved palette v1 on 2026-11-17 (Phase 3 checkpoint); baselines regenerated in T-3.7
 
-Files are named `<view>-<size>-<platform>.png`. Only the `win32` baselines are committed so far. When the fixture, the palette or a view changes, delete the old PNGs before `--update-snapshots`: Playwright keeps an existing baseline that is within the threshold, which would leave it stale.
+Files are named `<view>-<size>-<platform>.png`. Both `win32` (local) and `linux` (CI) baselines are committed. When the fixture, the palette or a view changes, delete the old PNGs before `--update-snapshots`: Playwright keeps an existing baseline that is within the threshold, which would leave it stale.
 
-## Linux baselines (needed for CI, where the visual test is skipped until they exist)
+## Regenerating the Linux baselines (used by CI)
 
 1. In GitHub, run the manual workflow `visual-baselines` (Actions tab, "Run workflow") on the branch to baseline.
 2. Download the artifact `visual-baselines-linux` from the finished run (it holds the `*-linux.png` files).
 3. Copy the PNGs into this directory, review them, and commit them.
-4. Remove the `test.skip(!!process.env.CI, ...)` block in `e2e/visual.spec.ts`.
 
-The workflow never pushes commits. The skip is still in place.
+The workflow never pushes commits. The first Linux baselines came from the workflow run of 2026-11-17 (owner-run) and the CI skip was removed then.

@@ -35,11 +35,6 @@ async function setView(page: Page, x: number, z: number, w: number): Promise<voi
 }
 
 test.describe('visual regression (fixture tiles)', () => {
-  test.skip(
-    !!process.env.CI,
-    'Linux baselines are not committed yet: generate them with `npx playwright test e2e/visual.spec.ts --update-snapshots` on Linux (see visual.spec.ts-snapshots/README.md), then remove this skip.',
-  );
-
   for (const [sizeName, width, height] of SIZES) {
     test.describe(sizeName, () => {
       test.use({ viewport: { width, height } });
