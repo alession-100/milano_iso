@@ -5,11 +5,13 @@ export const DEFAULT_LANG: Lang = 'it';
 export const dictionary = {
   it: {
     title: 'Milano Iso',
-    attribution: 'Attribuzione: segnaposto (le fonti dati reali arriveranno più avanti)',
+    dataLabel: 'Dati',
+    tilesError: 'Impossibile caricare i dati della mappa',
   },
   en: {
     title: 'Milano Iso',
-    attribution: 'Attribution: placeholder (real data sources will be added later)',
+    dataLabel: 'Data',
+    tilesError: 'Could not load the map data',
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 

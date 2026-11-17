@@ -7,6 +7,7 @@ describe('i18n', () => {
   });
   it('defaults to Italian', () => {
     expect(DEFAULT_LANG).toBe('it');
-    expect(t('attribution')).toBe(dictionary.it.attribution);
+    expect(t('dataLabel')).toBe('Dati');
+    expect(t('dataLabel', 'en')).toBe('Data');
   });
 });
