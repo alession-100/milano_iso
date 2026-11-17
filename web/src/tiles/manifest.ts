@@ -22,6 +22,14 @@ export interface AttributionEntry {
   url?: string;
 }
 
+/** A standalone file next to the tiles (index.json, minimap.svg), T-5.3a. */
+export interface ExtraFile {
+  file: string;
+  bytes: number;
+  gzip9_bytes: number;
+  sha256: string;
+}
+
 export interface Manifest {
   format_version: 1;
   axis: string;
@@ -29,6 +37,10 @@ export interface Manifest {
   layers: string[];
   attribution: AttributionEntry[];
   tiles: TileEntry[];
+  /** Search index of named features; absent in tilesets built before T-5.3a. */
+  index?: ExtraFile;
+  /** Minimap drawing of the whole tileset extent; absent in tilesets built before T-5.3a. */
+  minimap?: ExtraFile;
 }
 
 export const EXPECTED_FORMAT_VERSION = 1;
@@ -50,6 +62,22 @@ function isVec3(v: unknown): v is Vec3 {
 
 function fail(msg: string): never {
   throw new ManifestError(`tiles.json: ${msg}`);
+}
+
+function checkExtraFile(raw: Record<string, unknown>, key: 'index' | 'minimap'): void {
+  const v = raw[key];
+  if (v === undefined) return;
+  if (
+    !isRecord(v) ||
+    typeof v.file !== 'string' ||
+    v.file === '' ||
+    typeof v.bytes !== 'number' ||
+    typeof v.gzip9_bytes !== 'number' ||
+    typeof v.sha256 !== 'string' ||
+    !/^[0-9a-f]{64}$/.test(v.sha256)
+  ) {
+    fail(`${key} entry invalid`);
+  }
 }
 
 /** Validate an already-parsed JSON value; throws ManifestError on anything unexpected. */
@@ -84,7 +112,19 @@ export function parseManifest(raw: unknown): Manifest {
       fail(`tile ${tile.id}: glb.file missing`);
     }
   }
+  checkExtraFile(raw, 'index');
+  checkExtraFile(raw, 'minimap');
   return raw as unknown as Manifest;
+}
+
+/** URL of the search index file, or undefined if the tileset has none. */
+export function indexUrl(manifest: Manifest, base: URL): URL | undefined {
+  return manifest.index === undefined ? undefined : new URL(manifest.index.file, base);
+}
+
+/** URL of the minimap drawing, or undefined if the tileset has none. */
+export function minimapUrl(manifest: Manifest, base: URL): URL | undefined {
+  return manifest.minimap === undefined ? undefined : new URL(manifest.minimap.file, base);
 }
 
 /** Base URL of the tile directory: `?tiles=<base>` if given, else `tiles/pilot/` (ADR-0025). */

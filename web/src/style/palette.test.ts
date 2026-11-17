@@ -22,7 +22,7 @@ const FIXTURES = path.resolve(process.cwd(), 'e2e', 'fixtures', 'tiles');
 
 function fixtureRows(layer: string): Record<string, unknown>[] {
   return readdirSync(FIXTURES)
-    .filter((f) => f.endsWith('.json') && f !== 'tiles.json')
+    .filter((f) => /^-?\d+_-?\d+\.json$/.test(f))
     .flatMap((f) => {
       const t = JSON.parse(readFileSync(path.join(FIXTURES, f), 'utf-8')) as {
         layers: Record<string, Record<string, unknown>[]>;

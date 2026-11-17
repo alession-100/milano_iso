@@ -109,6 +109,12 @@ def test_tiles_gzip9_within_budget(man):
 
 def test_tiles_sha256_and_sizes_match_files(man):
     listed = {manifest.MANIFEST_NAME}
+    for key in ("index", "minimap"):  # T-5.3a
+        e = man[key]
+        p = TILE_DIR / e["file"]
+        listed.add(e["file"])
+        assert p.stat().st_size == e["bytes"], p.name
+        assert manifest.sha256_file(p) == e["sha256"], p.name
     for t in man["tiles"]:
         for key in ("glb", "features"):
             e = t[key]

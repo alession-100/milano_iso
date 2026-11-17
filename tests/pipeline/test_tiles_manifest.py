@@ -20,7 +20,16 @@ def _tile(out, name, i, j, blob=b"glTF", feat=b"{}\n"):
 @pytest.fixture
 def man(tmp_path):
     entries = [_tile(tmp_path, "1_0", 1, 0), _tile(tmp_path, "-1_-1", -1, -1)]
-    return copy.deepcopy(manifest.build_manifest(entries, ["buildings", "roads"]))
+    (tmp_path / "index.json").write_bytes(b"{}\n")
+    (tmp_path / "minimap.svg").write_bytes(b"<svg/>\n")
+    return copy.deepcopy(
+        manifest.build_manifest(
+            entries,
+            ["buildings", "roads"],
+            index=manifest.file_entry(tmp_path / "index.json"),
+            minimap=manifest.file_entry(tmp_path / "minimap.svg"),
+        )
+    )
 
 
 def test_manifest_is_valid_sorted_and_summed(man):
@@ -63,6 +72,10 @@ def test_bytes_are_deterministic_lf_without_timestamps(man):
         lambda m: m["tiles"][0].pop("content_bbox_local"),
         lambda m: m["tiles"][0]["content_bbox_local"].update(min=[1, 2]),
         lambda m: m["attribution"].pop(),
+        lambda m: m.pop("index"),
+        lambda m: m.pop("minimap"),
+        lambda m: m["index"].update(sha256="xyz"),
+        lambda m: m["minimap"].pop("gzip9_bytes"),
     ],
 )
 def test_schema_rejects_broken_manifests(man, mutate):
@@ -99,4 +112,12 @@ def test_write_tile_reports_content_bbox_of_dequantised_vertices(tmp_path):
     )
     assert blob and (tmp_path / "0_0.glb").stat().st_size == len(blob)
     assert entry["content_bbox_local"] == {"min": [10.0, 0.0, -9.0], "max": [12.0, 3.0, -5.0]}
-    assert schema_check.validate(manifest.build_manifest([entry], ["buildings"]), SCHEMA) == []
+    (tmp_path / "index.json").write_bytes(b"{}\n")
+    (tmp_path / "minimap.svg").write_bytes(b"<svg/>\n")
+    man = manifest.build_manifest(
+        [entry],
+        ["buildings"],
+        index=manifest.file_entry(tmp_path / "index.json"),
+        minimap=manifest.file_entry(tmp_path / "minimap.svg"),
+    )
+    assert schema_check.validate(man, SCHEMA) == []

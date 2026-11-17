@@ -20,6 +20,12 @@ T-4.1 additions, produced by the real ``milano_iso.decor`` code from invented OS
 T-4.2 addition: the landmark building (B6, ``fixture_landmark``) gets a small STYLISED detail spec
 (``landmark_style.FIXTURE_SPEC``: a spire on its roof and a pinnacle row along its edge), built
 by the real exporter into the ``landmark_details`` layer.
+
+T-5.3a addition: names for the search index (invented, fixture only). Roads 3001 and 3003 are two
+ways of one street ("Via Fixture"), the green area 2001 is "Parco Fixture", the landmark gets the
+name in ``FIXTURE_LANDMARK_NAMES`` and the water area stays unnamed. Names live in a
+``named_features`` layer, as in the real processed data; they are not written to the tile feature
+tables, so the .glb and feature .json files are unchanged.
 """
 
 import argparse
@@ -35,6 +41,12 @@ from milano_iso.tiles import export
 from shapely import affinity
 from shapely.geometry import LineString, Point, Polygon, box
 
+FIXTURE_LANDMARK_NAMES = {"fixture_landmark": "Fixture Landmark"}
+FIXTURE_NAMES = [
+    ("w", 3001, "Via Fixture"),
+    ("w", 3003, "Via Fixture"),
+    ("w", 2001, "Parco Fixture"),
+]
 DEFAULT_OUT = config.REPO_ROOT / "web" / "e2e" / "fixtures" / "tiles"
 CRS = "EPSG:32632"
 
@@ -182,6 +194,22 @@ def write_gpkg(path: Path) -> None:
         roads_cols,
     )
     layers.update(_decor_layers(layers))
+    centroid_of = {
+        (r.osm_type, r.osm_id): r.geometry.representative_point()
+        for name in ("roads", "green")
+        for r in layers[name].itertuples()
+    }
+    layers["named_features"] = gpd.GeoDataFrame(
+        {
+            "osm_type": [n[0] for n in FIXTURE_NAMES],
+            "osm_id": [n[1] for n in FIXTURE_NAMES],
+            "name": [n[2] for n in FIXTURE_NAMES],
+            "name_en": [None for _ in FIXTURE_NAMES],
+            "category": ["fixture" for _ in FIXTURE_NAMES],
+        },
+        geometry=[centroid_of[(n[0], n[1])] for n in FIXTURE_NAMES],
+        crs=CRS,
+    )
     for name, gdf in layers.items():
         pyogrio.write_dataframe(gdf, path, layer=name, driver="GPKG")
 
@@ -199,7 +227,13 @@ def build(out_dir: Path, specs: dict | None = None) -> None:
         saved = config.PROCESSED_DIR
         config.PROCESSED_DIR = proc  # export.build reads config.PROCESSED_DIR at call time
         try:
-            export.build("pilot", out_dir=out_dir, summary_dir=tmp_path / "summary", specs=specs)
+            export.build(
+                "pilot",
+                out_dir=out_dir,
+                summary_dir=tmp_path / "summary",
+                specs=specs,
+                landmark_names=FIXTURE_LANDMARK_NAMES,
+            )
         finally:
             config.PROCESSED_DIR = saved
 
