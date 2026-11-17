@@ -179,19 +179,41 @@ test.describe('desktop 1280x720', () => {
     page,
   }) => {
     await open(page, false);
-    await page.mouse.move(300, 360);
-    await page.mouse.down();
-    for (let i = 1; i <= 10; i++) {
-      await page.mouse.move(300 + i * 20, 360);
-      await page.waitForTimeout(10);
-    }
-    await page.mouse.up();
+    // Events carry explicit timestamps 10 ms apart (CDP `timestamp`, seconds), so the release
+    // velocity does not depend on how long the machine takes to deliver them (T-3.6).
+    const cdp = await page.context().newCDPSession(page);
+    const t0 = Date.now() / 1000;
+    const send = (type: 'mousePressed' | 'mouseMoved' | 'mouseReleased', x: number, i: number) =>
+      cdp.send('Input.dispatchMouseEvent', {
+        type,
+        x,
+        y: 360,
+        button: type === 'mouseMoved' ? 'none' : 'left',
+        buttons: type === 'mouseReleased' ? 0 : 1,
+        clickCount: type === 'mouseMoved' ? 0 : 1,
+        timestamp: t0 + i * 0.01,
+      });
+    await send('mousePressed', 300, 0);
+    for (let i = 1; i <= 10; i++) await send('mouseMoved', 300 + i * 20, i);
     const atRelease = await cam(page);
-    await page.waitForTimeout(1500);
-    const rested = await cam(page);
-    expect(rested.target).not.toEqual(atRelease.target);
-    await page.waitForTimeout(300);
-    expect((await cam(page)).target).toEqual(rested.target);
+    await send('mouseReleased', 500, 11);
+    // Wait for the inertia to start, then to settle (target unchanged for 300 ms), with timeouts.
+    await expect
+      .poll(async () => (await cam(page)).target, { timeout: 10_000 })
+      .not.toEqual(atRelease.target);
+    let prev = (await cam(page)).target;
+    await expect
+      .poll(
+        async () => {
+          await page.waitForTimeout(300);
+          const cur = (await cam(page)).target;
+          const same = cur[0] === prev[0] && cur[1] === prev[1];
+          prev = cur;
+          return same;
+        },
+        { timeout: 15_000 },
+      )
+      .toBe(true);
   });
 
   test('reduced motion: no inertia after a fast drag', async ({ page }) => {

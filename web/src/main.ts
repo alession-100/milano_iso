@@ -65,6 +65,34 @@ function showError(message: string): void {
   document.body.appendChild(el);
 }
 
+/** Small dismissible notice, top left (the attribution is bottom right, so it is never covered). */
+let notice: HTMLElement | null = null;
+let noticeDismissed = false;
+function showTilesNotice(): void {
+  if (notice || noticeDismissed) return;
+  const el = document.createElement('div');
+  el.id = 'tiles-notice';
+  el.setAttribute('role', 'status');
+  el.style.cssText =
+    'position:fixed;left:6px;top:6px;max-width:calc(100vw - 24px);font:12px sans-serif;' +
+    'color:#263238;background:rgba(255,255,255,0.9);padding:4px 6px;border:1px solid #90a4ae;' +
+    'display:flex;gap:8px;align-items:center;';
+  const text = document.createElement('span');
+  text.textContent = t('tilesPartial', DEFAULT_LANG);
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.textContent = '×';
+  close.setAttribute('aria-label', t('close', DEFAULT_LANG));
+  close.addEventListener('click', () => {
+    noticeDismissed = true;
+    el.remove();
+    notice = null;
+  });
+  el.append(text, close);
+  document.body.appendChild(el);
+  notice = el;
+}
+
 function updateTiles(): void {
   if (!manifest || !streamer) return;
   const { visible, wanted } = cullTiles(manifest.tiles, frustumOf(camera), manifest.tile_size_m);
@@ -123,6 +151,7 @@ async function startTiles(): Promise<void> {
     },
     onError: (id, err) => {
       console.error(`tile ${id} failed to load: ${err instanceof Error ? err.message : String(err)}`);
+      showTilesNotice();
     },
     onChange: requestRender,
   });
