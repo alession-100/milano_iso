@@ -50,8 +50,8 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-4.4 | done | tasks/T-4.4.md | CI fix: markings snapped to 1 mm and sorted, so tiles are identical on Linux and Windows (GEOS last-bit float differences reordered dashes and flipped rectangle diagonals). Two new tests fail without the fix. CI green on run 44151393731 (all steps, including Linux visual) |
 | T-5.2 | done | reports/R-5.2.md | Verified: vitest 120, e2e 54/54 x2 and rotation spec 80/80 on repeat (after a test race fix; the first review found 2/2 failures). Draw calls 140/138/140/139 over the 4 azimuths. Q = counter-clockwise, E = clockwise. Rotation buttons hidden in visual baselines (covered by rotation.spec). 6 new rot baselines are win32 only: main not pushed until Linux baselines are regenerated at the end of Phase 5 |
 | T-5.3a | done | reports/R-5.3a.md | Verified: pytest 253, vitest 88, e2e 40; tile glb/json hashes unchanged (only tiles.json). Pilot index: 277 entries (76 buildings, 184 streets, 10 green, 0 water (no named water), 7 landmarks); Generali now named from landmarks.yaml. index 12.6 KB gzip, minimap 29.7 KB gzip (1.0 m tolerance); a whole-city minimap needs a coarser level (~5.4 MB gzip at pilot settings). Several buildings share a name (e.g. Ca' Granda x2): the search UI must group them |
-| T-5.1 | pending | - | Picking and info card; after T-5.3a |
-| T-5.3b | pending | - | Toolbar: layer toggles, search, minimap; after T-5.3a |
+| T-5.1 | in progress | - | Picking, hover highlight, info card; worktree, port 4181 |
+| T-5.3b | in progress | - | Toolbar: search, layer toggles, minimap; worktree, port 4183. Shared contract `web/src/selection.ts` written by the orchestrator |
 | T-5.4 | pending | - | Responsive, touch, keyboard, contrast, language switch, G3/G4 UI carry-overs; last |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
@@ -138,3 +138,5 @@ Reviewer re-ran everything in a fresh clone of local main 4e89f4e. Evidence: `re
 7. Phase 5 picking must honour `decorative`.
 8. One OSM tree stands inside a building footprint (data).
 9. Real-device FPS to be re-measured after Phase 4.
+
+- 2026-11-17 CI check branch `ci/phase-5` (run 44159857228): `make test` green on Linux (T-5.3a index and minimap byte-identical); e2e red, expected from the 6 missing `rot` Linux baselines, but the log is not public, so this is unconfirmed until the end-of-phase baseline run.
