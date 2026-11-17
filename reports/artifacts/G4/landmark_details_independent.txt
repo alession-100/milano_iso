@@ -1,0 +1,4 @@
+rows 122 flags {(True, ('detail', 'landmark_id', 'stylised')): 122}
+per landmark {'duomo': {'spire': 19, 'pinnacle': 91}, 'torre_velasca': {'crown': 11}, 'galleria_vittorio_emanuele_ii': {'roof_vault': 1}}
+worst vertex distance to footprint (m) {'duomo': 0.0, 'torre_velasca': 0.011, 'galleria_vittorio_emanuele_ii': 0.013}
+rows beyond 2 m: [] 0

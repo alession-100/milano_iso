@@ -1,0 +1,42 @@
+{
+ "1280x720/day": {
+  "frames": 97,
+  "durationS": 10.114700000286103,
+  "meanFps": 9.590002669110927,
+  "p5Fps": 6.4300923971667725,
+  "meanFrameMs": 104.27525773490827,
+  "p95FrameMs": 155.5200001716614,
+  "maxDrawCalls": 172,
+  "maxTriangles": 360124
+ },
+ "1280x720/night": {
+  "frames": 91,
+  "durationS": 10.016799999713898,
+  "meanFps": 9.084737641022997,
+  "p5Fps": 6.033379616726478,
+  "meanFrameMs": 110.0747252715813,
+  "p95FrameMs": 166.20000004768372,
+  "maxDrawCalls": 172,
+  "maxTriangles": 360124
+ },
+ "412x915/day": {
+  "frames": 173,
+  "durationS": 10.002400000095367,
+  "meanFps": 17.295848996075996,
+  "p5Fps": 14.67197377574643,
+  "meanFrameMs": 57.817341041013684,
+  "p95FrameMs": 68.16000022888184,
+  "maxDrawCalls": 172,
+  "maxTriangles": 360124
+ },
+ "412x915/night": {
+  "frames": 164,
+  "durationS": 10.014700000286103,
+  "meanFps": 16.37592738627366,
+  "p5Fps": 13.769446805983126,
+  "meanFrameMs": 61.06524390418355,
+  "p95FrameMs": 72.62499988079071,
+  "maxDrawCalls": 172,
+  "maxTriangles": 360124
+ }
+}

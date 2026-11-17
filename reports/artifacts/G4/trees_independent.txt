@@ -1,0 +1,20 @@
+layers: ['buildings', 'comune_boundary', 'dbt_buildings', 'dbt_volumes', 'green', 'landuse', 'markings', 'named_features', 'osm_building_parts', 'osm_buildings', 'rail', 'render_volumes', 'road_areas', 'roads', 'trees', 'water']
+trees by source: {'osm_tree': 186, 'fill': 174} | decorative by source: {'sum': {'fill': 174, 'osm_tree': 0}, 'count': {'fill': 174, 'osm_tree': 186}}
+fill: all decorative True | osm_id null True | osm_type null True | height_source {'style_default': 174}
+fill height range 6.001 9.985
+mapped: decorative any False | height_source {'style_default': 185, 'osm_height': 1} | osm_height values [2.5]
+fill trees intersecting buildings (all rows): 0
+fill trees intersecting render_volumes (all, incl. not rendered): 0
+fill trees intersecting water: 0
+fill trees intersecting road_areas: 0
+fill trees intersecting surface road ribbons: 0
+fill trees intersecting road centre lines (all) within 1.0 m: 1
+rail cols: ['osm_type', 'osm_id', 'class', 'tunnel', 'bridge', 'layer', 'underground', 'geometry']
+fill trees intersecting surface rail ribbons: 0
+fill trees intersecting markings: 0
+fill inside park/garden: 174 / 174
+green kinds: {'grass': 25, 'garden': 28, 'park': 4, 'flowerbed': 19}
+min dist fill->buildings 2.289
+min dist fill->fill 6.185
+mapped trees inside a rendered volume footprint (data, informational): 1 / 186
+markings: rows 552 | stylised all True | kinds {'centre_line': 317, 'zebra': 235} | osm_id null 0 | invalid 0

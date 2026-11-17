@@ -2,7 +2,7 @@
 
 Single source of truth for state. The orchestrator updates it after every accepted task, so any new session can resume from here.
 
-**Current phase:** 4 - Style and landmarks (scope in ADR-0028). Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
+**Current phase:** 4 - Style and landmarks (scope in ADR-0028). G4 PASS WITH RISKS; awaiting the owner at the Phase 4 checkpoint. Phase 3 look approved 2026-11-17; real desktop FPS 118.3 mean (owner, `?debug=bench`, 2026-11-17; target >= 60: PASS); Pixel 7a FPS still pending (the LAN link did not open on the phone). (owner go-ahead 2026-11-17). CI green; repo https://github.com/alession-100/milano_iso
 **Last gate passed:** G3 PASS WITH RISKS (2026-11-17; first review FAIL on flaky inertia e2e, fixed in T-3.6). Earlier: G2 PASS WITH RISKS (2026-11-16). Earlier: G1 PASS WITH RISKS (2026-11-15). Earlier: G0 PASS WITH RISKS (2026-11-15; first review FAIL on origin B1, fixed in T-0.3a)
 **Open escalations:** none
 
@@ -113,3 +113,22 @@ Status values: todo, in progress, review, retry (n/2), blocked, done.
 5. **The debug overlay covers the tile notice** (debug mode only).
 6. **Retry edge cases:** a slot is held for 2 s, retries run for unwanted tiles, and a transient 404 still logs a browser console error (matters for G5).
 7. **The notice is Italian only** (`DEFAULT_LANG`); language switching comes in Phase 5.
+
+## Gate G4 (2026-11-17): PASS WITH RISKS
+Reviewer re-ran everything in a fresh clone of local main 4e89f4e. Evidence: `reports/artifacts/G4/`.
+- Tests: `make test` (pytest 232, vitest 85); `make validate` 135 passed, 1 skipped (Galleria, ADR-0018); data and tile determinism OK; e2e 40/40 x3; win32 visual 36/36.
+- Landmarks: centroid and best-fit checks pass (worst best-fit 0.707 m, Duomo). 122 details, worst 0.013 m outside their footprint (tolerance 2 m). Buildings layer identical in 30/30 tiles against bbcc4b0, checked by an independent comparator.
+- Data versus style: all 174 fill trees `decorative=true` with no OSM id; 0 inside buildings, water or roads. All markings and details `stylised=true`. Galleria base 25.75 m confirmed from the raw DBT.
+- Budgets: draw calls 140/146 default and 172 at 4000 m (day = night); max tile 99,953 B gzip; JS 167.6 KB. Headless bench about 10% below G3 (indicative).
+- Toggle: keyboard and `aria-pressed` OK, no overlap at 412 px; contrast >= 5.37:1.
+
+**G4 carry-over (non-blocking):**
+1. Linux visual baselines are stale (8 day) or missing (4 night). Main is not pushed until the owner approves the look and reruns `visual-baselines`.
+2. Toggle focus ring nearly invisible in night mode (G5).
+3. The fill clearance has no rail/tram entry (Phase 6).
+4. `test_no_detail_base_below_the_volume_it_sits_on` passes vacuously when a detail sits on no volume.
+5. The Galleria base depends on the adjacency buffer (26.708 m at 0 m buffer); a documented style constant.
+6. The glass vault may read as water at night (owner).
+7. Phase 5 picking must honour `decorative`.
+8. One OSM tree stands inside a building footprint (data).
+9. Real-device FPS to be re-measured after Phase 4.

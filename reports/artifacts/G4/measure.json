@@ -1,0 +1,781 @@
+{
+  "views": {
+    "1280x720/day/default": {
+      "render": {
+        "calls": 140,
+        "triangles": 319328
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 17
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 600,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "1280x720/day/park-150m": {
+      "render": {
+        "calls": 27,
+        "triangles": 59570
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 3
+      },
+      "camera": {
+        "target": [
+          401,
+          469
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "1280x720/day/duomo-150m": {
+      "render": {
+        "calls": 64,
+        "triangles": 186086
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 6
+      },
+      "camera": {
+        "target": [
+          -74,
+          -73
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "1280x720/day/galleria-150m": {
+      "render": {
+        "calls": 59,
+        "triangles": 161433
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 7
+      },
+      "camera": {
+        "target": [
+          -160,
+          -193
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "1280x720/day/velasca-150m": {
+      "render": {
+        "calls": 46,
+        "triangles": 123061
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 7
+      },
+      "camera": {
+        "target": [
+          -192,
+          357
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "1280x720/day/wide-4000m": {
+      "render": {
+        "calls": 172,
+        "triangles": 360124
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 30
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 4000,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "1280x720/night/default": {
+      "render": {
+        "calls": 140,
+        "triangles": 319328
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 17
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 600,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "1280x720/night/park-150m": {
+      "render": {
+        "calls": 27,
+        "triangles": 59570
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 3
+      },
+      "camera": {
+        "target": [
+          401,
+          469
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "1280x720/night/duomo-150m": {
+      "render": {
+        "calls": 64,
+        "triangles": 186086
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 6
+      },
+      "camera": {
+        "target": [
+          -74,
+          -73
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "1280x720/night/galleria-150m": {
+      "render": {
+        "calls": 59,
+        "triangles": 161433
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 7
+      },
+      "camera": {
+        "target": [
+          -160,
+          -193
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "1280x720/night/velasca-150m": {
+      "render": {
+        "calls": 46,
+        "triangles": 123061
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 7
+      },
+      "camera": {
+        "target": [
+          -192,
+          357
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "1280x720/night/wide-4000m": {
+      "render": {
+        "calls": 172,
+        "triangles": 360124
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 30
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 4000,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "412x915/day/default": {
+      "render": {
+        "calls": 146,
+        "triangles": 321678
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 22
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 600,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "412x915/day/park-150m": {
+      "render": {
+        "calls": 50,
+        "triangles": 130343
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 4
+      },
+      "camera": {
+        "target": [
+          401,
+          469
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "412x915/day/duomo-150m": {
+      "render": {
+        "calls": 104,
+        "triangles": 256708
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 10
+      },
+      "camera": {
+        "target": [
+          -74,
+          -73
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "412x915/day/galleria-150m": {
+      "render": {
+        "calls": 92,
+        "triangles": 239423
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 10
+      },
+      "camera": {
+        "target": [
+          -160,
+          -193
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "412x915/day/velasca-150m": {
+      "render": {
+        "calls": 64,
+        "triangles": 186399
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 9
+      },
+      "camera": {
+        "target": [
+          -192,
+          357
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "412x915/day/wide-4000m": {
+      "render": {
+        "calls": 172,
+        "triangles": 360124
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 30
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 4000,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "day"
+    },
+    "412x915/night/default": {
+      "render": {
+        "calls": 146,
+        "triangles": 321678
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 22
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 600,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "412x915/night/park-150m": {
+      "render": {
+        "calls": 50,
+        "triangles": 130343
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 4
+      },
+      "camera": {
+        "target": [
+          401,
+          469
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "412x915/night/duomo-150m": {
+      "render": {
+        "calls": 104,
+        "triangles": 256708
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 10
+      },
+      "camera": {
+        "target": [
+          -74,
+          -73
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "412x915/night/galleria-150m": {
+      "render": {
+        "calls": 92,
+        "triangles": 239423
+      },
+      "tiles": {
+        "loaded": 29,
+        "loading": 0,
+        "failed": 0,
+        "visible": 10
+      },
+      "camera": {
+        "target": [
+          -160,
+          -193
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "412x915/night/velasca-150m": {
+      "render": {
+        "calls": 64,
+        "triangles": 186399
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 9
+      },
+      "camera": {
+        "target": [
+          -192,
+          357
+        ],
+        "visibleWidth": 150,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    },
+    "412x915/night/wide-4000m": {
+      "render": {
+        "calls": 172,
+        "triangles": 360124
+      },
+      "tiles": {
+        "loaded": 30,
+        "loading": 0,
+        "failed": 0,
+        "visible": 30
+      },
+      "camera": {
+        "target": [
+          0,
+          0
+        ],
+        "visibleWidth": 4000,
+        "elevationDeg": 30,
+        "azimuthDeg": 45,
+        "bounds": {
+          "minX": -625.96,
+          "maxX": 608.16,
+          "minZ": -681.36,
+          "maxZ": 648.78
+        }
+      },
+      "mode": "night"
+    }
+  },
+  "problems": {
+    "1280x720/day": [
+      "warning [ADR-0012 noise]: [.WebGL-0x460c00624800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "warning [ADR-0012 noise]: [.WebGL-0x460c00624800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "warning [ADR-0012 noise]: [.WebGL-0x460c00624800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "warning [ADR-0012 noise]: [.WebGL-0x460c00624800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    ],
+    "1280x720/night": [],
+    "412x915/day": [],
+    "412x915/night": []
+  },
+  "a11y": {
+    "1280x720/day": {
+      "toggle": {
+        "x": 1220.921875,
+        "y": 6,
+        "w": 53.078125,
+        "h": 32,
+        "color": "rgb(38, 50, 56)",
+        "bg": "rgba(255, 255, 255, 0.9)",
+        "pressed": "false",
+        "text": "Notte"
+      },
+      "attribution": {
+        "x": 515.40625,
+        "y": 698,
+        "w": 758.59375,
+        "h": 18,
+        "color": "rgb(38, 50, 56)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "text": "Dati: (c) OpenStreetMap contributors · Comune di Milano, DBT 2020, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)",
+        "link": "rgb(13, 71, 161)"
+      },
+      "htmlBg": "rgb(227, 222, 212)"
+    },
+    "1280x720/night": {
+      "toggle": {
+        "x": 1220.921875,
+        "y": 6,
+        "w": 53.078125,
+        "h": 32,
+        "color": "rgb(236, 239, 241)",
+        "bg": "rgba(38, 50, 56, 0.92)",
+        "pressed": "true",
+        "text": "Notte"
+      },
+      "attribution": {
+        "x": 515.40625,
+        "y": 698,
+        "w": 758.59375,
+        "h": 18,
+        "color": "rgb(38, 50, 56)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "text": "Dati: (c) OpenStreetMap contributors · Comune di Milano, DBT 2020, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)",
+        "link": "rgb(13, 71, 161)"
+      },
+      "htmlBg": "rgb(46, 54, 80)"
+    },
+    "412x915/day": {
+      "toggle": {
+        "x": 352.921875,
+        "y": 6,
+        "w": 53.078125,
+        "h": 32,
+        "color": "rgb(38, 50, 56)",
+        "bg": "rgba(255, 255, 255, 0.9)",
+        "pressed": "false",
+        "text": "Notte"
+      },
+      "attribution": {
+        "x": 6,
+        "y": 879,
+        "w": 400,
+        "h": 32,
+        "color": "rgb(38, 50, 56)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "text": "Dati: (c) OpenStreetMap contributors · Comune di Milano, DBT 2020, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)",
+        "link": "rgb(13, 71, 161)"
+      },
+      "htmlBg": "rgb(227, 222, 212)"
+    },
+    "412x915/night": {
+      "toggle": {
+        "x": 352.921875,
+        "y": 6,
+        "w": 53.078125,
+        "h": 32,
+        "color": "rgb(236, 239, 241)",
+        "bg": "rgba(38, 50, 56, 0.92)",
+        "pressed": "true",
+        "text": "Notte"
+      },
+      "attribution": {
+        "x": 6,
+        "y": 879,
+        "w": 400,
+        "h": 32,
+        "color": "rgb(38, 50, 56)",
+        "bg": "rgba(255, 255, 255, 0.8)",
+        "text": "Dati: (c) OpenStreetMap contributors · Comune di Milano, DBT 2020, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)",
+        "link": "rgb(13, 71, 161)"
+      },
+      "htmlBg": "rgb(46, 54, 80)"
+    }
+  }
+}
