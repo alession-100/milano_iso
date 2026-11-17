@@ -8,7 +8,9 @@ export default defineConfig({
   expect: {
     toHaveScreenshot: {
       // Stored visual-regression threshold (VERIFICATION section 4), see R-3.6 for the measurement.
-      maxDiffPixelRatio: 0.01,
+      // Explicit per-pixel colour threshold (Playwright default 0.2 hides a 16-level shift, T-3.7).
+      threshold: 0.02,
+      maxDiffPixelRatio: 0.001,
     },
   },
   use: {
