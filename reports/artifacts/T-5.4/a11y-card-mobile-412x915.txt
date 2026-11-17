@@ -1,0 +1,24 @@
+- group "Strumenti della mappa":
+  - combobox "Cerca sulla mappa": Duomo di Milano
+  - button "Livelli"
+  - button "Aiuto"
+  - button "Passa all’inglese (English)": EN
+  - button "Mappa"
+- status: 7 risultati
+- status
+- application "Mappa isometrica di Milano. Frecce per spostare, più e meno per lo zoom, zero per ripristinare la vista, Q ed E per ruotare."
+- button "Notte"
+- button "Ruota a sinistra": ↶
+- button "Ruota a destra": ↷
+- dialog "Duomo di Milano":
+  - heading "Duomo di Milano" [level=2]
+  - button "Chiudi": ×
+  - term: Tipo
+  - definition: Punto di riferimento
+  - paragraph: "I dettagli aggiunti al modello (guglie, pinnacoli, coperture) sono stilizzati: non provengono dai dati rilevati."
+- text: "Dati:"
+- link "(c) OpenStreetMap contributors":
+  - /url: https://www.openstreetmap.org/copyright
+- text: ·
+- link "Comune di Milano, DBT 2020, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)":
+  - /url: https://creativecommons.org/licenses/by/4.0/

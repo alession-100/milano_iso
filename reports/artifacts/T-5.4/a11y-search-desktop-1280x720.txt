@@ -1,0 +1,33 @@
+- group "Strumenti della mappa":
+  - combobox "Cerca sulla mappa" [expanded]: via
+  - button "Livelli"
+  - button "Aiuto"
+  - button "Passa all’inglese (English)": EN
+- listbox "Risultati della ricerca":
+  - option "Via Achille Mauri Via" [selected]
+  - option "Via Adalberto Catena Via"
+  - option "Via Agnello Via"
+  - option "Via Alberico Albricci Via"
+  - option "Via Alessandro Manzoni Via"
+  - option "Via Amedei Via"
+  - option "Via Andegari Via"
+  - option "Via Armorari Via"
+- status: 8 risultati
+- 'img "Panoramica della mappa: il poligono mostra la zona visibile. Per spostarsi con la tastiera usare la ricerca."'
+- status
+- application "Mappa isometrica di Milano. Frecce per spostare, più e meno per lo zoom, zero per ripristinare la vista, Q ed E per ruotare."
+- button "Notte"
+- button "Ruota a sinistra": ↶
+- button "Ruota a destra": ↷
+- dialog "Duomo di Milano":
+  - heading "Duomo di Milano" [level=2]
+  - button "Chiudi": ×
+  - term: Tipo
+  - definition: Punto di riferimento
+  - paragraph: "I dettagli aggiunti al modello (guglie, pinnacoli, coperture) sono stilizzati: non provengono dai dati rilevati."
+- text: "Dati:"
+- link "(c) OpenStreetMap contributors":
+  - /url: https://www.openstreetmap.org/copyright
+- text: ·
+- link "Comune di Milano, DBT 2020, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)":
+  - /url: https://creativecommons.org/licenses/by/4.0/

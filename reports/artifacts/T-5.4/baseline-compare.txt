@@ -1,0 +1,21 @@
+close-desktop-1280x720-win32.png               1280x720 outside the UI boxes: 117 differing pixels (max channel delta 2); masked 173000 px
+close-mobile-412x915-win32.png                 412x915 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 60160 px
+default-desktop-1280x720-win32.png             1280x720 outside the UI boxes: 59 differing pixels (max channel delta 1); masked 173000 px
+default-mobile-412x915-win32.png               412x915 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 60160 px
+default-rot1-desktop-1280x720-win32.png        1280x720 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 173000 px
+default-rot1-mobile-412x915-win32.png          412x915 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 60160 px
+default-rot2-desktop-1280x720-win32.png        1280x720 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 173000 px
+default-rot2-mobile-412x915-win32.png          412x915 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 60160 px
+default-rot3-desktop-1280x720-win32.png        1280x720 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 173000 px
+default-rot3-mobile-412x915-win32.png          412x915 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 60160 px
+info-card-desktop-1280x720-win32.png           1280x720 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 278600 px
+info-card-mobile-412x915-win32.png             412x915 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 237320 px
+night-close-desktop-1280x720-win32.png         1280x720 outside the UI boxes: 47 differing pixels (max channel delta 2); masked 173000 px
+night-close-mobile-412x915-win32.png           412x915 outside the UI boxes: 1 differing pixels (max channel delta 1); masked 60160 px
+night-default-desktop-1280x720-win32.png       1280x720 outside the UI boxes: 3 differing pixels (max channel delta 1); masked 173000 px
+night-default-mobile-412x915-win32.png         412x915 outside the UI boxes: 0 differing pixels (max channel delta 0); masked 60160 px
+west-desktop-1280x720-win32.png                1280x720 outside the UI boxes: 121 differing pixels (max channel delta 2); masked 173000 px
+west-mobile-412x915-win32.png                  412x915 outside the UI boxes: 12 differing pixels (max channel delta 1); masked 60160 px
+wide-desktop-1280x720-win32.png                1280x720 outside the UI boxes: 2 differing pixels (max channel delta 1); masked 173000 px
+wide-mobile-412x915-win32.png                  412x915 outside the UI boxes: 1 differing pixels (max channel delta 1); masked 60160 px
+20 images compared, 0 with a channel difference above 2/255 outside the UI boxes

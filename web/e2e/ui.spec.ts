@@ -269,7 +269,7 @@ for (const size of SIZES) {
         }
         expect(seen).toEqual(expected);
         // The focus ring: a solid 3 px outline in the focus colour, with the halo ring inside it.
-        const ringColor = mode === 'night' ? 'rgb(255, 213, 79)' : 'rgb(13, 71, 161)';
+        const ringColor = mode === 'night' ? 'rgb(255, 213, 79)' : 'rgb(8, 48, 107)';
         const halo = mode === 'night' ? 'rgb(38, 50, 56)' : 'rgb(255, 255, 255)';
         for (const s of stops) {
           if (s.id === 'app') {
