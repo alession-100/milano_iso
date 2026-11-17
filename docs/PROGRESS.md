@@ -39,7 +39,7 @@ Single source of truth for state. The orchestrator updates it after every accept
 | T-3.2 | done, integration pending | reports/R-3.2.md | Executor results: e2e 4 pass on the fixture; real pilot 82 draw calls (default) / 106 (widest), 0 failed tiles. Merge conflicts with T-3.1 (render loop, tempview), so integration is in T-3.5. Accepted: the shared console filter helper, and attribution links to osm.org/copyright and CC BY 4.0 |
 | T-3.5 | done | reports/R-3.5.md | Verified on main: vitest 40, e2e 15 pass (fixture); JS 160 KB gzip; no permanent render loop. Orchestrator checked real data in the browser pane: 29 tiles loaded, 0 failed, 87 draw calls, attribution OSM + Comune, 0 console errors |
 | T-3.3 | in progress | | palette v1 |
-| T-3.4 | in progress | | debug overlay |
+| T-3.4 | retry 1/2 | reports/R-3.4.md | Merged locally (not pushed). Unit 45 and make test pass; the bench e2e fails intermittently (2/25) with a real GL_INVALID_OPERATION 'Blit feedback loop' warning, so a root-cause fix is in progress. The owner approved stopping a stray preview server (PID 40380) that blocked port 4173 |
 
 Status values: todo, in progress, review, retry (n/2), blocked, done.
 
