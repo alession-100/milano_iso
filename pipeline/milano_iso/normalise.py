@@ -303,6 +303,7 @@ def _layer_attrs(layer, assigned, tags):
             "bridge": _tag(tags, "bridge"),
             "layer": _tag(tags, "layer"),
             "underground": classify.is_underground(tags),
+            "is_platform": classify.is_platform(tags),
         }
     if layer == "road_areas":
         return {
@@ -354,6 +355,7 @@ LAYER_COLUMNS = {
         "bridge",
         "layer",
         "underground",
+        "is_platform",
     ],
     "road_areas": ["osm_type", "osm_id", "class", "underground"],
     "rail": ["osm_type", "osm_id", "class", "tunnel", "bridge", "layer", "underground"],

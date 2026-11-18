@@ -224,6 +224,18 @@ def named_category(tags: dict) -> str:
     return "other"
 
 
+def is_platform(tags: dict) -> bool:
+    """True for a public-transport platform way (ADR-0033): any of the three OSM platform tags.
+
+    ``footway=sidewalk`` ways that carry ``public_transport=platform`` are platforms too.
+    """
+    return (
+        tags.get("public_transport") == "platform"
+        or tags.get("highway") == "platform"
+        or tags.get("railway") == "platform"
+    )
+
+
 def is_underground(tags: dict) -> bool:
     """tunnel=yes, location=underground, or a negative ``layer`` (all values negative)."""
     if tags.get("tunnel") == "yes" or tags.get("location") == "underground":

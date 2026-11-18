@@ -97,3 +97,54 @@ describe('parseIndex / unionBbox', () => {
     expect(unionBbox([[0, 0, 1, 1], [-2, 3, 0, 4]])).toEqual([-2, 0, 1, 4]);
   });
 });
+
+describe('ranking and stops (T-5.6)', () => {
+  const galleries = Array.from({ length: 10 }, (_, i) =>
+    e(`Galleria Strada ${i}`, 'street', { osm_ids: { w: [i] } }),
+  );
+  const list: IndexEntry[] = [
+    ...galleries,
+    e('Galleria Vittorio Emanuele II', 'landmark', { landmark_id: 'galleria' }),
+    e('Duomo di Milano', 'landmark', { landmark_id: 'duomo' }),
+    e('Duomo', 'building', { key: 'osm:w9' }),
+    e('Duomo (M1,M3)', 'stop', { osm_ids: { w: [1349843996] } }),
+    e('Via Duomo', 'street', { osm_ids: { w: [3] } }),
+  ];
+  it('lists the landmark among the first 8 prefix matches', () => {
+    const names = search(list, 'galleria').map((h) => h.name);
+    expect(names).toContain('Galleria Vittorio Emanuele II');
+    expect(names[0]).toBe('Galleria Vittorio Emanuele II');
+  });
+  it('puts an exact folded-name match first, then landmarks among prefix matches', () => {
+    const names = search(list, 'duomo').map((h) => h.name);
+    expect(names.slice(0, 3)).toEqual(['Duomo', 'Duomo di Milano', 'Duomo (M1,M3)']);
+    const noExact = list.filter((x) => x.name !== 'Duomo');
+    expect(search(noExact, 'duomo')[0].name).toBe('Duomo di Milano');
+  });
+  it('is deterministic whatever the input order', () => {
+    const a = search(list, 'duomo').map(hitLabel);
+    expect(search([...list].reverse(), 'duomo').map(hitLabel)).toEqual(a);
+  });
+  it('accepts kind stop and maps it to a roads FeatureRef', () => {
+    const parsed = parseIndex({ entries: [list.find((x) => x.kind === 'stop')] });
+    expect(parsed).toHaveLength(1);
+    const hit = search(parsed, 'duomo')[0];
+    expect(refOf(hit)).toEqual({
+      layer: 'roads',
+      streetName: 'Duomo (M1,M3)',
+      osmType: 'w',
+      osmId: 1349843996,
+    });
+  });
+});
+
+describe('same name as street and stop', () => {
+  it('lists the street before the stop of the same name', () => {
+    const l: IndexEntry[] = [
+      e('Largo Augusto', 'stop', { osm_ids: { w: [1] } }),
+      e('Largo Augusto', 'street', { osm_ids: { w: [2] } }),
+    ];
+    expect(search(l, 'largo augusto').map((h) => h.kind)).toEqual(['street', 'stop']);
+    expect(search([...l].reverse(), 'largo augusto').map((h) => h.kind)).toEqual(['street', 'stop']);
+  });
+});

@@ -241,7 +241,7 @@ Validated file: `pilot.gpkg`
 
 ## Minimap (T-5.3a)
 
-viewBox -626 -682 1235 1331; 79204 bytes, 29749 bytes gzip-9; index.json 49054 bytes
+viewBox -626 -682 1235 1331; 79204 bytes, 29749 bytes gzip-9; index.json 49453 bytes
 
 ## Registration OSM vs DBT (ADR-0017 point 3)
 
@@ -324,7 +324,7 @@ Pairs: OSM building with its best-IoU DBT building, IoU >= 0.8. Offset = DBT cen
 
 ## Search index entries by kind (T-5.3a)
 
-building: 76, street: 184, green: 10, water: 0, landmark: 7; total 277
+building: 76, street: 176, green: 10, water: 0, landmark: 7, stop: 11; total 280
 
 ## Simplification (T-2.5)
 

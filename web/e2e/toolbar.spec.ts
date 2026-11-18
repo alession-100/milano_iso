@@ -59,7 +59,7 @@ test('typing finds the fixture building, street and landmark, folding case and a
   await expect(page.getByRole('option')).toHaveText(['Via FixtureVia']);
   await type(page, 'landmark');
   await expect.poll(async () => (await tb(page)).results).toEqual(['Fixture Landmark']);
-  await expect(page.getByRole('option')).toHaveText(['Fixture LandmarkMonumento']);
+  await expect(page.getByRole('option')).toHaveText(['Fixture LandmarkPunto di riferimento']);
   await type(page, 'fixture');
   await expect.poll(async () => (await tb(page)).resultCount).toBeGreaterThan(5);
   expect((await tb(page)).resultCount).toBeLessThanOrEqual(8);

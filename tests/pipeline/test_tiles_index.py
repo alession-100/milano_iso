@@ -225,3 +225,66 @@ def test_minimap_simplifies_with_the_tolerance():
 def test_viewbox_covers_the_content_boxes_in_whole_metres():
     boxes = [(-10.4, -20.0, 5.2, 7.0), (0.0, -3.0, 30.01, 9.5)]
     assert minimap.viewbox_of(boxes) == (-11, -20, 42, 30)
+
+
+def test_platform_ways_become_stops_and_never_join_a_street():
+    """ADR-0033: a platform way (any of the three tags, flagged upstream) is a stop, not a street."""
+    s = [
+        _street(1, "Duomo M1 M3", [box(0, 0, 10, 4)]) | {"platform": True},
+        _street(2, "Duomo M1 M3", [box(20, 0, 30, 4)]) | {"platform": True},
+        _street(3, "Via Dante", [box(0, 50, 10, 54)]) | {"platform": False},
+        _street(4, "Via Larga", [box(100, 0, 110, 4)]),
+        _street(5, "Via Larga", [box(500, 500, 510, 504)]) | {"platform": True},
+    ]
+    out = _entries(streets=s)
+    assert [(e["kind"], e["name"]) for e in out] == [
+        ("street", "Via Dante"),
+        ("street", "Via Larga"),
+        ("stop", "Duomo M1 M3"),
+        ("stop", "Via Larga"),
+    ]
+    stop = out[2]
+    assert stop["ref"] == {"osm_ids": {"w": [1, 2]}}
+    assert stop["bbox"] == [0.0, -4.0, 30.0, 0.0]
+
+
+def test_street_with_the_name_of_a_platform_keeps_only_its_own_geometry():
+    s = [
+        _street(4, "Largo Augusto", [box(100, 0, 110, 4)]),
+        _street(5, "Largo Augusto", [box(900, 900, 910, 904)]) | {"platform": True},
+    ]
+    street = next(e for e in _entries(streets=s) if e["kind"] == "street")
+    assert street["bbox"] == [100.0, -4.0, 110.0, 0.0]
+    assert street["ref"] == {"osm_ids": {"w": [4]}}
+    assert street["centre"] == [105.0, -2.0]
+
+
+def test_stop_kind_is_appended_to_kind_order():
+    assert index.KIND_ORDER[:5] == ("building", "street", "green", "water", "landmark")
+    assert index.KIND_ORDER[5] == "stop"
+    s = [
+        _street(1, "Missori M3", [box(0, 0, 1, 1)]) | {"platform": True},
+        _street(2, "Cordusio M1", [box(5, 5, 6, 6)]) | {"platform": True},
+    ]
+    doc = index.index_document(_entries(streets=s))
+    assert doc["kinds"][-1] == "stop"
+    rev = index.index_document(_entries(streets=list(reversed(s))))
+    assert json.dumps(doc, sort_keys=True) == json.dumps(rev, sort_keys=True)
+
+
+def test_is_platform_tags():
+    from milano_iso import classify
+
+    for tags in (
+        {"highway": "platform"},
+        {"railway": "platform", "highway": "footway"},
+        {"public_transport": "platform", "highway": "footway", "footway": "sidewalk"},
+    ):
+        assert classify.is_platform(tags)
+    for tags in (
+        {"highway": "footway"},
+        {"highway": "footway", "footway": "sidewalk"},
+        {"highway": "steps"},
+        {"public_transport": "stop_position"},
+    ):
+        assert not classify.is_platform(tags)

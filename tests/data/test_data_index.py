@@ -17,7 +17,7 @@ from milano_iso import config
 
 TILE_DIR = config.DATA_DIR / "tiles" / "pilot"
 LANDMARKS = config.REPO_ROOT / "tests" / "landmarks.yaml"
-KINDS = ["building", "street", "green", "water", "landmark"]
+KINDS = ["building", "street", "green", "water", "landmark", "stop"]
 MINIMAP_GZIP_BUDGET = 100_000
 
 

@@ -1,0 +1,43 @@
+kind | before | after
+building 76 76
+street 184 176
+green 10 10
+water 0 0
+landmark 7 7
+stop 0 11
+total 277 280
+
+stops:
+  Cordusio M1 {'w': [145016431, 1027012088]}
+  Corso Italia - Missori M3 {'w': [1064287995]}
+  Duomo (M1,M3) {'w': [1349843996]}
+  Duomo M1 M3 {'w': [1027024994, 1027024996, 1073073016]}
+  Largo Augusto {'w': [673362983]}
+  Missori M3 {'w': [379873069, 1028094425, 1064287657, 1064288980, 1069204486]}
+  Piazza Fontana {'w': [251911504, 251911505]}
+  Teatro alla Scala {'w': [1073019983]}
+  Via Cusani {'w': [1072712074, 1072712076, 1072712271]}
+  Via Larga {'w': [134765971, 251614623, 1073056465]}
+  Via Sforza Via Andreani {'w': [1072681843, 1072691391]}
+
+street entries removed entirely (name no longer a street):
+  Cordusio M1
+  Corso Italia - Missori M3
+  Duomo (M1,M3)
+  Duomo M1 M3
+  Missori M3
+  Teatro alla Scala
+  Via Cusani
+  Via Sforza Via Andreani
+
+streets whose ways/bbox/centre changed:
+  Largo Augusto bbox [400.0, 68.8, 500.0, 180.9] -> [400.0, 68.8, 500.0, 159.1] centre [444.3, 139.0] -> [457.5, 109.9] ways {'r': [17942199], 'w': [85847370, 145593786, 275480569, 275513670, 319991250, 566072399, 673362983]} -> {'r': [17942199], 'w': [85847370, 145593786, 275480569, 275513670, 319991250, 566072399]}
+  Piazza Fontana bbox [151.4, 43.2, 258.8, 131.1] -> [151.4, 43.2, 258.8, 131.1] centre [208.5, 83.3] -> [208.5, 83.3] ways {'w': [168773901, 194011466, 234305180, 251911504, 251911505, 252415761, 275253903, 356628034, 360721269, 360721275, 360721279, 360721283, 908989380, 1278712520]} -> {'w': [168773901, 194011466, 234305180, 252415761, 275253903, 356628034, 360721269, 360721275, 360721279, 360721283, 908989380, 1278712520]}
+  Via Larga bbox [-52.0, 127.2, 266.4, 395.1] -> [-52.0, 127.2, 266.4, 395.1] centre [105.8, 251.2] -> [105.8, 251.2] ways {'w': [4018845, 4868927, 8132446, 8132447, 8432341, 8432343, 14348297, 37634056, 134765971, 168773918, 188762662, 189272428, 234305185, 251614623, 252421997, 252422219, 252422220, 269518392, 274988410, 274988411, 275186713, 275186714, 275186715, 275186716, 275186717, 275186718, 275186719, 275186720, 275186721, 275186722, 275186723, 275186724, 275190405, 275198420, 275198422, 275198424, 275198427, 275258954, 275258955, 275258956, 275258958, 275260146, 289985271, 307140232, 491530383, 1073056465, 1078028010, 1205268356]} -> {'w': [4018845, 4868927, 8132446, 8132447, 8432341, 8432343, 14348297, 37634056, 168773918, 188762662, 189272428, 234305185, 252421997, 252422219, 252422220, 269518392, 274988410, 274988411, 275186713, 275186714, 275186715, 275186716, 275186717, 275186718, 275186719, 275186720, 275186721, 275186722, 275186723, 275186724, 275190405, 275198420, 275198422, 275198424, 275198427, 275258954, 275258955, 275258956, 275258958, 275260146, 289985271, 307140232, 491530383, 1078028010, 1205268356]}
+
+non-street entries lost: []
+duomo [('building', 'Grande Museo del Duomo di Milano'), ('building', 'Palazzo della Veneranda Fabbrica del Duomo'), ('building', 'Palazzo della Veneranda Fabbrica del Duomo'), ('street', 'Passaggio Duomo'), ('street', 'Piazza del Duomo'), ('landmark', 'Duomo di Milano'), ('stop', 'Duomo (M1,M3)'), ('stop', 'Duomo M1 M3')]
+galleria [('street', 'Galleria Ciro Fontana'), ('street', 'Galleria De Cristoforis'), ('street', 'Galleria Passarella'), ('street', 'Galleria Pattari'), ('street', 'Galleria Sala dei Longobardi'), ('street', 'Galleria San Babila'), ('street', 'Galleria San Carlo'), ('street', 'Galleria Santa Radegonda'), ('street', 'Galleria Unione'), ('street', 'Galleria Vittorio Emanuele II'), ('street', 'Galleria Vittorio Emanuele Secondo'), ('street', 'Galleria del Corso'), ('street', 'Galleria del Toro'), ('landmark', 'Galleria Vittorio Emanuele II')]
+missori [('street', 'Piazza Giuseppe Missori'), ('stop', 'Corso Italia - Missori M3'), ('stop', 'Missori M3')]
+cordusio [('street', 'Piazza Cordusio'), ('street', 'Via Cordusio'), ('landmark', 'Palazzo delle Assicurazioni Generali (Piazza Cordusio)'), ('stop', 'Cordusio M1')]
+largo augusto [('street', 'Largo Augusto'), ('stop', 'Largo Augusto')]
