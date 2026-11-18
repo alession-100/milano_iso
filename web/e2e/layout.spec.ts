@@ -272,6 +272,7 @@ for (const [w, h, withCard] of [
     await page.route('**/tiles/pilot/index.json', (route) =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ entries }) }),
     );
+    await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' })); // the notice is there
     await page.setViewportSize({ width: w, height: h });
     await page.goto('/?e2e=1&lang=en');
     await expect(page.locator('canvas')).toHaveCount(1);
