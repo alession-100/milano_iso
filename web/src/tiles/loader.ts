@@ -43,8 +43,9 @@ interface Entry<T> {
 /**
  * Loads wanted tiles nearest first with a concurrency limit, keeps at most `cacheLimit` tiles,
  * and evicts the least recently visible first. Tiles that are currently wanted are never evicted.
- * A failed tile is retried once after `retryDelayMs` (it stays counted as loading meanwhile); if
- * the retry fails too it is recorded and reported once.
+ * A failed tile is retried once after `retryDelayMs`. While it waits it is counted as loading but
+ * holds no loader slot (T-5.4), and it is retried only if it is still wanted when the wait ends;
+ * if the retry fails too it is recorded and reported once.
  */
 export class TileStreamer<T> {
   private readonly tilesById: Map<string, TileEntry>;
@@ -58,6 +59,8 @@ export class TileStreamer<T> {
   private readonly cacheLimit: number;
   private readonly retryDelayMs: number;
   private readonly retried = new Set<string>();
+  /** Failed once, waiting for the retry delay: counted as loading, but not using a slot. */
+  private readonly retryWait = new Set<string>();
 
   constructor(
     tiles: TileEntry[],
@@ -87,7 +90,7 @@ export class TileStreamer<T> {
   get stats(): TileStats {
     return {
       loaded: this.loadedMap.size,
-      loading: this.loadingSet.size,
+      loading: this.loadingSet.size + this.retryWait.size,
       failed: this.failedSet.size,
     };
   }
@@ -103,7 +106,7 @@ export class TileStreamer<T> {
   private pump(): void {
     for (const id of this.order) {
       if (this.loadingSet.size >= this.maxConcurrent) break;
-      if (this.loadedMap.has(id) || this.loadingSet.has(id) || this.failedSet.has(id)) continue;
+      if (this.loadedMap.has(id) || this.loadingSet.has(id) || this.retryWait.has(id) || this.failedSet.has(id)) continue;
       const tile = this.tilesById.get(id);
       if (!tile) continue;
       this.start(tile);
@@ -123,9 +126,11 @@ export class TileStreamer<T> {
       })
       .catch((err: unknown) => {
         if (!this.retried.has(tile.id)) {
-          // First failure: stay in `loading` and try once more after the delay.
+          // First failure: free the slot, count as loading, and try once more after the delay.
           this.retried.add(tile.id);
-          setTimeout(() => this.start(tile), this.retryDelayMs);
+          this.loadingSet.delete(tile.id);
+          this.retryWait.add(tile.id);
+          setTimeout(() => this.retry(tile.id), this.retryDelayMs);
           return;
         }
         this.loadingSet.delete(tile.id);
@@ -136,6 +141,14 @@ export class TileStreamer<T> {
         this.opts.onChange?.();
         this.pump();
       });
+  }
+
+  /** The retry delay is over: retry only a tile that is still wanted (and there is a free slot). */
+  private retry(id: string): void {
+    this.retryWait.delete(id);
+    if (!this.wanted.has(id)) this.retried.delete(id); // not wanted: forget it, a later want starts fresh
+    this.opts.onChange?.();
+    this.pump();
   }
 
   private evict(): void {

@@ -2,7 +2,7 @@
  * `?debug` overlay and benchmark mode (T-3.4). Loaded by dynamic import from main.ts only when
  * the `debug` query parameter is present, so it costs nothing otherwise.
  */
-import { DEFAULT_LANG, t } from './i18n';
+import { onLangChange, t } from './i18n';
 import { registerTestState } from './testhook';
 
 export const BENCH_DURATION_S = 10;
@@ -117,29 +117,28 @@ export interface DebugContext {
 type BenchState = { status: 'idle' | 'running' | 'done'; results: BenchResults | null };
 
 export function initDebug(ctx: DebugContext, bench: boolean): void {
-  const lang = DEFAULT_LANG;
   const root = document.createElement('section');
   root.id = 'debug-overlay';
-  root.setAttribute('aria-label', t('debugTitle', lang));
+  root.setAttribute('aria-label', t('debugTitle'));
   root.style.cssText =
-    'position:fixed;right:6px;top:104px;z-index:10;box-sizing:border-box;max-width:min(380px,calc(100vw - 12px));' +
+    'position:fixed;right:6px;top:108px;z-index:10;box-sizing:border-box;max-width:min(380px,calc(100vw - 12px));' +
     'max-height:calc(100vh - 48px);overflow:auto;background:rgba(20,24,28,0.85);color:#e8f5e9;' +
     'font:11px/1.35 monospace;padding:6px 8px;border-radius:3px;';
 
   const bar = document.createElement('div');
   bar.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:4px;';
   const title = document.createElement('strong');
-  title.textContent = t('debugTitle', lang);
+  title.textContent = t('debugTitle');
   title.style.flex = '1';
   const benchBtn = document.createElement('button');
   benchBtn.type = 'button';
   benchBtn.id = 'debug-bench';
-  benchBtn.textContent = t('benchmark', lang);
+  benchBtn.textContent = t('benchmark');
   const closeBtn = document.createElement('button');
   closeBtn.type = 'button';
   closeBtn.id = 'debug-close';
   closeBtn.textContent = '×';
-  closeBtn.setAttribute('aria-label', t('close', lang));
+  closeBtn.setAttribute('aria-label', t('close'));
   bar.append(title, benchBtn, closeBtn);
 
   const live = document.createElement('pre');
@@ -150,6 +149,34 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   out.style.cssText = 'margin:4px 0 0;white-space:pre-wrap;';
   root.append(bar, live, out);
   document.body.appendChild(root);
+
+  /**
+   * Narrow screens (T-5.4, G3 carry-over 5): the overlay sits at the bottom, above the attribution,
+   * so it never covers the toolbar zone and its tiles notice (top left). Wide screens: right column.
+   */
+  function place(): void {
+    if (!window.matchMedia('(max-width: 600px)').matches) {
+      root.style.cssText += ';left:auto;top:108px;bottom:auto;max-height:calc(100vh - 48px)';
+      return;
+    }
+    const attr = document.getElementById('attribution');
+    const edge = attr ? attr.getBoundingClientRect().top : window.innerHeight;
+    root.style.left = '6px';
+    root.style.top = 'auto';
+    root.style.bottom = `${Math.max(0, window.innerHeight - edge) + 6}px`;
+    root.style.maxHeight = '28vh';
+  }
+  place();
+  window.addEventListener('resize', place);
+  const attributionEl = document.getElementById('attribution');
+  if (attributionEl && typeof ResizeObserver !== 'undefined') new ResizeObserver(place).observe(attributionEl);
+  onLangChange(() => {
+    root.setAttribute('aria-label', t('debugTitle'));
+    title.textContent = t('debugTitle');
+    benchBtn.textContent = t('benchmark');
+    closeBtn.setAttribute('aria-label', t('close'));
+    drawResults();
+  });
 
   let state: BenchState = { status: 'idle', results: null };
   registerTestState('bench', () => state);
@@ -178,7 +205,7 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   function drawResults(): void {
     const r = state.results;
     if (state.status === 'running') {
-      out.textContent = t('benchRunning', lang);
+      out.textContent = t('benchRunning');
     } else if (r) {
       out.textContent =
         `fps mean ${fmt(r.meanFps)}  p5 ${fmt(r.p5Fps)}\n` +

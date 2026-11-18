@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { expect, test } from '@playwright/test';
-import { collectProblems, readFixtureManifest, routeFixtureTiles } from './support';
+import { collectProblems, readFixtureManifest, routeFixtureTiles, setView, settleRendered } from './support';
 
 const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
 
@@ -15,20 +15,6 @@ const state = (page: import('@playwright/test').Page): Promise<TestState> =>
     const s = (window as unknown as { __milanoIso: TestState }).__milanoIso;
     return { tiles: { ...s.tiles }, render: { ...s.render } };
   });
-
-/** e2e-only camera setter exposed by the app when `e2e=1` (testhook.ts). */
-async function setView(page: import('@playwright/test').Page, x: number, z: number, w: number) {
-  await page.waitForFunction(
-    () => typeof (window as unknown as { __milanoIsoSetView?: unknown }).__milanoIsoSetView === 'function',
-  );
-  await page.evaluate(
-    ([a, b, c]) =>
-      (
-        window as unknown as { __milanoIsoSetView: (x: number, z: number, w: number) => void }
-      ).__milanoIsoSetView(a, b, c),
-    [x, z, w],
-  );
-}
 
 test('the fixture tiles load, attribution comes from the manifest, draw calls within budget', async ({
   page,
@@ -46,6 +32,7 @@ test('the fixture tiles load, attribution comes from the manifest, draw calls wi
   await expect
     .poll(async () => (await state(page)).tiles.loaded, { timeout: 20_000 })
     .toBe(expected);
+  await settleRendered(page); // the draw calls below are read only once they are stable
 
   const s = await state(page);
   expect(s.tiles.visible).toBe(expected);

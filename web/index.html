@@ -8,21 +8,52 @@
     <style>
       html, body { margin: 0; height: 100%; overflow: hidden; background: #cfd8dc; }
       #app { position: fixed; inset: 0; }
-      #attribution {
-        position: fixed; right: 6px; bottom: 4px; max-width: calc(100vw - 24px);
-        font: 12px sans-serif; color: #263238; background: rgba(255, 255, 255, 0.8);
-        padding: 2px 6px;
-      }
-      #attribution a { color: #0d47a1; }
       #error {
         position: fixed; left: 50%; top: 40%; transform: translateX(-50%);
         font: 16px sans-serif; background: #fff; color: #b71c1c; padding: 12px 16px;
         border: 1px solid #b71c1c; max-width: 80vw;
       }
-      /* T-5.3b toolbar: one top-left stack (toolbar, results, layers, minimap on narrow screens,
-         tiles notice). Nothing in it is absolutely positioned except the desktop minimap. */
-      :root { --tb-bg: rgba(255, 255, 255, 0.94); --tb-fg: #263238; --tb-border: #607d8b; --tb-focus: #0d47a1; --tb-active: #cfe3f7; }
-      html[data-mode="night"] { --tb-bg: rgba(38, 50, 56, 0.95); --tb-fg: #eceff1; --tb-border: #90a4ae; --tb-focus: #ffd54f; --tb-active: #3b5360; }
+      /* UI colours (T-5.4). One set for day and one for night; every control, the card, the notice and
+         the attribution use them, so the contrast is measured once (web/scripts/measure-contrast.mjs).
+         Style only: the map palette (ADR-0030) is not touched. */
+      :root {
+        --tb-bg: rgba(255, 255, 255, 0.94); --tb-fg: #263238; --tb-muted: #546e7a; --tb-border: #1c262b;
+        --tb-focus: #08306b; --tb-halo: #ffffff; --tb-active: #cfe3f7; --tb-link: #0d47a1;
+      }
+      html[data-mode="night"] {
+        --tb-bg: rgba(38, 50, 56, 0.95); --tb-fg: #eceff1; --tb-muted: #b0bec5; --tb-border: #ffffff;
+        --tb-focus: #ffd54f; --tb-halo: #263238; --tb-active: #3b5360; --tb-link: #90caf9;
+      }
+      /* Focus ring on every control: a 3 px ring in the focus colour with a 2 px halo on each side of it, so
+         it reads over any map colour: wherever the ring is too close to the map in lightness, the halo is
+         not (day: dark blue between white bands, night: amber between dark blue-grey bands). */
+      :focus-visible { outline: 3px solid var(--tb-focus); outline-offset: 2px; box-shadow: 0 0 0 2px var(--tb-halo), 0 0 0 7px var(--tb-halo); }
+      #app:focus-visible { outline: none; box-shadow: none; }
+      #app:focus-visible::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        box-shadow: inset 0 0 0 2px var(--tb-halo), inset 0 0 0 5px var(--tb-focus), inset 0 0 0 7px var(--tb-halo);
+      }
+      /* Right column: day/night toggle, then the rotation buttons, then the info card zone. */
+      #mode-toggle { position: fixed; right: 6px; top: 6px; z-index: 10; }
+      #rotation-controls { position: fixed; right: 6px; top: 56px; z-index: 10; display: flex; gap: 6px; }
+      /* Shared look of the buttons, the search box and the list rows; every target is at least 44 px. */
+      .tb-btn, #search-input, #layers-panel label, #search-list li {
+        box-sizing: border-box; min-height: 44px; font: 14px sans-serif; color: var(--tb-fg);
+        background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px;
+      }
+      .tb-btn { min-width: 44px; padding: 0 12px; cursor: pointer; }
+      .tb-btn.rot-btn { width: 44px; padding: 0; font-size: 22px; }
+      .tb-btn:hover { background: var(--tb-active); }
+      .tb-btn[aria-pressed="true"], .tb-btn[aria-expanded="true"] { background: var(--tb-active); }
+      #search-input::placeholder { color: var(--tb-muted); opacity: 1; }
+      #attribution {
+        position: fixed; right: 6px; bottom: 6px; max-width: calc(100vw - 12px); box-sizing: border-box;
+        display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; padding: 0 6px;
+        font: 12px/1.3 sans-serif; color: var(--tb-fg); background: var(--tb-bg); border-radius: 3px;
+      }
+      #attribution a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; color: var(--tb-link); }
+      /* Toolbar zone (T-5.3b): one top-left stack (toolbar, results, layers or help, minimap on narrow
+         screens, tiles notice). Nothing in it is absolutely positioned except the desktop minimap. */
       #toolbar-zone {
         position: fixed; left: 6px; top: 6px; z-index: 20; display: flex; flex-direction: column;
         align-items: flex-start; gap: 6px; width: calc(100vw - 12px); max-width: 560px;
@@ -32,15 +63,9 @@
       #toolbar { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; align-items: center; pointer-events: none; }
       #toolbar > * { pointer-events: auto; }
       #search-box { flex: 0 0 240px; }
-      #search-input, .tb-btn, #layers-panel label, #search-list li {
-        box-sizing: border-box; min-height: 44px; font: 14px sans-serif; color: var(--tb-fg);
-        background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px;
-      }
       #search-input { width: 100%; padding: 0 10px; }
-      .tb-btn { min-width: 44px; padding: 0 12px; cursor: pointer; }
-      #toolbar-zone :focus-visible { outline: 3px solid var(--tb-focus); outline-offset: 2px; }
-      #search-list { list-style: none; margin: 0; padding: 0; width: 100%; max-width: 360px; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
-      #search-list[hidden], #layers-panel[hidden] { display: none; }
+      #search-list { list-style: none; margin: 0; padding: 0; width: 100%; max-width: 360px; max-height: 220px; overflow-y: auto; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      #search-list[hidden], #layers-panel[hidden], #help-panel[hidden] { display: none; }
       #search-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 10px; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
       #search-list li + li { border-top: 1px solid var(--tb-border); }
       #search-list li.active { background: var(--tb-active); }
@@ -48,15 +73,28 @@
       #search-status.visible { padding: 6px 10px; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
       .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
       #layers-panel { display: flex; flex-direction: column; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
-      #layers-panel label { display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
-      #layers-panel input { width: 20px; height: 20px; margin: 0; }
+      #layers-panel label { position: relative; display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
+      /* The whole row is the checkbox (44 px tall): the native input covers it, invisibly, and a drawn box shows the state. */
+      #layers-panel input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+      #layers-panel .box { flex: none; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid var(--tb-border); border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font: 700 14px/1 sans-serif; }
+      #layers-panel input:checked + .box { background: var(--tb-fg); color: var(--tb-bg); }
+      #layers-panel input:checked + .box::after { content: '\2713'; }
+      #layers-panel label:has(input:focus-visible) { outline: 3px solid var(--tb-focus); outline-offset: -3px; box-shadow: none; }
+      #layers-panel input:focus-visible { outline: none; box-shadow: none; }
+      #help-panel { box-sizing: border-box; width: 100%; max-width: 360px; margin: 0; padding: 8px 12px; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      #help-panel h2 { margin: 0 0 4px; font-size: 14px; }
+      #help-panel ul { margin: 0; padding-left: 18px; }
+      #help-panel li { margin: 2px 0; }
+      #notice-region:empty { margin-top: -6px; }
+      #tiles-notice { box-sizing: border-box; max-width: 100%; display: flex; align-items: center; gap: 8px; padding: 0 0 0 8px; font: 12px/1.3 sans-serif; color: var(--tb-fg); background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      #tiles-notice .tb-btn { border: 0; background: transparent; font-size: 20px; }
       #minimap { box-sizing: border-box; position: fixed; left: 6px; bottom: 6px; width: 160px; line-height: 0; border: 1px solid var(--tb-border); background: var(--tb-bg); cursor: crosshair; }
       #minimap svg { width: 100%; height: auto; display: block; }
       #minimap .mm-view { fill: rgba(13, 71, 161, 0.18); stroke: #0d47a1; stroke-width: 2; vector-effect: non-scaling-stroke; }
       #minimap[data-mode="night"] .mm-view { fill: rgba(255, 213, 79, 0.07); stroke: #ffd54f; }
       #minimap-button { display: none; }
       @media (max-width: 600px) {
-        /* Keep clear of the day/night toggle and the rotation buttons (top right, T-4.3 / T-5.2). */
+        /* Keep clear of the day/night toggle and the rotation buttons (top right). */
         #toolbar-zone { width: calc(100vw - 12px - 104px); }
         #search-box { flex: 1 1 100%; }
         #minimap-button { display: inline-block; }

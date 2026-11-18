@@ -1,6 +1,7 @@
 import { type CameraRig, ROTATION_STEP_DEG, wrapStep } from './camera';
 import { prefersReducedMotion } from './controls';
-import { DEFAULT_LANG, t } from './i18n';
+import { mountBeforeAttribution } from './dom';
+import { type Key, onLangChange, t } from './i18n';
 
 /** Style constant (feel, not data): duration of one 90-degree step, at most 400 ms (T-5.2). */
 export const ROTATION_DURATION_MS = 300;
@@ -117,31 +118,30 @@ export class RotationAnimator {
 // --- T-5.2 rotation ---
 /**
  * Two rotate buttons, top right under the day/night toggle (the tiles notice is top left and the
- * attribution bottom right, so none is covered). Native buttons, 44x44 CSS px, labelled in IT/EN.
- * T-5.3b will move them into one toolbar: all button creation is in this one function.
+ * attribution bottom right, so none is covered). Native buttons, 44x44 CSS px, labelled in IT/EN
+ * (re-labelled live when the language changes). Look: the shared `.tb-btn` style in index.html.
  */
 export function createRotationButtons(onRotate: (dir: RotationDir) => void): HTMLElement {
   const box = document.createElement('div');
   box.id = 'rotation-controls';
-  box.style.cssText = 'position:fixed;right:6px;top:52px;z-index:10;display:flex;gap:6px;';
-  const make = (id: string, glyph: string, label: string, dir: RotationDir): HTMLButtonElement => {
+  const make = (id: string, glyph: string, key: Key, dir: RotationDir): void => {
     const b = document.createElement('button');
     b.id = id;
     b.type = 'button';
+    b.className = 'tb-btn rot-btn';
     b.textContent = glyph;
-    b.title = label;
-    b.setAttribute('aria-label', label);
-    b.style.cssText =
-      'width:44px;height:44px;box-sizing:border-box;padding:0;font:22px sans-serif;cursor:pointer;' +
-      'color:#263238;background:rgba(255,255,255,0.9);border:1px solid #90a4ae;border-radius:3px;';
+    const label = (): void => {
+      b.title = t(key);
+      b.setAttribute('aria-label', t(key));
+    };
+    label();
+    onLangChange(label);
     b.addEventListener('click', () => onRotate(dir));
-    return b;
+    box.append(b);
   };
-  box.append(
-    make('rotate-left', '↶', t('rotateLeft', DEFAULT_LANG), -1),
-    make('rotate-right', '↷', t('rotateRight', DEFAULT_LANG), 1),
-  );
-  document.body.appendChild(box);
+  make('rotate-left', '↶', 'rotateLeft', -1);
+  make('rotate-right', '↷', 'rotateRight', 1);
+  mountBeforeAttribution(box);
   return box;
 }
 // --- end T-5.2 rotation ---

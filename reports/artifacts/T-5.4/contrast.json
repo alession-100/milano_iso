@@ -1,0 +1,4342 @@
+[
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-button",
+    "ratio": 1.6549394873937164,
+    "at": [
+      365,
+      52
+    ],
+    "detail": "border rgb(28,38,43) on rgb(72,70,75)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-list",
+    "ratio": 1.6549394873937164,
+    "at": [
+      370,
+      54
+    ],
+    "detail": "border rgb(28,38,43) on rgb(72,70,75)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#tiles-notice",
+    "ratio": 1.6549394873937164,
+    "at": [
+      256,
+      256
+    ],
+    "detail": "border rgb(28,38,43) on rgb(72,70,75)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-panel",
+    "ratio": 1.6549394873937164,
+    "at": [
+      360,
+      204
+    ],
+    "detail": "border rgb(28,38,43) on rgb(72,70,75)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-list",
+    "ratio": 1.6549394873937164,
+    "at": [
+      20,
+      330
+    ],
+    "detail": "border rgb(28,38,43) on rgb(72,70,75)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#tiles-notice",
+    "ratio": 1.6549394873937164,
+    "at": [
+      20,
+      332
+    ],
+    "detail": "border rgb(28,38,43) on rgb(72,70,75)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-panel",
+    "ratio": 1.6549394873937164,
+    "at": [
+      207,
+      328
+    ],
+    "detail": "border rgb(28,38,43) on rgb(72,70,75)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-input",
+    "ratio": 1.846843138928535,
+    "at": [
+      116,
+      4
+    ],
+    "detail": "border rgb(28,38,43) on rgb(119,62,47)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#minimap",
+    "ratio": 1.846843138928535,
+    "at": [
+      168,
+      564
+    ],
+    "detail": "border rgb(28,38,43) on rgb(119,62,47)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-panel",
+    "ratio": 1.846843138928535,
+    "at": [
+      40,
+      324
+    ],
+    "detail": "border rgb(28,38,43) on rgb(119,62,47)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-panel",
+    "ratio": 1.846843138928535,
+    "at": [
+      4,
+      286
+    ],
+    "detail": "border rgb(28,38,43) on rgb(119,62,47)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#minimap",
+    "ratio": 1.846843138928535,
+    "at": [
+      4,
+      284
+    ],
+    "detail": "border rgb(28,38,43) on rgb(119,62,47)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "minimap"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card",
+    "ratio": 2.189691960920689,
+    "at": [
+      328,
+      817
+    ],
+    "detail": "border rgb(28,38,43) on rgb(73,95,58)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#mode-toggle",
+    "ratio": 2.508695159290545,
+    "at": [
+      1213,
+      48
+    ],
+    "detail": "border rgb(28,38,43) on rgb(114,93,86)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-left",
+    "ratio": 2.508695159290545,
+    "at": [
+      1202,
+      54
+    ],
+    "detail": "border rgb(28,38,43) on rgb(114,93,86)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card",
+    "ratio": 2.508695159290545,
+    "at": [
+      1000,
+      247
+    ],
+    "detail": "border rgb(28,38,43) on rgb(114,93,86)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-right",
+    "ratio": 2.5110799036893092,
+    "at": [
+      1244,
+      102
+    ],
+    "detail": "border rgb(28,38,43) on rgb(114,93,87)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#lang-toggle",
+    "ratio": 2.5110799036893092,
+    "at": [
+      417,
+      52
+    ],
+    "detail": "border rgb(28,38,43) on rgb(114,93,87)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-button",
+    "ratio": 2.5110799036893092,
+    "at": [
+      262,
+      52
+    ],
+    "detail": "border rgb(28,38,43) on rgb(114,93,87)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-left",
+    "ratio": 2.5110799036893092,
+    "at": [
+      350,
+      102
+    ],
+    "detail": "border rgb(28,38,43) on rgb(114,93,87)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#lang-toggle",
+    "ratio": 3.087599637513966,
+    "at": [
+      147,
+      54
+    ],
+    "detail": "border rgb(28,38,43) on rgb(128,108,88)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#minimap-button",
+    "ratio": 3.087599637513966,
+    "at": [
+      214,
+      54
+    ],
+    "detail": "border rgb(28,38,43) on rgb(128,108,88)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-input",
+    "ratio": 3.087599637513966,
+    "at": [
+      32,
+      4
+    ],
+    "detail": "border rgb(28,38,43) on rgb(128,108,88)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#mode-toggle",
+    "ratio": 3.342501155037436,
+    "at": [
+      353,
+      52
+    ],
+    "detail": "border rgb(28,38,43) on rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-right",
+    "ratio": 3.342501155037436,
+    "at": [
+      360,
+      54
+    ],
+    "detail": "border rgb(28,38,43) on rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-button",
+    "ratio": 3.342501155037436,
+    "at": [
+      12,
+      54
+    ],
+    "detail": "border rgb(28,38,43) on rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-button",
+    "ratio": 3.342501155037436,
+    "at": [
+      75,
+      54
+    ],
+    "detail": "border rgb(28,38,43) on rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-button",
+    "ratio": 3.4744720680254,
+    "at": [
+      282,
+      4
+    ],
+    "detail": "border 3.38 / fill 3.47: border rgb(28,38,43), fill rgb(207,227,247), outside rgb(135,113,106)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-button",
+    "ratio": 3.512281532602682,
+    "at": [
+      379,
+      36
+    ],
+    "detail": "border 3.34 / fill 3.51: border rgb(28,38,43), fill rgb(207,227,247), outside rgb(122,116,110)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-button",
+    "ratio": 3.512281532602682,
+    "at": [
+      12,
+      54
+    ],
+    "detail": "border 3.34 / fill 3.51: border rgb(28,38,43), fill rgb(207,227,247), outside rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-button",
+    "ratio": 3.512281532602682,
+    "at": [
+      75,
+      54
+    ],
+    "detail": "border 3.34 / fill 3.51: border rgb(28,38,43), fill rgb(207,227,247), outside rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#minimap-button",
+    "ratio": 3.512281532602682,
+    "at": [
+      218,
+      102
+    ],
+    "detail": "border 3.34 / fill 3.51: border rgb(28,38,43), fill rgb(207,227,247), outside rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "minimap"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#tiles-notice button",
+    "ratio": 3.5828884220744563,
+    "at": [
+      261,
+      283
+    ],
+    "detail": "ring 3.58 / halo 3.56 on map rgb(126,138,139)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#app",
+    "ratio": 3.5836183349217468,
+    "at": [
+      1272,
+      256
+    ],
+    "detail": "ring 3.56 / halo 3.58 on map rgb(156,131,104)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-button",
+    "ratio": 3.5844406274462703,
+    "at": [
+      244,
+      58
+    ],
+    "detail": "ring 3.58 / halo 3.56 on map rgb(157,130,120)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#tiles-notice button",
+    "ratio": 3.5844406274462703,
+    "at": [
+      289,
+      321
+    ],
+    "detail": "ring 3.58 / halo 3.56 on map rgb(157,130,120)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#app",
+    "ratio": 3.5844406274462703,
+    "at": [
+      8,
+      656
+    ],
+    "detail": "ring 3.58 / halo 3.56 on map rgb(157,130,120)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#attribution a",
+    "ratio": 3.5857367318786846,
+    "at": [
+      97,
+      873
+    ],
+    "detail": "ring 3.59 / halo 3.56 on map rgb(114,145,86)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#lang-toggle",
+    "ratio": 3.599816826152353,
+    "at": [
+      129,
+      84
+    ],
+    "detail": "ring 3.55 / halo 3.60 on map rgb(141,134,124)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-left",
+    "ratio": 3.607128023781948,
+    "at": [
+      304,
+      48
+    ],
+    "detail": "ring 3.54 / halo 3.61 on map rgb(153,131,109)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#minimap-button",
+    "ratio": 3.6088867374707356,
+    "at": [
+      216,
+      48
+    ],
+    "detail": "ring 3.61 / halo 3.54 on map rgb(157,132,105)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#info-card .close",
+    "ratio": 3.619176323147386,
+    "at": [
+      409,
+      694
+    ],
+    "detail": "ring 3.53 / halo 3.62 on map rgb(152,131,109)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#search-input",
+    "ratio": 3.6340964703040166,
+    "at": [
+      310,
+      34
+    ],
+    "detail": "ring 3.51 / halo 3.63 on map rgb(141,133,124)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-left",
+    "ratio": 3.64094787197055,
+    "at": [
+      1172,
+      104
+    ],
+    "detail": "ring 3.64 / halo 3.51 on map rgb(143,136,126)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#search-input",
+    "ratio": 3.64094787197055,
+    "at": [
+      130,
+      58
+    ],
+    "detail": "ring 3.64 / halo 3.51 on map rgb(143,136,126)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#lang-toggle",
+    "ratio": 3.652709605109451,
+    "at": [
+      375,
+      14
+    ],
+    "detail": "ring 3.49 / halo 3.65 on map rgb(141,133,118)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#help-button",
+    "ratio": 3.652709605109451,
+    "at": [
+      359,
+      58
+    ],
+    "detail": "ring 3.49 / halo 3.65 on map rgb(141,133,118)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#attribution a",
+    "ratio": 3.652709605109451,
+    "at": [
+      640,
+      662
+    ],
+    "detail": "ring 3.49 / halo 3.65 on map rgb(141,133,118)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#info-card .close",
+    "ratio": 3.677782656451066,
+    "at": [
+      1277,
+      149
+    ],
+    "detail": "ring 3.47 / halo 3.68 on map rgb(154,129,103)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-right",
+    "ratio": 3.694378985486737,
+    "at": [
+      1234,
+      108
+    ],
+    "detail": "ring 3.45 / halo 3.69 on map rgb(139,132,123)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-right",
+    "ratio": 3.743683275649317,
+    "at": [
+      374,
+      108
+    ],
+    "detail": "ring 3.74 / halo 3.41 on map rgb(209,112,85)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#tiles-notice",
+    "ratio": 3.791622729448001,
+    "at": [
+      80,
+      332
+    ],
+    "detail": "border 3.79 / fill 3.75: border rgb(28,38,43), fill rgb(247,245,245), outside rgb(148,120,108)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel",
+    "ratio": 3.7983165123716445,
+    "at": [
+      32,
+      324
+    ],
+    "detail": "border 3.80 / fill 3.79: border rgb(28,38,43), fill rgb(247,247,247), outside rgb(132,125,117)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,-600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-panel",
+    "ratio": 3.7983165123716445,
+    "at": [
+      368,
+      158
+    ],
+    "detail": "border 3.80 / fill 3.78: border rgb(28,38,43), fill rgb(247,247,246), outside rgb(132,125,117)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-panel",
+    "ratio": 3.803400238006947,
+    "at": [
+      132,
+      286
+    ],
+    "detail": "border 3.80 / fill 3.78: border rgb(28,38,43), fill rgb(251,246,244), outside rgb(191,101,75)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#mode-toggle",
+    "ratio": 3.8174838193550706,
+    "at": [
+      351,
+      58
+    ],
+    "detail": "ring 3.82 / halo 3.34 on map rgb(144,140,134)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-button",
+    "ratio": 3.8174838193550706,
+    "at": [
+      66,
+      108
+    ],
+    "detail": "ring 3.82 / halo 3.34 on map rgb(144,140,134)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#help-button",
+    "ratio": 3.8174838193550706,
+    "at": [
+      65,
+      108
+    ],
+    "detail": "ring 3.82 / halo 3.34 on map rgb(144,140,134)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-input",
+    "ratio": 3.8193315811624124,
+    "at": [
+      216,
+      52
+    ],
+    "detail": "border 3.79 / fill 3.82: border rgb(28,38,43), fill rgb(249,248,246), outside rgb(145,122,98)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-list",
+    "ratio": 3.830288765694988,
+    "at": [
+      4,
+      144
+    ],
+    "detail": "border 3.83 / fill 3.71: border rgb(28,38,43), fill rgb(247,245,245), outside rgb(148,121,109)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel",
+    "ratio": 3.830288765694988,
+    "at": [
+      4,
+      144
+    ],
+    "detail": "border 3.83 / fill 3.71: border rgb(28,38,43), fill rgb(247,245,245), outside rgb(148,121,109)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#minimap",
+    "ratio": 3.830288765694988,
+    "at": [
+      4,
+      144
+    ],
+    "detail": "border 3.83 / fill 3.71: border rgb(28,38,43), fill rgb(247,245,245), outside rgb(148,121,109)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "minimap"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card",
+    "ratio": 3.83055794202187,
+    "at": [
+      356,
+      695
+    ],
+    "detail": "border 3.80 / fill 3.83: border rgb(28,38,43), fill rgb(248,248,247), outside rgb(113,132,95)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#tiles-notice",
+    "ratio": 3.8351855173396476,
+    "at": [
+      244,
+      326
+    ],
+    "detail": "border 3.77 / fill 3.84: border rgb(28,38,43), fill rgb(249,247,246), outside rgb(145,120,113)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,-600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card",
+    "ratio": 3.8356983625487158,
+    "at": [
+      1184,
+      106
+    ],
+    "detail": "border 3.84 / fill 3.74: border rgb(28,38,43), fill rgb(247,247,246), outside rgb(132,126,117)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#minimap",
+    "ratio": 3.8359726482435024,
+    "at": [
+      4,
+      636
+    ],
+    "detail": "border 3.80 / fill 3.84: border rgb(28,38,43), fill rgb(249,248,246), outside rgb(134,126,96)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-input",
+    "ratio": 3.899501537871766,
+    "at": [
+      152,
+      4
+    ],
+    "detail": "border 3.68 / fill 3.90: border rgb(28,38,43), fill rgb(247,247,246), outside rgb(129,123,115)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#lang-toggle",
+    "ratio": 3.9008447340464794,
+    "at": [
+      430,
+      28
+    ],
+    "detail": "border 3.90 / fill 3.78: border rgb(28,38,43), fill rgb(250,250,249), outside rgb(134,127,118)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-list",
+    "ratio": 3.9008447340464794,
+    "at": [
+      4,
+      98
+    ],
+    "detail": "border 3.90 / fill 3.71: border rgb(28,38,43), fill rgb(248,248,247), outside rgb(134,127,118)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#mode-toggle",
+    "ratio": 3.905074164106557,
+    "at": [
+      1213,
+      28
+    ],
+    "detail": "border 3.65 / fill 3.91: border rgb(28,38,43), fill rgb(247,246,245), outside rgb(142,118,111)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-right",
+    "ratio": 3.962807131549905,
+    "at": [
+      1268,
+      102
+    ],
+    "detail": "border 3.96 / fill 3.65: border rgb(28,38,43), fill rgb(249,247,246), outside rgb(149,125,100)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-right",
+    "ratio": 4.01871111240727,
+    "at": [
+      360,
+      102
+    ],
+    "detail": "border 4.02 / fill 3.60: border rgb(28,38,43), fill rgb(249,247,246), outside rgb(153,124,112)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#tiles-notice button",
+    "ratio": 4.060615500848835,
+    "at": [
+      337,
+      205
+    ],
+    "detail": "ring 4.06 / halo 2.30 on map rgb(121,99,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#tiles-notice button",
+    "ratio": 4.060615500848835,
+    "at": [
+      249,
+      431
+    ],
+    "detail": "ring 4.06 / halo 2.30 on map rgb(121,99,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#lang-toggle",
+    "ratio": 4.102776086734728,
+    "at": [
+      436,
+      46
+    ],
+    "detail": "ring 4.10 / halo 2.27 on map rgb(121,98,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#mode-toggle",
+    "ratio": 4.164586568718627,
+    "at": [
+      1275,
+      58
+    ],
+    "detail": "ring 4.16 / halo 3.06 on map rgb(158,147,110)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-left",
+    "ratio": 4.175022985829129,
+    "at": [
+      1218,
+      102
+    ],
+    "detail": "border 4.18 / fill 3.60: border rgb(28,38,43), fill rgb(252,252,251), outside rgb(139,132,123)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#help-button",
+    "ratio": 4.183743230844081,
+    "at": [
+      379,
+      58
+    ],
+    "detail": "ring 4.18 / halo 2.23 on map rgb(117,97,71)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-left",
+    "ratio": 4.206316575434193,
+    "at": [
+      358,
+      70
+    ],
+    "detail": "border 3.38 / fill 4.21: border rgb(28,38,43), fill rgb(247,245,245), outside rgb(135,113,106)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#mode-toggle",
+    "ratio": 4.296527507179514,
+    "at": [
+      365,
+      4
+    ],
+    "detail": "border 3.34 / fill 4.30: border rgb(28,38,43), fill rgb(247,247,246), outside rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#lang-toggle",
+    "ratio": 4.296527507179514,
+    "at": [
+      135,
+      102
+    ],
+    "detail": "border 3.34 / fill 4.30: border rgb(28,38,43), fill rgb(247,247,246), outside rgb(122,116,110)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input (placeholder)",
+    "ratio": 4.914151335661897,
+    "at": [
+      119,
+      7
+    ],
+    "detail": "placeholder rgb(84,110,122,1) on rgb(247,243,243)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input (placeholder)",
+    "ratio": 5.012687225345203,
+    "at": [
+      27,
+      7
+    ],
+    "detail": "placeholder rgb(84,110,122,1) on rgb(247,246,245)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#attribution a",
+    "ratio": 5.0674278834867685,
+    "at": [
+      724,
+      714
+    ],
+    "detail": "ring 5.07 / halo 1.84 on map rgb(52,87,148)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#app",
+    "ratio": 5.0674278834867685,
+    "at": [
+      728,
+      712
+    ],
+    "detail": "ring 5.07 / halo 1.84 on map rgb(52,87,148)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#mode-toggle",
+    "ratio": 5.672100458910627,
+    "at": [
+      1251,
+      58
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-left",
+    "ratio": 5.672100458910627,
+    "at": [
+      1204,
+      48
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-right",
+    "ratio": 5.672100458910627,
+    "at": [
+      1234,
+      48
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-button",
+    "ratio": 5.672100458910627,
+    "at": [
+      252,
+      58
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#search-input",
+    "ratio": 5.672100458910627,
+    "at": [
+      162,
+      58
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#info-card .close",
+    "ratio": 5.672100458910627,
+    "at": [
+      1217,
+      165
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#search-input",
+    "ratio": 5.672100458910627,
+    "at": [
+      2,
+      58
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#info-card .close",
+    "ratio": 5.672100458910627,
+    "at": [
+      349,
+      706
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#attribution a",
+    "ratio": 5.672100458910627,
+    "at": [
+      217,
+      845
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#app",
+    "ratio": 5.672100458910627,
+    "at": [
+      72,
+      8
+    ],
+    "detail": "ring 5.67 / halo 1.64 on map rgb(69,78,122)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#mode-toggle",
+    "ratio": 5.689523223439864,
+    "at": [
+      379,
+      58
+    ],
+    "detail": "ring 5.69 / halo 1.64 on map rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-left",
+    "ratio": 5.689523223439864,
+    "at": [
+      324,
+      48
+    ],
+    "detail": "ring 5.69 / halo 1.64 on map rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#rotate-right",
+    "ratio": 5.689523223439864,
+    "at": [
+      354,
+      48
+    ],
+    "detail": "ring 5.69 / halo 1.64 on map rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#lang-toggle",
+    "ratio": 5.689523223439864,
+    "at": [
+      129,
+      108
+    ],
+    "detail": "ring 5.69 / halo 1.64 on map rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-button",
+    "ratio": 5.689523223439864,
+    "at": [
+      2,
+      108
+    ],
+    "detail": "ring 5.69 / halo 1.64 on map rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#help-button",
+    "ratio": 5.689523223439864,
+    "at": [
+      65,
+      48
+    ],
+    "detail": "ring 5.69 / halo 1.64 on map rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#minimap-button",
+    "ratio": 5.689523223439864,
+    "at": [
+      180,
+      108
+    ],
+    "detail": "ring 5.69 / halo 1.64 on map rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#lang-toggle",
+    "ratio": 5.729705219332864,
+    "at": [
+      417,
+      52
+    ],
+    "detail": "border rgb(255,255,255) on rgb(121,99,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#lang-toggle",
+    "ratio": 5.729705219332864,
+    "at": [
+      417,
+      52
+    ],
+    "detail": "border 5.73 / fill 2.27: border rgb(255,255,255), fill rgb(39,51,58), outside rgb(121,99,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-list",
+    "ratio": 5.729705219332864,
+    "at": [
+      370,
+      154
+    ],
+    "detail": "border rgb(255,255,255) on rgb(121,99,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-list",
+    "ratio": 5.729705219332864,
+    "at": [
+      370,
+      154
+    ],
+    "detail": "border 5.73 / fill 2.21: border rgb(255,255,255), fill rgb(42,52,56), outside rgb(121,99,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-panel",
+    "ratio": 5.729705219332864,
+    "at": [
+      332,
+      204
+    ],
+    "detail": "border rgb(255,255,255) on rgb(121,99,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-panel",
+    "ratio": 5.729705219332864,
+    "at": [
+      332,
+      204
+    ],
+    "detail": "border 5.73 / fill 2.27: border rgb(255,255,255), fill rgb(40,51,55), outside rgb(121,99,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#tiles-notice",
+    "ratio": 5.729705219332864,
+    "at": [
+      148,
+      382
+    ],
+    "detail": "border rgb(255,255,255) on rgb(121,99,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#tiles-notice",
+    "ratio": 5.729705219332864,
+    "at": [
+      148,
+      382
+    ],
+    "detail": "border 5.73 / fill 2.21: border rgb(255,255,255), fill rgb(42,52,56), outside rgb(121,99,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-panel",
+    "ratio": 5.729705219332864,
+    "at": [
+      132,
+      374
+    ],
+    "detail": "border rgb(255,255,255) on rgb(121,99,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel",
+    "ratio": 5.729705219332864,
+    "at": [
+      132,
+      374
+    ],
+    "detail": "border 5.73 / fill 2.21: border rgb(255,255,255), fill rgb(42,52,56), outside rgb(121,99,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#minimap",
+    "ratio": 5.729705219332864,
+    "at": [
+      208,
+      272
+    ],
+    "detail": "border rgb(255,255,255) on rgb(121,99,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "minimap"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#minimap",
+    "ratio": 5.729705219332864,
+    "at": [
+      208,
+      272
+    ],
+    "detail": "border 5.73 / fill 2.21: border rgb(255,255,255), fill rgb(42,52,56), outside rgb(121,99,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "minimap"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-panel",
+    "ratio": 6.233587041619511,
+    "at": [
+      216,
+      286
+    ],
+    "detail": "border rgb(255,255,255) on rgb(57,96,162)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-panel",
+    "ratio": 6.233587041619511,
+    "at": [
+      216,
+      286
+    ],
+    "detail": "border 6.23 / fill 2.04: border rgb(255,255,255), fill rgb(39,52,61), outside rgb(57,96,162)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-list",
+    "ratio": 6.297425412536021,
+    "at": [
+      76,
+      330
+    ],
+    "detail": "border rgb(255,255,255) on rgb(77,93,152)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-list",
+    "ratio": 6.297425412536021,
+    "at": [
+      76,
+      330
+    ],
+    "detail": "border 6.30 / fill 2.11: border rgb(255,255,255), fill rgb(37,49,56), outside rgb(77,93,152)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card",
+    "ratio": 6.297425412536021,
+    "at": [
+      220,
+      695
+    ],
+    "detail": "border rgb(255,255,255) on rgb(77,93,152)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card",
+    "ratio": 6.297425412536021,
+    "at": [
+      220,
+      695
+    ],
+    "detail": "border 6.30 / fill 2.13: border rgb(255,255,255), fill rgb(37,49,55), outside rgb(77,93,152)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input (placeholder)",
+    "ratio": 6.747868278107684,
+    "at": [
+      147,
+      11
+    ],
+    "detail": "placeholder rgb(176,190,197,1) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input (placeholder)",
+    "ratio": 6.747868278107684,
+    "at": [
+      63,
+      15
+    ],
+    "detail": "placeholder rgb(176,190,197,1) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#tiles-notice",
+    "ratio": 6.875833009466081,
+    "at": [
+      304,
+      282
+    ],
+    "detail": "border rgb(255,255,255) on rgb(108,87,54)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#tiles-notice",
+    "ratio": 6.875833009466081,
+    "at": [
+      304,
+      282
+    ],
+    "detail": "border 6.88 / fill 1.86: border rgb(255,255,255), fill rgb(42,52,56), outside rgb(108,87,54)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#mode-toggle",
+    "ratio": 7.014721929077099,
+    "at": [
+      1216,
+      7
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-button",
+    "ratio": 7.014721929077099,
+    "at": [
+      253,
+      7
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-button",
+    "ratio": 7.014721929077099,
+    "at": [
+      320,
+      7
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .name",
+    "ratio": 7.014721929077099,
+    "at": [
+      18,
+      72
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .kind",
+    "ratio": 7.014721929077099,
+    "at": [
+      341,
+      73
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li.active .name",
+    "ratio": 7.014721929077099,
+    "at": [
+      18,
+      72
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#mode-toggle",
+    "ratio": 7.014721929077099,
+    "at": [
+      348,
+      7
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-button",
+    "ratio": 7.014721929077099,
+    "at": [
+      7,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-button",
+    "ratio": 7.014721929077099,
+    "at": [
+      74,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#minimap-button",
+    "ratio": 7.014721929077099,
+    "at": [
+      189,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "minimap"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .name",
+    "ratio": 7.014721929077099,
+    "at": [
+      18,
+      122
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .kind",
+    "ratio": 7.014721929077099,
+    "at": [
+      277,
+      123
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li.active .name",
+    "ratio": 7.014721929077099,
+    "at": [
+      18,
+      122
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(59,83,96)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution a",
+    "ratio": 7.270155614878463,
+    "at": [
+      941,
+      687
+    ],
+    "detail": "text rgb(144,202,249,1) on rgb(40,52,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution a",
+    "ratio": 7.350733419202449,
+    "at": [
+      206,
+      842
+    ],
+    "detail": "text rgb(144,202,249,1) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution a",
+    "ratio": 7.810221079283483,
+    "at": [
+      977,
+      699
+    ],
+    "detail": "text rgb(13,71,161,1) on rgb(244,243,242)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution a",
+    "ratio": 7.909604973301294,
+    "at": [
+      173,
+      898
+    ],
+    "detail": "text rgb(13,71,161,1) on rgb(246,245,243)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#mode-toggle",
+    "ratio": 8.003580638749677,
+    "at": [
+      1217,
+      52
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#mode-toggle",
+    "ratio": 8.003580638749677,
+    "at": [
+      1217,
+      52
+    ],
+    "detail": "border 8.00 / fill 1.01: border rgb(255,255,255), fill rgb(59,83,96), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-left",
+    "ratio": 8.003580638749677,
+    "at": [
+      1222,
+      54
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-left",
+    "ratio": 8.003580638749677,
+    "at": [
+      1222,
+      54
+    ],
+    "detail": "border 8.00 / fill 1.62: border rgb(255,255,255), fill rgb(39,51,58), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-right",
+    "ratio": 8.003580638749677,
+    "at": [
+      1228,
+      54
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-right",
+    "ratio": 8.003580638749677,
+    "at": [
+      1228,
+      54
+    ],
+    "detail": "border 8.00 / fill 1.64: border rgb(255,255,255), fill rgb(38,50,57), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-button",
+    "ratio": 8.003580638749677,
+    "at": [
+      250,
+      52
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-button",
+    "ratio": 8.003580638749677,
+    "at": [
+      250,
+      52
+    ],
+    "detail": "border 8.00 / fill 1.61: border rgb(255,255,255), fill rgb(40,51,59), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-input",
+    "ratio": 8.003580638749677,
+    "at": [
+      132,
+      52
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-input",
+    "ratio": 8.003580638749677,
+    "at": [
+      132,
+      52
+    ],
+    "detail": "border 8.00 / fill 1.62: border rgb(255,255,255), fill rgb(39,51,58), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card",
+    "ratio": 8.003580638749677,
+    "at": [
+      1116,
+      247
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card",
+    "ratio": 8.003580638749677,
+    "at": [
+      1116,
+      247
+    ],
+    "detail": "border 8.00 / fill 1.66: border rgb(255,255,255), fill rgb(38,49,56), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#minimap",
+    "ratio": 8.003580638749677,
+    "at": [
+      4,
+      716
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#minimap",
+    "ratio": 8.003580638749677,
+    "at": [
+      4,
+      716
+    ],
+    "detail": "border 8.00 / fill 1.66: border rgb(255,255,255), fill rgb(38,49,56), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-panel",
+    "ratio": 8.003580638749677,
+    "at": [
+      4,
+      324
+    ],
+    "detail": "border rgb(255,255,255) on rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel",
+    "ratio": 8.003580638749677,
+    "at": [
+      4,
+      324
+    ],
+    "detail": "border 8.00 / fill 1.62: border rgb(255,255,255), fill rgb(39,51,58), outside rgb(69,78,122)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      379,
+      4
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      379,
+      4
+    ],
+    "detail": "border 8.03 / fill 1.66: border rgb(255,255,255), fill rgb(37,49,56), outside rgb(65,78,126)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#mode-toggle",
+    "ratio": 8.028164917866354,
+    "at": [
+      381,
+      4
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#mode-toggle",
+    "ratio": 8.028164917866354,
+    "at": [
+      381,
+      4
+    ],
+    "detail": "border 8.03 / fill 1.01: border rgb(255,255,255), fill rgb(59,83,96), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-left",
+    "ratio": 8.028164917866354,
+    "at": [
+      354,
+      54
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-left",
+    "ratio": 8.028164917866354,
+    "at": [
+      354,
+      54
+    ],
+    "detail": "border 8.03 / fill 1.65: border rgb(255,255,255), fill rgb(38,49,56), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#rotate-right",
+    "ratio": 8.028164917866354,
+    "at": [
+      384,
+      54
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#rotate-right",
+    "ratio": 8.028164917866354,
+    "at": [
+      384,
+      54
+    ],
+    "detail": "border 8.03 / fill 1.60: border rgb(255,255,255), fill rgb(39,51,60), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#lang-toggle",
+    "ratio": 8.028164917866354,
+    "at": [
+      147,
+      102
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#lang-toggle",
+    "ratio": 8.028164917866354,
+    "at": [
+      147,
+      102
+    ],
+    "detail": "border 8.03 / fill 1.64: border rgb(255,255,255), fill rgb(38,50,57), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#layers-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      4,
+      54
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      4,
+      54
+    ],
+    "detail": "border 8.03 / fill 1.60: border rgb(255,255,255), fill rgb(39,51,59), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#help-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      71,
+      102
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#help-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      71,
+      102
+    ],
+    "detail": "border 8.03 / fill 1.60: border rgb(255,255,255), fill rgb(39,51,60), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#minimap-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      190,
+      102
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#minimap-button",
+    "ratio": 8.028164917866354,
+    "at": [
+      190,
+      102
+    ],
+    "detail": "border 8.03 / fill 1.60: border rgb(255,255,255), fill rgb(39,51,60), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#search-input",
+    "ratio": 8.028164917866354,
+    "at": [
+      32,
+      52
+    ],
+    "detail": "border rgb(255,255,255) on rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#search-input",
+    "ratio": 8.028164917866354,
+    "at": [
+      32,
+      52
+    ],
+    "detail": "border 8.03 / fill 1.65: border rgb(255,255,255), fill rgb(38,49,56), outside rgb(65,78,126)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-panel label (ring on the panel fill)",
+    "ratio": 9.114998966995381,
+    "at": [
+      171,
+      61
+    ],
+    "detail": "ring rgb(255,213,79) on panel rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-panel label (ring on the panel fill)",
+    "ratio": 9.117075664395307,
+    "at": [
+      35,
+      111
+    ],
+    "detail": "ring rgb(255,213,79) on panel rgb(39,51,60)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#mode-toggle",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-left",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-right",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#lang-toggle",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#layers-button",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#help-button",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#search-input",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#tiles-notice button",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#info-card .close",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#attribution a",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#app",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#mode-toggle",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-left",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-right",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#lang-toggle",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#layers-button",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#help-button",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#minimap-button",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#search-input",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#tiles-notice button",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#info-card .close",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#attribution a",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#app",
+    "ratio": 9.326344791623798,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(255,213,79) halo rgb(38,50,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-button",
+    "ratio": 10.016418188578115,
+    "at": [
+      253,
+      7
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-button",
+    "ratio": 10.016418188578115,
+    "at": [
+      320,
+      7
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .name",
+    "ratio": 10.016418188578115,
+    "at": [
+      18,
+      72
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .kind",
+    "ratio": 10.016418188578115,
+    "at": [
+      341,
+      73
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li.active .name",
+    "ratio": 10.016418188578115,
+    "at": [
+      18,
+      72
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-button",
+    "ratio": 10.016418188578115,
+    "at": [
+      7,
+      57
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-button",
+    "ratio": 10.016418188578115,
+    "at": [
+      74,
+      57
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#minimap-button",
+    "ratio": 10.016418188578115,
+    "at": [
+      189,
+      57
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "minimap"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .name",
+    "ratio": 10.016418188578115,
+    "at": [
+      18,
+      122
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li .kind",
+    "ratio": 10.016418188578115,
+    "at": [
+      277,
+      123
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-list li.active .name",
+    "ratio": 10.016418188578115,
+    "at": [
+      18,
+      122
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(207,227,247)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel li",
+    "ratio": 10.980635509358931,
+    "at": [
+      342,
+      126
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(42,52,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice span",
+    "ratio": 10.980635509358931,
+    "at": [
+      136,
+      358
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(42,52,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice button",
+    "ratio": 10.980635509358931,
+    "at": [
+      258,
+      392
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(42,52,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel li",
+    "ratio": 10.980635509358931,
+    "at": [
+      186,
+      252
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(42,52,56)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution",
+    "ratio": 11.01449642557914,
+    "at": [
+      942,
+      683
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,52,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel h2",
+    "ratio": 11.01449642557914,
+    "at": [
+      300,
+      78
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,52,61)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution",
+    "ratio": 11.01449642557914,
+    "at": [
+      47,
+      842
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,52,61)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#lang-toggle",
+    "ratio": 11.033982367701906,
+    "at": [
+      424,
+      47
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(42,52,57)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-panel label span:not(.box)",
+    "ratio": 11.061344644434897,
+    "at": [
+      50,
+      306
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(42,52,58)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice button",
+    "ratio": 11.075356905130267,
+    "at": [
+      302,
+      286
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(42,52,56)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-right",
+    "ratio": 11.136574134052289,
+    "at": [
+      1231,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input",
+    "ratio": 11.136574134052289,
+    "at": [
+      147,
+      11
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice span",
+    "ratio": 11.136574134052289,
+    "at": [
+      16,
+      304
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dd",
+    "ratio": 11.136574134052289,
+    "at": [
+      1183,
+      159
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card p",
+    "ratio": 11.136574134052289,
+    "at": [
+      1072,
+      174
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-panel label span:not(.box)",
+    "ratio": 11.136574134052289,
+    "at": [
+      98,
+      160
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input",
+    "ratio": 11.136574134052289,
+    "at": [
+      63,
+      15
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card h2",
+    "ratio": 11.136574134052289,
+    "at": [
+      320,
+      709
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dd",
+    "ratio": 11.136574134052289,
+    "at": [
+      275,
+      736
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card p",
+    "ratio": 11.136574134052289,
+    "at": [
+      300,
+      772
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card .close",
+    "ratio": 11.136574134052289,
+    "at": [
+      358,
+      711
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-left",
+    "ratio": 11.139111412951827,
+    "at": [
+      1181,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card h2",
+    "ratio": 11.139111412951827,
+    "at": [
+      1204,
+      120
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dt",
+    "ratio": 11.139111412951827,
+    "at": [
+      992,
+      147
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card .close",
+    "ratio": 11.139111412951827,
+    "at": [
+      1226,
+      114
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-right",
+    "ratio": 11.139111412951827,
+    "at": [
+      383,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#lang-toggle",
+    "ratio": 11.139111412951827,
+    "at": [
+      138,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dt",
+    "ratio": 11.139111412951827,
+    "at": [
+      20,
+      736
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel h2",
+    "ratio": 11.139111412951827,
+    "at": [
+      32,
+      116
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,60)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-left",
+    "ratio": 11.234350088489958,
+    "at": [
+      313,
+      57
+    ],
+    "detail": "text rgb(236,239,241,1) on rgb(39,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-panel label (ring on the panel fill)",
+    "ratio": 11.760290326274902,
+    "at": [
+      159,
+      97
+    ],
+    "detail": "ring rgb(8,48,107) on panel rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "focus indicator vs map (ring or halo)",
+    "sel": "#layers-panel label (ring on the panel fill)",
+    "ratio": 11.760290326274902,
+    "at": [
+      11,
+      147
+    ],
+    "detail": "ring rgb(8,48,107) on panel rgb(247,245,245)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice span",
+    "ratio": 11.908223573922188,
+    "at": [
+      60,
+      224
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,243,242)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,-600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution",
+    "ratio": 11.908223573922188,
+    "at": [
+      1014,
+      711
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,243,242)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel li",
+    "ratio": 11.908223573922188,
+    "at": [
+      50,
+      162
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,243,242)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,-600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice span",
+    "ratio": 11.908223573922188,
+    "at": [
+      120,
+      366
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,243,242)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card p",
+    "ratio": 11.908223573922188,
+    "at": [
+      204,
+      768
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,243,242)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice button",
+    "ratio": 11.959407731987602,
+    "at": [
+      294,
+      364
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,244,244)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card h2",
+    "ratio": 11.959407731987602,
+    "at": [
+      288,
+      709
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,244,244)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-panel label span:not(.box)",
+    "ratio": 11.959407731987602,
+    "at": [
+      82,
+      222
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,244,244)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel li",
+    "ratio": 11.959407731987602,
+    "at": [
+      118,
+      194
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,244,244)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input",
+    "ratio": 11.974241297274531,
+    "at": [
+      119,
+      7
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,243,243)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#layers-panel label span:not(.box)",
+    "ratio": 12.059753936199673,
+    "at": [
+      62,
+      212
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(246,245,243)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,-600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card p",
+    "ratio": 12.06020899112395,
+    "at": [
+      1152,
+      226
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(246,245,243)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dd",
+    "ratio": 12.066539216756787,
+    "at": [
+      1147,
+      159
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,245,243)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dd",
+    "ratio": 12.066539216756787,
+    "at": [
+      259,
+      740
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,245,243)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "-600,-600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#attribution",
+    "ratio": 12.066539216756787,
+    "at": [
+      327,
+      822
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,245,243)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel h2",
+    "ratio": 12.066539216756787,
+    "at": [
+      88,
+      116
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,245,243)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#help-panel h2",
+    "ratio": 12.071099975543177,
+    "at": [
+      320,
+      78
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(244,245,243)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "help"
+  },
+  {
+    "kind": "text",
+    "sel": "#mode-toggle",
+    "ratio": 12.125764720004604,
+    "at": [
+      1216,
+      39
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card h2",
+    "ratio": 12.125764720004604,
+    "at": [
+      1156,
+      128
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-right",
+    "ratio": 12.126223791184799,
+    "at": [
+      1247,
+      97
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#lang-toggle",
+    "ratio": 12.126223791184799,
+    "at": [
+      424,
+      43
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#tiles-notice button",
+    "ratio": 12.126223791184799,
+    "at": [
+      318,
+      298
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dt",
+    "ratio": 12.126223791184799,
+    "at": [
+      1016,
+      159
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card .close",
+    "ratio": 12.126223791184799,
+    "at": [
+      1254,
+      114
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-left",
+    "ratio": 12.126223791184799,
+    "at": [
+      353,
+      69
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-right",
+    "ratio": 12.126223791184799,
+    "at": [
+      367,
+      85
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card .close",
+    "ratio": 12.126223791184799,
+    "at": [
+      366,
+      719
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,245,245)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#lang-toggle",
+    "ratio": 12.214342270752304,
+    "at": [
+      182,
+      57
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,246,245)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#search-input",
+    "ratio": 12.214342270752304,
+    "at": [
+      27,
+      7
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,246,245)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#mode-toggle",
+    "ratio": 12.252951783950113,
+    "at": [
+      360,
+      7
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,247,246)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#info-card dt",
+    "ratio": 12.252951783950113,
+    "at": [
+      48,
+      740
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(247,247,246)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "text",
+    "sel": "#rotate-left",
+    "ratio": 12.401610182094581,
+    "at": [
+      1217,
+      93
+    ],
+    "detail": "text rgb(38,50,56,1) on rgb(249,248,247)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#mode-toggle",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-left",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-right",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#lang-toggle",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#layers-button",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#help-button",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#search-input",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#tiles-notice button",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#info-card .close",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#attribution a",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#app",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#mode-toggle",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-left",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#rotate-right",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#lang-toggle",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#layers-button",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#help-button",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#minimap-button",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#search-input",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#tiles-notice button",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#info-card .close",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#attribution a",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "focus ring vs halo",
+    "sel": "#app",
+    "ratio": 12.76275235509374,
+    "at": [
+      0,
+      0
+    ],
+    "detail": "ring rgb(8,48,107) halo rgb(255,255,255)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card .close",
+    "ratio": 12.86166029373864,
+    "at": [
+      1227,
+      159
+    ],
+    "detail": "border rgb(255,255,255) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card .close",
+    "ratio": 12.86166029373864,
+    "at": [
+      1227,
+      159
+    ],
+    "detail": "border 12.86 / fill 1.05: border rgb(255,255,255), fill rgb(37,48,55), outside rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "-600,600,1000",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel .box",
+    "ratio": 12.86166029373864,
+    "at": [
+      29,
+      167
+    ],
+    "detail": "border rgb(255,255,255) on rgb(40,51,59)",
+    "vp": "desktop-1280x720",
+    "mode": "night",
+    "view": "0,0,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card .close",
+    "ratio": 12.86166029373864,
+    "at": [
+      355,
+      708
+    ],
+    "detail": "border rgb(255,255,255) on rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card .close",
+    "ratio": 12.86166029373864,
+    "at": [
+      355,
+      708
+    ],
+    "detail": "border 12.86 / fill 1.01: border rgb(255,255,255), fill rgb(39,51,58), outside rgb(40,51,59)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel .box",
+    "ratio": 12.864590604162968,
+    "at": [
+      29,
+      261
+    ],
+    "detail": "border rgb(255,255,255) on rgb(39,51,60)",
+    "vp": "mobile-412x915",
+    "mode": "night",
+    "view": "600,600,1000",
+    "phase": "layers"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card .close",
+    "ratio": 14.154932495715734,
+    "at": [
+      359,
+      700
+    ],
+    "detail": "border rgb(28,38,43) on rgb(244,246,243)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card .close",
+    "ratio": 14.154932495715734,
+    "at": [
+      359,
+      700
+    ],
+    "detail": "border 14.15 / fill 1.03: border rgb(28,38,43), fill rgb(248,248,247), outside rgb(244,246,243)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "border alone (info)",
+    "sel": "#info-card .close",
+    "ratio": 14.212615825259629,
+    "at": [
+      1271,
+      147
+    ],
+    "detail": "border rgb(28,38,43) on rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#info-card .close",
+    "ratio": 14.212615825259629,
+    "at": [
+      1271,
+      147
+    ],
+    "detail": "border 14.21 / fill 1.04: border rgb(28,38,43), fill rgb(252,250,249), outside rgb(247,245,245)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "results"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel .box",
+    "ratio": 14.24188589847633,
+    "at": [
+      29,
+      299
+    ],
+    "detail": "border rgb(28,38,43) on rgb(249,245,244)",
+    "vp": "desktop-1280x720",
+    "mode": "day",
+    "view": "0,0,300",
+    "phase": "layers"
+  },
+  {
+    "kind": "boundary (border or fill)",
+    "sel": "#layers-panel .box",
+    "ratio": 14.313229325679051,
+    "at": [
+      29,
+      305
+    ],
+    "detail": "border rgb(28,38,43) on rgb(248,246,246)",
+    "vp": "mobile-412x915",
+    "mode": "day",
+    "view": "600,600,1000",
+    "phase": "layers"
+  }
+]

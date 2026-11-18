@@ -301,3 +301,18 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Consequences:**
   - Fill trees, markings and landmark details never enter the index.
   - The whole-city minimap needs a coarser level of detail in Phase 6 to stay near 100 KB gzip.
+
+## ADR-0032 - UI language runtime, shared UI colours, focus indicator and contrast criterion (T-5.4)
+- **Status:** Accepted (2026-11-17), pending the G5 review
+- **Decision:**
+  - **Language (ADR-0006):** `i18n.ts` holds the language in use. The initial language is `?lang=it|en`, then the choice remembered in `localStorage` (`milano-iso.lang`, written only by a click on the IT/EN button), then Italian. `t(key)` reads the language in use; every module re-labels itself through `onLangChange`, so the switch is live (including `<html lang>`, aria-labels, the tiles notice and the info card). Feature names and the attribution entries are data and are never translated. A grep-based unit test (`i18n.test.ts`) fails on any literal user-facing string in the DOM code of `web/src`; its allow-list is in the test, each entry with its reason.
+  - **One UI stylesheet:** the buttons, search box, list rows, notice, card and attribution use the same CSS variables (`--tb-*`, day and night, in `index.html`). The rotation buttons and the day/night toggle are no longer styled inline. This is UI style only; the map palette (ADR-0030) is unchanged.
+  - **Targets:** every control is at least 44x44 CSS px. The check boxes of the layers panel are the whole 44 px row (the native input covers it). The attribution links and the card's OSM link are 44 px tall.
+  - **Focus indicator:** a 3 px ring with a 2 px halo on each side (day: dark blue `#08306b` between white bands; night: amber `#ffd54f` between `#263238` bands). The map container draws the same on a pseudo-element over the canvas.
+  - **Contrast criterion over a map that is light, mid and dark:** a single border or ring colour cannot reach 3:1 against every map colour (measured: a dark-grey border reached 1.57:1 on a tan roof). WCAG 1.4.11 asks for 3:1 for whichever part identifies the component, so a boundary counts when its border OR its own fill reaches 3:1, and a focus indicator when its ring OR its halo does. Border colours are therefore extreme (day `#1c262b`, night `#ffffff`), so the border and the fill cover complementary lightness ranges. Text is measured as the text colour against the control fill composited over the real map pixels (>= 4.5:1). `web/scripts/measure-contrast.mjs` does this on the real tiles.
+  - **Tab order:** toolbar, map, the controls at the right (day/night, rotation), the info card, the attribution (the right-hand controls and the card are inserted before the attribution in the DOM).
+  - **Tile retry:** a tile waiting for its retry counts as loading but holds no loader slot, and is retried only if still wanted.
+- **Consequences:**
+  - The win32 visual baselines that show the day/night toggle or the attribution were regenerated (the map pixels are unchanged, checked outside the UI boxes). The `*-linux.png` files are stale until the `visual-baselines` workflow is rerun.
+  - The `?debug` overlay moves to the bottom on screens 600 px wide or less, so it does not cover the tiles notice.
+  - Any new colour in the UI must be added to the measurement (`measure-contrast.mjs`) and keep the same ratios.

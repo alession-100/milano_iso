@@ -1,0 +1,18 @@
+- group "Strumenti della mappa":
+  - combobox "Cerca sulla mappa"
+  - button "Livelli"
+  - button "Aiuto"
+  - button "Passa all’inglese (English)": EN
+  - button "Mappa"
+- status
+- status
+- application "Mappa isometrica di Milano. Frecce per spostare, più e meno per lo zoom, zero per ripristinare la vista, Q ed E per ruotare."
+- button "Notte"
+- button "Ruota a sinistra": ↶
+- button "Ruota a destra": ↷
+- text: "Dati:"
+- link "(c) OpenStreetMap contributors":
+  - /url: https://www.openstreetmap.org/copyright
+- text: ·
+- link "Comune di Milano, DBT 2020, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)":
+  - /url: https://creativecommons.org/licenses/by/4.0/

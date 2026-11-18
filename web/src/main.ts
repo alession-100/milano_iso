@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CameraRig, azimuthOfStep, createCamera, parseElevation, parseRotation, resizeCamera } from './camera';
 import { Controls } from './controls';
-import { DEFAULT_LANG, t } from './i18n';
+import { getLang, initialLang, onLangChange, setLang, t } from './i18n';
 import { RotationAnimator, createRotationButtons } from './rotation';
 import { createScene } from './scene';
 import { createModeToggle } from './modeToggle';
@@ -24,7 +24,17 @@ import { createToolbar } from './toolbar';
 import { type Manifest, contentBounds, fetchManifest, indexUrl, minimapUrl, resolveTilesBase } from './tiles/manifest';
 
 const host = document.getElementById('app') as HTMLElement;
-document.title = t('title', DEFAULT_LANG);
+// T-5.4 language (ADR-0006): ?lang= wins, then the remembered choice, then Italian. Every module
+// re-labels itself through onLangChange; the ones living in this file do so right here.
+setLang(initialLang(window.location.search));
+document.title = t('title');
+onLangChange(() => {
+  document.title = t('title');
+  host.setAttribute('aria-label', t('mapLabel'));
+  picker.setLang(getLang()); // the info card
+  relabelNotices();
+  renderAttributionNow();
+});
 
 // e2e (software GL) runs without MSAA: Chromium's SwiftShader MSAA resolve intermittently raises a
 // GL_INVALID_OPERATION blit feedback loop under continuous rendering (see R-3.4). Production keeps AA.
@@ -94,41 +104,54 @@ function cameraKey(): string {
   return `${camera.projectionMatrix.elements.join()}|${camera.matrixWorld.elements.join()}`;
 }
 
+let errorEl: HTMLElement | null = null;
+let errorMessage = '';
 function showError(message: string): void {
-  const el = document.createElement('div');
-  el.id = 'error';
-  el.setAttribute('role', 'alert');
-  el.textContent = `${t('tilesError', DEFAULT_LANG)}: ${message}`;
-  document.body.appendChild(el);
+  errorMessage = message;
+  errorEl = document.createElement('div');
+  errorEl.id = 'error';
+  errorEl.setAttribute('role', 'alert');
+  errorEl.textContent = `${t('tilesError')}: ${message}`;
+  document.body.appendChild(errorEl);
 }
 
-/** Small dismissible notice, top left (the attribution is bottom right, so it is never covered). */
-let notice: HTMLElement | null = null;
+/**
+ * Small dismissible notice, top left (the attribution is bottom right, so it is never covered). It
+ * stacks in the toolbar zone (T-5.3b), inside a persistent live region so it is announced (T-5.4).
+ */
+let notice: { el: HTMLElement; text: HTMLElement; close: HTMLButtonElement } | null = null;
 let noticeDismissed = false;
+function relabelNotices(): void {
+  if (errorEl) errorEl.textContent = `${t('tilesError')}: ${errorMessage}`;
+  if (notice) {
+    notice.text.textContent = t('tilesPartial');
+    notice.close.setAttribute('aria-label', t('close'));
+  }
+}
 function showTilesNotice(): void {
   if (notice || noticeDismissed) return;
   const el = document.createElement('div');
   el.id = 'tiles-notice';
-  el.setAttribute('role', 'status');
-  // T-5.3b: the notice stacks in the toolbar zone (top left, below the toolbar), never over it.
-  el.style.cssText =
-    'max-width:100%;box-sizing:border-box;font:12px sans-serif;' +
-    'color:#263238;background:rgba(255,255,255,0.9);padding:4px 6px;border:1px solid #90a4ae;' +
-    'display:flex;gap:8px;align-items:center;';
   const text = document.createElement('span');
-  text.textContent = t('tilesPartial', DEFAULT_LANG);
   const close = document.createElement('button');
   close.type = 'button';
+  close.className = 'tb-btn';
   close.textContent = '×';
-  close.setAttribute('aria-label', t('close', DEFAULT_LANG));
   close.addEventListener('click', () => {
     noticeDismissed = true;
     el.remove();
     notice = null;
   });
   el.append(text, close);
-  toolbar.zone.appendChild(el);
-  notice = el;
+  notice = { el, text, close };
+  relabelNotices();
+  toolbar.notices.appendChild(el);
+}
+
+/** Writes the attribution (label in the language in use; the entries are data and stay as they are). */
+function renderAttributionNow(): void {
+  if (!manifest) return;
+  renderAttribution(document.getElementById('attribution') as HTMLElement, manifest.attribution, t('dataLabel'));
 }
 
 function updateTiles(): void {
@@ -170,11 +193,7 @@ async function startTiles(): Promise<void> {
     manifestFailed(err);
     return;
   }
-  renderAttribution(
-    document.getElementById('attribution') as HTMLElement,
-    manifest.attribution,
-    t('dataLabel', DEFAULT_LANG),
-  );
+  renderAttributionNow();
   tilesBase = base; // T-5.1: the card fetches index.json on the first selection
   manifestReady(manifest); // T-5.3b
   void loadMinimap(manifest, base);
@@ -211,7 +230,7 @@ createRotationButtons((dir) => rotation.rotate(dir));
 
 new Controls(host, rig, {
   requestRender,
-  ariaLabel: t('mapLabel', DEFAULT_LANG),
+  ariaLabel: t('mapLabel'),
   onRotate: (dir) => rotation.rotate(dir),
 });
 

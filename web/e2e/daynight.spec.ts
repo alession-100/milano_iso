@@ -1,5 +1,5 @@
 import { type Page, expect, test } from '@playwright/test';
-import { collectProblems, readFixtureManifest, routeFixtureTiles } from './support';
+import { collectProblems, readFixtureManifest, routeFixtureTiles, settleRendered } from './support';
 
 // Day/night toggle (T-4.3). The night look is style, not data.
 
@@ -20,6 +20,7 @@ async function open(page: Page, query = ''): Promise<string[]> {
     )
     .toBeGreaterThan(0);
   expect(expected).toBeGreaterThan(0);
+  await settleRendered(page);
   return problems;
 }
 

@@ -95,6 +95,55 @@ describe('TileStreamer', () => {
     expect(m.started).toEqual(['t0', 't1', 't0']);
   });
 
+  it('a tile waiting for its retry holds no loader slot (T-5.4)', async () => {
+    const m = manual();
+    const s = new TileStreamer<string>(entries(3), {
+      load: m.load,
+      onLoaded: () => {},
+      onEvict: () => {},
+      onError: () => {},
+      maxConcurrent: 1,
+      retryDelayMs: 60,
+    });
+    s.update(['t0', 't1', 't2'], ['t0', 't1', 't2']);
+    expect(m.started).toEqual(['t0']);
+    m.pending.get('t0')?.ko(new Error('boom'));
+    await tick();
+    // t0 waits for its retry (counted as loading) but the single slot is free: t1 starts now.
+    expect(m.started).toEqual(['t0', 't1']);
+    expect(s.stats.loading).toBe(2);
+    m.pending.get('t1')?.ok('1');
+    await tick();
+    expect(m.started).toEqual(['t0', 't1', 't2']);
+    m.pending.get('t2')?.ok('2');
+    await new Promise((r) => setTimeout(r, 90));
+    expect(m.started).toEqual(['t0', 't1', 't2', 't0']); // the retry runs after the wait
+    expect(m.max()).toBe(1);
+  });
+
+  it('a tile that is no longer wanted when its retry is due is not retried (T-5.4)', async () => {
+    const m = manual();
+    const errors: string[] = [];
+    const s = new TileStreamer<string>(entries(2), {
+      load: m.load,
+      onLoaded: () => {},
+      onEvict: () => {},
+      onError: (id) => errors.push(id),
+      retryDelayMs: 20,
+    });
+    s.update(['t0'], ['t0']);
+    m.pending.get('t0')?.ko(new Error('boom'));
+    await tick();
+    s.update(['t1'], ['t1']); // the view moved on: t0 is not wanted any more
+    await new Promise((r) => setTimeout(r, 40));
+    expect(m.started).toEqual(['t0', 't1']); // no retry of t0
+    expect(errors).toEqual([]);
+    expect(s.stats.loading).toBe(1); // only t1
+    // Wanted again later: it loads afresh and gets its own retry.
+    s.update(['t0', 't1'], ['t0', 't1']);
+    expect(m.started).toEqual(['t0', 't1', 't0']);
+  });
+
   it('a tile that fails once and then loads is loaded with no error', async () => {
     const m = manual();
     const errors: string[] = [];
