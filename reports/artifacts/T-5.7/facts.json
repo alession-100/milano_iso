@@ -1,0 +1,672 @@
+{
+  "640x360-layers": {
+    "band": "100px",
+    "attribution": [
+      6,
+      266,
+      634,
+      354
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          266,
+          208.8,
+          310
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          310,
+          551.8,
+          354
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": null,
+    "layers": [
+      6,
+      106,
+      366,
+      190
+    ],
+    "card": [
+      6,
+      196,
+      634,
+      260
+    ],
+    "notice": null,
+    "noticeRegionText": "",
+    "zone": [
+      6,
+      6,
+      530,
+      190
+    ],
+    "scroll": [
+      640,
+      360
+    ]
+  },
+  "640x360-minimap-notice": {
+    "band": "100px",
+    "attribution": [
+      6,
+      266,
+      634,
+      354
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          266,
+          208.8,
+          310
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          310,
+          551.8,
+          354
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": [
+      6,
+      106,
+      86,
+      192.1
+    ],
+    "layers": null,
+    "card": [
+      6,
+      196,
+      634,
+      260
+    ],
+    "notice": "yielded (text in the live region)",
+    "noticeRegionText": "Alcune zone della mappa non sono state caricate×",
+    "zone": [
+      6,
+      6,
+      530,
+      190
+    ],
+    "scroll": [
+      640,
+      360
+    ]
+  },
+  "667x375-layers": {
+    "band": "100px",
+    "attribution": [
+      6,
+      281,
+      661,
+      369
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          281,
+          208.8,
+          325
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          325,
+          551.8,
+          369
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": null,
+    "layers": [
+      6,
+      106,
+      366,
+      205
+    ],
+    "card": [
+      6,
+      211,
+      661,
+      275
+    ],
+    "notice": null,
+    "noticeRegionText": "",
+    "zone": [
+      6,
+      6,
+      557,
+      205
+    ],
+    "scroll": [
+      667,
+      375
+    ]
+  },
+  "667x375-minimap-notice": {
+    "band": "100px",
+    "attribution": [
+      6,
+      281,
+      661,
+      369
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          281,
+          208.8,
+          325
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          325,
+          551.8,
+          369
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": [
+      6,
+      106,
+      98,
+      205
+    ],
+    "layers": null,
+    "card": [
+      6,
+      211,
+      661,
+      275
+    ],
+    "notice": "yielded (text in the live region)",
+    "noticeRegionText": "Alcune zone della mappa non sono state caricate×",
+    "zone": [
+      6,
+      6,
+      557,
+      205
+    ],
+    "scroll": [
+      667,
+      375
+    ]
+  },
+  "600x412-layers": {
+    "band": "100px",
+    "attribution": [
+      6,
+      318,
+      594,
+      406
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          318,
+          208.8,
+          362
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          362,
+          551.8,
+          406
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": null,
+    "layers": [
+      6,
+      106,
+      366,
+      242
+    ],
+    "card": [
+      6,
+      248,
+      594,
+      312
+    ],
+    "notice": null,
+    "noticeRegionText": "",
+    "zone": [
+      6,
+      6,
+      490,
+      242
+    ],
+    "scroll": [
+      600,
+      412
+    ]
+  },
+  "600x412-minimap-notice": {
+    "band": "100px",
+    "attribution": [
+      6,
+      318,
+      594,
+      406
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          318,
+          208.8,
+          362
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          362,
+          551.8,
+          406
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": [
+      6,
+      106,
+      132,
+      241.6
+    ],
+    "layers": null,
+    "card": [
+      6,
+      248,
+      594,
+      312
+    ],
+    "notice": "yielded (text in the live region)",
+    "noticeRegionText": "Alcune zone della mappa non sono state caricate×",
+    "zone": [
+      6,
+      6,
+      490,
+      241.6
+    ],
+    "scroll": [
+      600,
+      412
+    ]
+  },
+  "360x600-layers": {
+    "band": "100px",
+    "attribution": [
+      6,
+      506,
+      354,
+      594
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          506,
+          208.8,
+          550
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          550,
+          348,
+          594
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": null,
+    "layers": [
+      6,
+      106,
+      250,
+      372
+    ],
+    "card": [
+      6,
+      378,
+      354,
+      500
+    ],
+    "notice": null,
+    "noticeRegionText": "",
+    "zone": [
+      6,
+      6,
+      250,
+      372
+    ],
+    "scroll": [
+      360,
+      600
+    ]
+  },
+  "360x600-minimap-notice": {
+    "band": "100px",
+    "attribution": [
+      6,
+      506,
+      354,
+      594
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          506,
+          208.8,
+          550
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          550,
+          348,
+          594
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": [
+      6,
+      106,
+      206,
+      321.4
+    ],
+    "layers": null,
+    "card": [
+      6,
+      379,
+      354,
+      500
+    ],
+    "notice": [
+      6,
+      327.4,
+      250,
+      373.4
+    ],
+    "noticeRegionText": "Alcune zone della mappa non sono state caricate×",
+    "zone": [
+      6,
+      6,
+      250,
+      373
+    ],
+    "scroll": [
+      360,
+      600
+    ]
+  },
+  "1280x720-default": {
+    "band": "56px",
+    "attribution": [
+      513.4,
+      670,
+      1274,
+      714
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          548.1,
+          670,
+          716.2,
+          714
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          728.2,
+          670,
+          1268,
+          714
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": [
+      6,
+      491.7,
+      166,
+      664
+    ],
+    "layers": null,
+    "card": null,
+    "notice": null,
+    "noticeRegionText": "",
+    "zone": [
+      6,
+      6,
+      566,
+      50
+    ],
+    "scroll": [
+      1280,
+      720
+    ]
+  },
+  "412x915-default": {
+    "band": "100px",
+    "attribution": [
+      6,
+      821,
+      406,
+      909
+    ],
+    "links": [
+      {
+        "text": "(c) OpenStreetMap contri",
+        "box": [
+          40.7,
+          821,
+          208.8,
+          865
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      },
+      {
+        "text": "Comune di Milano, DBT 20",
+        "box": [
+          12,
+          865,
+          400,
+          909
+        ],
+        "hits": [
+          "centre: the link",
+          "top-left: the link",
+          "top-right: the link",
+          "bottom-left: the link",
+          "bottom-right: the link"
+        ]
+      }
+    ],
+    "minimap": null,
+    "layers": null,
+    "card": null,
+    "notice": null,
+    "noticeRegionText": "",
+    "zone": [
+      6,
+      6,
+      302,
+      100
+    ],
+    "scroll": [
+      412,
+      915
+    ]
+  }
+}

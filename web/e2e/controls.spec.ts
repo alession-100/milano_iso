@@ -64,6 +64,30 @@ async function mouseDrag(
   await page.mouse.up();
 }
 
+/**
+ * A fast drag with explicit event timestamps 10 ms apart (CDP `timestamp`, seconds), so the release velocity
+ * does not depend on how long the machine takes to deliver the events (T-3.6, T-5.7). Presses at x 300,
+ * moves to x 500 in ten steps, and returns the camera just before the release; the caller releases.
+ */
+async function cdpFastDrag(page: Page): Promise<{ atRelease: CameraState; release: () => Promise<void> }> {
+  const cdp = await page.context().newCDPSession(page);
+  const t0 = Date.now() / 1000;
+  const send = (type: 'mousePressed' | 'mouseMoved' | 'mouseReleased', x: number, i: number): Promise<unknown> =>
+    cdp.send('Input.dispatchMouseEvent', {
+      type,
+      x,
+      y: 360,
+      button: type === 'mouseMoved' ? 'none' : 'left',
+      buttons: type === 'mouseReleased' ? 0 : 1,
+      clickCount: type === 'mouseMoved' ? 0 : 1,
+      timestamp: t0 + i * 0.01,
+    });
+  await send('mousePressed', 300, 0);
+  for (let i = 1; i <= 10; i++) await send('mouseMoved', 300 + i * 20, i);
+  const atRelease = await cam(page);
+  return { atRelease, release: async () => void (await send('mouseReleased', 500, 11)) };
+}
+
 test.describe('desktop 1280x720', () => {
   test.use({ viewport: { width: 1280, height: 720 } });
 
@@ -179,24 +203,8 @@ test.describe('desktop 1280x720', () => {
     page,
   }) => {
     await open(page, false);
-    // Events carry explicit timestamps 10 ms apart (CDP `timestamp`, seconds), so the release
-    // velocity does not depend on how long the machine takes to deliver them (T-3.6).
-    const cdp = await page.context().newCDPSession(page);
-    const t0 = Date.now() / 1000;
-    const send = (type: 'mousePressed' | 'mouseMoved' | 'mouseReleased', x: number, i: number) =>
-      cdp.send('Input.dispatchMouseEvent', {
-        type,
-        x,
-        y: 360,
-        button: type === 'mouseMoved' ? 'none' : 'left',
-        buttons: type === 'mouseReleased' ? 0 : 1,
-        clickCount: type === 'mouseMoved' ? 0 : 1,
-        timestamp: t0 + i * 0.01,
-      });
-    await send('mousePressed', 300, 0);
-    for (let i = 1; i <= 10; i++) await send('mouseMoved', 300 + i * 20, i);
-    const atRelease = await cam(page);
-    await send('mouseReleased', 500, 11);
+    const { atRelease, release } = await cdpFastDrag(page);
+    await release();
     // Wait for the inertia to start, then to settle (target unchanged for 300 ms), with timeouts.
     await expect
       .poll(async () => (await cam(page)).target, { timeout: 20_000 })
@@ -218,14 +226,10 @@ test.describe('desktop 1280x720', () => {
 
   test('reduced motion: no inertia after a fast drag', async ({ page }) => {
     await open(page, true);
-    await page.mouse.move(300, 360);
-    await page.mouse.down();
-    for (let i = 1; i <= 10; i++) {
-      await page.mouse.move(300 + i * 20, 360);
-      await page.waitForTimeout(10);
-    }
-    await page.mouse.up();
-    const atRelease = await cam(page);
+    // The same timestamped drag as the positive test (release speed 2000 px/s), so without the reduced-motion
+    // rule this test sees inertia whatever the load.
+    const { atRelease, release } = await cdpFastDrag(page);
+    await release();
     // Inertia would move the target on the animation frames after the release. Let the page run 60 of them
     // (30 calls, two frames each; no clock involved), so a starved page cannot pass by not having run at all.
     for (let i = 0; i < 30; i++) await frameRendered(page);

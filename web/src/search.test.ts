@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type IndexEntry, fold, hitLabel, parseIndex, refOf, search, unionBbox } from './search';
+import { type IndexEntry, fold, hitLabel, parseIndex, countHits, refOf, search, unionBbox } from './search';
 
 const e = (
   name: string,
@@ -146,5 +146,16 @@ describe('same name as street and stop', () => {
     ];
     expect(search(l, 'largo augusto').map((h) => h.kind)).toEqual(['street', 'stop']);
     expect(search([...l].reverse(), 'largo augusto').map((h) => h.kind)).toEqual(['street', 'stop']);
+  });
+});
+
+describe('countHits', () => {
+  it('counts every hit the limit would cut, with the same grouping as search', () => {
+    expect(countHits(ENTRIES, 'duomo')).toBe(3);
+    expect(countHits(ENTRIES, 'duomo')).toBe(search(ENTRIES, 'duomo', 100).length);
+    expect(countHits(ENTRIES, "ca' granda")).toBe(1); // same name and kind: one hit
+    expect(countHits(ENTRIES, 'a')).toBe(search(ENTRIES, 'a', 100).length);
+    expect(countHits(ENTRIES, 'zzz')).toBe(0);
+    expect(countHits(ENTRIES, '  ')).toBe(0);
   });
 });

@@ -22,6 +22,8 @@ function masks(w, h, name) {
     [w - 110, 0, w, 60], // the day/night toggle (old 32 px tall, new 44 px)
     [0, h - 130, w, h], // the attribution (wraps to up to three lines at 412 px)
   ];
+  // T-5.7: the toolbar baselines hold the toolbar zone and the minimap (left column) and the right-hand buttons.
+  if (name.startsWith('toolbar')) out.push([0, 0, 380, h], [w - 110, 0, w, 110]);
   if (name.startsWith('info-card')) out.push(narrow ? [0, h - 560, w, h] : [w - 320, 90, w, 420]);
   return out;
 }

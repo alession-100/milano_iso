@@ -114,6 +114,15 @@ function tieKind(kind: IndexKind): string {
   return kind === 'stop' ? '￿' : kind;
 }
 
+/** How many hits `search` would find without the limit (same grouping: one per kind and name). */
+export function countHits(entries: readonly IndexEntry[], query: string): number {
+  const q = fold(query);
+  if (q === '') return 0;
+  const keys = new Set<string>();
+  for (const e of entries) if (fold(e.name).includes(q)) keys.add(`${e.kind}\u0000${e.name}`);
+  return keys.size;
+}
+
 /**
  * Matches `query` against the entries. Order: an exact folded-name match first, then prefix
  * matches, then substring matches; within the prefix and substring groups landmarks come before

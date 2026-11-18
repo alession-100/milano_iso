@@ -243,7 +243,8 @@ for (const size of SIZES) {
           'search-input',
           'layers-button',
           // The open layers panel comes right after its button (T-5.5), then Help, EN, the minimap button.
-          // While the panel is open it takes the tiles notice's place, so the notice is not a stop here.
+          // The tiles notice stays drawn while a panel is open where there is room (T-5.7): its close button
+          // is the stop after the last button of the toolbar.
           'layer-buildings',
           'layer-trees',
           'layer-markings',
@@ -253,6 +254,7 @@ for (const size of SIZES) {
           'help-button',
           'lang-toggle',
           ...(narrow ? ['minimap-button'] : []),
+          '.tb-btn', // the tiles notice's close button
           'app',
           'mode-toggle',
           'rotate-left',
@@ -485,7 +487,7 @@ for (const size of SIZES) {
       const problems = await open(page, { query: '&debug', failTile: true });
       await expect(page.locator('#debug-overlay')).toBeVisible();
       await selectFeature(page, LANDMARK, 'Fixture Landmark');
-      await page.locator('#search-input').fill('fixture'); // results open: the notice stays (an open panel takes its place)
+      await page.locator('#search-input').fill('fixture'); // results open: the notice stays
       await expectLayoutOk(page, 'debug', size.width, size.height);
       const notice = await boxOf(page, '#tiles-notice');
       const dbg = await boxOf(page, '#debug-overlay');
