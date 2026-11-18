@@ -29,6 +29,7 @@ const BLOCKS = [
   '#mode-toggle',
   '#rotate-left',
   '#rotate-right',
+  '#debug-overlay',
 ];
 /** Elements that must be the topmost element at their own centre. */
 const HIT = [
@@ -45,6 +46,7 @@ const HIT = [
   '#info-card a',
   '#attribution a',
   '#layers-panel input',
+  '#debug-close',
 ];
 
 /** The whole audit, run in the page (one round trip per state). Returns the problems found. */
@@ -128,12 +130,12 @@ async function frames(page: Page, n = 4): Promise<void> {
   );
 }
 
-async function open(page: Page, lang: string): Promise<string[]> {
+async function open(page: Page, lang: string, extra = ''): Promise<string[]> {
   const problems = collectProblems(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await routeFixtureTiles(page);
   await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' }));
-  await page.goto(`/?e2e=1&lang=${lang}`);
+  await page.goto(`/?e2e=1&lang=${lang}${extra}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 600);
   await settleRendered(page);
@@ -196,6 +198,9 @@ const WIDTHS = [
 ].sort((a, b) => a - b);
 const HEIGHTS = [360, 375, 390, 412, 480, 540, 599, 600, 640, 728, 915, 1024];
 
+// T-5.8: the sweep is 26 independent tests, each with its own page; they run in parallel on the workers.
+test.describe.configure({ mode: 'parallel' });
+
 for (const lang of ['it', 'en']) {
   for (const h of HEIGHTS) {
     test(`band sweep ${lang} height ${h}: widths 360..1440, 8 states, nothing overlaps or covers the attribution`, async ({
@@ -219,6 +224,84 @@ for (const lang of ['it', 'en']) {
       expect(problems.filter((p) => !p.includes('Failed to load resource') && !p.includes('-1_0'))).toEqual([]);
     });
   }
+}
+
+// T-5.8 (N9): with ?debug the overlay is above the band and never covers or squeezes the zone or the card.
+const DEBUG_WIDTHS = [360, 412, 640, 699, 700, 800, 940, 1280];
+for (const h of [360, 412, 600, 915]) {
+  test(`?debug sweep height ${h}: card + layers (and results), the overlay covers nothing`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: DEBUG_WIDTHS[0], height: h });
+    const problems = await open(page, 'en', '&debug');
+    await expect(page.locator('#debug-overlay')).toBeVisible();
+    const found: string[] = [];
+    for (const w of DEBUG_WIDTHS) {
+      await page.setViewportSize({ width: w, height: h });
+      for (const withCard of [true, false]) {
+        for (const panel of ['layers', 'results'] as const) {
+          await setState(page, withCard, panel);
+          const label = `${w}x${h} debug ${withCard ? 'card' : 'no card'}+${panel}`;
+          found.push(...(await page.evaluate(audit, { blocks: BLOCKS, hit: HIT, label })));
+        }
+      }
+    }
+    expect(found, 'layout problems').toEqual([]);
+    expect(problems.filter((p) => !p.includes('Failed to load resource') && !p.includes('-1_0'))).toEqual([]);
+  });
+}
+
+// T-5.8 (N8): the active option of the results list stays fully visible on every arrow press, also where the
+// list is squeezed by the band rule. Eight options of 44 px in a list that is 136 px or less.
+for (const [w, h, withCard] of [
+  [640, 412, true],
+  [360, 360, false],
+  [640, 412, false],
+] as const) {
+  test(`arrow keys keep the active search option fully visible at ${w}x${h}${withCard ? ' with the card' : ''}`, async ({
+    page,
+  }) => {
+    const entries = Array.from({ length: 14 }, (_, i) => ({
+      bbox: [i, i, i + 10, i + 10],
+      centre: [i + 5, i + 5],
+      kind: 'street',
+      name: `Via ${String.fromCharCode(65 + i)}`,
+      ref: { key: `syn:${i}` },
+      tiles: ['0_0'],
+    }));
+    await routeFixtureTiles(page);
+    await page.route('**/tiles/pilot/index.json', (route) =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ entries }) }),
+    );
+    await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' })); // the notice is there
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/?e2e=1&lang=en');
+    await expect(page.locator('canvas')).toHaveCount(1);
+    if (withCard) {
+      await page.evaluate((ref) => (window as unknown as Win).__milanoIsoSelect(ref, 'search'), LANDMARK);
+      await expect(page.locator('#info-card')).toBeVisible();
+    }
+    const input = page.locator('#search-input');
+    await input.fill('via');
+    await expect(page.locator('#search-list li')).toHaveCount(8);
+    const visible = (i: number): Promise<number> =>
+      page.evaluate((k) => {
+        const list = document.getElementById('search-list') as HTMLElement;
+        const li = document.getElementById(`search-opt-${k}`) as HTMLElement;
+        const l = list.getBoundingClientRect();
+        const r = li.getBoundingClientRect();
+        const top = l.top + list.clientTop;
+        const bottom = top + list.clientHeight;
+        return Math.max(0, Math.min(r.bottom, bottom) - Math.max(r.top, top));
+      }, i);
+    for (let i = 0; i < 8; i++) {
+      await input.press('ArrowDown');
+      await expect(input).toHaveAttribute('aria-activedescendant', `search-opt-${i}`);
+      // Poll until the layout has settled (no wall-clock threshold): the whole option is inside the list box.
+      await expect
+        .poll(() => visible(i), { message: `option ${i} visible px at ${w}x${h}` })
+        .toBe(await page.locator(`#search-opt-${i}`).evaluate((e) => e.getBoundingClientRect().height));
+    }
+  });
 }
 
 // The notice yields only where there is no room, and its text is announced even then: a notice that

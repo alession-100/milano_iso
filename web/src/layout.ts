@@ -72,9 +72,22 @@ function fit(): void {
   const dbg = byId('debug-overlay');
   const panels = ['search-list', 'layers-panel', 'help-panel'].map(byId).filter((e): e is HTMLElement => e !== null);
 
-  // Bottom edge of the usable area: the band, or in a bottom sheet layout the ?debug overlay above it.
+  // Bottom edge of the usable area: the band, or the ?debug overlay above it (T-5.8: the overlay is always
+  // laid out above the band, at the bottom). It limits the card always and the zone where they share columns.
   let limit = H - band;
-  if (sheet && shown(dbg)) limit = Math.min(limit, dbg.getBoundingClientRect().top - GAP);
+  let cardLimit = limit;
+  if (shown(dbg)) {
+    const d = dbg.getBoundingClientRect();
+    cardLimit = Math.min(limit, d.top - GAP);
+    const z = zone.getBoundingClientRect();
+    if (sheet || (z.left < d.right && d.left < z.right)) limit = cardLimit;
+  }
+  if (sheet) cardLimit = limit;
+
+  // The scroll position of a list is kept across the reset below (T-5.8, N8): the reset restores the natural
+  // height, and the browser would clamp scrollTop to that shorter range.
+  const scrolls = panels.map((p) => p.scrollTop);
+  const heights = panels.map((p) => p.clientHeight);
 
   // Reset to natural sizes, then measure.
   zone.style.maxHeight = 'none';
@@ -114,6 +127,12 @@ function fit(): void {
     }
   }
   zone.style.maxHeight = `${Math.max(0, Math.floor(a.zoneMax))}px`;
+  panels.forEach((p, i) => {
+    if (scrolls[i] > 0) p.scrollTop = scrolls[i];
+    // The list was squeezed or grown after its option was scrolled to (a keypress before this frame): the
+    // active option is brought into view again.
+    if (p.clientHeight !== heights[i]) p.querySelector('li.active')?.scrollIntoView({ block: 'nearest' });
+  });
   // A scrolling help panel has no control inside it: it takes focus so the keyboard can scroll it.
   const help = byId('help-panel');
   if (help) {
@@ -128,9 +147,8 @@ function fit(): void {
       card.style.right = '';
     } else {
       card.style.bottom = '';
-      card.style.maxHeight = `${Math.max(CARD_FLOOR_PX, Math.floor(limit - CARD_TOP_RIGHT_PX))}px`;
-      // The ?debug overlay (T-3.4) sits at the right too: the card moves left of it.
-      card.style.right = shown(dbg) ? `${Math.round(window.innerWidth - dbg.getBoundingClientRect().left + GAP)}px` : '';
+      card.style.maxHeight = `${Math.max(CARD_FLOOR_PX, Math.floor(cardLimit - CARD_TOP_RIGHT_PX))}px`;
+      card.style.right = ''; // the ?debug overlay is above the band, the card ends above it
     }
   }
 }
@@ -166,7 +184,16 @@ export function initLayout(): void {
   }
   if (typeof MutationObserver !== 'undefined') {
     // Panels opening and closing, results, the notice, the card: size-independent changes of what is shown.
-    const mo = new MutationObserver(requestFit);
+    // A class change on a result row (the active option) changes no size: it must not re-fit (T-5.8, N8).
+    const mo = new MutationObserver((records) => {
+      const sizeless = (r: MutationRecord): boolean =>
+        r.type === 'attributes' &&
+        r.attributeName === 'class' &&
+        r.target instanceof HTMLElement &&
+        r.target.tagName === 'LI' &&
+        r.target.closest('#search-list') !== null;
+      if (!records.every(sizeless)) requestFit();
+    });
     const opts = { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden', 'class'] };
     for (const id of ['toolbar-zone', 'info-card', 'attribution']) {
       const el = byId(id);

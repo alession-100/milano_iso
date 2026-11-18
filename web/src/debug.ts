@@ -152,19 +152,22 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   document.body.appendChild(root);
 
   /**
-   * Above the attribution band (T-5.7), never in it. Narrow screens (T-5.4, G3 carry-over 5): at the bottom,
-   * so it never covers the toolbar zone and its tiles notice (top left); layout.ts keeps the zone and the card
-   * above it. Wide screens: right column, ending above the band.
+   * Above the attribution band (T-5.7, T-5.8), never in it, at every size: at the bottom, so it never covers
+   * the toolbar zone, the card or the controls at the right (layout.ts keeps them above it). Narrow
+   * screens: bottom left. Wide screens: bottom right. Where the room is short (a bottom sheet, or under
+   * 600 px high) it is collapsed to its title bar, one line: the numbers are in the DOM but not drawn.
    */
   function place(): void {
-    if (!window.matchMedia(SHEET_QUERY).matches) {
-      root.style.cssText += ';left:auto;top:108px;bottom:auto;max-height:calc(100vh - 108px - var(--band, 56px))';
-    } else {
-      root.style.left = '6px';
-      root.style.top = 'auto';
-      root.style.bottom = 'var(--band, 56px)';
-      root.style.maxHeight = 'min(28vh, calc(100vh - var(--band, 56px) - 150px))';
-    }
+    const sheet = window.matchMedia(SHEET_QUERY).matches;
+    const compact = sheet || window.innerHeight < 600;
+    live.style.display = compact ? 'none' : '';
+    out.style.display = compact ? 'none' : '';
+    bar.style.marginBottom = compact ? '0' : '4px';
+    root.style.top = 'auto';
+    root.style.bottom = 'var(--band, 56px)';
+    root.style.left = sheet ? '6px' : 'auto';
+    root.style.right = sheet ? 'auto' : '6px';
+    root.style.maxHeight = compact ? 'none' : 'min(28vh, calc(100vh - var(--band, 56px) - 150px))';
     requestFit();
   }
   place();
