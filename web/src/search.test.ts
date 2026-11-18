@@ -137,3 +137,14 @@ describe('ranking and stops (T-5.6)', () => {
     });
   });
 });
+
+describe('same name as street and stop', () => {
+  it('lists the street before the stop of the same name', () => {
+    const l: IndexEntry[] = [
+      e('Largo Augusto', 'stop', { osm_ids: { w: [1] } }),
+      e('Largo Augusto', 'street', { osm_ids: { w: [2] } }),
+    ];
+    expect(search(l, 'largo augusto').map((h) => h.kind)).toEqual(['street', 'stop']);
+    expect(search([...l].reverse(), 'largo augusto').map((h) => h.kind)).toEqual(['street', 'stop']);
+  });
+});

@@ -109,10 +109,15 @@ function cmp(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
+/** Kind order for equal names: alphabetical, but a stop after a street of the same name. */
+function tieKind(kind: IndexKind): string {
+  return kind === 'stop' ? '￿' : kind;
+}
+
 /**
  * Matches `query` against the entries. Order: an exact folded-name match first, then prefix
  * matches, then substring matches; within the prefix and substring groups landmarks come before
- * the other kinds; then folded name, then kind, then verbatim name (deterministic). Entries with
+ * the other kinds; then folded name, then kind (stop last), then verbatim name (deterministic). Entries with
  * the same name and kind are grouped into one hit. At most `limit` hits.
  */
 export function search(entries: readonly IndexEntry[], query: string, limit = MAX_RESULTS): Hit[] {
@@ -133,7 +138,7 @@ export function search(entries: readonly IndexEntry[], query: string, limit = MA
       a.rank - b.rank ||
       Number(b.members[0].kind === 'landmark') - Number(a.members[0].kind === 'landmark') ||
       cmp(a.folded, b.folded) ||
-      cmp(a.members[0].kind, b.members[0].kind) ||
+      cmp(tieKind(a.members[0].kind), tieKind(b.members[0].kind)) ||
       cmp(a.members[0].name, b.members[0].name),
   );
   return sorted.slice(0, limit).map((g) => makeHit(g.members));
