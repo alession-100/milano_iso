@@ -1,21 +1,17 @@
 import { type Page, expect, test } from '@playwright/test';
-import { collectProblems, frameRendered, routeFixtureTiles, setView, settleRendered } from './support';
+import { collectProblems, routeFixtureTiles, setView, settleRendered } from './support';
 
-// T-5.5 (G5 blocker B1): width and height sweep. At every size the blocks of the UI never overlap, stay
-// inside the viewport, the page does not scroll, and every link and check box is the element under its own
-// centre (nothing covers it: the attribution is a licence obligation, ODbL, hard rule 10). The fixture is
-// used; states are the worst ones (card + results + notice; card + layers; card + help; minimap open).
-// Day and night share one layout (only colours differ), so the sweep runs by day; the language changes the
-// text widths, so a few sizes also run in English.
+// T-5.7 (G5 blocker B2): the reserved attribution band, swept over a grid of sizes. At every size from
+// 360x360 up, in every state (card or not; results, layers, help or the minimap open; the tile notice
+// present), the blocks of the UI never overlap, stay inside the viewport, end above the band, the page does
+// not scroll, and every link, button and check box is the element under its own centre; for the attribution
+// links also under four inset corners (the attribution is a licence obligation, ODbL, hard rule 10).
+// The fixture tileset is used. One page per language and height; the widths are walked in-page (the
+// viewport is resized, which is what a window resize does), and the states are switched in-page.
 
-interface Box {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 type Win = { __milanoIsoSelect: (ref: unknown, source: string) => void };
 
+/** Everything that is a block of the UI (a yielded notice draws nothing and is left out in the page). */
 const BLOCKS = [
   '#search-input',
   '#layers-button',
@@ -51,58 +47,85 @@ const HIT = [
   '#layers-panel input',
 ];
 
-const overlap = (a: Box, b: Box): boolean =>
-  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
-
-async function boxOf(page: Page, sel: string): Promise<Box | null> {
-  const l = page.locator(sel);
-  return (await l.count()) > 0 && (await l.first().isVisible()) ? await l.first().boundingBox() : null;
-}
-
-async function check(page: Page, label: string, w: number, h: number): Promise<void> {
-  await frameRendered(page); // the resize observers have re-fitted the card
-  await frameRendered(page);
-  const present: { sel: string; box: Box }[] = [];
-  for (const sel of BLOCKS) {
-    const b = await boxOf(page, sel);
-    if (b) present.push({ sel, box: b });
+/** The whole audit, run in the page (one round trip per state). Returns the problems found. */
+function audit(args: { blocks: string[]; hit: string[]; label: string }): string[] {
+  const { blocks, hit, label } = args;
+  const bad: string[] = [];
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const attrEl = document.getElementById('attribution');
+  const attrBox = attrEl ? attrEl.getBoundingClientRect() : null;
+  const bandVar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--band'));
+  if (!attrBox || attrBox.height === 0) bad.push(`${label}: no attribution`);
+  else if (!(Math.abs(bandVar - (attrBox.height + 12)) <= 1)) {
+    bad.push(`${label}: --band ${bandVar} is not the attribution height ${attrBox.height} + 12`);
   }
+  const present: { sel: string; r: DOMRect }[] = [];
+  for (const sel of blocks) {
+    const el = document.querySelector<HTMLElement>(sel);
+    if (!el || el.hidden || el.getClientRects().length === 0) continue;
+    if (el.hasAttribute('data-yield')) continue; // text in the live region, nothing drawn
+    present.push({ sel, r: el.getBoundingClientRect() });
+  }
+  const bandTop = H - bandVar;
   for (let i = 0; i < present.length; i++) {
     const a = present[i];
-    expect(a.box.x, `${label}: ${a.sel} left edge`).toBeGreaterThanOrEqual(-0.5);
-    expect(a.box.y, `${label}: ${a.sel} top edge`).toBeGreaterThanOrEqual(-0.5);
-    expect(a.box.x + a.box.width, `${label}: ${a.sel} right edge`).toBeLessThanOrEqual(w + 0.5);
-    expect(a.box.y + a.box.height, `${label}: ${a.sel} bottom edge`).toBeLessThanOrEqual(h + 0.5);
+    if (a.r.left < -0.5) bad.push(`${label}: ${a.sel} left edge ${a.r.left}`);
+    if (a.r.top < -0.5) bad.push(`${label}: ${a.sel} top edge ${a.r.top}`);
+    if (a.r.right > W + 0.5) bad.push(`${label}: ${a.sel} right edge ${a.r.right} > ${W}`);
+    if (a.r.bottom > H + 0.5) bad.push(`${label}: ${a.sel} bottom edge ${a.r.bottom} > ${H}`);
+    if (a.sel !== '#attribution' && !(a.r.bottom <= bandTop + 0.5)) {
+      bad.push(`${label}: ${a.sel} reaches into the band (bottom ${a.r.bottom} > ${bandTop})`);
+    }
     for (let j = i + 1; j < present.length; j++) {
-      expect(overlap(a.box, present[j].box), `${label}: ${a.sel} overlaps ${present[j].sel}`).toBe(false);
+      const b = present[j];
+      if (a.r.left < b.r.right && b.r.left < a.r.right && a.r.top < b.r.bottom && b.r.top < a.r.bottom) {
+        bad.push(`${label}: ${a.sel} overlaps ${b.sel}`);
+      }
     }
   }
-  const scroll = await page.evaluate(() => ({
-    sw: document.documentElement.scrollWidth,
-    sh: document.documentElement.scrollHeight,
-    iw: window.innerWidth,
-    ih: window.innerHeight,
-  }));
-  expect(scroll.sw, `${label}: no horizontal scroll`).toBeLessThanOrEqual(scroll.iw);
-  expect(scroll.sh, `${label}: no vertical scroll`).toBeLessThanOrEqual(scroll.ih);
-  // Nothing covers a link, a check box or a button: the topmost element at its centre is itself.
-  const covered = await page.evaluate((sels) => {
-    const bad: string[] = [];
-    for (const sel of sels) {
-      document.querySelectorAll<HTMLElement>(sel).forEach((el, i) => {
-        const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) return; // hidden
-        const x = r.left + r.width / 2;
-        const y = r.top + r.height / 2;
+  const de = document.documentElement;
+  if (de.scrollWidth > W) bad.push(`${label}: horizontal scroll ${de.scrollWidth} > ${W}`);
+  if (de.scrollHeight > H) bad.push(`${label}: vertical scroll ${de.scrollHeight} > ${H}`);
+  const name = (e: Element | null): string => (e ? (e.id ? '#' + e.id : e.tagName) : 'nothing');
+  for (const sel of hit) {
+    document.querySelectorAll<HTMLElement>(sel).forEach((el, i) => {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0 || el.closest('[data-yield]') || el.closest('[hidden]')) return;
+      // A check box inside a scrolling panel, scrolled out of sight, is reached by scrolling the panel.
+      const panel = el.closest<HTMLElement>('#layers-panel');
+      if (panel) {
+        const p = panel.getBoundingClientRect();
+        if (r.bottom > p.bottom + 0.5 || r.top < p.top - 0.5) return;
+      }
+      const points: [number, number][] = [[r.left + r.width / 2, r.top + r.height / 2]];
+      if (sel === '#attribution a') {
+        const d = 3;
+        points.push([r.left + d, r.top + d], [r.right - d, r.top + d], [r.left + d, r.bottom - d], [r.right - d, r.bottom - d]);
+      }
+      for (const [x, y] of points) {
         const top = document.elementFromPoint(x, y);
         if (!top || !(top === el || el.contains(top))) {
-          bad.push(`${sel}[${i}] at ${Math.round(x)},${Math.round(y)} is covered by ${top ? (top.id ? '#' + top.id : top.tagName) : 'nothing'}`);
+          bad.push(`${label}: ${sel}[${i}] at ${Math.round(x)},${Math.round(y)} is covered by ${name(top)}`);
         }
-      });
-    }
-    return bad;
-  }, HIT);
-  expect(covered, `${label}: covered controls`).toEqual([]);
+      }
+    });
+  }
+  return bad;
+}
+
+async function frames(page: Page, n = 4): Promise<void> {
+  await page.evaluate(
+    (k) =>
+      new Promise<void>((resolve) => {
+        const step = (left: number): void => {
+          if (left === 0) resolve();
+          else requestAnimationFrame(() => step(left - 1));
+        };
+        step(k);
+      }),
+    n,
+  );
 }
 
 async function open(page: Page, lang: string): Promise<string[]> {
@@ -114,70 +137,135 @@ async function open(page: Page, lang: string): Promise<string[]> {
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 600);
   await settleRendered(page);
-  await expect(page.locator('#tiles-notice')).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator('#tiles-notice')).toHaveCount(1, { timeout: 20_000 });
   await expect.poll(async () => (await page.locator('#minimap svg').count()) > 0).toBe(true);
   return problems;
 }
 
-const WIDTHS = Array.from({ length: 28 }, (_, i) => 360 + 40 * i); // 360 .. 1440
-const SIZES: [number, number, string][] = [
-  ...WIDTHS.map((w): [number, number, string] => [w, 700, 'it']),
-  [915, 412, 'it'],
-  [768, 1024, 'it'],
-  [800, 728, 'it'],
-  [1024, 600, 'it'],
-  [1280, 720, 'it'],
-  [412, 915, 'it'],
-  [360, 640, 'it'],
-  // the edges of the two layouts (width 700, height 600)
-  [699, 700, 'it'],
-  [700, 700, 'it'],
-  [700, 600, 'it'],
-  [700, 599, 'it'],
-  [1440, 599, 'it'],
-  // English texts are wider in places
-  [915, 412, 'en'],
-  [800, 728, 'en'],
-  [360, 640, 'en'],
-  [412, 915, 'en'],
-  [700, 600, 'en'],
-  [1024, 600, 'en'],
-];
+const LANDMARK = { layer: 'landmark', landmarkId: 'fixture_landmark' };
+type Panel = 'results' | 'layers' | 'help' | 'minimap';
+const PANELS: Panel[] = ['results', 'layers', 'help', 'minimap'];
 
-for (const [w, h, lang] of SIZES) {
-  test(`layout ${w}x${h} ${lang}: no overlap, all inside, nothing covers a link or a check box`, async ({ page }) => {
-    await page.setViewportSize({ width: w, height: h });
-    const problems = await open(page, lang);
-    const tag = `${w}x${h}`;
-
-    // Card + results + notice.
-    await page.evaluate((r) => (window as unknown as Win).__milanoIsoSelect(r, 'search'), {
-      layer: 'landmark',
-      landmarkId: 'fixture_landmark',
-    });
-    await expect(page.locator('#info-card')).toBeVisible();
-    await expect(page.locator('#info-card-title')).toHaveText('Fixture Landmark');
+/** Puts the page in a state: the card shown or not, and exactly one of the panels open. */
+async function setState(page: Page, card: boolean, panel: Panel): Promise<void> {
+  await page.evaluate(
+    ([withCard, ref]) => {
+      const w = window as unknown as Win;
+      w.__milanoIsoSelect(withCard ? ref : null, 'search');
+      const q = (s: string): HTMLElement | null => document.querySelector<HTMLElement>(s);
+      for (const [btn, panelSel] of [
+        ['#layers-button', '#layers-panel'],
+        ['#help-button', '#help-panel'],
+      ] as const) {
+        const p = q(panelSel);
+        if (p && !p.hidden) q(btn)?.click();
+      }
+      const mmBtn = q('#minimap-button');
+      if (mmBtn && mmBtn.getAttribute('aria-expanded') === 'true') mmBtn.click();
+      const input = q('#search-input') as HTMLInputElement | null;
+      if (input && input.value !== '') {
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    },
+    [card, LANDMARK] as const,
+  );
+  if (panel === 'results') {
     await page.locator('#search-input').fill('fixture');
     await expect(page.locator('#search-list')).toBeVisible();
-    await check(page, `${tag} card+results+notice`, w, h);
+  } else if (panel === 'layers') {
+    await page.evaluate(() => document.querySelector<HTMLElement>('#layers-button')?.click());
+  } else if (panel === 'help') {
+    await page.evaluate(() => document.querySelector<HTMLElement>('#help-button')?.click());
+  } else {
+    await page.evaluate(() => {
+      const b = document.querySelector<HTMLElement>('#minimap-button');
+      if (b && getComputedStyle(b).display !== 'none') b.click();
+    });
+  }
+  await frames(page);
+}
 
-    // Card + layers.
-    await page.locator('#layers-button').click();
+const WIDTHS = [
+  ...Array.from({ length: 28 }, (_, i) => 360 + 40 * i), // 360 .. 1440
+  599,
+  600,
+  699,
+  700,
+  701,
+].sort((a, b) => a - b);
+const HEIGHTS = [360, 375, 390, 412, 480, 540, 599, 600, 640, 728, 915, 1024];
+
+for (const lang of ['it', 'en']) {
+  for (const h of HEIGHTS) {
+    test(`band sweep ${lang} height ${h}: widths 360..1440, 8 states, nothing overlaps or covers the attribution`, async ({
+      page,
+    }) => {
+      test.setTimeout(300_000);
+      await page.setViewportSize({ width: WIDTHS[0], height: h });
+      const problems = await open(page, lang);
+      const found: string[] = [];
+      for (const w of WIDTHS) {
+        await page.setViewportSize({ width: w, height: h });
+        for (const withCard of [true, false]) {
+          for (const panel of PANELS) {
+            await setState(page, withCard, panel);
+            const label = `${w}x${h} ${lang} ${withCard ? 'card' : 'no card'}+${panel}+notice`;
+            found.push(...(await page.evaluate(audit, { blocks: BLOCKS, hit: HIT, label })));
+          }
+        }
+      }
+      expect(found, 'layout problems').toEqual([]);
+      expect(problems.filter((p) => !p.includes('Failed to load resource') && !p.includes('-1_0'))).toEqual([]);
+    });
+  }
+}
+
+// The notice yields only where there is no room, and its text is announced even then: a notice that
+// arrives while a panel is open is written into the live region at once (the region's text changes).
+for (const [w, h, drawn] of [
+  [640, 360, false],
+  [1280, 720, true],
+] as const) {
+  test(`the tile notice arriving while Layers is open is announced at ${w}x${h} (${drawn ? 'drawn' : 'yielded'})`, async ({
+    page,
+  }) => {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => (release = resolve));
+    await routeFixtureTiles(page);
+    await page.route('**/tiles/pilot/-1_0.glb', async (route) => {
+      await gate;
+      await route.fulfill({ status: 404, body: 'x' });
+    });
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/?e2e=1&lang=en');
+    await expect(page.locator('canvas')).toHaveCount(1);
+    await page.evaluate(() => document.querySelector<HTMLElement>('#layers-button')?.click());
     await expect(page.locator('#layers-panel')).toBeVisible();
-    await check(page, `${tag} card+layers+notice`, w, h);
-
-    // Card + help.
-    await page.locator('#help-button').click();
-    await expect(page.locator('#help-panel')).toBeVisible();
-    await check(page, `${tag} card+help+notice`, w, h);
-
-    // Minimap open (a panel behind its button where the layout needs one, always there otherwise).
-    if (await page.locator('#minimap-button').isVisible()) {
-      await page.locator('#minimap-button').click();
-    }
-    await expect(page.locator('#minimap')).toBeVisible();
-    await check(page, `${tag} card+minimap+notice`, w, h);
-
-    expect(problems.filter((p) => !p.includes('Failed to load resource') && !p.includes('-1_0'))).toEqual([]);
+    // Record every text the live region takes.
+    await page.evaluate(() => {
+      const region = document.getElementById('notice-region') as HTMLElement;
+      const log: string[] = [];
+      (window as unknown as { __noticeLog: string[] }).__noticeLog = log;
+      new MutationObserver(() => log.push(region.textContent ?? '')).observe(region, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+      });
+    });
+    await setView(page, 0, 0, 600);
+    expect(await page.locator('#notice-region').textContent()).toBe('');
+    release(); // the tile fails now, while the layers panel is open
+    await expect(page.locator('#tiles-notice')).toHaveCount(1, { timeout: 20_000 });
+    await frames(page);
+    const region = page.locator('#notice-region');
+    await expect(region).toHaveAttribute('aria-live', 'polite');
+    await expect(region).toContainText('Some map areas could not be loaded');
+    const log = await page.evaluate(() => (window as unknown as { __noticeLog: string[] }).__noticeLog);
+    expect(log.some((t) => t.includes('Some map areas could not be loaded')), `${w}x${h} live region log`).toBe(true);
+    await expect(page.locator('#layers-panel')).toBeVisible();
+    const yielded = await page.locator('#tiles-notice').evaluate((n) => n.hasAttribute('data-yield'));
+    expect(yielded, `${w}x${h} notice yields`).toBe(!drawn);
+    if (drawn) await expect(page.locator('#tiles-notice')).toBeVisible();
   });
 }

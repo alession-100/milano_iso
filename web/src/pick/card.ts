@@ -1,5 +1,6 @@
 import { mountBeforeAttribution } from '../dom';
 import { type Lang, getLang, t } from '../i18n';
+import { fitNow } from '../layout';
 import type { StyleMode } from '../style/palette';
 import type { CardModel } from './model';
 
@@ -29,14 +30,15 @@ const CLOSED: CardState = {
 };
 
 /**
- * Layout (T-5.1, T-5.4): desktop, a panel at the right below the rotation buttons (top 108 px, above
- * the attribution); narrow screens, a bottom sheet above the attribution. Style constants, not
- * data. Colours are the shared UI variables of index.html, so day and night follow `<html>`.
+ * Layout (T-5.1, T-5.4, T-5.7): width 700 px or more, a panel at the right below the rotation buttons
+ * (top 108 px); narrower, a bottom sheet. Either way it ends above the attribution band (`--band`, measured
+ * by layout.ts, which also sets the final size and position). Style constants, not data. Colours are the
+ * shared UI variables of index.html, so day and night follow `<html>`.
  */
 const CARD_TOP_PX = 108;
 const CSS = `
 #info-card {
-  position: fixed; right: 6px; top: ${CARD_TOP_PX}px; width: 300px; max-height: calc(100vh - ${CARD_TOP_PX}px - 56px);
+  position: fixed; right: 6px; top: ${CARD_TOP_PX}px; width: 300px; max-height: calc(100vh - ${CARD_TOP_PX}px - var(--band, 56px));
   overflow-y: auto; box-sizing: border-box; z-index: 11; padding: 10px 12px 12px;
   font: 14px/1.4 sans-serif; color: var(--tb-fg); background: var(--tb-bg);
   border: 1px solid var(--tb-border); border-radius: 3px;
@@ -55,7 +57,7 @@ const CSS = `
   border: 1px solid var(--tb-border); border-radius: 3px;
 }
 @media (max-width: 699px) {
-  #info-card { left: 6px; right: 6px; top: auto; bottom: 56px; width: auto; max-height: 45vh; }
+  #info-card { left: 6px; right: 6px; top: auto; bottom: var(--band, 56px); width: auto; max-height: 45vh; }
 }
 `;
 
@@ -146,46 +148,6 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = getLang(
     }
   }
 
-  /**
-   * Keeps the card clear of the attribution, whatever height it wraps to: bottom sheet above it on
-   * narrow screens, a right panel that ends above it on wide ones.
-   */
-  function layout(): void {
-    const attr = document.getElementById('attribution');
-    const dbg = document.getElementById('debug-overlay');
-    const top = attr ? attr.getBoundingClientRect().top : window.innerHeight;
-    if (window.matchMedia('(max-width: 699px)').matches) {
-      // Bottom sheet above the attribution and, in ?debug mode, above the debug overlay (T-5.4).
-      const edge = dbg ? Math.min(top, dbg.getBoundingClientRect().top) : top;
-      const bottom = Math.max(0, window.innerHeight - edge) + 6;
-      root.style.bottom = `${bottom}px`;
-      root.style.right = '';
-      // Keep clear of the toolbar zone above (search results, panels, notice): the card scrolls
-      // inside its own box instead of growing into it. Never taller than 45% of the screen.
-      const zone = document.getElementById('toolbar-zone');
-      const zoneBottom = zone ? zone.getBoundingClientRect().bottom : 0;
-      const room = window.innerHeight - bottom - zoneBottom - 6;
-      root.style.maxHeight = `${Math.max(96, Math.min(0.45 * window.innerHeight, room))}px`;
-    } else {
-      root.style.bottom = '';
-      root.style.maxHeight = `${Math.max(120, top - 6 - CARD_TOP_PX)}px`;
-      // The ?debug overlay (T-3.4) sits at the right too: the card moves left of it.
-      root.style.right = dbg ? `${Math.round(window.innerWidth - dbg.getBoundingClientRect().left + 6)}px` : '';
-    }
-  }
-  window.addEventListener('resize', layout);
-  // The toolbar zone grows and shrinks (results, panels, notice): re-fit the card under it (T-5.4).
-  // The attribution wraps differently per language and width: the card follows it too.
-  if (typeof ResizeObserver !== 'undefined') {
-    const observer = new ResizeObserver(() => {
-      if (!root.hidden) layout();
-    });
-    for (const id of ['toolbar-zone', 'attribution']) {
-      const target = document.getElementById(id);
-      if (target) observer.observe(target);
-    }
-  }
-
   return {
     element: root,
     show(next, focus) {
@@ -205,7 +167,7 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = getLang(
       }
       render();
       root.hidden = false;
-      layout();
+      fitNow(); // the band rule (layout.ts) sizes the card and the toolbar zone together
       if (focus || !wasOpen) root.focus({ preventScroll: true });
     },
     setMode(mode) {

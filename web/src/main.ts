@@ -20,6 +20,7 @@ import { applyLayerVisibility, initialLayers, layerState, setLayerState, storeLa
 import { parseMinimapSvg, viewFootprint } from './minimap';
 import { type IndexEntry, parseIndex, refOf } from './search';
 import { currentSelection, onSelect, select } from './selection';
+import { initLayout } from './layout';
 import { createToolbar } from './toolbar';
 import { type Manifest, contentBounds, fetchManifest, indexUrl, minimapUrl, resolveTilesBase } from './tiles/manifest';
 
@@ -338,6 +339,7 @@ setMode(styleMode, false);
 resize();
 rig.apply();
 void startTiles();
+initLayout(); // T-5.7: the attribution band; the toolbar zone and the card are laid out above it
 
 // --- T-3.4 debug ---
 {

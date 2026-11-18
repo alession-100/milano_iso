@@ -1,7 +1,7 @@
 import { type Key, getLang, onLangChange, setLang, t } from './i18n';
 import { TOGGLE_IDS, type LayerState, type ToggleId } from './layers';
 import { clientToLocal, nightCss, parseViewBox, polygonPoints } from './minimap';
-import { type Hit, type IndexEntry, hitLabel, search } from './search';
+import { type Hit, type IndexEntry, countHits, hitLabel, search } from './search';
 import type { StyleMode } from './style/palette';
 
 const KIND_KEY: Record<string, Key> = {
@@ -176,7 +176,14 @@ export function createToolbar(deps: ToolbarDeps): Toolbar {
     });
     list.hidden = false;
     input.setAttribute('aria-expanded', 'true');
-    setStatus(t('searchCount').replace('{n}', String(hits.length)));
+    const total = countHits(entries, q);
+    setStatus(
+      total > hits.length
+        ? t('searchCountOf').replace('{shown}', String(hits.length)).replace('{n}', String(total))
+        : hits.length === 1
+          ? t('searchCountOne')
+          : t('searchCount').replace('{n}', String(hits.length)),
+    );
   };
 
   const ensureIndex = (): void => {

@@ -3,6 +3,7 @@
  * the `debug` query parameter is present, so it costs nothing otherwise.
  */
 import { onLangChange, t } from './i18n';
+import { SHEET_QUERY, requestFit } from './layout';
 import { registerTestState } from './testhook';
 
 export const BENCH_DURATION_S = 10;
@@ -122,7 +123,7 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   root.setAttribute('aria-label', t('debugTitle'));
   root.style.cssText =
     'position:fixed;right:6px;top:108px;z-index:10;box-sizing:border-box;max-width:min(380px,calc(100vw - 12px));' +
-    'max-height:calc(100vh - 48px);overflow:auto;background:rgba(20,24,28,0.85);color:#e8f5e9;' +
+    'max-height:calc(100vh - 108px - var(--band, 56px));overflow:auto;background:rgba(20,24,28,0.85);color:#e8f5e9;' +
     'font:11px/1.35 monospace;padding:6px 8px;border-radius:3px;';
 
   const bar = document.createElement('div');
@@ -151,25 +152,26 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   document.body.appendChild(root);
 
   /**
-   * Narrow screens (T-5.4, G3 carry-over 5): the overlay sits at the bottom, above the attribution,
-   * so it never covers the toolbar zone and its tiles notice (top left). Wide screens: right column.
+   * Above the attribution band (T-5.7), never in it. Narrow screens (T-5.4, G3 carry-over 5): at the bottom,
+   * so it never covers the toolbar zone and its tiles notice (top left); layout.ts keeps the zone and the card
+   * above it. Wide screens: right column, ending above the band.
    */
   function place(): void {
-    if (!window.matchMedia('(max-width: 699px)').matches) {
-      root.style.cssText += ';left:auto;top:108px;bottom:auto;max-height:calc(100vh - 48px)';
-      return;
+    if (!window.matchMedia(SHEET_QUERY).matches) {
+      root.style.cssText += ';left:auto;top:108px;bottom:auto;max-height:calc(100vh - 108px - var(--band, 56px))';
+    } else {
+      root.style.left = '6px';
+      root.style.top = 'auto';
+      root.style.bottom = 'var(--band, 56px)';
+      root.style.maxHeight = 'min(28vh, calc(100vh - var(--band, 56px) - 150px))';
     }
-    const attr = document.getElementById('attribution');
-    const edge = attr ? attr.getBoundingClientRect().top : window.innerHeight;
-    root.style.left = '6px';
-    root.style.top = 'auto';
-    root.style.bottom = `${Math.max(0, window.innerHeight - edge) + 6}px`;
-    root.style.maxHeight = '28vh';
+    requestFit();
   }
   place();
   window.addEventListener('resize', place);
   const attributionEl = document.getElementById('attribution');
   if (attributionEl && typeof ResizeObserver !== 'undefined') new ResizeObserver(place).observe(attributionEl);
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(requestFit).observe(root);
   onLangChange(() => {
     root.setAttribute('aria-label', t('debugTitle'));
     title.textContent = t('debugTitle');
