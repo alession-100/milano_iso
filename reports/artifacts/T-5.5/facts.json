@@ -1,0 +1,440 @@
+{
+  "800x728-day": {
+    "osmLink": {
+      "box": [
+        213,
+        634,
+        381,
+        678
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      178,
+      634,
+      794,
+      722
+    ],
+    "minimap": [
+      6,
+      550,
+      166,
+      722
+    ],
+    "card": [
+      494,
+      108,
+      794,
+      288
+    ],
+    "results": [
+      6,
+      56,
+      368,
+      278
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "800x728-night": {
+    "osmLink": {
+      "box": [
+        213,
+        634,
+        381,
+        678
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      178,
+      634,
+      794,
+      722
+    ],
+    "minimap": [
+      6,
+      550,
+      166,
+      722
+    ],
+    "card": [
+      494,
+      108,
+      794,
+      288
+    ],
+    "results": [
+      6,
+      56,
+      368,
+      278
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "768x1024-day": {
+    "osmLink": {
+      "box": [
+        213,
+        930,
+        381,
+        974
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      178,
+      930,
+      762,
+      1018
+    ],
+    "minimap": [
+      6,
+      846,
+      166,
+      1018
+    ],
+    "card": [
+      462,
+      108,
+      762,
+      288
+    ],
+    "results": [
+      6,
+      56,
+      368,
+      278
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "768x1024-night": {
+    "osmLink": {
+      "box": [
+        213,
+        930,
+        381,
+        974
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      178,
+      930,
+      762,
+      1018
+    ],
+    "minimap": [
+      6,
+      846,
+      166,
+      1018
+    ],
+    "card": [
+      462,
+      108,
+      762,
+      288
+    ],
+    "results": [
+      6,
+      56,
+      368,
+      278
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "915x412-day": {
+    "osmLink": {
+      "box": [
+        183,
+        362,
+        351,
+        406
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      148,
+      362,
+      909,
+      406
+    ],
+    "minimap": null,
+    "card": [
+      609,
+      108,
+      909,
+      288
+    ],
+    "results": [
+      6,
+      56,
+      368,
+      278
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "915x412-day-layers": {
+    "osmLink": {
+      "box": [
+        183,
+        362,
+        351,
+        406
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      148,
+      362,
+      909,
+      406
+    ],
+    "minimap": null,
+    "card": null,
+    "results": null,
+    "cardHeight": null,
+    "cardHeightSource": null
+  },
+  "915x412-night": {
+    "osmLink": {
+      "box": [
+        183,
+        362,
+        351,
+        406
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      148,
+      362,
+      909,
+      406
+    ],
+    "minimap": null,
+    "card": [
+      609,
+      108,
+      909,
+      288
+    ],
+    "results": [
+      6,
+      56,
+      368,
+      278
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "915x412-night-layers": {
+    "osmLink": {
+      "box": [
+        183,
+        362,
+        351,
+        406
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      148,
+      362,
+      909,
+      406
+    ],
+    "minimap": null,
+    "card": null,
+    "results": null,
+    "cardHeight": null,
+    "cardHeightSource": null
+  },
+  "640x700-day": {
+    "osmLink": {
+      "box": [
+        41,
+        606,
+        209,
+        650
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      6,
+      606,
+      634,
+      694
+    ],
+    "minimap": null,
+    "card": [
+      6,
+      439,
+      634,
+      600
+    ],
+    "results": [
+      6,
+      106,
+      368,
+      328
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "640x700-night": {
+    "osmLink": {
+      "box": [
+        41,
+        606,
+        209,
+        650
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      6,
+      606,
+      634,
+      694
+    ],
+    "minimap": null,
+    "card": [
+      6,
+      439,
+      634,
+      600
+    ],
+    "results": [
+      6,
+      106,
+      368,
+      328
+    ],
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "1280x720-day": {
+    "osmLink": {
+      "box": [
+        548,
+        670,
+        716,
+        714
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      513,
+      670,
+      1274,
+      714
+    ],
+    "minimap": [
+      6,
+      542,
+      166,
+      714
+    ],
+    "card": [
+      974,
+      108,
+      1274,
+      288
+    ],
+    "results": null,
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "1280x720-night": {
+    "osmLink": {
+      "box": [
+        548,
+        670,
+        716,
+        714
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      513,
+      670,
+      1274,
+      714
+    ],
+    "minimap": [
+      6,
+      542,
+      166,
+      714
+    ],
+    "card": [
+      974,
+      108,
+      1274,
+      288
+    ],
+    "results": null,
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "412x915-day": {
+    "osmLink": {
+      "box": [
+        41,
+        821,
+        209,
+        865
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      6,
+      821,
+      406,
+      909
+    ],
+    "minimap": null,
+    "card": [
+      6,
+      654,
+      406,
+      815
+    ],
+    "results": null,
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  },
+  "412x915-night": {
+    "osmLink": {
+      "box": [
+        41,
+        821,
+        209,
+        865
+      ],
+      "hit": "the OSM link"
+    },
+    "attribution": [
+      6,
+      821,
+      406,
+      909
+    ],
+    "minimap": null,
+    "card": [
+      6,
+      654,
+      406,
+      815
+    ],
+    "results": null,
+    "cardHeight": "94,6 m",
+    "cardHeightSource": "rilievo DBT 2020"
+  }
+}

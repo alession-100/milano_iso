@@ -410,15 +410,17 @@ test.describe('412 px layout', () => {
     await expect(page.locator('#search-list')).toBeVisible();
     expectNoOverlaps(await boxes(page, [...fixed, '#search-list']), 412);
 
-    // Layers panel open.
+    // Layers panel open. It is inside #toolbar (tab order, T-5.5) and takes the notice's place.
     await page.locator('#layers-button').click();
     await expect(page.locator('#layers-panel')).toBeVisible();
-    expectNoOverlaps(await boxes(page, [...fixed, '#layers-panel']), 412);
+    await expect(page.locator('#tiles-notice')).toBeHidden();
+    expectNoOverlaps(await boxes(page, ['#attribution', '#mode-toggle', '#rotation-controls', '#layers-panel']), 412);
 
     // Minimap open (closes the layers panel).
     await page.locator('#minimap-button').click();
     await expect(page.locator('#minimap')).toBeVisible();
     await expect(page.locator('#layers-panel')).toBeHidden();
+    await expect(page.locator('#tiles-notice')).toBeVisible(); // back when the panel is closed
     expectNoOverlaps(await boxes(page, [...fixed, '#minimap']), 412);
 
     // No horizontal scroll.
@@ -484,6 +486,35 @@ test('the layers panel closes with Escape and returns focus to its button', asyn
   await page.keyboard.press('Escape');
   await expect(page.locator('#layers-panel')).toBeHidden();
   await expect(page.locator('#layers-button')).toBeFocused();
+});
+
+test('Escape on the Layers button closes the open panel; Tab from the button reaches the check boxes, then Help (T-5.5)', async ({ page }) => {
+  await open(page);
+  const btn = page.locator('#layers-button');
+  await btn.click();
+  await expect(page.locator('#layers-panel')).toBeVisible();
+  await btn.focus();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#layers-panel')).toBeHidden();
+  await expect(btn).toBeFocused();
+  // Open again by keyboard: the next Tab is the first check box, not Help or EN.
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#layers-panel')).toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#layer-buildings')).toBeFocused();
+  for (const id of ['trees', 'markings', 'roads', 'waterGreen', 'landmarkDetails']) {
+    await page.keyboard.press('Tab');
+    await expect(page.locator(`#layer-${id}`)).toBeFocused();
+  }
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#help-button')).toBeFocused();
+  // And back: Shift+Tab from Help is the last check box, from the first check box the Layers button.
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.locator('#layer-landmarkDetails')).toBeFocused();
+  for (let i = 0; i < 5; i++) await page.keyboard.press('Shift+Tab');
+  await expect(page.locator('#layer-buildings')).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(btn).toBeFocused();
 });
 
 // Visual baseline (win32 only, see playwright.config.ts: baselines are per platform).

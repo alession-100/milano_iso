@@ -67,6 +67,8 @@ export function refKey(ref: FeatureRef | null): string {
 export interface IndexEntry {
   name: string;
   kind: string;
+  /** Tiles that hold the entry's geometry (landmarks: every tile of the body). */
+  tiles?: string[];
   ref: { key?: string; landmark_id?: string; osm_id?: number; osm_type?: string; osm_ids?: Record<string, number[]> };
 }
 

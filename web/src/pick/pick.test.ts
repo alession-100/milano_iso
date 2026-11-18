@@ -108,10 +108,33 @@ describe('info card model', () => {
     expect(en).toMatchObject({ title: 'Unnamed', named: false, typeLabel: 'Building', osmUrl: null });
     expect(en.height).toEqual({ text: '30 m', source: 'DBT 2020 survey' });
   });
-  it('a landmark shows the index name and the stylisation notice, no height', () => {
+  it('a landmark shows the index name, the stylisation notice and the height of its body', () => {
     const m = cardModel({ layer: 'landmark', landmarkId: 'duomo', tile: '0_0' }, tables, index, 'it');
-    expect(m).toMatchObject({ title: 'Duomo di Milano', typeLabel: 'Punto di riferimento', height: null });
+    expect(m).toMatchObject({ title: 'Duomo di Milano', typeLabel: 'Punto di riferimento', osmUrl: null });
+    expect(m.height?.text).toBe('40 m');
+    expect(m.height?.source).toBe(labelOf(HEIGHT_SOURCE_LABELS, 'dbt', 'it'));
     expect(m.note).toContain('stilizzati');
+  });
+  it('a landmark body with an OSM key gives the OSM link', () => {
+    const t2: FeatureTable = { tile: '1_0', layers: { buildings: [{ key: 'osm:w77', name: 'Torre', height_m: 55.5, height_source: 'osm_height', landmark_id: 'torre' }] } };
+    const m = cardModel({ layer: 'landmark', landmarkId: 'torre' }, new Map([['1_0', t2]]), index, 'en');
+    expect(m.height).toEqual({ text: '55.5 m', source: labelOf(HEIGHT_SOURCE_LABELS, 'osm_height', 'en') });
+    expect(m.osmUrl).toBe('https://www.openstreetmap.org/way/77');
+  });
+  it('a landmark whose body rows disagree on the height, or is not fully loaded, shows no height and no invented number', () => {
+    const rowsOf = (hs: number[]): FeatureTable => ({
+      tile: '2_0',
+      layers: { buildings: hs.map((h, i) => ({ key: `dbt:E${i}`, name: 'Palazzo', height_m: h, height_source: 'dbt', landmark_id: 'palazzo' })) },
+    });
+    const two = cardModel({ layer: 'landmark', landmarkId: 'palazzo' }, new Map([['2_0', rowsOf([20, 25])]]), index, 'it');
+    expect(two).toMatchObject({ height: null, osmUrl: null });
+    const same = cardModel({ layer: 'landmark', landmarkId: 'palazzo' }, new Map([['2_0', rowsOf([20, 20])]]), index, 'it');
+    expect(same.height?.text).toBe('20 m');
+    const idx = new IndexLookup([{ name: 'Palazzo', kind: 'landmark', tiles: ['2_0', '3_0'], ref: { landmark_id: 'palazzo' } }]);
+    const partial = cardModel({ layer: 'landmark', landmarkId: 'palazzo' }, new Map([['2_0', rowsOf([20])]]), idx, 'it');
+    expect(partial.height).toBeNull();
+    const none = cardModel({ layer: 'landmark', landmarkId: 'palazzo' }, new Map<string, FeatureTable>(), index, 'it');
+    expect(none.height).toBeNull();
   });
   it('a street is named from the index; green from the index with its kind label', () => {
     const r = cardModel({ layer: 'roads', tile: '0_0', osmType: 'w', osmId: 7 }, tables, index, 'it');

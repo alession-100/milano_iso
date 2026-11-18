@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { type CDPSession, type Page, expect, test } from '@playwright/test';
-import { collectProblems, fixtureContentBounds, routeFixtureTiles } from './support';
+import { collectProblems, fixtureContentBounds, frameRendered, routeFixtureTiles } from './support';
 
 const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
 
@@ -226,7 +226,9 @@ test.describe('desktop 1280x720', () => {
     }
     await page.mouse.up();
     const atRelease = await cam(page);
-    await page.waitForTimeout(600);
+    // Inertia would move the target on the animation frames after the release. Let the page run 60 of them
+    // (30 calls, two frames each; no clock involved), so a starved page cannot pass by not having run at all.
+    for (let i = 0; i < 30; i++) await frameRendered(page);
     expect((await cam(page)).target).toEqual(atRelease.target);
   });
 
