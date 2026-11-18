@@ -403,26 +403,31 @@ test.describe('412 px layout', () => {
     // Collapsed: the minimap is behind its button.
     await expect(page.locator('#minimap')).toBeHidden();
     await expect(page.locator('#minimap-button')).toBeVisible();
-    expectNoOverlaps(await boxes(page, fixed), 412);
+    await expect(async () => expectNoOverlaps(await boxes(page, fixed), 412)).toPass();
 
     // Search results open.
     await type(page, 'fixture');
     await expect(page.locator('#search-list')).toBeVisible();
-    expectNoOverlaps(await boxes(page, [...fixed, '#search-list']), 412);
+    await expect(async () => expectNoOverlaps(await boxes(page, [...fixed, '#search-list']), 412)).toPass();
 
     // Layers panel open. It is inside #toolbar (tab order, T-5.5). At 412x915 there is room, so the notice
     // stays drawn (T-5.7: it yields only where there is no room).
     await page.locator('#layers-button').click();
     await expect(page.locator('#layers-panel')).toBeVisible();
     await expect(page.locator('#tiles-notice')).toBeVisible();
-    expectNoOverlaps(await boxes(page, [...fixed, '#layers-panel']), 412);
+    // The panel is inside #toolbar, so compare it with the toolbar's own controls, not with its container.
+    const controls = ['#search-box', '#layers-button', '#help-button', '#lang-toggle', '#minimap-button'];
+    const notToolbar = fixed.filter((s) => s !== '#toolbar');
+    await expect(async () =>
+      expectNoOverlaps(await boxes(page, [...notToolbar, ...controls, '#layers-panel']), 412),
+    ).toPass();
 
     // Minimap open (closes the layers panel).
     await page.locator('#minimap-button').click();
     await expect(page.locator('#minimap')).toBeVisible();
     await expect(page.locator('#layers-panel')).toBeHidden();
     await expect(page.locator('#tiles-notice')).toBeVisible();
-    expectNoOverlaps(await boxes(page, [...fixed, '#minimap']), 412);
+    await expect(async () => expectNoOverlaps(await boxes(page, [...fixed, '#minimap']), 412)).toPass();
 
     // No horizontal scroll.
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(412);
