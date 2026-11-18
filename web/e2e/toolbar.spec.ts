@@ -410,17 +410,18 @@ test.describe('412 px layout', () => {
     await expect(page.locator('#search-list')).toBeVisible();
     expectNoOverlaps(await boxes(page, [...fixed, '#search-list']), 412);
 
-    // Layers panel open. It is inside #toolbar (tab order, T-5.5) and takes the notice's place.
+    // Layers panel open. It is inside #toolbar (tab order, T-5.5). At 412x915 there is room, so the notice
+    // stays drawn (T-5.7: it yields only where there is no room).
     await page.locator('#layers-button').click();
     await expect(page.locator('#layers-panel')).toBeVisible();
-    await expect(page.locator('#tiles-notice')).toBeHidden();
-    expectNoOverlaps(await boxes(page, ['#attribution', '#mode-toggle', '#rotation-controls', '#layers-panel']), 412);
+    await expect(page.locator('#tiles-notice')).toBeVisible();
+    expectNoOverlaps(await boxes(page, [...fixed, '#layers-panel']), 412);
 
     // Minimap open (closes the layers panel).
     await page.locator('#minimap-button').click();
     await expect(page.locator('#minimap')).toBeVisible();
     await expect(page.locator('#layers-panel')).toBeHidden();
-    await expect(page.locator('#tiles-notice')).toBeVisible(); // back when the panel is closed
+    await expect(page.locator('#tiles-notice')).toBeVisible();
     expectNoOverlaps(await boxes(page, [...fixed, '#minimap']), 412);
 
     // No horizontal scroll.
@@ -476,7 +477,12 @@ test('desktop 1280x720: toolbar, minimap and top-right buttons do not overlap ea
   expectNoOverlaps(b, 1280);
   expect(b['#minimap'].width).toBeCloseTo(160, 0);
   expect(b['#minimap'].x).toBeLessThan(20);
-  expect(b['#minimap'].y + b['#minimap'].height).toBeGreaterThan(720 - 20);
+  // The minimap stands on the attribution band (T-5.7): its bottom edge is the band's top edge, and the
+  // attribution is below it.
+  const band = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--band')));
+  expect(band).toBeGreaterThan(40);
+  expect(b['#minimap'].y + b['#minimap'].height).toBeCloseTo(720 - band, 0);
+  expect(b['#minimap'].y + b['#minimap'].height).toBeLessThanOrEqual(b['#attribution'].y);
 });
 
 test('the layers panel closes with Escape and returns focus to its button', async ({ page }) => {
@@ -541,3 +547,42 @@ test.describe('toolbar visual baseline', () => {
     });
   }
 });
+
+// T-5.7: the status line says how many matches there are and how many are shown, with a correct singular.
+// The index is synthetic (14 names containing "galleria", two more names), served for these tests only.
+for (const [lang, many, one, some] of [
+  ['it', '8 di 14 risultati', '1 risultato', '2 risultati'],
+  ['en', '8 of 14 results', '1 result', '2 results'],
+] as const) {
+  test(`search status counts matches and shown results, singular and plural (${lang})`, async ({ page }) => {
+    const entry = (name: string, i: number): Record<string, unknown> => ({
+      bbox: [i, i, i + 10, i + 10],
+      centre: [i + 5, i + 5],
+      kind: 'building',
+      name,
+      ref: { key: `syn:${i}` },
+      tiles: ['0_0'],
+    });
+    const entries = [
+      ...Array.from({ length: 14 }, (_, i) => entry(`Galleria ${String.fromCharCode(65 + i)}`, i)),
+      entry('Passante', 20),
+      entry('Passante Nord', 21),
+      entry('Passante Nord', 22), // same name and kind as the one above: one hit
+    ];
+    await routeFixtureTiles(page);
+    await page.route('**/tiles/pilot/index.json', (route) =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ entries }) }),
+    );
+    await page.goto(`/?e2e=1&lang=${lang}`);
+    await settleTiles(page);
+    await type(page, 'galleria');
+    await expect(page.locator('#search-list li')).toHaveCount(8);
+    await expect(page.locator('#search-status')).toHaveText(many);
+    await type(page, 'Passante Nord');
+    await expect(page.locator('#search-list li')).toHaveCount(1);
+    await expect(page.locator('#search-status')).toHaveText(one);
+    await type(page, 'passante');
+    await expect(page.locator('#search-list li')).toHaveCount(2);
+    await expect(page.locator('#search-status')).toHaveText(some);
+  });
+}
