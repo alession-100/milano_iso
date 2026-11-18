@@ -168,7 +168,11 @@ test.describe('picking (desktop 1280x720)', () => {
     expect(s.card.title).toBe('Fixture Landmark');
     expect(s.card.type).toBe('Punto di riferimento');
     expect(s.card.note).toContain('stilizzati');
-    expect(s.card.height).toBeNull();
+    // The height and its source are those of the landmark body in the feature table (fix:B6: 8 m, source
+    // "fixture"); the stylised spire adds nothing. The fixture body has no OSM key, so no OSM link.
+    await expect.poll(async () => (await selection(page)).card.height).toBe('8 m');
+    expect((await selection(page)).card.heightSource).toBe('dato sintetico di prova');
+    expect((await selection(page)).card.osmUrl).toBeNull();
     await expect(page.locator('#info-card-note')).toBeVisible();
     // The body selects the same landmark.
     await page.keyboard.press('Escape');

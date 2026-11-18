@@ -155,7 +155,7 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
    * so it never covers the toolbar zone and its tiles notice (top left). Wide screens: right column.
    */
   function place(): void {
-    if (!window.matchMedia('(max-width: 600px)').matches) {
+    if (!window.matchMedia('(max-width: 699px)').matches) {
       root.style.cssText += ';left:auto;top:108px;bottom:auto;max-height:calc(100vh - 48px)';
       return;
     }

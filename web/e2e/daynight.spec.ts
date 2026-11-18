@@ -61,6 +61,27 @@ test('the toggle starts in day, switches by mouse, and renders a frame on demand
   expect(problems).toEqual([]);
 });
 
+test('the pressed state is marked by a check mark and a thicker border, not by fill alone (T-5.5)', async ({ page }) => {
+  const problems = await open(page);
+  const button = page.locator('#mode-toggle');
+  const look = (): Promise<{ mark: string; border: string; label: string }> =>
+    button.evaluate((el) => ({
+      mark: getComputedStyle(el, '::before').content,
+      border: getComputedStyle(el).borderTopWidth,
+      label: el.textContent ?? '',
+    }));
+  const off = await look();
+  expect(off.mark === 'none' || off.mark === 'normal' || off.mark === '""').toBe(true);
+  expect(off.border).toBe('1px');
+  await button.click();
+  await expect(button).toHaveAttribute('aria-pressed', 'true');
+  const on = await look();
+  expect(on.mark).toContain('✓');
+  expect(on.border).toBe('2px');
+  expect(on.label).toBe(off.label); // the label stays "Notte": an ARIA toggle
+  expect(problems).toEqual([]);
+});
+
 test('the toggle works with Tab, Enter and Space', async ({ page }) => {
   const problems = await open(page);
   const button = page.locator('#mode-toggle');

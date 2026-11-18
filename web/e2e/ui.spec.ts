@@ -238,20 +238,21 @@ for (const size of SIZES) {
         await page.locator('#layers-button').click(); // opens the layers panel: its six rows are controls
         await expect(page.locator('#layers-panel')).toBeVisible();
         await page.locator('#search-input').focus();
-        const narrow = size.width <= 600;
+        const narrow = size.width < 700;
         const expected = [
           'search-input',
           'layers-button',
-          'help-button',
-          'lang-toggle',
-          ...(narrow ? ['minimap-button'] : []),
+          // The open layers panel comes right after its button (T-5.5), then Help, EN, the minimap button.
+          // While the panel is open it takes the tiles notice's place, so the notice is not a stop here.
           'layer-buildings',
           'layer-trees',
           'layer-markings',
           'layer-roads',
           'layer-waterGreen',
           'layer-landmarkDetails',
-          '.tb-btn', // the notice's close button (no id)
+          'help-button',
+          'lang-toggle',
+          ...(narrow ? ['minimap-button'] : []),
           'app',
           'mode-toggle',
           'rotate-left',
@@ -444,7 +445,7 @@ for (const size of SIZES) {
       for (const lang of ['it', 'en'] as const) {
         test(`${mode}/${lang}: the info card, search results and the tiles notice together; then the panels`, async ({ page }) => {
           const problems = await open(page, { query: `&time=${mode}&lang=${lang}`, failTile: true });
-          const narrow = size.width <= 600;
+          const narrow = size.width < 700;
           // Card + notice + search results.
           await selectFeature(page, LANDMARK, 'Fixture Landmark');
           await page.locator('#search-input').fill('fixture');

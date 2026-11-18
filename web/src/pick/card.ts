@@ -54,7 +54,7 @@ const CSS = `
   font: 22px sans-serif; cursor: pointer; color: inherit; background: transparent;
   border: 1px solid var(--tb-border); border-radius: 3px;
 }
-@media (max-width: 600px) {
+@media (max-width: 699px) {
   #info-card { left: 6px; right: 6px; top: auto; bottom: 56px; width: auto; max-height: 45vh; }
 }
 `;
@@ -154,7 +154,7 @@ export function createInfoCard(onClose: () => void, initialLang: Lang = getLang(
     const attr = document.getElementById('attribution');
     const dbg = document.getElementById('debug-overlay');
     const top = attr ? attr.getBoundingClientRect().top : window.innerHeight;
-    if (window.matchMedia('(max-width: 600px)').matches) {
+    if (window.matchMedia('(max-width: 699px)').matches) {
       // Bottom sheet above the attribution and, in ?debug mode, above the debug overlay (T-5.4).
       const edge = dbg ? Math.min(top, dbg.getBoundingClientRect().top) : top;
       const bottom = Math.max(0, window.innerHeight - edge) + 6;

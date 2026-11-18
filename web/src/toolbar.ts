@@ -265,12 +265,15 @@ export function createToolbar(deps: ToolbarDeps): Toolbar {
       closeHelp();
     }
   });
-  panel.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeLayers();
-      layersBtn.focus();
-    }
-  });
+  const layersEscape = (e: KeyboardEvent): void => {
+    if (e.key !== 'Escape' || panel.hidden) return;
+    e.preventDefault();
+    e.stopPropagation();
+    closeLayers();
+    layersBtn.focus();
+  };
+  layersBtn.addEventListener('keydown', layersEscape);
+  panel.addEventListener('keydown', layersEscape);
 
   // --- help: the key bindings of the map (T-5.4) ---
   const helpBtn = el('button', { id: 'help-button', textContent: t('helpButton') });
@@ -360,8 +363,10 @@ export function createToolbar(deps: ToolbarDeps): Toolbar {
   noticeRegion.setAttribute('role', 'status');
   noticeRegion.setAttribute('aria-live', 'polite');
 
-  bar.append(searchBox, layersBtn, helpBtn, langBtn, mmBtn);
-  zone.append(bar, list, status, panel, helpPanel, mm, noticeRegion);
+  // The layers panel sits in the toolbar right after its button, so Tab goes from the button to its check
+  // boxes and on to Help; CSS (`order`) draws it below the row of buttons (T-5.5).
+  bar.append(searchBox, layersBtn, panel, helpBtn, langBtn, mmBtn);
+  zone.append(bar, list, status, helpPanel, mm, noticeRegion);
   document.body.prepend(zone); // first in tab order
   document.body.append(mmStyle);
 

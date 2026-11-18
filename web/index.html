@@ -45,6 +45,9 @@
       .tb-btn.rot-btn { width: 44px; padding: 0; font-size: 22px; }
       .tb-btn:hover { background: var(--tb-active); }
       .tb-btn[aria-pressed="true"], .tb-btn[aria-expanded="true"] { background: var(--tb-active); }
+      /* A pressed toggle is also marked by a check mark and a thicker border, not by fill alone (T-5.5). */
+      .tb-btn[aria-pressed="true"] { border-width: 2px; }
+      .tb-btn[aria-pressed="true"]::before { content: '\2713\00a0'; font-weight: 700; }
       #search-input::placeholder { color: var(--tb-muted); opacity: 1; }
       #attribution {
         position: fixed; right: 6px; bottom: 6px; max-width: calc(100vw - 12px); box-sizing: border-box;
@@ -72,7 +75,7 @@
       #search-list .kind { font-size: 12px; white-space: nowrap; }
       #search-status.visible { padding: 6px 10px; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
       .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-      #layers-panel { display: flex; flex-direction: column; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      #layers-panel { order: 1; flex: 0 0 100%; max-width: 360px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
       #layers-panel label { position: relative; display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
       /* The whole row is the checkbox (44 px tall): the native input covers it, invisibly, and a drawn box shows the state. */
       #layers-panel input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
@@ -86,20 +89,35 @@
       #help-panel ul { margin: 0; padding-left: 18px; }
       #help-panel li { margin: 2px 0; }
       #notice-region:empty { margin-top: -6px; }
-      #tiles-notice { box-sizing: border-box; max-width: 100%; display: flex; align-items: center; gap: 8px; padding: 0 0 0 8px; font: 12px/1.3 sans-serif; color: var(--tb-fg); background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
+      #tiles-notice { box-sizing: border-box; max-width: min(100%, 360px); display: flex; align-items: center; gap: 8px; padding: 0 0 0 8px; font: 12px/1.3 sans-serif; color: var(--tb-fg); background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px; }
       #tiles-notice .tb-btn { border: 0; background: transparent; font-size: 20px; }
-      #minimap { box-sizing: border-box; position: fixed; left: 6px; bottom: 6px; width: 160px; line-height: 0; border: 1px solid var(--tb-border); background: var(--tb-bg); cursor: crosshair; }
+      #minimap { box-sizing: border-box; line-height: 0; border: 1px solid var(--tb-border); background: var(--tb-bg); cursor: crosshair; }
       #minimap svg { width: 100%; height: auto; display: block; }
       #minimap .mm-view { fill: rgba(13, 71, 161, 0.18); stroke: #0d47a1; stroke-width: 2; vector-effect: non-scaling-stroke; }
       #minimap[data-mode="night"] .mm-view { fill: rgba(255, 213, 79, 0.07); stroke: #ffd54f; }
-      #minimap-button { display: none; }
-      @media (max-width: 600px) {
-        /* Keep clear of the day/night toggle and the rotation buttons (top right). */
-        #toolbar-zone { width: calc(100vw - 12px - 104px); }
-        #search-box { flex: 1 1 100%; }
-        #minimap-button { display: inline-block; }
-        #minimap { position: static; display: none; width: 200px; }
-        #minimap.open { display: block; }
+      /* Layout rule (T-5.5). Two layouts, chosen by size only:
+         - roomy (width >= 700 and height >= 600): the minimap is fixed bottom-left, in its own column
+           (the attribution never goes under it: it wraps inside the rest of the width), the info card is
+           a panel at the right (the panels of the toolbar zone are at most 360 px wide and end before it);
+         - otherwise: the minimap is behind its button (in the toolbar zone flow), the info card is a
+           bottom sheet above the attribution, and the zone keeps clear of the right-hand buttons.
+         Keep the two media queries here and in pick/card.ts (NARROW_QUERY) and debug.ts the same. */
+      /* While the layers or the help panel is open it takes the notice's place (the notice is back when the
+         panel closes): at 915x412 or 360x640 a column of toolbar, panel, notice and card does not fit. */
+      #toolbar-zone:has(#layers-panel:not([hidden]), #help-panel:not([hidden])) #tiles-notice { display: none; }
+      #minimap-button { display: inline-block; }
+      #minimap { position: static; display: none; width: 200px; }
+      #minimap.open { display: block; }
+      #toolbar-zone { width: calc(100vw - 12px - 104px); }
+      #search-box { flex: 1 1 100%; }
+      @media (min-width: 700px) {
+        #toolbar-zone { width: calc(100vw - 12px); }
+        #search-box { flex: 0 0 240px; }
+      }
+      @media (min-width: 700px) and (min-height: 600px) {
+        #minimap-button { display: none; }
+        #minimap, #minimap.open { position: fixed; left: 6px; bottom: 6px; display: block; width: 160px; }
+        #attribution { max-width: calc(100vw - 12px - 172px); }
       }
     </style>
   </head>
