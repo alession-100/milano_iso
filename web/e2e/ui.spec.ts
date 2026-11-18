@@ -485,7 +485,7 @@ for (const size of SIZES) {
       const problems = await open(page, { query: '&debug', failTile: true });
       await expect(page.locator('#debug-overlay')).toBeVisible();
       await selectFeature(page, LANDMARK, 'Fixture Landmark');
-      await page.locator('#layers-button').click();
+      await page.locator('#search-input').fill('fixture'); // results open: the notice stays (an open panel takes its place)
       await expectLayoutOk(page, 'debug', size.width, size.height);
       const notice = await boxOf(page, '#tiles-notice');
       const dbg = await boxOf(page, '#debug-overlay');
