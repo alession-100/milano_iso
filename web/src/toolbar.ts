@@ -10,6 +10,7 @@ const KIND_KEY: Record<string, Key> = {
   green: 'kindGreen',
   water: 'kindWater',
   landmark: 'kindLandmark',
+  stop: 'kindStop',
 };
 const HELP_KEYS: readonly Key[] = ['helpPan', 'helpZoom', 'helpReset', 'helpRotate', 'helpEscape', 'helpTab'];
 const LAYER_KEY: Record<ToggleId, Key> = {

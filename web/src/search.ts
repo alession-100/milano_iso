@@ -3,7 +3,7 @@ import type { FeatureRef } from './selection';
 /** Bbox `[minX, minZ, maxX, maxZ]` in client metres (ADR-0031). */
 export type Bbox4 = [number, number, number, number];
 
-export type IndexKind = 'building' | 'street' | 'green' | 'water' | 'landmark';
+export type IndexKind = 'building' | 'street' | 'green' | 'water' | 'landmark' | 'stop';
 
 /** One entry of `index.json` (ADR-0031); only the fields the client reads. */
 export interface IndexEntry {
@@ -22,7 +22,7 @@ export interface IndexEntry {
 }
 
 export const MAX_RESULTS = 8;
-const KINDS: readonly string[] = ['building', 'street', 'green', 'water', 'landmark'];
+const KINDS: readonly string[] = ['building', 'street', 'green', 'water', 'landmark', 'stop'];
 
 function isNum(v: unknown): v is number {
   return typeof v === 'number' && Number.isFinite(v);
@@ -110,14 +110,15 @@ function cmp(a: string, b: string): number {
 }
 
 /**
- * Matches `query` against the entries: prefix matches first, then substring matches, each group
- * ordered by folded name, then kind (deterministic). Entries with the same name and kind are
- * grouped into one hit. At most `limit` hits.
+ * Matches `query` against the entries. Order: an exact folded-name match first, then prefix
+ * matches, then substring matches; within the prefix and substring groups landmarks come before
+ * the other kinds; then folded name, then kind, then verbatim name (deterministic). Entries with
+ * the same name and kind are grouped into one hit. At most `limit` hits.
  */
 export function search(entries: readonly IndexEntry[], query: string, limit = MAX_RESULTS): Hit[] {
   const q = fold(query);
   if (q === '') return [];
-  const groups = new Map<string, { folded: string; prefix: boolean; members: IndexEntry[] }>();
+  const groups = new Map<string, { folded: string; rank: number; members: IndexEntry[] }>();
   for (const e of entries) {
     const folded = fold(e.name);
     const at = folded.indexOf(q);
@@ -125,11 +126,12 @@ export function search(entries: readonly IndexEntry[], query: string, limit = MA
     const key = `${e.kind}\u0000${e.name}`;
     const g = groups.get(key);
     if (g) g.members.push(e);
-    else groups.set(key, { folded, prefix: at === 0, members: [e] });
+    else groups.set(key, { folded, rank: folded === q ? 0 : at === 0 ? 1 : 2, members: [e] });
   }
   const sorted = [...groups.values()].sort(
     (a, b) =>
-      Number(b.prefix) - Number(a.prefix) ||
+      a.rank - b.rank ||
+      Number(b.members[0].kind === 'landmark') - Number(a.members[0].kind === 'landmark') ||
       cmp(a.folded, b.folded) ||
       cmp(a.members[0].kind, b.members[0].kind) ||
       cmp(a.members[0].name, b.members[0].name),
@@ -150,6 +152,7 @@ export function refOf(hit: Hit): FeatureRef | null {
       return e.ref.landmark_id === undefined ? null : { layer: 'landmark', landmarkId: e.ref.landmark_id };
     case 'building':
       return e.ref.key === undefined ? null : { layer: 'buildings', key: e.ref.key };
+    case 'stop':
     case 'street': {
       const ids = e.ref.osm_ids ?? {};
       for (const type of Object.keys(ids)) {

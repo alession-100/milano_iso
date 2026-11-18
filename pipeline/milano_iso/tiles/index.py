@@ -4,9 +4,13 @@ Pure functions on local-frame shapely geometries (x = E - E0, y = N - N0; the ou
 client frame, x and z = -y, metres, rounded to 0.1 m). Names are copied exactly as in the source
 (ADR-0006: no translation, no accent folding; the client folds them).
 
-Entry kinds, in sort order: building, street, green, water, landmark. A building that carries a
+Entry kinds, in sort order: building, street, green, water, landmark, stop. A building that carries a
 ``landmark_id`` is represented only by the landmark entry, named from ``tests/landmarks.yaml``, so
 a name transferred to the building from OSM can never shadow the landmark's own name.
+
+A named way that is a public-transport platform (``public_transport``, ``highway`` or
+``railway`` = ``platform``, flag ``platform`` on the street record, ADR-0033) is never part of a
+street: it is a ``stop`` entry, grouped by exact name like streets, with the same ref shape.
 
 ``ref`` per kind: building ``{"key"}``; street ``{"osm_ids": {"w": [...], "r": [...]}}`` (all
 ways and relations of that name, sorted; one street can mix both, e.g. a square); green and water
@@ -23,7 +27,7 @@ from milano_iso.heights import LANDMARKS_FILE
 
 INDEX_NAME = "index.json"
 INDEX_FORMAT_VERSION = 1
-KIND_ORDER = ("building", "street", "green", "water", "landmark")
+KIND_ORDER = ("building", "street", "green", "water", "landmark", "stop")
 GRID_M = 0.1
 
 
@@ -90,7 +94,8 @@ def build_entries(
     """Sorted index entries.
 
     ``buildings``: rendered buildings, dicts with key, name, landmark_id, geom, tile.
-    ``streets``: rendered above-ground roads, dicts with osm_type, osm_id, name, geoms, tiles.
+    ``streets``: rendered above-ground roads, dicts with osm_type, osm_id, name, geoms, tiles and
+    optionally platform (bool, default False).
     ``areas``: rendered green and water features, dicts with kind ("green" | "water"), osm_type,
     osm_id, name, geoms, tiles. ``geoms`` are the rendered (clipped) pieces, local frame.
     ``roof_landmarks``: landmarks without a rendered building of their own (the Galleria), dicts
@@ -120,28 +125,20 @@ def build_entries(
             _entry(landmark_names[lid], "landmark", g["geoms"], g["tiles"], {"landmark_id": lid})
         )
 
-    by_name: dict[str, dict] = {}
+    by_name: dict[tuple[str, str], dict] = {}
     for s in streets:
         if not _has_name(s["name"]):
             continue
-        g = by_name.setdefault(s["name"], {"geoms": [], "tiles": set(), "ids": set()})
+        kind = "stop" if s.get("platform") else "street"
+        g = by_name.setdefault((kind, s["name"]), {"geoms": [], "tiles": set(), "ids": set()})
         g["geoms"].extend(s["geoms"])
         g["tiles"].update(s["tiles"])
         g["ids"].add((s["osm_type"], int(s["osm_id"])))
-    for name, g in by_name.items():
+    for (kind, name), g in by_name.items():
         ids: dict[str, list[int]] = {}
         for t, i in sorted(g["ids"]):
             ids.setdefault(t, []).append(i)
-        out.append(
-            _entry(
-                name,
-                "street",
-                g["geoms"],
-                g["tiles"],
-                {"osm_ids": ids},
-                street=True,
-            )
-        )
+        out.append(_entry(name, kind, g["geoms"], g["tiles"], {"osm_ids": ids}, street=True))
 
     for a in areas:
         if _has_name(a["name"]):

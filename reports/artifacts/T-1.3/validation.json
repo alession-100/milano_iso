@@ -7,7 +7,7 @@
     "features_outside_extent_total": 0,
     "invalid_geometries_total": 0
   },
-  "canonical_dump_sha256_pilot_gpkg": "01b0428de07f0146c9ae7e7813d2838b49e57549379b7578b3912c085908218a",
+  "canonical_dump_sha256_pilot_gpkg": "20f0464f2e729a6e58fc6366f104d5ed2cb48cda948dbbab09b351eb4ffe29b3",
   "completeness": {
     "dbt_volumes": {
       "denominator": "UN_VOL features in dbt_pilot.gpkg",

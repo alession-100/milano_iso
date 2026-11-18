@@ -344,8 +344,15 @@ def build(
         tile_of[b.building_key] = grid.tile_ij(rp.x, rp.y)
 
     flat = {}
+    platform_ways: set[tuple[str, int]] = set()  # ADR-0033: never part of a street entry
     for layer in FLAT_LAYERS:
         gdf = _read(gpkg, layer)
+        if layer == "roads" and "is_platform" in gdf.columns:
+            platform_ways = {
+                (r.osm_type, int(r.osm_id))
+                for r in gdf.itertuples(index=False)
+                if bool(r.is_platform)
+            }
         if "class" in gdf.columns:
             gdf = gdf.rename(columns={"class": "class_"})
         flat[layer] = _flat_features(layer, gdf)
@@ -448,7 +455,13 @@ def build(
                     pkey = (f["entry"]["osm_type"], f["entry"]["osm_id"])
                     if layer in ("roads", "green", "water") and pkey in names:
                         piece = named_pieces.setdefault(
-                            (layer, *pkey), {"geoms": [], "tiles": set(), "name": names[pkey]}
+                            (layer, *pkey),
+                            {
+                                "geoms": [],
+                                "tiles": set(),
+                                "name": names[pkey],
+                                "platform": layer == "roads" and pkey in platform_ways,
+                            },
                         )
                         piece["geoms"].extend(clipped)
                         piece["tiles"].add(name)
@@ -512,7 +525,7 @@ def build(
 
     streets, areas = [], []
     for (layer, osm_type, osm_id), piece in sorted(named_pieces.items()):
-        rec = {"osm_type": osm_type, "osm_id": osm_id, "name": piece["name"], **piece}
+        rec = {"osm_type": osm_type, "osm_id": osm_id, **piece}
         if layer == "roads":
             streets.append(rec)
         else:
