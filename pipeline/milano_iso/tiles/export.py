@@ -19,6 +19,8 @@ from shapely import affinity
 from shapely.geometry import box
 
 from milano_iso import config, landmark_details, landmark_style, style
+from milano_iso import extent as extent_mod
+from milano_iso.measure import report_counts
 from milano_iso.tiles import geom, glb, grid, manifest, minimap
 from milano_iso.tiles import index as search_index
 
@@ -235,6 +237,40 @@ def _clip_polys(polys, tile_box) -> list:
     return out
 
 
+class _FlatIndex:
+    """Spatial index of one flat layer: which polygons of which features meet a tile box.
+
+    ``features(box)`` returns [(feature, polygons)] in feature order, polygons in their order,
+    only those that intersect ``box``: the same pieces, in the same order, as testing every
+    polygon of every feature (T-6.1: the full-city export cannot afford that per tile).
+    """
+
+    def __init__(self, features: list[dict]):
+        self.features = features
+        owner, polys = [], []
+        for fi, f in enumerate(features):
+            for p in f["polys"]:
+                owner.append(fi)
+                polys.append(p)
+        self.owner = np.asarray(owner, dtype=np.int64)
+        self.polys = polys
+        self.tree = shapely.STRtree(polys) if polys else None
+
+    def features_in(self, tile_box) -> list[tuple[dict, list]]:
+        if self.tree is None:
+            return []
+        hits = np.sort(self.tree.query(tile_box, predicate="intersects"))
+        out: list[tuple[dict, list]] = []
+        last = -1
+        for h in hits:
+            fi = int(self.owner[h])
+            if fi != last:
+                out.append((self.features[fi], []))
+                last = fi
+            out[-1][1].append(self.polys[int(h)])
+        return out
+
+
 def _named(layer: str, mb: geom.MeshBuilder) -> list[dict]:
     """Chunks of a builder as meshes: `<layer>`, or `<layer>#<n>` when split."""
     chunks = mb.to_gl_chunks()
@@ -314,11 +350,11 @@ def build(
     specs: dict | None = None,
     landmark_names: dict[str, str] | None = None,
 ):
-    if extent != "pilot":
-        raise ValueError("only --extent pilot is supported")
-    gpkg = config.PROCESSED_DIR / GPKG_NAME
-    out_dir = out_dir or config.DATA_DIR / "tiles" / "pilot"
-    summary_dir = summary_dir or SUMMARY_DIR
+    extent_poly = extent_mod.polygon(extent)
+    bbox = extent_mod.bbox(extent)
+    gpkg = extent_mod.processed_gpkg(extent)
+    out_dir = out_dir or extent_mod.tiles_dir(extent)
+    summary_dir = summary_dir or extent_mod.artifact_dir(extent, SUMMARY_DIR)
     out_dir.mkdir(parents=True, exist_ok=True)
     for stale in sorted([*out_dir.glob("*.glb"), *out_dir.glob("*.json"), *out_dir.glob("*.svg")]):
         stale.unlink()
@@ -339,9 +375,11 @@ def build(
 
     # Assign each rendered building to one tile by the representative point of its footprint.
     tile_of: dict[str, tuple[int, int]] = {}
+    buildings_of_tile: dict[tuple[int, int], list] = {}
     for b in rendered.itertuples(index=False):
         rp = b.geometry.representative_point()
         tile_of[b.building_key] = grid.tile_ij(rp.x, rp.y)
+        buildings_of_tile.setdefault(tile_of[b.building_key], []).append(b)
 
     flat = {}
     platform_ways: set[tuple[str, int]] = set()  # ADR-0033: never part of a street entry
@@ -356,6 +394,7 @@ def build(
         if "class" in gdf.columns:
             gdf = gdf.rename(columns={"class": "class_"})
         flat[layer] = _flat_features(layer, gdf)
+    flat_index = {layer: _FlatIndex(flat[layer]) for layer in FLAT_LAYERS}
     names = _names(_read(gpkg, "named_features"))
     if landmark_names is None:
         landmark_names = search_index.load_landmark_names()
@@ -369,9 +408,14 @@ def build(
     )
     details_by_tile = _detail_tables(details)
 
-    aoi_tiles = set(grid.tiles_covering(config.PILOT_AOI_BBOX))
+    shapely.prepare(extent_poly)
+    aoi_tiles = {
+        t
+        for t in grid.tiles_covering(bbox)
+        if shapely.intersects(extent_poly, box(*grid.tile_bbox(*t)))
+    }
     tiles = sorted(aoi_tiles | set(tile_of.values()) | set(details_by_tile))  # ADR-0022 point 5
-    ax0, ay0, ax1, ay1 = config.PILOT_AOI_BBOX
+    ax0, ay0, ax1, ay1 = bbox
     extent_box = box(
         ax0 - config.ORIGIN_E, ay0 - config.ORIGIN_N, ax1 - config.ORIGIN_E, ay1 - config.ORIGIN_N
     )
@@ -395,9 +439,7 @@ def build(
         mb = geom.MeshBuilder()
         table = []
         n_vols = 0
-        for b in rendered.itertuples(index=False):
-            if tile_of[b.building_key] != (i, j):
-                continue
+        for b in buildings_of_tile.get((i, j), []):
             if b.building_key in seen_buildings:
                 duplicates.append(b.building_key)
             seen_buildings[b.building_key] = name
@@ -442,8 +484,9 @@ def build(
         for layer in FLAT_LAYERS:
             mf = geom.MeshBuilder()
             table = []
-            for f in flat[layer]:
-                clipped = [] if fbox.is_empty else _clip_polys(f["polys"], fbox)
+            hits = [] if fbox.is_empty else flat_index[layer].features_in(fbox)
+            for f, hit_polys in hits:
+                clipped = _clip_polys(hit_polys, fbox)
                 if not clipped:
                     continue
                 fid = len(table)
@@ -586,7 +629,7 @@ def build(
         t["layers"].get("buildings", {}).get("features", 0) for t in summary_tiles.values()
     )
     summary = {
-        "extent": "pilot",
+        "extent": extent,
         "budget_gzip_bytes": BUDGET_GZIP_BYTES,
         "tiles": summary_tiles,
         "landmark_details": detail_report,
@@ -668,9 +711,16 @@ def _markdown(s: dict) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--extent", default="pilot")
+    ap.add_argument("--extent", choices=list(extent_mod.EXTENTS), default="pilot")
     args = ap.parse_args(argv)
     s = build(args.extent)
+    report_counts(
+        **{
+            "in": s["checks"]["buildings_rendered"] + s["checks"]["trees_in_layer"],
+            "out": sum(t["features"] for t in s["tiles"].values()),
+            "tiles": len(s["tiles"]),
+        }
+    )
     print(f"tiles: {', '.join(s['tiles'])}")
     print(f"checks: {s['checks']}")
     return 0

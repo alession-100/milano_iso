@@ -32,6 +32,17 @@ class Report:
         _REPORT_SECTIONS[title] = text
 
 
+def pytest_configure(config):
+    ext = os.environ.get("MILANO_ISO_EXTENT", "pilot")
+    if ext != "pilot":
+        # T-6.1: these tests read the pilot files and assume the pilot AOI and landmarks. Do not
+        # validate the pilot data when the city was asked for.
+        raise pytest.UsageError(
+            f"tests/data validates the pilot only (MILANO_ISO_EXTENT={ext!r}); "
+            "city validation is not implemented yet"
+        )
+
+
 def pytest_collection_modifyitems(items):
     for item in items:
         if "tests/data/" in item.nodeid.replace("\\", "/"):

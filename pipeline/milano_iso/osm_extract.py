@@ -21,6 +21,8 @@ from pyproj import Transformer
 from shapely.geometry import box
 
 from milano_iso import config, fetch
+from milano_iso import extent as extent_mod
+from milano_iso.measure import report_counts
 
 log = logging.getLogger("milano_iso.osm_extract")
 
@@ -202,7 +204,7 @@ def main(argv=None) -> int:
     else:
         fetch.fetch_boundary()
         extent = city_extent_wgs84()
-    out = config.INTERIM_DIR / f"osm_{args.extent}.gpkg"
+    out = extent_mod.interim_osm(args.extent)
     summary = extract(pbf, extent, out)
     summary["extent"] = args.extent
     summary["pbf_sha256"] = manifest["sha256"]
@@ -213,6 +215,7 @@ def main(argv=None) -> int:
     log.info(
         "kept %s; failed relations %d", summary["kept"], summary["failed_area_assembly"]["count"]
     )
+    report_counts(**{"in": sum(summary["seen"].values()), "out": sum(summary["kept"].values())})
     log.info("canonical_sha256 %s", summary["canonical_sha256"])
     log.info("gpkg_sha256 %s", hashlib.sha256(out.read_bytes()).hexdigest())
     return 0

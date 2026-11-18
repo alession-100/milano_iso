@@ -1,0 +1,43 @@
+[
+  {
+    "step": "data-osm",
+    "extent": "city",
+    "seconds": 231.5,
+    "peak_mb": 2268.0,
+    "returncode": 0,
+    "counts": {
+      "in": 84311077,
+      "out": 434506
+    }
+  },
+  {
+    "step": "data-dbt",
+    "extent": "city",
+    "seconds": 48.5,
+    "peak_mb": 789.8,
+    "returncode": 0,
+    "counts": {
+      "in": 237743,
+      "out": 526623
+    }
+  },
+  {
+    "step": "data-normalise",
+    "extent": "city",
+    "seconds": 114.6,
+    "peak_mb": 1659.8,
+    "returncode": 0,
+    "counts": {
+      "in": 564364,
+      "out": 564364
+    }
+  },
+  {
+    "step": "data-heights",
+    "extent": "city",
+    "seconds": 5.6,
+    "peak_mb": 463.2,
+    "returncode": 1,
+    "counts": {}
+  }
+]

@@ -4,4 +4,4 @@
 DATA_STEPS += data-normalise
 
 data-normalise: data-boundary data-osm data-dbt
-	uv run python -m milano_iso.normalise --extent pilot
+	uv run python $(call M,data-normalise) -m milano_iso.normalise --extent $(EXTENT)

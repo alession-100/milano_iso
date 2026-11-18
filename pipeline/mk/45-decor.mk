@@ -4,4 +4,4 @@
 DATA_STEPS += data-decor
 
 data-decor: data-heights
-	uv run python -m milano_iso.decor --extent pilot
+	uv run python $(call M,data-decor) -m milano_iso.decor --extent $(EXTENT)

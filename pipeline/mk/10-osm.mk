@@ -7,4 +7,4 @@ data-boundary:
 	uv run python -m milano_iso.fetch comune_boundary
 
 data-osm:
-	uv run python -m milano_iso.osm_extract --extent pilot --summary reports/artifacts/T-1.1/summary.json
+	uv run python $(call M,data-osm) -m milano_iso.osm_extract --extent $(EXTENT) --summary $(call ART,T-1.1)/summary.json
