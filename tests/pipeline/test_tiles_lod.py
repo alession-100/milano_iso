@@ -84,6 +84,17 @@ def test_every_kept_polygon_is_within_the_recorded_tolerance(level):
     assert worst > 0, "the polygons really were simplified"
 
 
+def test_a_low_volume_keeps_its_footprint_at_half_a_step_and_stays_within_the_tolerance():
+    level = lod.LEVELS[2]  # step 10 m: a 3 m annex would round to 0
+    poly = box(0, 0, 40, 20)
+    prisms, dropped, _ = lod.prisms_of_building([(poly, 0.0, 3.0)], level)
+    assert dropped == 0
+    ((parts, bottom, top),) = prisms
+    assert parts[0].area == pytest.approx(800.0)
+    assert (bottom, top) == (0.0, level.height_step_m / 2)
+    assert abs(top - 3.0) <= level.tolerance_m
+
+
 def test_heights_move_by_at_most_half_a_step():
     level = lod.LEVELS[0]
     poly = box(0, 0, 30, 30)

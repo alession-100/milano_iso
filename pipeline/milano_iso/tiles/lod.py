@@ -215,21 +215,24 @@ def boundary_distance(a, b) -> float:
     return out
 
 
-def coarse_parts(polys: list, level: Level) -> tuple[list[Polygon], float]:
-    """(parts, error bound) of polygons that form one prism, simplified within the tolerance.
+def coarse_parts(polys: list, level: Level) -> tuple[list[Polygon], float, int]:
+    """(parts, error bound, pieces dropped) of polygons that form one prism, simplified in tolerance.
 
     The polygons are snapped, merged (union), canonicalised and simplified. The error bound is the
     distance between each merged piece and its simplification plus the grid unit (the snapping
     slack), checked against the tolerance. Pieces whose bounding box is not larger than the
-    tolerance are dropped (under one pixel); the result may then be empty.
+    tolerance are dropped and counted (under one pixel; each has an area of at most tolerance
+    squared); the result may then be empty.
     """
     snapped = [snap(p, level.unit_m) for p in polys]
     merged = shapely.union_all(snapped) if len(snapped) > 1 else snapped[0]
     parts: list[Polygon] = []
     bound = 0.0
+    n_dropped = 0
     for q in _canonical_sorted(geom.polygons_of(snap(merged, level.unit_m)), level.unit_m):
         x0, y0, x1, y1 = q.bounds
         if max(x1 - x0, y1 - y0) <= level.tolerance_m:
+            n_dropped += 1
             continue
         simp, b = _checked_simplification(q, level)
         bound = max(bound, b + level.unit_m)
@@ -238,36 +241,37 @@ def coarse_parts(polys: list, level: Level) -> tuple[list[Polygon], float]:
         raise ValueError(
             f"error bound {bound:.3f} m exceeds the level tolerance {level.tolerance_m}"
         )
-    return _canonical_sorted(parts, level.unit_m), bound
+    return _canonical_sorted(parts, level.unit_m), bound, n_dropped
 
 
 def prisms_of_building(vols: list, level: Level) -> tuple[list, int, float]:
     """Merged prisms of one building: ([(parts, bottom, top)], dropped pieces, error bound).
 
-    ``vols``: (local polygon, bottom, top) per volume. Volumes whose bottom and top round to the
-    same ``height_step_m`` (the vertical tolerance) are merged into one prism with the rounded
-    heights; the others are kept as they are. A volume entirely below the ground plane (top at or
-    below 0 after rounding) is never visible and is not drawn.
+    ``vols``: (local polygon, bottom, top) per volume. Heights are rounded to ``height_step_m``
+    (twice the tolerance, so the error is at most the tolerance) and volumes with the same rounded
+    bottom and top are merged into one prism. A volume that would round to nothing is given the
+    smallest height of half a step (so a low annex keeps its footprint; its error is still at most
+    the tolerance when it stands on the ground). A volume entirely below the ground plane (top at
+    or below 0) is never visible and is not drawn.
     """
     step = level.height_step_m
     groups: dict[tuple[float, float], list] = {}
     n_drop = 0
     for poly, bottom, top in vols:
-        qb = round(bottom / step) * step
-        qt = round(top / step) * step
-        if qt <= 0:
+        if top <= 0:
             n_drop += 1
             continue
-        if qt <= qb:
-            qt = qb + step
+        qb = max(round(bottom / step) * step, 0.0)
+        qt = max(round(top / step) * step, qb + step / 2)
         groups.setdefault((round(qb, 6), round(qt, 6)), []).append(poly)
     out, bound = [], 0.0
     for (qb, qt), polys in sorted(groups.items()):
-        parts, b = coarse_parts(polys, level)
+        parts, b, dropped = coarse_parts(polys, level)
         bound = max(bound, b)
+        n_drop += dropped
         if parts:
             out.append((parts, qb, qt))
-        else:
+        elif not dropped:
             n_drop += 1
     return out, n_drop, bound
 

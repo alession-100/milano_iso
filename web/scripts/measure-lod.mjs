@@ -1,4 +1,4 @@
-/* global process, console, window, requestAnimationFrame */
+/* global process, console, window, requestAnimationFrame, URL */
 // T-6.2 evidence: draw calls, triangles, tiles drawn per level, bytes fetched and the time until the
 // view is complete, on the CITY tileset (web/public/tiles/city, copied by `make web-tiles EXTENT=city`),
 // at visible widths 300 .. 4000 m, centred on three points, at 1280x720 and 412x915.
