@@ -48,6 +48,9 @@ FIXTURE_NAMES = [
     ("w", 2001, "Parco Fixture"),
 ]
 DEFAULT_OUT = config.REPO_ROOT / "web" / "e2e" / "fixtures" / "tiles"
+# T-6.2: the same fixture with its coarse levels (e2e of level selection); the plain fixture above
+# has none, so the visual baselines never meet a coarse level.
+DEFAULT_LOD_OUT = config.REPO_ROOT / "web" / "e2e" / "fixtures" / "tiles-lod"
 CRS = "EPSG:32632"
 
 # key, local (xmin, ymin, xmax, ymax) in metres, height in metres, courtyard hole or None,
@@ -214,9 +217,11 @@ def write_gpkg(path: Path) -> None:
         pyogrio.write_dataframe(gdf, path, layer=name, driver="GPKG")
 
 
-def build(out_dir: Path, specs: dict | None = None) -> None:
+def build(out_dir: Path, specs: dict | None = None, levels: tuple | None = ()) -> None:
     """Run the real exporter on the synthetic layers. ``specs`` are the landmark detail specs
-    (T-4.2): by default the fixture landmark's own small spec; ``{}`` builds without details."""
+    (T-4.2): by default the fixture landmark's own small spec; ``{}`` builds without details.
+    ``levels``: the coarse levels (T-6.2); ``()`` (default) writes the base tiles only, ``None`` the
+    levels of ``milano_iso.tiles.lod.LEVELS``."""
     if specs is None:
         specs = {landmark_style.FIXTURE_SPEC.landmark_id: landmark_style.FIXTURE_SPEC}
     with tempfile.TemporaryDirectory(prefix="milano_fixture_") as tmp:
@@ -233,6 +238,7 @@ def build(out_dir: Path, specs: dict | None = None) -> None:
                 summary_dir=tmp_path / "summary",
                 specs=specs,
                 landmark_names=FIXTURE_LANDMARK_NAMES,
+                levels=levels,
             )
         finally:
             config.PROCESSED_DIR = saved
@@ -240,10 +246,12 @@ def build(out_dir: Path, specs: dict | None = None) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--lod", action="store_true", help="the fixture with coarse levels (T-6.2)")
     args = ap.parse_args(argv)
-    build(args.out)
-    print(f"fixture tiles written to {args.out}")
+    out = args.out or (DEFAULT_LOD_OUT if args.lod else DEFAULT_OUT)
+    build(out, levels=None if args.lod else ())
+    print(f"fixture tiles written to {out}")
     return 0
 
 

@@ -27,7 +27,7 @@ export function collectProblems(page: Page): string[] {
 }
 
 /** Serve every `.../tiles/pilot/<file>` request from the fixture directory. */
-export async function routeFixtureTiles(page: Page): Promise<void> {
+export async function routeFixtureTiles(page: Page, dir: string = FIXTURE_DIR): Promise<void> {
   await page.route('**/tiles/**', async (route) => {
     const url = new URL(route.request().url());
     if (!url.pathname.includes('/tiles/pilot/')) {
@@ -36,7 +36,7 @@ export async function routeFixtureTiles(page: Page): Promise<void> {
     }
     const file = decodeURIComponent(url.pathname.split('/').pop() ?? '');
     try {
-      const body = readFileSync(path.join(FIXTURE_DIR, file));
+      const body = readFileSync(path.join(dir, file));
       const contentType = file.endsWith('.glb') ? 'model/gltf-binary' : 'application/json';
       await route.fulfill({ status: 200, contentType, body });
     } catch {
@@ -77,6 +77,12 @@ export interface TilesState {
   loading: number;
   visible: number;
   failed: number;
+  /** T-6.2: tiles of the level in use that are in view and not loaded yet; level in use. */
+  pending?: number;
+  level?: number;
+  drawnByLevel?: Record<number, number>;
+  loadedByLevel?: Record<number, number>;
+  mpp?: number;
 }
 
 type MilanoWindow = {
@@ -101,7 +107,7 @@ export async function settleTiles(page: Page): Promise<void> {
     .poll(
       async () => {
         const s = await tilesState(page);
-        return s.visible > 0 && s.loading === 0 && s.loaded + s.failed >= s.visible;
+        return s.visible > 0 && s.loading === 0 && s.loaded + s.failed >= s.visible && (s.pending ?? 0) === 0;
       },
       { timeout: 20_000 },
     )
@@ -133,7 +139,7 @@ export async function settleRendered(page: Page, polls = 3): Promise<number> {
           return {
             calls: w.render.calls,
             loading: w.tiles.loading,
-            ok: w.tiles.visible > 0 && w.tiles.loaded + w.tiles.failed >= w.tiles.visible,
+            ok: w.tiles.visible > 0 && w.tiles.loaded + w.tiles.failed >= w.tiles.visible && (w.tiles.pending ?? 0) === 0,
           };
         });
         same = st.calls === prev && st.calls > 1 && st.ok && st.loading === 0 ? same + 1 : 0;

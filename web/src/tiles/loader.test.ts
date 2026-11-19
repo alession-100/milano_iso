@@ -93,6 +93,10 @@ describe('TileStreamer', () => {
     expect(errors).toEqual(['t0']);
     expect(s.stats).toEqual({ loaded: 1, loading: 0, failed: 1 });
     expect(m.started).toEqual(['t0', 't1', 't0']);
+    // T-6.2: the level logic asks which tiles are loaded and which failed for good
+    expect(s.loadedIds()).toEqual(['t1']);
+    expect(s.isFailed('t0')).toBe(true);
+    expect(s.isFailed('t1')).toBe(false);
   });
 
   it('a tile waiting for its retry holds no loader slot (T-5.4)', async () => {

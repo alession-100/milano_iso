@@ -11,7 +11,8 @@ import { initialMode, storeMode } from './style/mode';
 import { type StyleMode, paletteFor } from './style/palette';
 import { e2eEnabled, registerSetView, registerTestState } from './testhook';
 import { renderAttribution } from './tiles/attribution';
-import { cullTiles, frustumOf, sortNearestFirst, viewCentre } from './tiles/culling';
+import { frustumOf, viewCentre } from './tiles/culling';
+import { LodController } from './tiles/lod';
 import { Picker } from './pick/picker';
 import type { IndexEntry as PickIndexEntry } from './pick/rows';
 import { TileStreamer, createGltfTileLoader, disposeTile } from './tiles/loader';
@@ -22,7 +23,7 @@ import { type IndexEntry, parseIndex, refOf } from './search';
 import { currentSelection, onSelect, select } from './selection';
 import { initLayout } from './layout';
 import { createToolbar } from './toolbar';
-import { type Manifest, contentBounds, fetchManifest, indexUrl, minimapUrl, resolveTilesBase } from './tiles/manifest';
+import { type Manifest, allTiles, contentBounds, fetchManifest, indexUrl, minimapUrl, resolveTilesBase } from './tiles/manifest';
 
 const host = document.getElementById('app') as HTMLElement;
 // T-5.4 language (ADR-0006): ?lang= wins, then the remembered choice, then Italian. Every module
@@ -82,11 +83,15 @@ function setMode(mode: StyleMode, remember: boolean): void {
 
 let manifest: Manifest | null = null;
 let streamer: TileStreamer<THREE.Group> | null = null;
-let visibleCount = 0;
-registerTestState('tiles', () => ({
-  ...(streamer?.stats ?? { loaded: 0, loading: 0, failed: 0 }),
-  visible: visibleCount,
-}));
+let lod: LodController<THREE.Group> | null = null;
+/** Tile state for the e2e hook and the debug overlay; `visible` counts the tiles of the level in use. */
+function tilesState() {
+  return {
+    ...(streamer?.stats ?? { loaded: 0, loading: 0, failed: 0 }),
+    ...(lod?.state() ?? { visible: 0, pending: 0, level: 0 }),
+  };
+}
+registerTestState('tiles', tilesState);
 
 // Render on demand: any number of requests coalesce into one animation frame; there is no
 // permanent loop. Everything that can change the picture (controls, inertia, resize, tile
@@ -156,11 +161,9 @@ function renderAttributionNow(): void {
 }
 
 function updateTiles(): void {
-  if (!manifest || !streamer) return;
-  const { visible, wanted } = cullTiles(manifest.tiles, frustumOf(camera), manifest.tile_size_m);
-  visibleCount = visible.length;
+  if (!manifest || !streamer || !lod) return;
   const [cx, cz] = viewCentre(camera);
-  streamer.update(sortNearestFirst(manifest.tiles, wanted, cx, cz), visible);
+  lod.update(frustumOf(camera), rig.metresPerPixel(window.innerWidth), cx, cz); // T-6.2
 }
 
 function render(): void {
@@ -170,6 +173,8 @@ function render(): void {
   if (key !== lastKey) {
     lastKey = key;
     updateTiles();
+  } else {
+    lod?.apply(); // a tile arrived or left: which of the loaded tiles are drawn may have changed (T-6.2)
   }
   if (shadowsOn) fitSunShadow(sun, camera, rig.bounds); // T-3.3 style
   renderer.render(scene, camera);
@@ -200,7 +205,7 @@ async function startTiles(): Promise<void> {
   void loadMinimap(manifest, base);
   rig.setBounds(contentBounds(manifest));
   rig.apply();
-  streamer = new TileStreamer<THREE.Group>(manifest.tiles, {
+  streamer = new TileStreamer<THREE.Group>(allTiles(manifest), {
     load: createGltfTileLoader(base),
     onLoaded: (_id, obj) => {
       applyLayerVisibility(obj); // T-5.3b: tiles loaded later honour the layer toggles
@@ -220,6 +225,7 @@ async function startTiles(): Promise<void> {
     },
     onChange: requestRender,
   });
+  lod = new LodController<THREE.Group>(manifest, streamer);
   lastKey = ''; // force a cull on the next frame
   requestRender();
 }
@@ -349,10 +355,7 @@ initLayout(); // T-5.7: the attribution band; the toolbar zone and the card are 
       m.initDebug(
         {
           renderInfo: () => lastRender,
-          tiles: () => ({
-            ...(streamer?.stats ?? { loaded: 0, loading: 0, failed: 0 }),
-            visible: visibleCount,
-          }),
+          tiles: tilesState,
           camera: () => rig.snapshot(),
           canvas: renderer.domElement,
           pixelRatio: () => renderer.getPixelRatio(),

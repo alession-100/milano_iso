@@ -20,6 +20,10 @@ import shapely
 
 MINIMAP_NAME = "minimap.svg"
 TOLERANCE_M = 1.0  # Douglas-Peucker tolerance for every layer (style choice, see the T-5.3a report)
+# The light minimap of a large extent (T-6.2): only water, green and the major roads, simplified for
+# the size it is drawn at (a few hundred pixels for the whole comune, so tens of metres per pixel).
+LITE_TOLERANCE_M = 12.0
+LITE_MIN_AREA_M2 = 20_000.0  # green and water pieces below this (a 140 m square) are not drawn
 MAJOR_CLASSES = ("motorway", "trunk", "primary", "secondary", "tertiary")
 MINOR_CLASSES = ("living_street", "residential", "unclassified")
 
@@ -80,12 +84,12 @@ def _path(pts: list[tuple[int, int]], closed: bool) -> str:
     return head + " ".join(steps) + ("z" if closed else "")
 
 
-def _polygon_paths(polys, tolerance: float) -> str:
+def _polygon_paths(polys, tolerance: float, min_area: float = 0.0) -> str:
     """One ``d`` string for all polygons: sorted by exterior, each followed by its sorted holes."""
     items = []
     for poly in polys:
         for p in shapely.get_parts(poly):
-            if p.is_empty or p.geom_type != "Polygon":
+            if p.is_empty or p.geom_type != "Polygon" or p.area < min_area:
                 continue
             s = shapely.simplify(p, tolerance, preserve_topology=True)
             if s.is_empty or s.geom_type != "Polygon":
@@ -133,19 +137,33 @@ def render(
     buildings: list,
     roads: list[tuple[str, object]],
     tolerance: float = TOLERANCE_M,
+    lite: bool = False,
 ) -> bytes:
     """The SVG. ``water``, ``green``, ``buildings``: local polygons. ``roads``: (class, local
-    centreline) pairs; only MAJOR_CLASSES and MINOR_CLASSES are drawn."""
+    centreline) pairs; only MAJOR_CLASSES and MINOR_CLASSES are drawn.
+
+    ``lite`` (T-6.2, whole-city tilesets): no buildings, no minor roads, pieces of green and water
+    under LITE_MIN_AREA_M2 dropped, everything simplified at LITE_TOLERANCE_M. Real geometry, drawn
+    from the same layers, only less of it.
+    """
     x, z, w, h = viewbox
     major = [g for c, g in roads if c in MAJOR_CLASSES]
     minor = [g for c, g in roads if c in MINOR_CLASSES]
-    layers = [
-        ("mm-green", _polygon_paths(green, tolerance)),
-        ("mm-water", _polygon_paths(water, tolerance)),
-        ("mm-road-minor", _line_paths(minor, tolerance)),
-        ("mm-road-major", _line_paths(major, tolerance)),
-        ("mm-building", _polygon_paths(buildings, tolerance)),
-    ]
+    if lite:
+        tolerance = LITE_TOLERANCE_M
+        layers = [
+            ("mm-green", _polygon_paths(green, tolerance, LITE_MIN_AREA_M2)),
+            ("mm-water", _polygon_paths(water, tolerance, LITE_MIN_AREA_M2)),
+            ("mm-road-major", _line_paths(major, tolerance)),
+        ]
+    else:
+        layers = [
+            ("mm-green", _polygon_paths(green, tolerance)),
+            ("mm-water", _polygon_paths(water, tolerance)),
+            ("mm-road-minor", _line_paths(minor, tolerance)),
+            ("mm-road-major", _line_paths(major, tolerance)),
+            ("mm-building", _polygon_paths(buildings, tolerance)),
+        ]
     out = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x} {z} {w} {h}">',
         f"<style>{STYLE}</style>",

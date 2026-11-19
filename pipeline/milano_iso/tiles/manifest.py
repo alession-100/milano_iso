@@ -56,19 +56,28 @@ def file_entry(path: Path) -> dict:
 
 
 def tile_entry(
-    out_dir: Path, name: str, i: int, j: int, counts: dict[str, int], content_bbox_local: dict
+    out_dir: Path,
+    name: str,
+    i: int,
+    j: int,
+    counts: dict[str, int],
+    content_bbox_local: dict,
+    size: float = config.TILE_SIZE_M,
 ) -> dict:
-    """Manifest entry of tile ``name``; reads its .glb and .json files from ``out_dir``."""
+    """Manifest entry of tile ``name``; reads its .glb and .json files from ``out_dir``.
+
+    ``size`` is the cell size (the base tile, or the block of a coarse level, T-6.2).
+    """
     glb_path, feat_path = out_dir / f"{name}.glb", out_dir / f"{name}.json"
     blob = glb_path.read_bytes()
-    xmin, ymin, xmax, ymax = grid.tile_bbox_local(i, j)
+    xmin, ymin, xmax, ymax = grid.tile_bbox_local(i, j, size)
     return {
         "id": name,
         "i": i,
         "j": j,
         # [xmin, zmin, xmax, zmax], z = -(N - N0); 0.0 - v avoids -0.0
         "bbox_local": [xmin, 0.0 - ymax, xmax, 0.0 - ymin],
-        "bbox_epsg32632": list(grid.tile_bbox(i, j)),
+        "bbox_epsg32632": list(grid.tile_bbox(i, j, size=size)),
         "counts": dict(sorted(counts.items())),
         # extent of the decoded vertices, client frame [x, y, z]; may exceed bbox_local (overhang)
         "content_bbox_local": content_bbox_local,
@@ -92,6 +101,7 @@ def build_manifest(
     instanced_layers: list[str] | None = None,
     index: dict | None = None,
     minimap: dict | None = None,
+    levels: list[dict] | None = None,
 ) -> dict:
     entries = sorted(entries, key=lambda e: e["id"])
     counts: dict[str, int] = {}
@@ -103,6 +113,8 @@ def build_manifest(
         extra["index"] = index  # T-5.3a: search index file entry
     if minimap is not None:
         extra["minimap"] = minimap  # T-5.3a: minimap drawing file entry
+    if levels:
+        extra["levels"] = levels  # T-6.2: level 0 (the base tiles above) and the coarse levels
     return {
         **extra,
         "format_version": FORMAT_VERSION,

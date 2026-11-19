@@ -13,6 +13,20 @@ export interface TileEntry {
   content_bbox_local: { min: Vec3; max: Vec3 };
   glb: { file: string };
   features: { file: string };
+  /** Level of detail (T-6.2): 0 for the base tiles (and when absent), 1..n for the coarse blocks. */
+  level?: number;
+  /** Grid cell [xmin, zmin, xmax, zmax] in client metres; the cells of the levels nest. */
+  bbox_local?: [number, number, number, number];
+}
+
+/** One level of detail as listed in tiles.json `levels` (T-6.2). Level 0 is the base `tiles`. */
+export interface LevelRecord {
+  level: number;
+  /** Simplification error in metres: the level may be shown where metres per pixel >= this. */
+  tolerance_m: number;
+  block_m: number;
+  /** Coarse levels only; level 0 uses `Manifest.tiles`. */
+  tiles?: TileEntry[];
 }
 
 export interface AttributionEntry {
@@ -41,6 +55,8 @@ export interface Manifest {
   index?: ExtraFile;
   /** Minimap drawing of the whole tileset extent; absent in tilesets built before T-5.3a. */
   minimap?: ExtraFile;
+  /** Levels of detail (T-6.2); absent in tilesets built before it: the base tiles only. */
+  levels?: LevelRecord[];
 }
 
 export const EXPECTED_FORMAT_VERSION = 1;
@@ -114,7 +130,62 @@ export function parseManifest(raw: unknown): Manifest {
   }
   checkExtraFile(raw, 'index');
   checkExtraFile(raw, 'minimap');
+  checkLevels(raw);
   return raw as unknown as Manifest;
+}
+
+/** `levels` (T-6.2): ascending levels from 0, growing tolerance; coarse ones carry their tiles. */
+function checkLevels(raw: Record<string, unknown>): void {
+  const lv = raw.levels;
+  if (lv === undefined) return;
+  if (!Array.isArray(lv) || lv.length === 0) fail('levels invalid');
+  lv.forEach((l: unknown, k: number) => {
+    if (
+      !isRecord(l) ||
+      l.level !== k ||
+      typeof l.tolerance_m !== 'number' ||
+      !(l.tolerance_m > 0) ||
+      typeof l.block_m !== 'number' ||
+      !(l.block_m > 0)
+    ) {
+      fail(`levels[${k}] invalid`);
+    }
+    if (k > 0 && (l.tolerance_m as number) <= ((lv[k - 1] as LevelRecord).tolerance_m)) {
+      fail('levels: tolerance_m must grow with the level');
+    }
+    if (k === 0) return;
+    if (!Array.isArray(l.tiles) || l.tiles.length === 0) fail(`levels[${k}]: tiles missing`);
+    for (const t of l.tiles) {
+      if (!isRecord(t) || typeof t.id !== 'string') fail(`levels[${k}]: tile entry invalid`);
+      const cb = t.content_bbox_local;
+      if (!isRecord(cb) || !isVec3(cb.min) || !isVec3(cb.max)) {
+        fail(`levels[${k}]: tile ${t.id}: content_bbox_local invalid`);
+      }
+      if (!isRecord(t.glb) || typeof t.glb.file !== 'string') {
+        fail(`levels[${k}]: tile ${t.id}: glb.file missing`);
+      }
+      if (!isRecord(t.features) || typeof t.features.file !== 'string') {
+        fail(`levels[${k}]: tile ${t.id}: features.file missing`);
+      }
+    }
+  });
+}
+
+/** Every tile of every level, each stamped with its level (the base tiles are level 0). */
+export function allTiles(manifest: Manifest): TileEntry[] {
+  const out: TileEntry[] = manifest.tiles.map((t) => ({ ...t, level: 0 }));
+  for (const l of manifest.levels ?? []) {
+    if (l.level === 0 || !l.tiles) continue;
+    for (const t of l.tiles) out.push({ ...t, level: l.level });
+  }
+  return out;
+}
+
+/** Level numbers with their tolerance, ascending; a manifest without `levels` has only level 0. */
+export function levelSpecs(manifest: Manifest): { level: number; tolerance_m: number }[] {
+  const l = manifest.levels;
+  if (!l || l.length === 0) return [{ level: 0, tolerance_m: 0 }];
+  return l.map((x) => ({ level: x.level, tolerance_m: x.tolerance_m }));
 }
 
 /** URL of the search index file, or undefined if the tileset has none. */

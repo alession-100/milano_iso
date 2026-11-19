@@ -24,24 +24,31 @@ def _pad(b: bytes, fill: bytes) -> bytes:
     return b + fill * (-len(b) % 4)
 
 
-def quantise(positions: np.ndarray, centre: tuple[float, float]) -> np.ndarray:
-    """int16 offsets in 2 cm units from the tile centre (cx, cz) at y = 0. Raises when out of range."""
+def quantise(
+    positions: np.ndarray, centre: tuple[float, float], unit: float = QUANT_SCALE
+) -> np.ndarray:
+    """int16 offsets in ``unit`` (default 2 cm) from the tile centre (cx, cz) at y = 0. Raises when out of range."""
     off = np.asarray(positions, dtype=np.float64) - np.array([centre[0], 0.0, centre[1]])
-    q = np.rint(off / QUANT_SCALE)
+    q = np.rint(off / unit)
     if np.abs(q).max() > INT16_MAX:
         raise ValueError(
-            f"position out of int16 range (+/-{INT16_MAX * QUANT_SCALE:.2f} m from the tile "
+            f"position out of int16 range (+/-{INT16_MAX * unit:.2f} m from the tile "
             f"centre): max offset {np.abs(off).max():.3f} m"
         )
     return q.astype(np.int16)
 
 
-def dequantise(q: np.ndarray, centre: tuple[float, float]) -> np.ndarray:
-    """Client-frame metres from int16 values, as a node (translation, scale 0.02) does."""
-    return q.astype(np.float64) * QUANT_SCALE + np.array([centre[0], 0.0, centre[1]])
+def dequantise(q: np.ndarray, centre: tuple[float, float], unit: float = QUANT_SCALE) -> np.ndarray:
+    """Client-frame metres from int16 values, as a node (translation, scale ``unit``) does."""
+    return q.astype(np.float64) * unit + np.array([centre[0], 0.0, centre[1]])
 
 
-def write_glb(meshes: list[dict], centre: tuple[float, float], n_features: int) -> bytes:
+def write_glb(
+    meshes: list[dict],
+    centre: tuple[float, float],
+    n_features: int,
+    unit: float = QUANT_SCALE,
+) -> bytes:
     """meshes: dicts with name, positions (n,3) float64 in client metres, feature_ids (n,) and
     indices (m,). One node, mesh, primitive and material per entry, named after it.
 
@@ -79,7 +86,7 @@ def write_glb(meshes: list[dict], centre: tuple[float, float], n_features: int) 
     fid_dtype = np.uint16 if n_features < UINT16_LIMIT else np.uint32
     fid_comp = UNSIGNED_SHORT if fid_dtype is np.uint16 else UNSIGNED_INT
     for k, m in enumerate(meshes):
-        q = quantise(m["positions"], centre)
+        q = quantise(m["positions"], centre, unit)
         n = len(q)
         padded = np.zeros((n, 4), dtype=np.int16)
         padded[:, :3] = q
@@ -130,7 +137,7 @@ def write_glb(meshes: list[dict], centre: tuple[float, float], n_features: int) 
             {
                 "name": m["name"],
                 "mesh": k,
-                "scale": [QUANT_SCALE] * 3,
+                "scale": [unit] * 3,
                 "translation": [float(centre[0]), 0.0, float(centre[1])],
             }
         )

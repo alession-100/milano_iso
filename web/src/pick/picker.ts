@@ -140,6 +140,7 @@ export class Picker {
   private candidates(): THREE.Object3D[] {
     const out: THREE.Object3D[] = [];
     for (const g of this.deps.tileRoot.children) {
+      if (!g.visible) continue; // a tile that a coarser or finer level stands in for (T-6.2)
       for (const m of g.children) {
         const layer = layerOf(m.name);
         // A layer hidden by a toggle (T-5.3b) is not pickable either.
