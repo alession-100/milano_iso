@@ -55,6 +55,8 @@ async function measure(vp, centre, width) {
   const gz = { tilesJson: 0, minimap: 0, tileGlb: 0, tileJson: 0, other: 0 };
   let nGlb = 0;
   let maxGlbGz = 0;
+  const glbFiles = [];
+  let gzMap = new Map(); // glb file -> gzip-9 bytes recorded by the pipeline (tiles.json)
   const problems = [];
   page.on('console', (m) => {
     if (m.type() === 'error') problems.push(m.text());
@@ -81,11 +83,17 @@ async function measure(vp, centre, width) {
             ? 'tileGlb'
             : 'tileJson'
           : 'other';
+    if (kind === 'tilesJson') {
+      const m = JSON.parse(buf.toString('utf8'));
+      const all = [...m.tiles, ...(m.levels ?? []).flatMap((l) => l.tiles ?? [])];
+      gzMap = new Map(all.map((t) => [t.glb.file, t.glb.gzip9_bytes]));
+    }
     bytes[kind] += buf.length;
     const g = gzipSync(buf, { level: 9 }).length;
     gz[kind] += g;
     if (kind === 'tileGlb') {
       nGlb += 1;
+      glbFiles.push(u.pathname.split('/').pop());
       maxGlbGz = Math.max(maxGlbGz, g);
     }
   });
@@ -125,6 +133,9 @@ async function measure(vp, centre, width) {
   }));
   await ctx.close();
   const sum = (o) => Object.values(o).reduce((a, b) => a + b, 0);
+  // The pipeline's gzip-9 (Python zlib, the figure of the 250 KB budget) is what tiles.json records for
+  // each .glb; Node's zlib gives about 20% more for the same bytes, so both are reported.
+  const pipeGlb = glbFiles.map((f) => gzMap.get(f) ?? 0);
   return {
     calls: st.render.calls,
     triangles: st.render.triangles,
@@ -138,7 +149,9 @@ async function measure(vp, centre, width) {
     gzip: sum(gz),
     viewBytes: bytes.tileGlb + bytes.tileJson,
     viewGzip: gz.tileGlb + gz.tileJson,
+    viewGzipPipe: pipeGlb.reduce((a, b) => a + b, 0) + gz.tileJson,
     maxGlbGz,
+    maxGlbGzPipe: Math.max(0, ...pipeGlb),
     gz,
     msToApp,
     ms: tDone,
@@ -162,12 +175,12 @@ await browser.close();
 
 const kb = (n) => (n / 1024).toFixed(0);
 const lines = [
-  '| viewport | centre | width m | mpp | level | draw calls | triangles | tiles drawn per level | tiles fetched | tile bytes raw KB | tile bytes gzip-9 KB | largest tile gzip-9 KB | all bytes gzip-9 KB (incl. tiles.json, minimap) | time to complete s |',
-  '|---|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|',
+  '| viewport | centre | width m | mpp | level | draw calls | triangles | tiles drawn per level | tiles fetched | tile bytes raw KB | tile bytes gzip-9 KB (pipeline zlib for .glb, Node zlib for .json) | largest .glb gzip-9 KB (pipeline) | tile bytes gzip-9 KB (Node zlib for all) | all bytes since load gzip-9 KB (Node zlib; adds tiles.json and minimap.svg) | time to complete s |',
+  '|---|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|',
 ];
 for (const r of rows) {
   lines.push(
-    `| ${r.vp} | ${r.centre} | ${r.width} | ${r.mpp.toFixed(2)} | ${r.level} | ${r.calls} | ${r.triangles} | ${JSON.stringify(r.drawn).replace(/"/g, '')} | ${r.nGlb} | ${kb(r.viewBytes)} | ${kb(r.viewGzip)} | ${kb(r.maxGlbGz)} | ${kb(r.gzip)} | ${(r.ms / 1000).toFixed(1)} |`,
+    `| ${r.vp} | ${r.centre} | ${r.width} | ${r.mpp.toFixed(2)} | ${r.level} | ${r.calls} | ${r.triangles} | ${JSON.stringify(r.drawn).replace(/"/g, '')} | ${r.nGlb} | ${kb(r.viewBytes)} | ${kb(r.viewGzipPipe)} | ${kb(r.maxGlbGzPipe)} | ${kb(r.viewGzip)} | ${kb(r.gzip)} | ${(r.ms / 1000).toFixed(1)} |`,
   );
 }
 writeFileSync(out, lines.join('\n') + '\n');

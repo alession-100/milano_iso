@@ -4,7 +4,7 @@ import { collectProblems, routeFixtureTiles, setView, settleRendered, tilesState
 
 // T-6.2: levels of detail on the synthetic fixture with coarse levels (tiles-lod, made by
 // `make_fixture_tiles.py --lod`). The visual-regression fixture has none, so its baselines never meet
-// a coarse level. Levels: 0 (250 m tiles), 1 (500 m, tolerance 1 m), 2 (1 km, 2 m), 3 (2 km, 5 m).
+// a coarse level. Levels: 0 (250 m tiles), 1 (500 m, tolerance 0.5 m), 2 (1 km, 1.5 m), 3 (2 km, 5 m).
 // Nothing here asserts a duration: every wait polls the test state until it settles.
 
 const LOD_DIR = path.resolve(process.cwd(), 'e2e', 'fixtures', 'tiles-lod');
@@ -36,11 +36,12 @@ test.describe('level selection (desktop 1280x720)', () => {
     await start(page);
     // [visible width, expected level]; mpp = width / 1280
     for (const [width, level] of [
-      [600, 0],
-      [1200, 0],
-      [1400, 1],
-      [3000, 2],
-      [4000, 2],
+      [400, 0], // mpp 0.31
+      [600, 0], // 0.47
+      [700, 1], // 0.55
+      [1800, 1], // 1.41
+      [2000, 2], // 1.56
+      [4000, 2], // 3.13
     ] as const) {
       await setView(page, 0, 0, width);
       await settleRendered(page);
@@ -55,13 +56,13 @@ test.describe('level selection (desktop 1280x720)', () => {
   test('hysteresis: a view just under a threshold keeps the coarser level', async ({ page }) => {
     await open(page);
     await start(page);
-    await setView(page, 0, 0, 1400); // mpp 1.09: level 1
+    await setView(page, 0, 0, 700); // mpp 0.55: level 1
     await settleRendered(page);
     expect((await tilesState(page)).level).toBe(1);
-    await setView(page, 0, 0, 1250); // mpp 0.98: the base would do, level 1 is kept
+    await setView(page, 0, 0, 600); // mpp 0.47: the base would do, level 1 is kept
     await settleRendered(page);
     expect((await tilesState(page)).level).toBe(1);
-    await setView(page, 0, 0, 1000); // mpp 0.78: well under, back to the base level
+    await setView(page, 0, 0, 500); // mpp 0.39: well under, back to the base level
     await settleRendered(page);
     expect((await tilesState(page)).level).toBe(0);
   });
@@ -83,7 +84,7 @@ test.describe('level selection (desktop 1280x720)', () => {
     await settleRendered(page);
     const base = (await tilesState(page)).loaded;
     expect(base).toBeGreaterThan(0);
-    await setView(page, 0, 0, 1400); // level 1 is wanted but held back
+    await setView(page, 0, 0, 800); // level 1 is wanted but held back
     await expect.poll(async () => (await tilesState(page)).level).toBe(1);
     for (let k = 0; k < 5; k += 1) {
       const s = await tilesState(page);
@@ -110,14 +111,14 @@ test.describe('level selection (desktop 1280x720)', () => {
       await route.fallback();
     });
     await start(page);
-    await setView(page, 0, 0, 1400);
+    await setView(page, 0, 0, 800);
     await expect
       .poll(async () => {
         const s = await tilesState(page);
         return s.level === 1 && s.pending === 0 && JSON.stringify(await drawnLevels(page)) === '[1]';
       })
       .toBe(true);
-    await setView(page, 0, 0, 600); // the base tiles are wanted again; 0_0 is held back
+    await setView(page, 0, 0, 500); // the base tiles are wanted again; 0_0 is held back
     await expect.poll(async () => (await tilesState(page)).level).toBe(0);
     for (let k = 0; k < 5; k += 1) {
       const s = await tilesState(page);
@@ -139,7 +140,7 @@ test.describe('level selection (desktop 1280x720)', () => {
   test('a building in a coarse block opens the same card as at full detail', async ({ page }) => {
     await open(page);
     await start(page);
-    await setView(page, 0, 0, 1400);
+    await setView(page, 0, 0, 800);
     await settleRendered(page);
     expect((await tilesState(page)).level).toBe(1);
     const p = await page.evaluate(() => {
@@ -174,9 +175,12 @@ test.describe('level selection (mobile 412x915)', () => {
     await open(page);
     await start(page);
     for (const [width, level] of [
-      [600, 1], // mpp 1.46
-      [1200, 2], // 2.9
-      [2400, 3], // 5.8
+      [150, 0], // mpp 0.36 (under the hysteresis band of level 1, which the 600 m start view entered)
+      [300, 1], // 0.73
+      [600, 1], // 1.46
+      [700, 2], // 1.70
+      [1200, 2], // 2.91
+      [2400, 3], // 5.83
     ] as const) {
       await setView(page, 0, 0, width);
       await settleRendered(page);

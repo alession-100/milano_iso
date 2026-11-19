@@ -95,7 +95,7 @@ def test_heights_move_by_at_most_half_a_step():
 
 
 def test_volumes_in_the_same_step_merge_and_other_heights_stay_apart():
-    level = lod.LEVELS[0]  # step 2 m
+    level = dataclasses.replace(lod.LEVELS[0], height_step_m=2.0)
     a, b, c = box(0, 0, 20, 20), box(20, 0, 40, 20), box(40, 0, 60, 20)
     prisms, dropped, _ = lod.prisms_of_building(
         [(a, 0.0, 10.2), (b, 0.0, 10.9), (c, 0.0, 16.0)], level
