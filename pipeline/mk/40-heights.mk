@@ -4,4 +4,4 @@
 DATA_STEPS += data-heights
 
 data-heights: data-normalise
-	uv run python -m milano_iso.heights --extent pilot
+	uv run python $(call M,data-heights) -m milano_iso.heights --extent $(EXTENT)

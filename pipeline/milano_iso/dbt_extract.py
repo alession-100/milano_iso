@@ -25,8 +25,10 @@ from pyproj.transformer import TransformerGroup
 from shapely.geometry import Polygon, box
 
 from milano_iso import config
+from milano_iso import extent as extent_mod
 from milano_iso.dbt_fetch import target_path
 from milano_iso.geo import canonical_dump_sha256
+from milano_iso.measure import report_counts
 
 ZIP_PREFIX = "DBT 2020 - SHAPE/"
 SOURCE_CRS = "EPSG:7791"
@@ -66,8 +68,10 @@ def vsizip(zip_path: Path, stem: str) -> str:
 
 
 def extent_polygon(bbox, src_crs=METRIC_CRS, dst_crs=SOURCE_CRS, step=DENSIFY_STEP_M) -> Polygon:
-    """Rectangle `bbox` (in src_crs) with edges densified to `step`, transformed to dst_crs."""
-    dense = shapely.segmentize(box(*bbox), step)
+    """Rectangle `bbox`, or any geometry, in src_crs with edges densified to `step`,
+    transformed to dst_crs."""
+    shape = box(*bbox) if isinstance(bbox, tuple | list) else bbox
+    dense = shapely.segmentize(shape, step)
     t = Transformer.from_crs(src_crs, dst_crs, always_xy=True)
     return shapely.transform(dense, lambda c: np.column_stack(t.transform(c[:, 0], c[:, 1])))
 
@@ -90,6 +94,7 @@ def sort_by_key(gdf: gpd.GeoDataFrame, key: str) -> gpd.GeoDataFrame:
 def read_intersecting(path: str, poly: Polygon) -> gpd.GeoDataFrame:
     """Features intersecting `poly` (envelope prefilter, then exact test), kept whole."""
     gdf = pyogrio.read_dataframe(path, bbox=tuple(poly.bounds))
+    shapely.prepare(poly)
     keep = gdf.geometry.intersects(poly)
     return gdf[keep.to_numpy()].reset_index(drop=True)
 
@@ -280,8 +285,8 @@ def read_building_volumes(path: str, building_ids: set) -> gpd.GeoDataFrame:
     return gdf[keep.to_numpy()].reset_index(drop=True)
 
 
-def extract_pilot(zip_path: Path, out_gpkg: Path) -> dict:
-    poly = extent_polygon(config.PILOT_AOI_BBOX)
+def extract_extent(zip_path: Path, out_gpkg: Path, extent: str = "pilot") -> dict:
+    poly = extent_polygon(extent_mod.polygon(extent))
     out_gpkg.parent.mkdir(parents=True, exist_ok=True)
     if out_gpkg.exists():
         out_gpkg.unlink()
@@ -316,16 +321,23 @@ def extract_pilot(zip_path: Path, out_gpkg: Path) -> dict:
     return layers
 
 
+def extract_pilot(zip_path: Path, out_gpkg: Path) -> dict:
+    return extract_extent(zip_path, out_gpkg, "pilot")
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--extent", choices=["pilot"], required=True)
-    ap.parse_args(argv)
+    ap.add_argument("--extent", choices=list(extent_mod.EXTENTS), required=True)
+    ap.add_argument("--artifacts", type=Path, default=None)
+    args = ap.parse_args(argv)
+    ext = args.extent
+    artifact_dir = args.artifacts or extent_mod.artifact_dir(ext, ARTIFACT_DIR)
 
     zip_path = target_path("dbt2020")
     if not zip_path.exists():
         sys.exit(f"missing {zip_path}; run milano_iso.dbt_fetch first")
-    out_gpkg = config.INTERIM_DIR / "dbt_pilot.gpkg"
-    layers = extract_pilot(zip_path, out_gpkg)
+    out_gpkg = extent_mod.interim_dbt(ext)
+    layers = extract_extent(zip_path, out_gpkg, ext)
     digest = canonical_dump_sha256(out_gpkg)
     print(f"canonical dump sha256 of {out_gpkg.name}: {digest}")
 
@@ -337,9 +349,10 @@ def main(argv=None) -> None:
         full_attrs[stem] = df
         full[stem] = (len(df), column_stats(df))
     inventory = layer_inventory(zip_path)
-    ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
-    tr = transform_report(config.PILOT_AOI_BBOX)
-    write_schema_md(inventory, full, ARTIFACT_DIR / "schema.md")
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    bbox = extent_mod.bbox(ext)
+    tr = transform_report(bbox)
+    write_schema_md(inventory, full, artifact_dir / "schema.md")
 
     uv = layers["un_vol"]
     e_is, e_me = layers["edifc"], layers["edifc_me"]
@@ -353,8 +366,8 @@ def main(argv=None) -> None:
     unmatched = uv.loc[~uv["CEDIUV"].isin(set(e_me["CLASSREF"])), "CEDIUV"]
     av = uv["UN_VOL_AV"]
     summary = {
-        "extent": {"name": "pilot", "bbox_epsg32632": list(config.PILOT_AOI_BBOX)},
-        "canonical_dump_sha256_dbt_pilot_gpkg": digest,
+        "extent": {"name": ext, "bbox_epsg32632": list(bbox)},
+        f"canonical_dump_sha256_dbt_{ext}_gpkg": digest,
         "sort_keys": {k: v[1] for k, v in LAYERS.items()},
         "counts": {k: len(v) for k, v in layers.items()},
         "join_un_vol_to_edifc_me": join_stats(uv, e_me),
@@ -414,9 +427,10 @@ def main(argv=None) -> None:
         },
         "crs_transform": tr,
     }
-    (ARTIFACT_DIR / "summary.json").write_text(
+    (artifact_dir / "summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
     )
+    report_counts(**{"in": len(full_attrs["UN_VOL"]), "out": sum(summary["counts"].values())})
     print(
         json.dumps(summary["counts"]),
         "match_rate",

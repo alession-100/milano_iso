@@ -4,4 +4,4 @@ DATA_STEPS += data-dbt
 .PHONY: data-dbt
 data-dbt:
 	uv run python -m milano_iso.dbt_fetch
-	uv run python -m milano_iso.dbt_extract --extent pilot
+	uv run python $(call M,data-dbt) -m milano_iso.dbt_extract --extent $(EXTENT)

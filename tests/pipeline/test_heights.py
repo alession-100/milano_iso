@@ -101,17 +101,23 @@ def test_dbt_raised_only_building_takes_neighbour_median():
     assert pd.isna(out.loc["N0", "ground_flag"])
 
 
-def test_dbt_raised_only_widens_to_100m_then_fails():
+def test_dbt_raised_only_widens_to_100m_then_takes_its_own_base():
     own = [vol("V1", "B1", "04", 100.0, 3.0, 108.5, geom=box(0, 0, 10, 10))]
     far = _ground_neighbours([50.0, 51.0, 52.0, 53.0, 54.0], dist_start=70.0, step=3.0)
     out = heights.dbt_volume_heights(pd.DataFrame(own + far)).set_index("vol_id")
     assert out.loc["V1", "ground_z_m"] == 52.0 and out.loc["V1", "ground_neighbours"] == 5
-    too_far = _ground_neighbours([50.0] * 5, dist_start=150.0)
-    with pytest.raises(ValueError, match="fewer than 5"):
-        heights.dbt_volume_heights(pd.DataFrame(own + too_far))
-    few = _ground_neighbours([50.0] * 4, dist_start=20.0)
-    with pytest.raises(ValueError, match="fewer than 5"):
-        heights.dbt_volume_heights(pd.DataFrame(own + few))
+    assert out.loc["V1", "ground_flag"] == "neighbour_median"
+    # ADR-0036: fewer than 5 volumes within 100 m -> the building's own base, flagged
+    for others in (
+        _ground_neighbours([50.0] * 5, dist_start=150.0),
+        _ground_neighbours([50.0] * 4, dist_start=20.0),
+    ):
+        out = heights.dbt_volume_heights(pd.DataFrame(own + others)).set_index("vol_id")
+        assert out.loc["V1", "ground_flag"] == "own_base"
+        assert out.loc["V1", "ground_z_m"] == 100.0
+        assert pd.isna(out.loc["V1", "ground_neighbours"])
+        assert out.loc["V1", "top_m"] == pytest.approx(108.5 - 100.0)
+        assert out.loc["V1", "bottom_m"] == pytest.approx((108.5 - 3.0) - 100.0)
 
 
 # ----------------------------------------------------------------------------- matching
@@ -454,3 +460,61 @@ def test_volumes_outside_extent_allowed_only_with_their_building():
     violations, kept = normalise.volumes_outside_extent(vols, blds, extent)
     assert kept == 1  # B1's outer volume
     assert violations == 1  # B2 does not touch the extent at all
+
+
+def test_zero_height_volumes_take_the_default_and_do_not_shape_it():
+    # ADR-0036: av <= 0 -> default height (median of EDI_MIN heights without the zero ones).
+    vols = gpd.GeoDataFrame(
+        [
+            vol("U1", "B1", "01", 100.0, 10.0, 110.0, box(0, 0, 10, 10)),
+            vol("U2", "B1", "01", 100.0, 0.0, 100.0, box(10, 0, 20, 10)),
+            vol("M1", "B2", "01", 100.0, 4.0, 104.0, box(100, 0, 110, 10), cls="EDI_MIN"),
+            vol("M2", "B3", "01", 100.0, 0.0, 100.0, box(200, 0, 210, 10), cls="EDI_MIN"),
+            vol("U3", "B4", "01", 100.0, -0.001, 130.0, box(300, 0, 310, 10)),
+        ],
+        geometry="geometry",
+        crs=CRS,
+    )
+    osm = osm_frame([osm_row(9, box(500, 0, 510, 10), levels_raw="1", min_level_raw="1")])
+    parts = gpd.GeoDataFrame({"geometry": []}, geometry="geometry", crs=CRS)
+    res = heights.build(vols, osm, parts, {})
+    assert res["defaults"]["value"] == 4.0  # the zero-height EDI_MIN building B3 is left out
+    rv = res["render_volumes"].set_index("vol_key")
+    assert rv.loc["dbt:U2", "height_source"] == "default" and rv.loc["dbt:U2", "height_m"] == 4.0
+    assert rv.loc["dbt:U2", "top_m"] == pytest.approx(4.0)
+    assert rv.loc["dbt:U1", "height_source"] == "dbt" and rv.loc["dbt:U1", "height_m"] == 10.0
+    assert rv.loc["dbt:U3", "height_source"] == "default"
+    assert rv.loc["osm:w9", "height_source"] == "default" and rv.loc["osm:w9", "height_m"] == 4.0
+    bl = res["buildings"].set_index("building_key")
+    assert bl.loc["dbt:B1", "height_m"] == 10.0 and bl.loc["dbt:B1", "height_source"] == "dbt"
+    assert bl.loc["dbt:B3", "height_m"] == 4.0 and bl.loc["dbt:B3", "height_source"] == "default"
+    assert heights.check_layers(res["render_volumes"], res["buildings"]) == {
+        "render_volumes_ok": True,
+        "buildings_ok": True,
+    }
+    kinds = sorted(r[0] for r in res["height_default_log"])
+    assert kinds == ["dbt_volume", "dbt_volume", "dbt_volume", "osm_prism"]
+
+
+def test_building_entirely_below_ground_gets_its_volume_thickness_as_height():
+    # ADR-0036 point D: only an underground volume (POR 08), grounded on its own base (rule A),
+    # lies at -4 .. -1 m; the building height is its thickness, never the negative top.
+    vols = gpd.GeoDataFrame(
+        [
+            vol("U1", "B1", "08", 100.0, 3.0, 99.0, box(0, 0, 10, 10)),
+            vol("M1", "B2", "01", 100.0, 4.0, 104.0, box(500, 0, 510, 10), cls="EDI_MIN"),
+        ],
+        geometry="geometry",
+        crs=CRS,
+    )
+    osm = osm_frame([osm_row(9, box(900, 0, 910, 10), height_raw="6")])
+    parts = gpd.GeoDataFrame({"geometry": []}, geometry="geometry", crs=CRS)
+    res = heights.build(vols, osm, parts, {})
+    rv = res["render_volumes"].set_index("vol_key")
+    assert rv.loc["dbt:U1", "ground_flag"] == "own_base"
+    assert rv.loc["dbt:U1", "top_m"] == pytest.approx(-1.0)
+    bl = res["buildings"].set_index("building_key")
+    assert bl.loc["dbt:B1", "height_m"] == pytest.approx(3.0)
+    assert bl.loc["dbt:B2", "height_m"] == 4.0
+    assert res["below_ground_log"] == [("B1", "-1.000", "3.000")]
+    assert heights.check_layers(res["render_volumes"], res["buildings"])["buildings_ok"]

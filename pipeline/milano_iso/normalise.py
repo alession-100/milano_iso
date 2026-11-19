@@ -27,8 +27,10 @@ from pyproj.transformer import TransformerGroup
 from shapely.geometry import box
 
 from milano_iso import classify, config, fetch
+from milano_iso import extent as extent_mod
 from milano_iso.dbt_extract import natural_key
 from milano_iso.geo import canonical_dump_sha256
+from milano_iso.measure import report_counts
 
 log = logging.getLogger("milano_iso.normalise")
 
@@ -638,6 +640,21 @@ def volumes_outside_extent(vols: pd.DataFrame, buildings: pd.DataFrame, extent) 
     return int((~ok).sum()), int(ok.sum())
 
 
+BOUNDARY_TOLERANCE_M = 1e-6  # floating-point noise of a point put on the extent edge (T-6.1)
+
+
+def _count_outside(geoms, extent) -> int:
+    """Geometries that do not intersect ``extent``, within ``BOUNDARY_TOLERANCE_M``.
+
+    A named line clipped to the comune polygon is reduced to a point on its surface that can land
+    on the boundary and miss ``intersects`` by about 1e-10 m (T-6.1: 38 of 68426 named features).
+    """
+    miss = ~shapely.intersects(geoms, extent)
+    if not miss.any():
+        return 0
+    return int((~shapely.dwithin(geoms[miss], extent, BOUNDARY_TOLERANCE_M)).sum())
+
+
 def check_output(gpkg: Path, extent) -> dict:
     """Read the written file back: CRS, geometry validity and extent intersection per layer."""
     res = {}
@@ -650,7 +667,7 @@ def check_output(gpkg: Path, extent) -> dict:
             "crs": info["crs"],
             "features": len(g),
             "invalid": int((~shapely.is_valid(g)).sum()),
-            "outside_extent": int((~shapely.intersects(g, extent)).sum()),
+            "outside_extent": _count_outside(g, extent),
         }
     violations, kept = volumes_outside_extent(
         frames["dbt_volumes"], frames["dbt_buildings"], extent
@@ -670,8 +687,18 @@ def _ratio(out_n: int, in_n: int, denominator: str) -> dict:
     }
 
 
-def run(osm_gpkg: Path, dbt_gpkg: Path, boundary: Path, out_gpkg: Path, bbox) -> dict:
-    extent = box(*bbox)
+def run(
+    osm_gpkg: Path,
+    dbt_gpkg: Path,
+    boundary: Path,
+    out_gpkg: Path,
+    bbox,
+    extent_geom=None,
+    name: str = "pilot",
+) -> dict:
+    """``bbox`` is the extent's bounding box; ``extent_geom`` (default: the box) its shape."""
+    extent = box(*bbox) if extent_geom is None else extent_geom
+    shapely.prepare(extent)
     log_ = DropLog()
     osm = read_osm(osm_gpkg)
     layers, stats, osm_report = normalise_osm(osm, extent, log_)
@@ -682,22 +709,24 @@ def run(osm_gpkg: Path, dbt_gpkg: Path, boundary: Path, out_gpkg: Path, bbox) ->
     layers["comune_boundary"], stats["comune_boundary"] = normalise_boundary(boundary, log_)
     write_layers(layers, out_gpkg)
 
-    for name, st in stats.items():
-        st["output"] = len(layers[name])
-        if "underground" in layers[name].columns:
-            st["underground"] = int(layers[name]["underground"].sum())
+    for lname, st in stats.items():
+        st["output"] = len(layers[lname])
+        if "underground" in layers[lname].columns:
+            st["underground"] = int(layers[lname]["underground"].sum())
     checks = check_output(out_gpkg, extent)
     tags = osm["areas"]["tags"]
     n_bld_in = int(sum("building" in t for t in tags))
     n_bld_no = int(sum(t.get("building") == "no" for t in tags))
     comp = {
         "dbt_volumes": _ratio(
-            stats["dbt_volumes"]["output"], len(dbt["un_vol"]), "UN_VOL features in dbt_pilot.gpkg"
+            stats["dbt_volumes"]["output"],
+            len(dbt["un_vol"]),
+            f"UN_VOL features in dbt_{name}.gpkg",
         ),
         "osm_buildings": _ratio(
             stats["osm_buildings"]["output"],
             n_bld_in,
-            "areas with a building=* tag in osm_pilot.gpkg",
+            f"areas with a building=* tag in osm_{name}.gpkg",
         ),
     }
     comp["osm_buildings"]["excluded_building_no"] = n_bld_no
@@ -706,14 +735,14 @@ def run(osm_gpkg: Path, dbt_gpkg: Path, boundary: Path, out_gpkg: Path, bbox) ->
         vc = layers[layer]["class"].value_counts().sort_index()
         class_counts[layer] = {str(k): int(v) for k, v in vc.items()}
     per_layer = {}
-    for name in sorted(stats):
-        per_layer[name] = {**stats[name]}
+    for lname in sorted(stats):
+        per_layer[lname] = {**stats[lname]}
         for k in ("crs", "invalid", "outside_extent", "outside_extent_kept_with_building"):
-            if k in checks[name]:
-                per_layer[name][k] = checks[name][k]
+            if k in checks[lname]:
+                per_layer[lname][k] = checks[lname][k]
     report = {
-        "extent": {"name": "pilot", "bbox_epsg32632": list(bbox)},
-        "canonical_dump_sha256_pilot_gpkg": canonical_dump_sha256(out_gpkg),
+        "extent": {"name": name, "bbox_epsg32632": list(bbox)},
+        f"canonical_dump_sha256_{name}_gpkg": canonical_dump_sha256(out_gpkg),
         "layers": per_layer,
         "completeness": comp,
         "assertions": {
@@ -798,12 +827,13 @@ def _mark(ok: bool) -> str:
 
 def write_validation_md(report: dict, path: Path) -> None:
     a, c = report["assertions"], report["completeness"]
+    name = report["extent"]["name"]
     lines = [
         "# Validation report (T-1.3)",
         "",
         "Generated by `milano_iso.normalise`; do not edit by hand.",
-        f"Extent: pilot, bbox (EPSG:32632) {report['extent']['bbox_epsg32632']}.",
-        f"Canonical dump sha256 of `processed/pilot.gpkg`: `{report['canonical_dump_sha256_pilot_gpkg']}`",
+        f"Extent: {name}, bbox (EPSG:32632) {report['extent']['bbox_epsg32632']}.",
+        f"Canonical dump sha256 of `processed/{name}.gpkg`: `{report[f'canonical_dump_sha256_{name}_gpkg']}`",
         "",
         "## Assertions",
         "",
@@ -862,34 +892,48 @@ def write_validation_md(report: dict, path: Path) -> None:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--extent", choices=["pilot"], required=True)
-    ap.add_argument("--artifacts", type=Path, default=ARTIFACT_DIR)
+    ap.add_argument("--extent", choices=list(extent_mod.EXTENTS), required=True)
+    ap.add_argument("--artifacts", type=Path, default=None)
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    ext = args.extent
+    artifacts = args.artifacts or extent_mod.artifact_dir(ext, ARTIFACT_DIR)
 
     boundary = config.RAW_DIR / "comune_boundary" / fetch.BOUNDARY_FILE
     inputs = {
-        "osm": config.INTERIM_DIR / "osm_pilot.gpkg",
-        "dbt": config.INTERIM_DIR / "dbt_pilot.gpkg",
+        "osm": extent_mod.interim_osm(ext),
+        "dbt": extent_mod.interim_dbt(ext),
         "boundary": boundary,
     }
     for k, p in inputs.items():
         if not p.exists():
             sys.exit(f"missing {k} input {p}; run the earlier data steps first")
-    out = config.PROCESSED_DIR / "pilot.gpkg"
-    res = run(inputs["osm"], inputs["dbt"], boundary, out, config.PILOT_AOI_BBOX)
+    out = extent_mod.processed_gpkg(ext)
+    res = run(
+        inputs["osm"],
+        inputs["dbt"],
+        boundary,
+        out,
+        extent_mod.bbox(ext),
+        extent_geom=extent_mod.polygon(ext),
+        name=ext,
+    )
     report, droplog = res["report"], res["log"]
 
-    log_path = config.PROCESSED_DIR / "drop_log.csv"
+    log_path = extent_mod.drop_log(ext)
     droplog.write(log_path)
-    args.artifacts.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(log_path, args.artifacts / "drop_log.csv")
-    (args.artifacts / "validation.json").write_text(
+    artifacts.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(log_path, artifacts / "drop_log.csv")
+    (artifacts / "validation.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
     )
-    write_validation_md(report, args.artifacts / "validation.md")
-    write_transform_md(args.artifacts / "transform.md")
-    print(f"canonical dump sha256 of {out.name}: {report['canonical_dump_sha256_pilot_gpkg']}")
+    write_validation_md(report, artifacts / "validation.md")
+    write_transform_md(artifacts / "transform.md")
+    layer_stats = report["layers"].values()
+    report_counts(
+        **{"in": sum(s["input"] for s in layer_stats), "out": sum(s["output"] for s in layer_stats)}
+    )
+    print(f"canonical dump sha256 of {out.name}: {report[f'canonical_dump_sha256_{ext}_gpkg']}")
     a = report["assertions"]
     print(json.dumps(a, sort_keys=True))
     failed = [k for k, v in a.items() if v is False or (k.endswith("_total") and v)]

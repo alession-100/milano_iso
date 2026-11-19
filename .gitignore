@@ -34,3 +34,5 @@ reports/artifacts/T-1.6/junit.xml
 # Local copies of third-party pages (not published, see reports/artifacts/T-0.3/html_snapshots.md)
 evidence_local/
 reports/artifacts/**/*.html
+reports/artifacts/T-6.1/**/junit.xml
+reports/artifacts/T-6.1/city/T-2.3/export_summary.json

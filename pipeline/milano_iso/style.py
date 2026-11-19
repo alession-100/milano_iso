@@ -7,21 +7,30 @@ readable in an isometric view. They must never be presented as surveyed values. 
 """
 
 # Ribbon width in metres per OSM highway class (style, not data).
+# The classes marked T-6.1 were added for the whole city (owner decision, ADR-0036).
 ROAD_WIDTH_M = {
     "cycleway": 2.0,
     "footway": 1.5,
+    "living_street": 5.0,  # T-6.1
+    "motorway": 12.0,  # T-6.1
+    "other": 4.0,  # T-6.1
     "path": 1.5,
     "pedestrian": 4.0,
     "platform": 3.0,
+    "primary": 9.0,  # T-6.1
     "residential": 6.0,
+    "secondary": 8.0,  # T-6.1
     "service": 4.0,
     "steps": 1.5,
     "tertiary": 7.0,
+    "track": 3.0,  # T-6.1
+    "trunk": 10.0,  # T-6.1
     "unclassified": 6.0,
 }
 
 # Ribbon width in metres per OSM railway class (style, not data).
 RAIL_WIDTH_M = {
+    "rail": 3.0,  # T-6.1 (owner decision, ADR-0036)
     "subway": 2.5,
     "tram": 2.5,
 }

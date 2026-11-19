@@ -36,7 +36,9 @@ from shapely.geometry import MultiPolygon, Point, Polygon, box
 from shapely.ops import substring
 
 from milano_iso import classify, config, style
+from milano_iso import extent as extent_mod
 from milano_iso.geo import canonical_dump_sha256
+from milano_iso.measure import report_counts
 from milano_iso.normalise import DropLog, reproject
 from milano_iso.tiles import geom as tgeom
 
@@ -370,15 +372,24 @@ def build_markings(osm: dict, layers: dict, extent, log_: DropLog):
 # ----------------------------------------------------------------------------- run
 
 
-def build_layers(osm: dict, layers: dict, bbox, log_: DropLog) -> dict:
-    """``trees`` and ``markings`` frames plus their statistics."""
-    extent = box(*bbox)
+def build_layers(osm: dict, layers: dict, bbox, log_: DropLog, extent_geom=None) -> dict:
+    """``trees`` and ``markings`` frames plus their statistics. ``extent_geom`` (default: the
+    box ``bbox``) is the processed extent that trees and markings are clipped to."""
+    extent = box(*bbox) if extent_geom is None else extent_geom
+    shapely.prepare(extent)
     trees, tstats = build_trees(osm, layers, extent, log_)
     markings, mstats = build_markings(osm, layers, extent, log_)
     return {"trees": trees, "markings": markings, "stats": {"trees": tstats, "markings": mstats}}
 
 
-def run(gpkg: Path, osm_gpkg: Path, artifacts: Path, bbox=config.PILOT_AOI_BBOX) -> dict:
+def run(
+    gpkg: Path,
+    osm_gpkg: Path,
+    artifacts: Path,
+    bbox=config.PILOT_AOI_BBOX,
+    extent_geom=None,
+    name: str = "pilot",
+) -> dict:
     """Add ``trees`` and ``markings`` to ``gpkg`` (replacing them if present)."""
     names = [n for n, _ in pyogrio.list_layers(gpkg)]
     layers = {
@@ -389,9 +400,9 @@ def run(gpkg: Path, osm_gpkg: Path, artifacts: Path, bbox=config.PILOT_AOI_BBOX)
         assert n in names, n
     log_ = DropLog()
     osm = read_osm_tags(osm_gpkg)
-    res = build_layers(osm, layers, bbox, log_)
-    for name in ("trees", "markings"):
-        pyogrio.write_dataframe(res[name], gpkg, layer=name, driver="GPKG")
+    res = build_layers(osm, layers, bbox, log_, extent_geom)
+    for lname in ("trees", "markings"):
+        pyogrio.write_dataframe(res[lname], gpkg, layer=lname, driver="GPKG")
     sha = canonical_dump_sha256(gpkg)
     trees = res["trees"]
     report = {
@@ -407,7 +418,7 @@ def run(gpkg: Path, osm_gpkg: Path, artifacts: Path, bbox=config.PILOT_AOI_BBOX)
         },
         "stats": res["stats"],
         "drop_log_rows": len(log_.rows),
-        "canonical_dump_sha256_pilot_gpkg": sha,
+        f"canonical_dump_sha256_{name}_gpkg": sha,
     }
     artifacts.mkdir(parents=True, exist_ok=True)
     (artifacts / "decor_summary.json").write_text(
@@ -419,18 +430,27 @@ def run(gpkg: Path, osm_gpkg: Path, artifacts: Path, bbox=config.PILOT_AOI_BBOX)
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--extent", choices=["pilot"], required=True)
-    ap.add_argument("--artifacts", type=Path, default=ARTIFACT_DIR)
+    ap.add_argument("--extent", choices=list(extent_mod.EXTENTS), required=True)
+    ap.add_argument("--artifacts", type=Path, default=None)
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    gpkg = config.PROCESSED_DIR / "pilot.gpkg"
-    osm_gpkg = config.INTERIM_DIR / "osm_pilot.gpkg"
+    ext = args.extent
+    gpkg = extent_mod.processed_gpkg(ext)
+    osm_gpkg = extent_mod.interim_osm(ext)
     for p in (gpkg, osm_gpkg):
         if not p.exists():
             sys.exit(f"missing {p}; run the earlier data steps first")
-    report = run(gpkg, osm_gpkg, args.artifacts)
+    report = run(
+        gpkg,
+        osm_gpkg,
+        args.artifacts or extent_mod.artifact_dir(ext, ARTIFACT_DIR),
+        extent_mod.bbox(ext),
+        extent_mod.polygon(ext),
+        ext,
+    )
+    report_counts(**{"in": report["drop_log_rows"], "out": sum(report["trees_by_source"].values())})
     print(json.dumps({k: report[k] for k in ("trees_by_source", "stats")}, sort_keys=True))
-    print(f"canonical dump sha256 of {gpkg.name}: {report['canonical_dump_sha256_pilot_gpkg']}")
+    print(f"canonical dump sha256 of {gpkg.name}: {report[f'canonical_dump_sha256_{ext}_gpkg']}")
     return 0
 
 
