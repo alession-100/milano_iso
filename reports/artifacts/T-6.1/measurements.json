@@ -2,8 +2,8 @@
   {
     "step": "data-osm",
     "extent": "city",
-    "seconds": 231.5,
-    "peak_mb": 2268.0,
+    "seconds": 347.5,
+    "peak_mb": 2268.1,
     "returncode": 0,
     "counts": {
       "in": 84311077,
@@ -13,8 +13,8 @@
   {
     "step": "data-dbt",
     "extent": "city",
-    "seconds": 48.5,
-    "peak_mb": 789.8,
+    "seconds": 64.1,
+    "peak_mb": 783.7,
     "returncode": 0,
     "counts": {
       "in": 237743,
@@ -24,8 +24,8 @@
   {
     "step": "data-normalise",
     "extent": "city",
-    "seconds": 114.6,
-    "peak_mb": 1659.8,
+    "seconds": 154.1,
+    "peak_mb": 1659.6,
     "returncode": 0,
     "counts": {
       "in": 564364,
@@ -35,9 +35,44 @@
   {
     "step": "data-heights",
     "extent": "city",
-    "seconds": 5.6,
-    "peak_mb": 463.2,
-    "returncode": 1,
+    "seconds": 1683.2,
+    "peak_mb": 985.2,
+    "returncode": 0,
+    "counts": {
+      "buildings": 68602,
+      "in": 236888,
+      "out": 240334
+    }
+  },
+  {
+    "step": "data-decor",
+    "extent": "city",
+    "seconds": 662.6,
+    "peak_mb": 5011.1,
+    "returncode": 0,
+    "counts": {
+      "in": 496,
+      "out": 180781
+    }
+  },
+  {
+    "step": "tiles-export",
+    "extent": "city",
+    "seconds": 389.6,
+    "peak_mb": 1625.9,
+    "returncode": 0,
+    "counts": {
+      "in": 248555,
+      "out": 472913,
+      "tiles": 3139
+    }
+  },
+  {
+    "step": "validate",
+    "extent": "city",
+    "seconds": 122.6,
+    "peak_mb": 1182.4,
+    "returncode": 0,
     "counts": {}
   }
 ]

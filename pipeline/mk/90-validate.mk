@@ -7,9 +7,13 @@ VALIDATE_OUT = $(call ART,T-1.6)
 # Depends on data and tiles (both idempotent, cheap with a warm cache, T-2.5).
 # Runs the tests marked `data` (deselected by default via pyproject.toml). The summary and
 # landmarks_check.csv are written by the test session itself, also when tests fail.
+# T-6.1: for another extent than the pilot only the extent-independent checks run (CRS, validity,
+# extent, heights; tests/data/conftest.py lists the pilot-only files that are not collected), then
+# the tile determinism check (two builds, byte for byte).
 validate: data tiles
 	mkdir -p $(VALIDATE_OUT)
 	MILANO_ISO_EXTENT=$(EXTENT) MILANO_ISO_VALIDATE_OUT=$(VALIDATE_OUT) uv run python $(call M,validate) -m pytest -m data tests/data -v --junitxml=$(VALIDATE_OUT)/junit.xml
+	$(if $(filter-out pilot,$(EXTENT)),$(MAKE) --no-print-directory check-tiles-determinism EXTENT=$(EXTENT),@true)
 
 # Re-runs every DATA_STEPS step twice into scratch directories (downloads are skipped; raw
 # files are read as they are) and compares the canonical sha256 of every GeoPackage produced.

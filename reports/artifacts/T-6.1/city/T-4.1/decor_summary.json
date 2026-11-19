@@ -1,0 +1,51 @@
+{
+  "bbox_epsg32632": [
+    503175.9148876896,
+    5025930.136254142,
+    521717.00593707367,
+    5042505.107189209
+  ],
+  "canonical_dump_sha256_city_gpkg": "7c90bba4554ef0224e9f81b409809243d52e8c0f42a958b0d93e8b4728ae7825",
+  "drop_log_rows": 496,
+  "stats": {
+    "markings": {
+      "centre_line_dashes": 216575,
+      "centre_line_roads_considered": 26588,
+      "centre_line_roads_too_short": 3241,
+      "crossing_nodes_in_extract_unused": 22793,
+      "crossing_ways_in_extract": 17792,
+      "crossing_ways_not_marked": 458,
+      "crossing_ways_too_short": 29,
+      "crossing_ways_underground": 9,
+      "marking_rows_outside_extent": 61,
+      "zebra_crossings": 17296,
+      "zebra_stripes": 199362
+    },
+    "trees": {
+      "fill_trees": 107880,
+      "height_style_default": 26728,
+      "height_tag_parsed": 937,
+      "mapped_trees_total": 72901,
+      "row_trees_placed": 45236,
+      "tree_nodes_in_extract": 27665,
+      "tree_rows_in_extract": 3257
+    }
+  },
+  "style": {
+    "fill_clearance_m": {
+      "building": 2.0,
+      "road": 1.0,
+      "road_area": 1.0,
+      "tree": 4.0,
+      "water": 1.5
+    },
+    "fill_seed": 4101,
+    "fill_spacing_m": 12.0,
+    "tree_row_spacing_m": 7.0
+  },
+  "trees_by_source": {
+    "fill": 107880,
+    "osm_tree": 27665,
+    "osm_tree_row": 45236
+  }
+}

@@ -1,7 +1,8 @@
 """Fixtures and summary writer for the real-data validation suite (T-1.6).
 
 These tests read the real processed pilot data and are marked ``data``; ``make test``
-deselects them (``-m "not data"`` in pyproject.toml). Run them with ``make validate``.
+deselects them (``-m "not data"`` in pyproject.toml). Run them with ``make validate``
+(``EXTENT=city`` runs the extent-independent files only, see ``EXTENT_INDEPENDENT_FILES``).
 
 Environment overrides (used by the sabotage checks, never needed in normal runs):
   MILANO_ISO_PROCESSED_GPKG  path of the GeoPackage to validate instead of processed/pilot.gpkg
@@ -18,10 +19,22 @@ from milano_iso import config
 OUT_DIR = Path(
     os.environ.get("MILANO_ISO_VALIDATE_OUT", config.REPO_ROOT / "reports" / "artifacts" / "T-1.6")
 )
-GPKG = Path(os.environ.get("MILANO_ISO_PROCESSED_GPKG", config.PROCESSED_DIR / "pilot.gpkg"))
+EXTENT_NAME = os.environ.get("MILANO_ISO_EXTENT", "pilot")
+GPKG = Path(
+    os.environ.get("MILANO_ISO_PROCESSED_GPKG", config.PROCESSED_DIR / f"{EXTENT_NAME}.gpkg")
+)
 OSM_INTERIM = config.INTERIM_DIR / "osm_pilot.gpkg"
 DROP_LOG = config.PROCESSED_DIR / "drop_log.csv"
 DBT_ZIP = config.RAW_DIR / "dbt2020" / "DBT_2020.zip"
+
+# T-6.1: for a city run only the extent-independent checks of VERIFICATION section 3 are run
+# (CRS, validity, extent, heights). Every other file reads pilot files or assumes the pilot AOI or
+# the pilot landmarks, so it is not collected; the summary lists them.
+EXTENT_INDEPENDENT_FILES = ("test_data_geometry.py", "test_data_heights.py")
+_ALL_FILES = sorted(p.name for p in Path(__file__).parent.glob("test_data_*.py"))
+collect_ignore = (
+    [] if EXTENT_NAME == "pilot" else [f for f in _ALL_FILES if f not in EXTENT_INDEPENDENT_FILES]
+)
 
 _REPORT_SECTIONS: dict[str, str] = {}
 _OUTCOMES: list[tuple[str, str, str]] = []  # (nodeid, outcome, reason)
@@ -30,17 +43,6 @@ _OUTCOMES: list[tuple[str, str, str]] = []  # (nodeid, outcome, reason)
 class Report:
     def add(self, title: str, text: str) -> None:
         _REPORT_SECTIONS[title] = text
-
-
-def pytest_configure(config):
-    ext = os.environ.get("MILANO_ISO_EXTENT", "pilot")
-    if ext != "pilot":
-        # T-6.1: these tests read the pilot files and assume the pilot AOI and landmarks. Do not
-        # validate the pilot data when the city was asked for.
-        raise pytest.UsageError(
-            f"tests/data validates the pilot only (MILANO_ISO_EXTENT={ext!r}); "
-            "city validation is not implemented yet"
-        )
 
 
 def pytest_collection_modifyitems(items):
@@ -91,6 +93,13 @@ def pytest_sessionfinish(session, exitstatus):
     ]
     for nodeid, outcome, reason in _OUTCOMES:
         lines.append(f"| `{nodeid}` | {outcome} | {reason.replace('|', '/')} |")
+    if collect_ignore:
+        lines += [
+            "",
+            f"## Pilot-only checks NOT run for extent {EXTENT_NAME}",
+            "",
+            *[f"- `{f}`" for f in collect_ignore],
+        ]
     for title in sorted(_REPORT_SECTIONS):
         lines += ["", f"## {title}", "", _REPORT_SECTIONS[title].rstrip()]
     (OUT_DIR / "validate_summary.md").write_text(

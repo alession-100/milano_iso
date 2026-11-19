@@ -1,0 +1,1831 @@
+{
+  "adr_0036": {
+    "buildings_entirely_below_ground": 6,
+    "buildings_grounded_on_own_base": 1,
+    "zero_height_dbt_volumes_defaulted": 286,
+    "zero_height_osm_prisms_defaulted": 1
+  },
+  "attribute_transfer": {
+    "dbt_buildings_with_landmark_id": 17,
+    "dbt_buildings_with_osm_attributes": 43931,
+    "dbt_buildings_without_osm_attributes": 21225
+  },
+  "canonical_dump_sha256_city_gpkg": "777ddba42aeb3d2ff020adac46a136801537caa235b80055a0f361b30b4f83e4",
+  "checks": {
+    "buildings_ok": true,
+    "render_volumes_ok": true
+  },
+  "counts": {
+    "buildings": 68602,
+    "dbt_buildings": 65156,
+    "dbt_volumes": 236888,
+    "osm_only_buildings": 3446,
+    "render_volumes": 240334
+  },
+  "dbt_ground_flag_neighbour_median_buildings": 186,
+  "default": {
+    "method": "median_edi_min_dbt_buildings",
+    "n": 31535,
+    "value": 2.8170000000000073
+  },
+  "height_m_distribution": {
+    "max": 200.738,
+    "median": 4.430000000000007,
+    "min": 0.000999999999990564,
+    "p25": 2.8170000000000073,
+    "p5": 2.0649999999999977,
+    "p75": 12.4545,
+    "p95": 30.676000000000002
+  },
+  "height_source_buildings_and_area": {
+    "dbt": {
+      "buildings": 64942,
+      "footprint_area_m2": 32069135.364877995,
+      "share_of_buildings": 0.9466487857496866,
+      "share_of_footprint_area": 0.9538707406319118
+    },
+    "default": {
+      "buildings": 3076,
+      "footprint_area_m2": 1289618.6187938363,
+      "share_of_buildings": 0.04483834290545465,
+      "share_of_footprint_area": 0.038358672694020095
+    },
+    "osm_height": {
+      "buildings": 220,
+      "footprint_area_m2": 137976.06917856872,
+      "share_of_buildings": 0.0032069035888166527,
+      "share_of_footprint_area": 0.0041039876441752
+    },
+    "osm_levels": {
+      "buildings": 364,
+      "footprint_area_m2": 123271.06347812926,
+      "share_of_buildings": 0.005305967756042098,
+      "share_of_footprint_area": 0.0036665990298929254
+    }
+  },
+  "height_source_volumes": {
+    "dbt": 236602,
+    "default": 3148,
+    "osm_height": 220,
+    "osm_levels": 364
+  },
+  "landmark_assignment": {
+    "buildings_with_landmark_id": 17,
+    "no_osm_footprint": [
+      "stadio_meazza"
+    ],
+    "no_rendered_overlap": [],
+    "primary_buildings": 14
+  },
+  "matching": {
+    "band": [
+      0.3,
+      0.7
+    ],
+    "coverage_below_0.2": 3003,
+    "coverage_below_0.5": 3446,
+    "coverage_histogram": [
+      {
+        "bin": "0.0-0.1",
+        "n": 2844
+      },
+      {
+        "bin": "0.1-0.2",
+        "n": 159
+      },
+      {
+        "bin": "0.2-0.3",
+        "n": 113
+      },
+      {
+        "bin": "0.3-0.4",
+        "n": 123
+      },
+      {
+        "bin": "0.4-0.5",
+        "n": 207
+      },
+      {
+        "bin": "0.5-0.6",
+        "n": 405
+      },
+      {
+        "bin": "0.6-0.7",
+        "n": 1034
+      },
+      {
+        "bin": "0.7-0.8",
+        "n": 3161
+      },
+      {
+        "bin": "0.8-0.9",
+        "n": 12488
+      },
+      {
+        "bin": "0.9-1.0",
+        "n": 43490
+      }
+    ],
+    "in_band_inclusive": 1769,
+    "matched": 60578,
+    "osm_buildings": 64024,
+    "threshold": 0.5,
+    "unmatched": 3446,
+    "unmatched_share": 0.05382356616268899,
+    "unmatched_with_building_parts": 27
+  },
+  "outliers": [
+    {
+      "key": "dbt:EDIFC_14112",
+      "kind": "building_height",
+      "name": "Edificio 16A - Labora",
+      "note": "<2 m",
+      "value_m": 1.3579999999999899
+    },
+    {
+      "key": "dbt:EDIFC_16101",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.000999999999990564
+    },
+    {
+      "key": "dbt:EDIFC_16102",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.0010000000000047748
+    },
+    {
+      "key": "dbt:EDIFC_16150",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.0010000000000047748
+    },
+    {
+      "key": "dbt:EDIFC_2033",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.2040000000000077
+    },
+    {
+      "key": "dbt:EDIFC_2079",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0570000000000022
+    },
+    {
+      "key": "dbt:EDIFC_2092",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.42899999999998784
+    },
+    {
+      "key": "dbt:EDIFC_2133",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.492999999999995
+    },
+    {
+      "key": "dbt:EDIFC_2138",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.9350000000000023
+    },
+    {
+      "key": "dbt:EDIFC_2195",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9819999999999993
+    },
+    {
+      "key": "dbt:EDIFC_2210",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.967000000000013
+    },
+    {
+      "key": "dbt:EDIFC_2260",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.8880000000000052
+    },
+    {
+      "key": "dbt:EDIFC_2262",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.5630000000000024
+    },
+    {
+      "key": "dbt:EDIFC_2281",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.7660000000000053
+    },
+    {
+      "key": "dbt:EDIFC_2282",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.997000000000014
+    },
+    {
+      "key": "dbt:EDIFC_2293",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.7930000000000064
+    },
+    {
+      "key": "dbt:EDIFC_2297",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.2409999999999854
+    },
+    {
+      "key": "dbt:EDIFC_2304",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.23600000000001842
+    },
+    {
+      "key": "dbt:EDIFC_2410",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.8559999999999945
+    },
+    {
+      "key": "dbt:EDIFC_2450",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.7320000000000135
+    },
+    {
+      "key": "dbt:EDIFC_2465",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.3859999999999957
+    },
+    {
+      "key": "dbt:EDIFC_2484",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.7739999999999867
+    },
+    {
+      "key": "dbt:EDIFC_2508",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.6920000000000073
+    },
+    {
+      "key": "dbt:EDIFC_2521",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.9209999999999923
+    },
+    {
+      "key": "dbt:EDIFC_26129",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.7209999999999894
+    },
+    {
+      "key": "dbt:EDIFC_26627",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9959999999999951
+    },
+    {
+      "key": "dbt:EDIFC_29776",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.3540000000000134
+    },
+    {
+      "key": "dbt:EDI_MIN_10610",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_11641",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_11787",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_13383",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_13595",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_13944",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_148",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_155",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_15931",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_16288",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_16562",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_17022",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_17827",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_17897",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_18176",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_18442",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_20725",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_22337",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_23191",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_23409",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_24473",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_24932",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_24988",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_26021",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_26079",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_26669",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_27703",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_28199",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_28445",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_30348",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_30381",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.1020000000000039
+    },
+    {
+      "key": "dbt:EDI_MIN_30471",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.1400000000000148
+    },
+    {
+      "key": "dbt:EDI_MIN_30507",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_30587",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6680000000000064
+    },
+    {
+      "key": "dbt:EDI_MIN_30594",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_30625",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.394999999999996
+    },
+    {
+      "key": "dbt:EDI_MIN_30653",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.4590000000000032
+    },
+    {
+      "key": "dbt:EDI_MIN_30667",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.8310000000000173
+    },
+    {
+      "key": "dbt:EDI_MIN_30920",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9819999999999993
+    },
+    {
+      "key": "dbt:EDI_MIN_31114",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.799999999999983
+    },
+    {
+      "key": "dbt:EDI_MIN_31142",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.5300000000000011
+    },
+    {
+      "key": "dbt:EDI_MIN_31169",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_31175",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.5150000000000148
+    },
+    {
+      "key": "dbt:EDI_MIN_31270",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.997000000000014
+    },
+    {
+      "key": "dbt:EDI_MIN_31340",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.214999999999975
+    },
+    {
+      "key": "dbt:EDI_MIN_31356",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.7999999999999972
+    },
+    {
+      "key": "dbt:EDI_MIN_31401",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.5490000000000066
+    },
+    {
+      "key": "dbt:EDI_MIN_31429",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6500000000000057
+    },
+    {
+      "key": "dbt:EDI_MIN_31445",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.7600000000000051
+    },
+    {
+      "key": "dbt:EDI_MIN_31518",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.622000000000014
+    },
+    {
+      "key": "dbt:EDI_MIN_31570",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.5
+    },
+    {
+      "key": "dbt:EDI_MIN_31617",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.8449999999999989
+    },
+    {
+      "key": "dbt:EDI_MIN_31684",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_31761",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.752999999999986
+    },
+    {
+      "key": "dbt:EDI_MIN_31789",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_31837",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.3340000000000032
+    },
+    {
+      "key": "dbt:EDI_MIN_31933",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_32002",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9409999999999883
+    },
+    {
+      "key": "dbt:EDI_MIN_32029",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.2549999999999955
+    },
+    {
+      "key": "dbt:EDI_MIN_32079",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_32126",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_3218",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_32185",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_32217",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_32350",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_32410",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6189999999999998
+    },
+    {
+      "key": "dbt:EDI_MIN_32419",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_32461",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9089999999999918
+    },
+    {
+      "key": "dbt:EDI_MIN_32467",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_32584",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.722999999999999
+    },
+    {
+      "key": "dbt:EDI_MIN_32680",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.3400000000000034
+    },
+    {
+      "key": "dbt:EDI_MIN_32906",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.875
+    },
+    {
+      "key": "dbt:EDI_MIN_32918",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6020000000000039
+    },
+    {
+      "key": "dbt:EDI_MIN_32988",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6550000000000011
+    },
+    {
+      "key": "dbt:EDI_MIN_33137",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_33145",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6910000000000025
+    },
+    {
+      "key": "dbt:EDI_MIN_33168",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.75
+    },
+    {
+      "key": "dbt:EDI_MIN_33170",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_33284",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.5519999999999925
+    },
+    {
+      "key": "dbt:EDI_MIN_33287",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_33393",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_33544",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.7250000000000085
+    },
+    {
+      "key": "dbt:EDI_MIN_33563",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.3719999999999999
+    },
+    {
+      "key": "dbt:EDI_MIN_33573",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.641999999999996
+    },
+    {
+      "key": "dbt:EDI_MIN_33575",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.1269999999999811
+    },
+    {
+      "key": "dbt:EDI_MIN_33595",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_33599",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.920000000000016
+    },
+    {
+      "key": "dbt:EDI_MIN_33634",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9099999999999966
+    },
+    {
+      "key": "dbt:EDI_MIN_33740",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_33798",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.1460000000000008
+    },
+    {
+      "key": "dbt:EDI_MIN_33856",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6949999999999932
+    },
+    {
+      "key": "dbt:EDI_MIN_33928",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_34054",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.3470000000000084
+    },
+    {
+      "key": "dbt:EDI_MIN_34109",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.460000000000008
+    },
+    {
+      "key": "dbt:EDI_MIN_34146",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.299999999999983
+    },
+    {
+      "key": "dbt:EDI_MIN_34177",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9609999999999985
+    },
+    {
+      "key": "dbt:EDI_MIN_34217",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9890000000000043
+    },
+    {
+      "key": "dbt:EDI_MIN_34237",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.960000000000008
+    },
+    {
+      "key": "dbt:EDI_MIN_34260",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6020000000000039
+    },
+    {
+      "key": "dbt:EDI_MIN_34370",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "dbt:EDI_MIN_34402",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_34405",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.2870000000000061
+    },
+    {
+      "key": "dbt:EDI_MIN_34422",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.75
+    },
+    {
+      "key": "dbt:EDI_MIN_34441",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.896000000000015
+    },
+    {
+      "key": "dbt:EDI_MIN_34459",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.9990000000000236
+    },
+    {
+      "key": "dbt:EDI_MIN_34498",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.3049999999999784
+    },
+    {
+      "key": "dbt:EDI_MIN_34516",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_34690",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.8000000000000114
+    },
+    {
+      "key": "dbt:EDI_MIN_34702",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9989999999999952
+    },
+    {
+      "key": "dbt:EDI_MIN_34706",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_34724",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.2819999999999823
+    },
+    {
+      "key": "dbt:EDI_MIN_34782",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_34838",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.948999999999998
+    },
+    {
+      "key": "dbt:EDI_MIN_34840",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6200000000000045
+    },
+    {
+      "key": "dbt:EDI_MIN_34850",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6350000000000051
+    },
+    {
+      "key": "dbt:EDI_MIN_34935",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.877999999999986
+    },
+    {
+      "key": "dbt:EDI_MIN_34964",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.7190000000000083
+    },
+    {
+      "key": "dbt:EDI_MIN_35008",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.5970000000000084
+    },
+    {
+      "key": "dbt:EDI_MIN_35040",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_35041",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.4849999999999852
+    },
+    {
+      "key": "dbt:EDI_MIN_35079",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.6280000000000001
+    },
+    {
+      "key": "dbt:EDI_MIN_35113",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.301000000000002
+    },
+    {
+      "key": "dbt:EDI_MIN_35197",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_35243",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_35276",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.4099999999999966
+    },
+    {
+      "key": "dbt:EDI_MIN_35377",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.3810000000000002
+    },
+    {
+      "key": "dbt:EDI_MIN_35425",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.8969999999999914
+    },
+    {
+      "key": "dbt:EDI_MIN_35427",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9680000000000035
+    },
+    {
+      "key": "dbt:EDI_MIN_36131",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0970000000000084
+    },
+    {
+      "key": "dbt:EDI_MIN_36135",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.0799999999999983
+    },
+    {
+      "key": "dbt:EDI_MIN_36138",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.08549999999999613
+    },
+    {
+      "key": "dbt:EDI_MIN_36139",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.08100000000000307
+    },
+    {
+      "key": "dbt:EDI_MIN_38984",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.8130000000000024
+    },
+    {
+      "key": "dbt:EDI_MIN_45548",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.8370000000000033
+    },
+    {
+      "key": "dbt:EDI_MIN_45549",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.16199999999999193
+    },
+    {
+      "key": "dbt:EDI_MIN_5484",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_6224",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "dbt:EDI_MIN_6808",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.9999999999999858
+    },
+    {
+      "key": "osm:r6258120",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.5
+    },
+    {
+      "key": "osm:w1574461985",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.5
+    },
+    {
+      "key": "osm:w1574461986",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.5
+    },
+    {
+      "key": "osm:w1574461987",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.5
+    },
+    {
+      "key": "osm:w203976265",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "osm:w203976268",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "osm:w203976273",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "osm:w203976275",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 1.0
+    },
+    {
+      "key": "osm:w471850522",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.1
+    },
+    {
+      "key": "osm:w471850604",
+      "kind": "building_height",
+      "name": null,
+      "note": "<2 m",
+      "value_m": 0.1
+    },
+    {
+      "key": "dbt:UN_VOL_13666",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.257000000000005
+    },
+    {
+      "key": "dbt:UN_VOL_149062",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.7700000000000102
+    },
+    {
+      "key": "dbt:UN_VOL_149789",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.03799999999998249
+    },
+    {
+      "key": "dbt:UN_VOL_168425",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.427000000000021
+    },
+    {
+      "key": "dbt:UN_VOL_168462",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -27.269000000000005
+    },
+    {
+      "key": "dbt:UN_VOL_168463",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -27.269000000000005
+    },
+    {
+      "key": "dbt:UN_VOL_168465",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -27.063999999999993
+    },
+    {
+      "key": "dbt:UN_VOL_168501",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -18.083
+    },
+    {
+      "key": "dbt:UN_VOL_168502",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -24.534999999999997
+    },
+    {
+      "key": "dbt:UN_VOL_168503",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -18.083
+    },
+    {
+      "key": "dbt:UN_VOL_168541",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -18.083
+    },
+    {
+      "key": "dbt:UN_VOL_168543",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -24.534999999999997
+    },
+    {
+      "key": "dbt:UN_VOL_168777",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -27.269000000000005
+    },
+    {
+      "key": "dbt:UN_VOL_168786",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -27.269000000000005
+    },
+    {
+      "key": "dbt:UN_VOL_168787",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -27.063999999999993
+    },
+    {
+      "key": "dbt:UN_VOL_169142",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -1.3090000000000117
+    },
+    {
+      "key": "dbt:UN_VOL_169143",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -1.3090000000000117
+    },
+    {
+      "key": "dbt:UN_VOL_169246",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -37.373999999999995
+    },
+    {
+      "key": "dbt:UN_VOL_169247",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -41.274
+    },
+    {
+      "key": "dbt:UN_VOL_169248",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.9159999999999968
+    },
+    {
+      "key": "dbt:UN_VOL_169265",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -17.31400000000002
+    },
+    {
+      "key": "dbt:UN_VOL_169364",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": "ex Cinema Istria",
+      "note": "bottom_m < -0.01",
+      "value_m": -0.806999999999988
+    },
+    {
+      "key": "dbt:UN_VOL_170102",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.509999999999991
+    },
+    {
+      "key": "dbt:UN_VOL_170106",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.9480000000000075
+    },
+    {
+      "key": "dbt:UN_VOL_170107",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.0579999999999927
+    },
+    {
+      "key": "dbt:UN_VOL_170108",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.0579999999999927
+    },
+    {
+      "key": "dbt:UN_VOL_170109",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.967500000000001
+    },
+    {
+      "key": "dbt:UN_VOL_170110",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.971999999999994
+    },
+    {
+      "key": "dbt:UN_VOL_171466",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -5.190000000000012
+    },
+    {
+      "key": "dbt:UN_VOL_172951",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.968500000000006
+    },
+    {
+      "key": "dbt:UN_VOL_172953",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.6979999999999933
+    },
+    {
+      "key": "dbt:UN_VOL_173219",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.3289999999999935
+    },
+    {
+      "key": "dbt:UN_VOL_173220",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.3289999999999935
+    },
+    {
+      "key": "dbt:UN_VOL_176436",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -1.3059999999999974
+    },
+    {
+      "key": "dbt:UN_VOL_176437",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.2879999999999967
+    },
+    {
+      "key": "dbt:UN_VOL_176439",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.8599999999999994
+    },
+    {
+      "key": "dbt:UN_VOL_176440",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.718999999999994
+    },
+    {
+      "key": "dbt:UN_VOL_176441",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.9849999999999994
+    },
+    {
+      "key": "dbt:UN_VOL_176442",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.13000000000000966
+    },
+    {
+      "key": "dbt:UN_VOL_179517",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.8109999999999928
+    },
+    {
+      "key": "dbt:UN_VOL_179518",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.0260000000000105
+    },
+    {
+      "key": "dbt:UN_VOL_179525",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.5799999999999983
+    },
+    {
+      "key": "dbt:UN_VOL_179720",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.4650000000000034
+    },
+    {
+      "key": "dbt:UN_VOL_180467",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": "Santa Maria Annunciata in Chiesa Rossa",
+      "note": "bottom_m < -0.01",
+      "value_m": -0.04099999999999682
+    },
+    {
+      "key": "dbt:UN_VOL_180468",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.08500000000000796
+    },
+    {
+      "key": "dbt:UN_VOL_180469",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -1.429000000000002
+    },
+    {
+      "key": "dbt:UN_VOL_183526",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -2.3049999999999926
+    },
+    {
+      "key": "dbt:UN_VOL_184668",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.811000000000007
+    },
+    {
+      "key": "dbt:UN_VOL_18574",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -22.685000000000002
+    },
+    {
+      "key": "dbt:UN_VOL_186095",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -3.102000000000018
+    },
+    {
+      "key": "dbt:UN_VOL_186097",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -1.5200000000000102
+    },
+    {
+      "key": "dbt:UN_VOL_188306",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.7759999999999962
+    },
+    {
+      "key": "dbt:UN_VOL_192223",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": "Chiesa dei Santi Nabore e Felice",
+      "note": "bottom_m < -0.01",
+      "value_m": -0.269999999999996
+    },
+    {
+      "key": "dbt:UN_VOL_192224",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": "Chiesa dei Santi Nabore e Felice",
+      "note": "bottom_m < -0.01",
+      "value_m": -0.11999999999999034
+    },
+    {
+      "key": "dbt:UN_VOL_192232",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -1.1394999999999982
+    },
+    {
+      "key": "dbt:UN_VOL_205841",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": "Antichi caselli daziari",
+      "note": "bottom_m < -0.01",
+      "value_m": -0.07900000000000773
+    },
+    {
+      "key": "dbt:UN_VOL_211526",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -99.77
+    },
+    {
+      "key": "dbt:UN_VOL_214859",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -1.9295000000000044
+    },
+    {
+      "key": "dbt:UN_VOL_229257",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -4.194999999999993
+    },
+    {
+      "key": "dbt:UN_VOL_5376",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -7.350999999999999
+    },
+    {
+      "key": "dbt:UN_VOL_80556",
+      "kind": "dbt_volume_bottom_below_ground",
+      "name": null,
+      "note": "bottom_m < -0.01",
+      "value_m": -0.47400000000000375
+    }
+  ],
+  "render_status": {
+    "not_rendered": 828,
+    "reasons": {
+      "no_walls_roof": 800,
+      "under_construction": 28
+    },
+    "rendered": 67774
+  },
+  "tallest_five": [
+    {
+      "height_m": 200.738,
+      "key": "dbt:EDIFC_20629",
+      "name": "Torre Isozaki"
+    },
+    {
+      "height_m": 165.50500000000002,
+      "key": "dbt:EDIFC_16227",
+      "name": "Torre Hadid"
+    },
+    {
+      "height_m": 158.644,
+      "key": "dbt:EDIFC_1866",
+      "name": "Palazzo Regione Lombardia"
+    },
+    {
+      "height_m": 150.09299999999996,
+      "key": "dbt:EDIFC_6461",
+      "name": "Piazza Alvar Aalto"
+    },
+    {
+      "height_m": 140.0,
+      "key": "osm:w28100024",
+      "name": "Torre RAI"
+    }
+  ],
+  "unmatched_rule_counts": {
+    "default": 2862,
+    "osm_height": 220,
+    "osm_levels": 364
+  }
+}

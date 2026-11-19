@@ -105,8 +105,13 @@ def test_ribbon_width_from_tag_vs_style_table():
     assert geom.ribbon_width(None, "footway", style.ROAD_WIDTH_M) == (1.5, "style")
     assert geom.ribbon_width("wide", "residential", style.ROAD_WIDTH_M) == (6.0, "style")
     assert geom.ribbon_width("-2", "residential", style.ROAD_WIDTH_M) == (6.0, "style")
+    # owner decision of T-6.1 (ADR-0036): the whole-city classes have a style width ...
+    assert geom.ribbon_width(None, "motorway", style.ROAD_WIDTH_M) == (12.0, "style")
+    assert geom.ribbon_width(None, "other", style.ROAD_WIDTH_M) == (4.0, "style")
+    assert geom.ribbon_width(None, "rail", style.RAIL_WIDTH_M) == (3.0, "style")
+    # ... and a class that is still unknown is an error
     with pytest.raises(KeyError):
-        geom.ribbon_width(None, "motorway", style.ROAD_WIDTH_M)
+        geom.ribbon_width(None, "bridleway", style.ROAD_WIDTH_M)
 
 
 def test_ribbon_polygon_has_requested_width_and_flat_caps():

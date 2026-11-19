@@ -205,8 +205,10 @@ def dbt_volume_heights(vols: pd.DataFrame) -> pd.DataFrame:
     Needs columns ``building_ref``, ``por``, ``av_m``, ``qe_m``, ``base_z_min_m``, ``geometry``.
     ``ground_z`` of a building is the minimum ``base_z_min_m`` of its POR 01 volumes. A building
     without any (raised-only) takes the median ``base_z_min_m`` of the POR 01 volumes of other
-    buildings within 50 m of its footprint (100 m if fewer than 5; fails if still fewer than 5),
-    flagged ``neighbour_median`` with the number of volumes in ``ground_neighbours``. Then
+    buildings within 50 m of its footprint (100 m if fewer than 5), flagged ``neighbour_median``
+    with the number of volumes in ``ground_neighbours``. If there are still fewer than 5, the
+    building takes its own lowest ``base_z_min_m`` as ground, flagged ``own_base`` (ADR-0036,
+    amends ADR-0016; ``ground_neighbours`` stays empty). Then
     ``bottom = (qe - av) - ground_z`` and ``top = qe - ground_z``. No clamping.
     """
     out = vols.copy()
@@ -215,17 +217,25 @@ def dbt_volume_heights(vols: pd.DataFrame) -> pd.DataFrame:
     z = out["building_ref"].map(ground)
     flag = z.isna()
     n_nb = pd.Series(np.nan, index=out.index)
+    own_base: set = set()
     if flag.any():
         pool_geoms = por01["geometry"].to_numpy()
         pool_z = por01["base_z_min_m"].to_numpy(dtype=float)
         for ref in sorted(out.loc[flag, "building_ref"].unique()):
             rows = (out["building_ref"] == ref).to_numpy()
             fp = shapely.union_all(out.loc[rows, "geometry"].to_numpy())
-            val, n = neighbour_ground_z(fp, pool_geoms, pool_z, ref)
+            try:
+                val, n = neighbour_ground_z(fp, pool_geoms, pool_z, ref)
+            except ValueError:
+                val, n = float(out.loc[rows, "base_z_min_m"].min()), None
+                own_base.add(ref)
             z[rows] = val
-            n_nb[rows] = n
+            if n is not None:
+                n_nb[rows] = n
     out["ground_z_m"] = z
     out["ground_flag"] = np.where(flag, "neighbour_median", None)
+    if own_base:
+        out.loc[out["building_ref"].isin(own_base), "ground_flag"] = "own_base"
     out["ground_neighbours"] = n_nb.astype("Int64")
     out["bottom_m"] = (out["qe_m"] - out["av_m"]) - z
     out["top_m"] = out["qe_m"] - z
@@ -376,6 +386,10 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
     vh = dbt_volume_heights(vols)
     vh["vol_key"] = "dbt:" + vh["vol_id"]
     vh["building_key"] = "dbt:" + vh["building_ref"]
+    # ADR-0036 (amends ADR-0016): a volume with a height of zero or less (UN_VOL_AV <= 0) takes the
+    # default height; it does not take part in deriving that default.
+    zero = (vh["av_m"] <= 0).to_numpy()
+    vh["top_nz"] = vh["top_m"].where(~zero)
 
     # DBT buildings: union of volume footprints, height = max top.
     dbt_rows = []
@@ -384,9 +398,11 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             {
                 "building_key": "dbt:" + ref,
                 "geometry": shapely.union_all(grp.geometry.to_numpy()),
-                "height_m": float(grp["top_m"].max()),
+                "height_m": float(grp["top_nz"].max()),
                 "n_volumes": len(grp),
-                "ground_flag": "neighbour_median"
+                "ground_flag": "own_base"
+                if (grp["ground_flag"] == "own_base").any()
+                else "neighbour_median"
                 if (grp["ground_flag"] == "neighbour_median").any()
                 else None,
                 "ground_neighbours": grp["ground_neighbours"].max(),
@@ -408,6 +424,35 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
     dbt_b = dbt_b.join(xfer, on="building_key")
     # Default height (ADR-0016): fails loudly when there is no EDI_MIN building.
     default = derive_default(dbt_b)
+    nz_height = dbt_b.set_index("building_key")["height_m"]
+    defaulted_log: list[tuple] = []
+    dbt_b["height_source"] = "dbt"
+    if zero.any():
+        vh.loc[zero, "top_m"] = vh.loc[zero, "bottom_m"] + default["value"]
+        final = vh.groupby("building_ref")["top_m"].max()
+        dbt_b["height_m"] = final.reindex(dbt_b["building_key"].str.removeprefix("dbt:")).to_numpy()
+        top_def = vh[zero].groupby("building_ref")["top_m"].max()
+        for i, ref in enumerate(dbt_b["building_key"].str.removeprefix("dbt:")):
+            if ref in top_def.index:
+                nz = nz_height.iloc[i]
+                if pd.isna(nz) or top_def[ref] > nz:
+                    dbt_b.at[i, "height_source"] = "default"
+        for r in vh[zero].itertuples():
+            defaulted_log.append(
+                ("dbt_volume", r.vol_id, r.building_ref, f"{r.av_m:.3f}", f"{default['value']:.3f}")
+            )
+    # A building whose volumes all lie below ground level (every top <= 0, e.g. POR 08 only) has a
+    # negative `max top`. Its height_m is the thickness of its thickest volume instead (ADR-0036
+    # point D); the volumes themselves are unchanged. Applied after the default was derived.
+    below_log: list[tuple] = []
+    below = (dbt_b["height_m"] <= 0).to_numpy()
+    if below.any():
+        thick = (vh["top_m"] - vh["bottom_m"]).groupby(vh["building_ref"]).max()
+        refs = dbt_b["building_key"].str.removeprefix("dbt:")
+        for i in np.flatnonzero(below):
+            old = float(dbt_b.at[i, "height_m"])
+            dbt_b.at[i, "height_m"] = float(thick[refs.iloc[i]])
+            below_log.append((refs.iloc[i], f"{old:.3f}", f"{dbt_b.at[i, 'height_m']:.3f}"))
     unmatched = osm[~osm["matched"]].copy()
     parse_log, osm_rows, unmatched_report = [], [], []
 
@@ -418,6 +463,13 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
         top, src, rows = osm_top_m(r.height_raw, r.levels_raw, default["value"])
         rendered, reason = render_status(r.building, src)
         bottom, brows = osm_bottom_m(r.min_height_raw, r.min_level_raw)
+        if top is not None and top - bottom <= 0:
+            # an OSM prism with no height (e.g. levels 1, min_level 1): same rule as DBT (ADR-0036)
+            defaulted_log.append(
+                ("osm_prism", key, "", f"{top - bottom:.3f}", f"{default['value']:.3f}")
+            )
+            top, src = bottom + default["value"], "default"
+            rendered, reason = render_status(r.building, src)
         for field, raw, status, why in rows + brows:
             parse_log.append((key, field, raw, status, why))
         if parts_tree is not None:
@@ -492,6 +544,8 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
     # --- render_volumes
     dbt_v = vh.assign(source="dbt", height_source="dbt", rendered=True, render_reason=None)
     dbt_v["height_m"] = dbt_v["top_m"] - dbt_v["bottom_m"]
+    dbt_v.loc[zero, "height_source"] = "default"
+    dbt_v.loc[zero, "height_m"] = default["value"]
     rv_dbt = dbt_v[
         [
             "vol_key",
@@ -535,7 +589,7 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
             "building_key": dbt_b["building_key"],
             "source": "dbt",
             "height_m": dbt_b["height_m"],
-            "height_source": "dbt",
+            "height_source": dbt_b["height_source"],
             "osm_type": dbt_b["osm_type"],
             "osm_id": dbt_b["osm_id"],
             "name": dbt_b["name"],
@@ -584,6 +638,12 @@ def build(vols: gpd.GeoDataFrame, osm: gpd.GeoDataFrame, parts: gpd.GeoDataFrame
         "n_unmatched_with_parts": n_with_parts,
         "landmarks_no_osm_footprint": lm_missing,
         "landmarks_no_rendered_overlap": lm_no_overlap,
+        "height_default_log": defaulted_log,
+        "below_ground_log": below_log,
+        "ground_own_base_log": [
+            (ref, f"{g.iloc[0]['ground_z_m']:.3f}", len(g))
+            for ref, g in vh[vh["ground_flag"] == "own_base"].groupby("building_ref")
+        ],
     }
 
 
@@ -906,6 +966,25 @@ def write_outputs(
             for o in rep["outliers"]
         ],
     )
+    # ADR-0036 logs: written only when something happened (the pilot has no such case)
+    if res["below_ground_log"]:
+        write_csv(
+            out_dir / "building_below_ground_log.csv",
+            ["building_ref", "max_top_m", "height_m_set"],
+            sorted(res["below_ground_log"]),
+        )
+    if res["height_default_log"]:
+        write_csv(
+            out_dir / "height_default_log.csv",
+            ["kind", "key", "building_ref", "height_m_before", "default_m"],
+            sorted(res["height_default_log"]),
+        )
+    if res["ground_own_base_log"]:
+        write_csv(
+            out_dir / "ground_own_base_log.csv",
+            ["building_ref", "ground_z_m", "n_volumes"],
+            sorted(res["ground_own_base_log"]),
+        )
     write_csv(
         out_dir / "height_parse_log.csv",
         ["osm_key", "field", "raw", "status", "reason"],
@@ -935,6 +1014,16 @@ def run(gpkg: Path, out_dir: Path = ARTIFACT_DIR, landmarks_path: Path = LANDMAR
     sha = canonical_dump_sha256(gpkg)
     rep = make_report(res)
     rep["default"] = res["defaults"]
+    if (
+        res["height_default_log"] or res["ground_own_base_log"] or res["below_ground_log"]
+    ):  # ADR-0036; absent for the pilot
+        kinds = [r[0] for r in res["height_default_log"]]
+        rep["adr_0036"] = {
+            "buildings_entirely_below_ground": len(res["below_ground_log"]),
+            "zero_height_dbt_volumes_defaulted": kinds.count("dbt_volume"),
+            "zero_height_osm_prisms_defaulted": kinds.count("osm_prism"),
+            "buildings_grounded_on_own_base": len(res["ground_own_base_log"]),
+        }
     rep["checks"] = check_layers(res["render_volumes"], res["buildings"])
     write_outputs(res, rep, res["defaults"], sha, out_dir, gpkg.stem)
     return {"report": rep, "sha": sha, "vols": vols}
