@@ -33,6 +33,7 @@ from milano_iso import config, style
 from milano_iso.tiles import geom, glb, grid
 
 BASE_TOLERANCE_M = geom.SIMPLIFY_TOLERANCE_M
+MAX_SPLIT_DEPTH = 4
 COARSE_FLAT_LAYERS = ("landuse", "green", "water", "road_areas", "roads", "rail")
 
 
@@ -49,6 +50,8 @@ class Level:
     road_classes: tuple[str, ...]
     rail_classes: tuple[str, ...] = ("rail",)
     flat_layers: tuple[str, ...] = field(default=COARSE_FLAT_LAYERS)
+    # a tile over this gzip-9 size is split in 4 (quadtree) until every tile fits (owner, 2026-11-20)
+    max_tile_gzip_bytes: int = 250_000
 
     @property
     def prefix(self) -> str:
@@ -61,6 +64,7 @@ class Level:
             "block_m": self.block_m,
             "tolerance_m": self.tolerance_m,
             "unit_m": self.unit_m,
+            "max_tile_gzip_bytes": self.max_tile_gzip_bytes,
             "keeps": {
                 "building_min_area_m2": self.building_min_area_m2,
                 "building_keep_height_m": self.keep_height_m,
@@ -105,11 +109,11 @@ LEVELS: tuple[Level, ...] = (
     Level(
         level=3,
         block_m=2000,
-        tolerance_m=5.0,
+        tolerance_m=3.0,
         unit_m=0.04,
         building_min_area_m2=300.0,
         keep_height_m=40.0,
-        height_step_m=10.0,
+        height_step_m=6.0,
         flat_min_area_m2=100.0,
         road_classes=STREET_CLASSES,
         rail_classes=(),
@@ -329,8 +333,10 @@ def build_level(
 
     size = level.block_m
     block_of: dict[tuple[int, int], list] = {}
+    rp_of: dict[str, object] = {}
     for b in rendered.itertuples(index=False):
         rp = b.geometry.representative_point()
+        rp_of[b.building_key] = rp
         block_of.setdefault(grid.tile_ij(rp.x, rp.y, size=size), []).append(b)
     shapely.prepare(extent_poly)
     covering = {
@@ -343,34 +349,43 @@ def build_level(
         blocks = [t for t in blocks if t in only]
 
     entries, stats, dropped = [], {}, []
-    n_in = n_kept = n_vol_dropped = 0
+    totals = {"in": 0, "kept": 0, "vol_dropped": 0}
     bound = 0.0
-    for i, j in blocks:
-        name = f"{level.prefix}_{grid.tile_name(i, j)}"
-        tbox = box(*grid.tile_bbox_local(i, j, size))
-        fbox = tbox.intersection(extent_box)
-        centre = (size * i + size / 2, -(size * j + size / 2))
-        meshes, tables, layer_stats = [], {}, {}
+    prism_cache: dict[str, tuple] = {}
 
-        mb = geom.MeshBuilder()
-        table = []
-        n_vols = 0
-        for b in block_of.get((i, j), []):
-            n_in += 1
-            keep, reason = keep_building(level, b, float(b.geometry.area))
-            if not keep:
-                dropped.append((level.level, b.building_key, reason))
-                continue
+    def prisms_for(b):
+        hit = prism_cache.get(b.building_key)
+        if hit is None:
             vols = [
                 (p, float(v.bottom_m), float(v.top_m))
                 for v in vols_by_building.get(b.building_key, [])
                 for p in geom.polygons_of(to_local(v.geometry))
             ]
-            pieces, n_drop, bd = prisms_of_building(vols, level)
-            n_vol_dropped += n_drop
-            bound = max(bound, bd)
+            hit = prism_cache[b.building_key] = prisms_of_building(vols, level)
+        return hit
+
+    def build_cell(i, j, csize, path, blds):
+        """Meshes, tables and counters of one cell (cell (i, j) of size ``csize``)."""
+        fbox = box(*grid.tile_bbox_local(i, j, csize)).intersection(extent_box)
+        centre = (csize * i + csize / 2, -(csize * j + csize / 2))
+        meshes, tables, layer_stats = [], {}, {}
+        acc = {"in": 0, "kept": 0, "vol_dropped": 0, "bound": 0.0, "dropped": []}
+        mb = geom.MeshBuilder()
+        table = []
+        n_vols = 0
+        for b in blds:
+            acc["in"] += 1
+            keep, reason = keep_building(level, b, float(b.geometry.area))
+            if not keep:
+                acc["dropped"].append((level.level, b.building_key, reason))
+                continue
+            pieces, n_drop, bd = prisms_for(b)
+            acc["vol_dropped"] += n_drop
+            acc["bound"] = max(acc["bound"], bd)
             if not pieces:
-                dropped.append((level.level, b.building_key, "every volume is under the tolerance"))
+                acc["dropped"].append(
+                    (level.level, b.building_key, "every volume is under the tolerance")
+                )
                 continue
             fid = len(table)
             table.append(
@@ -387,7 +402,7 @@ def build_level(
                 for part in parts:
                     mb.add_extrusion(part, bottom, top, fid)
                 n_vols += 1
-            n_kept += 1
+            acc["kept"] += 1
         if table:
             meshes.extend(ex._named("buildings", mb))
             tables["buildings"] = table
@@ -397,7 +412,6 @@ def build_level(
                 "vertices": mb.n_vertices,
                 "triangles": mb.n_triangles,
             }
-
         for layer in level.flat_layers:
             mf = geom.MeshBuilder()
             table = []
@@ -425,21 +439,55 @@ def build_level(
                     "vertices": mf.n_vertices,
                     "triangles": mf.n_triangles,
                 }
+        return meshes, tables, layer_stats, centre, acc
 
+    def emit(i, j, csize, path, blds, name_ij):
+        """Write the cell; when its glb is over the budget, split it into 4 cells and repeat."""
+        nonlocal bound
+        name = f"{level.prefix}_{name_ij}{'q' + path if path else ''}"
+        meshes, tables, layer_stats, centre, acc = build_cell(i, j, csize, path, blds)
         written = ex.write_tile(
-            out_dir, name, i, j, meshes, tables, layer_stats, centre, unit=level.unit_m, size=size
+            out_dir, name, i, j, meshes, tables, layer_stats, centre, unit=level.unit_m, size=csize
         )
+        if written is not None and written[0]["glb"]["gzip9_bytes"] > level.max_tile_gzip_bytes:
+            if len(path) >= MAX_SPLIT_DEPTH:
+                raise ValueError(
+                    f"{name}: over {level.max_tile_gzip_bytes} B after {len(path)} splits"
+                )
+            for ext in ("glb", "json"):
+                (out_dir / f"{name}.{ext}").unlink()
+            half = csize / 2
+            parts: dict[tuple[int, int], list] = {}
+            for b, rp in blds_rp(blds):
+                parts.setdefault(grid.tile_ij(rp.x, rp.y, size=half), []).append(b)
+            for q, (dx, dy) in enumerate(((0, 0), (1, 0), (0, 1), (1, 1))):
+                ci, cj = 2 * i + dx, 2 * j + dy
+                emit(ci, cj, half, path + str(q), parts.get((ci, cj), []), name_ij)
+            return
+        totals["in"] += acc["in"]
+        totals["kept"] += acc["kept"]
+        totals["vol_dropped"] += acc["vol_dropped"]
+        bound = max(bound, acc["bound"])
+        dropped.extend(acc["dropped"])
         if written is None:
-            continue
+            return
         entry, _blob = written
         entries.append(entry)
         stats[name] = {
             "glb_bytes": entry["glb"]["bytes"],
             "gzip9_bytes": entry["glb"]["gzip9_bytes"],
             "features_json_bytes": entry["features"]["bytes"],
+            "cell_m": csize,
             "max_offset_from_centre_m": round(ex._max_offset(meshes, centre), 3),
             "layers": layer_stats,
         }
+
+    def blds_rp(blds):
+        return [(b, rp_of[b.building_key]) for b in blds]
+
+    for i, j in blocks:
+        emit(i, j, size, "", block_of.get((i, j), []), grid.tile_name(i, j))
+    n_in, n_kept, n_vol_dropped = totals["in"], totals["kept"], totals["vol_dropped"]
     entries.sort(key=lambda e: e["id"])
     counts: dict[str, int] = {}
     for e in entries:
@@ -465,6 +513,10 @@ def build_level(
         "max_error_bound_m": round(bound, 6),
         "tiles": stats,
         "max_gzip9_bytes": max((s["gzip9_bytes"] for s in stats.values()), default=0),
+        "tiles_over_budget": sum(
+            1 for s in stats.values() if s["gzip9_bytes"] > level.max_tile_gzip_bytes
+        ),
+        "tiles_split": sum(1 for s in stats.values() if s["cell_m"] < size),
     }
     return {"manifest": desc, "summary": summary, "dropped": dropped}
 

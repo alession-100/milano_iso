@@ -4,7 +4,7 @@ import { collectProblems, routeFixtureTiles, setView, settleRendered, tilesState
 
 // T-6.2: levels of detail on the synthetic fixture with coarse levels (tiles-lod, made by
 // `make_fixture_tiles.py --lod`). The visual-regression fixture has none, so its baselines never meet
-// a coarse level. Levels: 0 (250 m tiles), 1 (500 m, tolerance 0.5 m), 2 (1 km, 1.5 m), 3 (2 km, 5 m).
+// a coarse level. Levels: 0 (250 m tiles), 1 (500 m, tolerance 0.5 m), 2 (1 km, 1.5 m), 3 (2 km, 3 m).
 // Nothing here asserts a duration: every wait polls the test state until it settles.
 
 const LOD_DIR = path.resolve(process.cwd(), 'e2e', 'fixtures', 'tiles-lod');
@@ -41,7 +41,7 @@ test.describe('level selection (desktop 1280x720)', () => {
       [700, 1], // 0.55
       [1800, 1], // 1.41
       [2000, 2], // 1.56
-      [4000, 2], // 3.13
+      [4000, 3], // 3.13
     ] as const) {
       await setView(page, 0, 0, width);
       await settleRendered(page);

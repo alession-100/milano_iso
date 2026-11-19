@@ -135,3 +135,50 @@ describe('planDraw: no hole and no double drawing', () => {
     expect([...drawn].sort()).toEqual(['0_0', '1_0']);
   });
 });
+
+describe('planDraw with split tiles (quadtree, same level)', () => {
+  // Level 2 tile of 1000 m split into four quarters; below it level 1 tiles of 500 m (one per
+  // quarter) and above it a level 3 tile of 2000 m.
+  const Q = [
+    cell('L2_0_0q0', 2, 0, 0, 500, 500),
+    cell('L2_0_0q1', 2, 500, 0, 1000, 500),
+    cell('L2_0_0q2', 2, 0, 500, 500, 1000),
+    cell('L2_0_0q3', 2, 500, 500, 1000, 1000),
+  ];
+  const FINE = [
+    cell('L1_0_0', 1, 0, 0, 500, 500),
+    cell('L1_1_0', 1, 500, 0, 1000, 500),
+    cell('L1_0_1', 1, 0, 500, 500, 1000),
+    cell('L1_1_1', 1, 500, 500, 1000, 1000),
+  ];
+  const TOP = cell('L3_0_0', 3, 0, 0, 2000, 2000);
+  const ALL = [...Q, ...FINE, TOP];
+
+  it('no two drawn tiles ever overlap, for every set of loaded tiles and each chosen level', () => {
+    for (let mask = 0; mask < 1 << ALL.length; mask += 1) {
+      const loadedIds = new Set(ALL.filter((_, k) => mask & (1 << k)).map((c) => c.id));
+      const loaded = ALL.filter((c) => loadedIds.has(c.id));
+      const isLoaded = (id: string): boolean => loadedIds.has(id);
+      for (const [chosen, visible] of [
+        [2, Q],
+        [1, FINE],
+        [3, [TOP]],
+      ] as const) {
+        const drawn = loaded.filter((c) => planDraw(chosen, visible, loaded, isLoaded).has(c.id));
+        for (const a of drawn) for (const b of drawn) if (a !== b) expect(overlaps(a, b)).toBe(false);
+        // when everything the chosen level needs is loaded, exactly that is drawn
+        if (visible.every((c) => loadedIds.has(c.id))) {
+          expect(drawn.map((c) => c.id).sort()).toEqual(visible.map((c) => c.id).sort());
+        }
+      }
+    }
+  });
+
+  it('the quarters replace the finer tiles only when all four are loaded', () => {
+    const loadedIds = new Set([...FINE.map((c) => c.id), Q[0].id, Q[1].id, Q[2].id]);
+    const loaded = ALL.filter((c) => loadedIds.has(c.id));
+    const drawn = planDraw(2, Q, loaded, (id) => loadedIds.has(id));
+    // the three loaded quarters are drawn; the finer tile under the missing one stands in for it
+    expect([...drawn].sort()).toEqual(['L1_1_1', 'L2_0_0q0', 'L2_0_0q1', 'L2_0_0q2']);
+  });
+});

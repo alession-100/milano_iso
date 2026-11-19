@@ -337,3 +337,49 @@ def test_quantise_with_a_coarser_unit_round_trips_within_half_a_unit():
         assert np.abs(glb.dequantise(q, centre, unit) - pts).max() <= unit / 2 + 1e-9
     with pytest.raises(ValueError):
         glb.quantise(np.array([[700.0, 0.0, 0.0]]), centre)  # outside the 2 cm range
+
+
+# --- the quadtree split (owner decision of 2026-11-20) -----------------------------------------
+
+
+def _split_fixture(tmp_path, budget=860):
+    levels = tuple(dataclasses.replace(lv, max_tile_gzip_bytes=budget) for lv in lod.LEVELS)
+    _fixture_module().build(tmp_path, levels=levels)
+    return json.loads((tmp_path / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+
+
+def test_a_tile_over_the_budget_is_split_in_four_until_every_tile_fits(tmp_path):
+    budget = 860
+    man = _split_fixture(tmp_path, budget)
+    assert schema_check.validate(man, SCHEMA) == []
+    split_seen = False
+    for rec in man["levels"][1:]:
+        assert rec["max_tile_gzip_bytes"] == budget
+        boxes = []
+        for t in rec["tiles"]:
+            assert t["glb"]["gzip9_bytes"] <= budget, t["id"]
+            x0, z0, x1, z1 = t["bbox_local"]
+            assert x1 - x0 == z1 - z0 and (x1 - x0) <= rec["block_m"]
+            split_seen |= "q" in t["id"]
+            boxes.append((x0, z0, x1, z1))
+        for n, a in enumerate(boxes):  # the cells of one level never overlap
+            for b in boxes[n + 1 :]:
+                assert not (a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1])
+    assert split_seen, "the budget was low enough to split something"
+
+
+def test_a_split_level_keeps_every_building_once_with_its_base_row(tmp_path):
+    man = _split_fixture(tmp_path)
+    base = {}
+    for t in man["tiles"]:
+        rows = json.loads((tmp_path / t["features"]["file"]).read_text(encoding="utf-8"))
+        base.update({r["key"]: r for r in rows["layers"].get("buildings", [])})
+    for rec in man["levels"][1:]:
+        seen = []
+        for t in rec["tiles"]:
+            rows = json.loads((tmp_path / t["features"]["file"]).read_text(encoding="utf-8"))
+            for r in rows["layers"].get("buildings", []):
+                assert r == base[r["key"]]
+                seen.append(r["key"])
+        assert len(seen) == len(set(seen)), "a building is in one tile only"
+        assert set(seen) <= set(base)

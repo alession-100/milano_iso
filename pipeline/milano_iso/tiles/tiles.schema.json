@@ -120,6 +120,7 @@
         "block_m": {"type": "number", "exclusiveMinimum": 0},
         "tolerance_m": {"type": "number", "exclusiveMinimum": 0},
         "unit_m": {"type": "number", "exclusiveMinimum": 0},
+        "max_tile_gzip_bytes": {"type": "integer", "minimum": 1},
         "keeps": {"type": "object"},
         "tiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tile"}},
         "totals": {
@@ -144,7 +145,7 @@
         "features"
       ],
       "properties": {
-        "id": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+$"},
+        "id": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+(q[0-3]+)?$"},
         "i": {"type": "integer"},
         "j": {"type": "integer"},
         "bbox_local": {"$ref": "#/$defs/bbox"},
@@ -156,7 +157,7 @@
           "additionalProperties": false,
           "required": ["file", "bytes", "gzip9_bytes", "sha256"],
           "properties": {
-            "file": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+\\.glb$"},
+            "file": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+(q[0-3]+)?\\.glb$"},
             "bytes": {"type": "integer", "minimum": 0},
             "gzip9_bytes": {"type": "integer", "minimum": 0},
             "sha256": {"$ref": "#/$defs/sha256"}
@@ -167,7 +168,7 @@
           "additionalProperties": false,
           "required": ["file", "bytes", "sha256"],
           "properties": {
-            "file": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+\\.json$"},
+            "file": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+(q[0-3]+)?\\.json$"},
             "bytes": {"type": "integer", "minimum": 0},
             "sha256": {"$ref": "#/$defs/sha256"}
           }

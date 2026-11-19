@@ -41,7 +41,7 @@ const VIEWPORTS = [
   ['412x915', 412, 915],
 ];
 
-const TILE_FILE = /\/(L\d+_)?-?\d+_-?\d+\.(glb|json)$/;
+const TILE_FILE = /\/(L\d+_)?-?\d+_-?\d+(q[0-3]+)?\.(glb|json)$/;
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 
 async function measure(vp, centre, width) {
