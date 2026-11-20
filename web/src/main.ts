@@ -310,6 +310,7 @@ async function startTiles(): Promise<void> {
   });
   lod = new LodController<THREE.Group>(manifest, streamer, {
     fetchShard: (rec, signal) => fetchShard(base, rec, signal),
+    castersBelowLevel: shadowsOn ? NO_SHADOW_FROM_LEVEL : 0, // T-6.5: the shadow pass is a draw call per tile
     onShardsChanged: () => {
       forceCull = true; // a shard arrived (or a retry is due): cull again although the camera did not move
       requestRender();

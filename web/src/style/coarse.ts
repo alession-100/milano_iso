@@ -77,7 +77,7 @@ export function mergeCoarseLayers(group: THREE.Object3D, table: FeatureTable | u
   let indices = 0;
   for (const { mesh } of ordered) {
     const g = mesh.geometry;
-    const pos = g.getAttribute('position') as THREE.BufferAttribute | undefined;
+    const pos = g.getAttribute('position') as THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined;
     const fid = g.getAttribute('_feature_id') as THREE.BufferAttribute | undefined;
     if (
       !g.index ||
@@ -119,11 +119,16 @@ export function mergeCoarseLayers(group: THREE.Object3D, table: FeatureTable | u
   const ranges: CoarseRanges = { waterGreen: [0, 0], roads: [0, 0] };
   ordered.forEach(({ layer, mesh }, n) => {
     const g = mesh.geometry;
-    const pos = g.getAttribute('position') as THREE.BufferAttribute;
+    const pos = g.getAttribute('position') as THREE.BufferAttribute | THREE.InterleavedBufferAttribute;
     const fid = g.getAttribute('_feature_id') as THREE.BufferAttribute;
     const idx = g.index as THREE.BufferAttribute;
     const part = parts[n];
-    position.set(pos.array as Int16Array, v * 3);
+    // by component, not by array: a position stream padded to 8 bytes per vertex is interleaved (stride 4)
+    for (let i = 0; i < pos.count; i++) {
+      position[(v + i) * 3] = pos.getX(i);
+      position[(v + i) * 3 + 1] = pos.getY(i);
+      position[(v + i) * 3 + 2] = pos.getZ(i);
+    }
     for (let i = 0; i < fid.count; i++) featureId[v + i] = fid.getX(i) + part.offset;
     const start = k;
     for (let i = 0; i < idx.count; i++) index[k + i] = idx.getX(i) + v;

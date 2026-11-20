@@ -234,6 +234,18 @@ describe('mergeCoarseLayers (T-6.5)', () => {
     expect(isCoarseMesh(buildings)).toBe(false);
   });
 
+  it('reads a position stream padded to 8 bytes per vertex (interleaved, as the glTF loader gives it)', () => {
+    const g = tile();
+    const mesh = g.children[1] as THREE.Mesh; // landuse
+    const plain = mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
+    const padded = new Int16Array(plain.count * 4);
+    for (let i = 0; i < plain.count; i++) padded.set([plain.getX(i), plain.getY(i), plain.getZ(i), 0], i * 4);
+    mesh.geometry.setAttribute('position', new THREE.InterleavedBufferAttribute(new THREE.InterleavedBuffer(padded, 4), 3, 0, false));
+    const expected = Array.from(plain.array);
+    const merged = mergeCoarseLayers(g, table) as THREE.Mesh;
+    expect(Array.from(merged.geometry.getAttribute('position').array).slice(0, expected.length)).toEqual(expected);
+  });
+
   it('does not merge what it cannot merge exactly: one layer, other transforms, float positions', () => {
     const one = new THREE.Group();
     one.add(layerMesh(SPECS[1], 1));

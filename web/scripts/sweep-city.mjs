@@ -48,7 +48,8 @@ for (const [w, h] of windows) {
       const page = await ctx.newPage();
       const errs = [];
       page.on('console', (m) => {
-        if (m.type() === 'error' || m.type() === 'warning') errs.push(m.text());
+        // the software GL driver's ReadPixels stall note is not an app problem (ADR-0012)
+        if ((m.type() === 'error' || m.type() === 'warning') && !/GPU stall due to ReadPixels/.test(m.text())) errs.push(m.text());
       });
       page.on('pageerror', (e) => errs.push(`pageerror: ${e.message}`));
       await page.goto(`http://127.0.0.1:${port}/?e2e=1`);
@@ -65,7 +66,7 @@ for (const [w, h] of windows) {
           await page.evaluate(set, [x, z, width, step]); // request a frame
           await page.waitForTimeout(100);
           st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles, c: window.__milanoIso.camera }));
-          const done = st.t.loading === 0 && st.t.pending === 0 && st.t.inScene === st.t.loaded && st.r.calls === last;
+          const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.r.calls === last;
           same = done ? same + 1 : 0;
           last = st.r.calls;
           if (same >= 3) break;
@@ -86,6 +87,7 @@ for (const [w, h] of windows) {
           drawnByLevel: st.t.drawnByLevel,
           visible: st.t.visible,
           loaded: st.t.loaded,
+          failedTiles: st.t.failed,
           settled: same >= 3,
           problems: errs.length,
         };

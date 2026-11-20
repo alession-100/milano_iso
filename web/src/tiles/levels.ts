@@ -32,6 +32,82 @@ export function chooseLevel(specs: readonly LevelSpec[], mpp: number, current: n
   return target;
 }
 
+/**
+ * Draw-call budget of a view (T-6.5, ADR-0040, amends ADR-0037). The plan of a level is counted as the
+ * draw calls it will issue; if that is over the cap, the next coarser level is drawn instead.
+ * 280 leaves 20 calls under the 300 budget for what is not a tile (the ground) and for a plan that
+ * differs a little from the frame (a coarser tile kept while finer ones load, a chunked layer).
+ */
+export const DRAW_CALL_CAP = 280;
+
+/**
+ * A level that was left for the budget comes back only when its plan is at most this fraction of the
+ * cap, so a view that hovers around the cap does not flicker between two levels. Style/UX constant.
+ */
+export const BUDGET_HYSTERESIS = 0.9;
+
+/** The coarsest level the budget may choose (ADR-0037 error rule: a level above 3 is never shown). */
+export const BUDGET_MAX_LEVEL = 3;
+
+/**
+ * Draw calls of one tile with all its layers shown: one per mesh, one more for the shadow pass when its
+ * buildings cast. A base tile has one mesh per layer it holds (trees are one instanced mesh); a coarse
+ * tile (T-6.5) has its buildings, plus one merged mesh for the flat layers. `counts` is the tile entry's
+ * feature count per layer; without it every layer of the tileset is assumed present.
+ */
+export function tileCalls(
+  level: number,
+  counts: Readonly<Record<string, number>> | undefined,
+  allLayers: readonly string[],
+  casting: boolean,
+): number {
+  const has = (l: string): boolean => (counts ? (counts[l] ?? 0) > 0 : allLayers.includes(l));
+  const layers = allLayers.filter(has);
+  const buildings = has('buildings');
+  const shadow = casting && buildings ? 1 : 0;
+  if (level === 0) return layers.length + shadow;
+  const flat = layers.filter((l) => l !== 'buildings').length;
+  return (buildings ? 1 : 0) + (flat > 0 ? 1 : 0) + shadow;
+}
+
+/** Draw calls the plan of `level` issues once all its `visible` tiles are loaded, by `planDraw`. */
+export function plannedCalls(level: number, visible: readonly Cell[], callsOf: (id: string) => number): number {
+  const plan = planDraw(level, visible, visible, () => true);
+  let n = 0;
+  for (const id of plan) n += callsOf(id);
+  return n;
+}
+
+/**
+ * The level to draw: `base` (the level of the 1-pixel rule), or the next coarser levels while the plan is over
+ * `cap`, never above `maxLevel`. `calls(level)` is the plan's draw calls, or null while the tiles of that
+ * level in view are not all known yet. A level that was left (`current` is coarser) is taken again only at
+ * `cap * BUDGET_HYSTERESIS`. While a plan is unknown the level in use stays when it is coarser, else the
+ * level is taken (its tiles are then requested and the question asked again). `unknown` collects the levels
+ * whose tiles must be requested to answer.
+ */
+export function chooseBudgetLevel(
+  base: number,
+  current: number,
+  maxLevel: number,
+  calls: (level: number) => number | null,
+  cap: number = DRAW_CALL_CAP,
+  unknown: number[] = [],
+): number {
+  let level = base;
+  while (level < maxLevel) {
+    const n = calls(level);
+    if (n === null) {
+      unknown.push(level);
+      return Math.max(level, Math.min(current, maxLevel));
+    }
+    const limit = level < current ? cap * BUDGET_HYSTERESIS : cap;
+    if (n <= limit) return level;
+    level += 1;
+  }
+  return level;
+}
+
 /** A tile's place in the draw plan: its level and its grid cell [xmin, zmin, xmax, zmax]. */
 export interface Cell {
   id: string;
