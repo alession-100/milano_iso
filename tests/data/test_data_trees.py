@@ -10,7 +10,7 @@ import pytest
 import shapely
 from milano_iso import config, decor, style
 from milano_iso.normalise import DropLog
-from milano_iso.tiles import grid
+from milano_iso.tiles import grid, manifest
 
 TILE_DIR = config.DATA_DIR / "tiles" / "pilot"
 MAPPED_SOURCES = ("osm_tree", "osm_tree_row")
@@ -152,7 +152,7 @@ def test_markings_are_all_stylised_and_trace_to_a_road_or_crossing(layers, osm_t
 
 
 def test_tile_tables_carry_every_tree_with_its_fields(trees):
-    man = json.loads((TILE_DIR / "tiles.json").read_text(encoding="utf-8"))
+    man = manifest.load_full(TILE_DIR)
     assert "trees" in man["layers"] and man["instanced_layers"] == ["trees"]
     rows = []
     for t in man["tiles"]:

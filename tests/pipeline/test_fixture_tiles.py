@@ -6,6 +6,7 @@ from collections import Counter
 from pathlib import Path
 
 from milano_iso import config
+from milano_iso.tiles import manifest as _manifest
 
 SCRIPT = config.REPO_ROOT / "pipeline" / "scripts" / "make_fixture_tiles.py"
 COMMITTED = config.REPO_ROOT / "web" / "e2e" / "fixtures" / "tiles"
@@ -19,14 +20,17 @@ def _load():
 
 
 def _files(d: Path) -> dict[str, bytes]:
-    return {p.name: p.read_bytes() for p in sorted(d.iterdir())}
+    return {
+        p.relative_to(d).as_posix(): p.read_bytes() for p in sorted(d.rglob("*")) if p.is_file()
+    }
 
 
 def test_fixture_regenerates_byte_identically(tmp_path):
     _load().build(tmp_path)
     fresh, committed = _files(tmp_path), _files(COMMITTED)
     assert sorted(fresh) == sorted(committed)
-    assert len(fresh) == 11  # 4 tiles x (glb + json) + tiles.json + index + minimap
+    # 4 tiles x (glb + json) + tiles.json + index + minimap + 4 shards (one per tile, T-6.3)
+    assert len(fresh) == 15
     for name in fresh:
         assert fresh[name] == committed[name], name
 
@@ -47,7 +51,7 @@ def test_fixture_has_mapped_row_and_fill_trees_and_markings():
     assert trees == {"osm_tree": 3, "osm_tree_row": 11, "fill": 76}
     # a marking feature is counted once per tile it falls in (the zebras cross tile borders)
     assert markings == {"centre_line": 8, "zebra": 4}
-    manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
+    manifest = _manifest.load_full(COMMITTED)
     assert manifest["instanced_layers"] == ["trees"]
     assert manifest["totals"]["counts"]["trees"] == 90
 
@@ -63,14 +67,14 @@ def test_fixture_has_stylised_landmark_details():
             assert r["landmark_id"] == "fixture_landmark"
     assert kinds["spire"] == 1
     assert kinds["pinnacle"] > 4
-    manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
+    manifest = _manifest.load_full(COMMITTED)
     assert "landmark_details" in manifest["layers"]
     assert manifest["totals"]["counts"]["landmark_details"] == sum(kinds.values())
 
 
 def test_fixture_has_names_in_index_and_a_minimap():
     """T-5.3a: a 2-way street, a named park, the landmark, named buildings; water is unnamed."""
-    manifest = json.loads((COMMITTED / "tiles.json").read_text(encoding="utf-8"))
+    manifest = _manifest.load_full(COMMITTED)
     for key, file in (("index", "index.json"), ("minimap", "minimap.svg")):
         assert manifest[key]["file"] == file
         assert manifest[key]["bytes"] == (COMMITTED / file).stat().st_size

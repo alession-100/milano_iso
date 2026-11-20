@@ -58,7 +58,7 @@ def _decoded_top_footprints(glb_path):
 
 
 def test_simplification_tolerance(gpkg, report):
-    man = json.loads((TILE_DIR / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    man = manifest.load_full(TILE_DIR)
     vols = pyogrio.read_dataframe(
         gpkg, layer="render_volumes", columns=["building_key", "vol_key", "top_m", "rendered"]
     )

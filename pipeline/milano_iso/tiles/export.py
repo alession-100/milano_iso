@@ -366,9 +366,11 @@ def build(
     specs: dict | None = None,
     landmark_names: dict[str, str] | None = None,
     levels: tuple | None = None,
+    shard_factor: int = manifest.SHARD_FACTOR,
 ):
     """Build the tiles of an extent. ``levels``: the coarse levels (default ``lod.LEVELS``; ``()``
-    writes the base tiles only, as the visual-regression fixture does)."""
+    writes the base tiles only, as the visual-regression fixture does). ``shard_factor``: the
+    side of a manifest shard in blocks of its level (T-6.3; the fixtures use 1 to get several)."""
     levels = lod.LEVELS if levels is None else levels
     minimap_lite = extent != "pilot"  # T-6.2: the city minimap is the light one (minimap.render)
     extent_poly = extent_mod.polygon(extent)
@@ -661,6 +663,7 @@ def build(
             minimap=manifest.file_entry(minimap_path),
             levels=[lod.base_level(), *(c["manifest"] for c in coarse)] if coarse else None,
         ),
+        shard_factor,
     )
     n_trees_in_tiles = sum(
         t["layers"].get("trees", {}).get("features", 0) for t in summary_tiles.values()

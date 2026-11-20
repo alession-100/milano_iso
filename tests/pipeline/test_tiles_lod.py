@@ -33,7 +33,23 @@ def lod_tiles(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def man(lod_tiles):
-    return json.loads((lod_tiles / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    return manifest.load_full(lod_tiles)
+
+
+def _tree(d):
+    """Every file under ``d`` (shards/ included) by relative name."""
+    return {
+        p.relative_to(d).as_posix(): p.read_bytes() for p in sorted(d.rglob("*")) if p.is_file()
+    }
+
+
+def _validate_dir(d):
+    """tiles.json and every shard of ``d`` validate against the schema (T-6.3)."""
+    root = json.loads((d / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    assert schema_check.validate(root, SCHEMA) == []
+    for rec in root["shards"]:
+        doc = json.loads((d / rec["file"]).read_text(encoding="utf-8"))
+        assert schema_check.validate(doc, {"$ref": "#/$defs/shard_file"}, SCHEMA) == []
 
 
 def _blob(rng, n=60, radius=40.0, hole=True) -> Polygon:
@@ -157,23 +173,21 @@ def test_coarse_geometry_sits_on_the_level_grid():
 
 def test_fixture_with_levels_regenerates_byte_identically(lod_tiles, tmp_path):
     _fixture_module().build(tmp_path, levels=None)
-    a = {p.name: p.read_bytes() for p in sorted(lod_tiles.iterdir())}
-    b = {p.name: p.read_bytes() for p in sorted(tmp_path.iterdir())}
+    a, b = _tree(lod_tiles), _tree(tmp_path)
     assert a == b
 
 
 def test_committed_lod_fixture_is_current(lod_tiles):
     committed = config.REPO_ROOT / "web" / "e2e" / "fixtures" / "tiles-lod"
-    a = {p.name: p.read_bytes() for p in sorted(lod_tiles.iterdir())}
-    b = {p.name: p.read_bytes() for p in sorted(committed.iterdir())}
+    a, b = _tree(lod_tiles), _tree(committed)
     assert a == b
 
 
 # --- the fixture tileset with levels -----------------------------------------------------------
 
 
-def test_manifest_lists_every_level_and_validates(man):
-    assert schema_check.validate(man, SCHEMA) == []
+def test_manifest_lists_every_level_and_validates(man, lod_tiles):
+    _validate_dir(lod_tiles)
     levels = man["levels"]
     assert [lv["level"] for lv in levels] == [0, *[lv.level for lv in lod.LEVELS]]
     assert levels[0] == lod.base_level()
@@ -188,7 +202,7 @@ def test_manifest_lists_every_level_and_validates(man):
 
 def test_base_tiles_and_files_of_the_base_level_are_unchanged(man, lod_tiles, tmp_path):
     _fixture_module().build(tmp_path, levels=())
-    plain = json.loads((tmp_path / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    plain = manifest.load_full(tmp_path)
     assert man["tiles"] == plain["tiles"]
     assert "levels" not in plain
     for t in man["tiles"]:
@@ -345,13 +359,13 @@ def test_quantise_with_a_coarser_unit_round_trips_within_half_a_unit():
 def _split_fixture(tmp_path, budget=860):
     levels = tuple(dataclasses.replace(lv, max_tile_gzip_bytes=budget) for lv in lod.LEVELS)
     _fixture_module().build(tmp_path, levels=levels)
-    return json.loads((tmp_path / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    return manifest.load_full(tmp_path)
 
 
 def test_a_tile_over_the_budget_is_split_in_four_until_every_tile_fits(tmp_path):
     budget = 860
     man = _split_fixture(tmp_path, budget)
-    assert schema_check.validate(man, SCHEMA) == []
+    _validate_dir(tmp_path)
     split_seen = False
     for rec in man["levels"][1:]:
         assert rec["max_tile_gzip_bytes"] == budget

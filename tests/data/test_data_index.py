@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 import yaml
 from milano_iso import config
+from milano_iso.tiles import manifest
 
 TILE_DIR = config.DATA_DIR / "tiles" / "pilot"
 LANDMARKS = config.REPO_ROOT / "tests" / "landmarks.yaml"
@@ -25,7 +26,7 @@ MINIMAP_GZIP_BUDGET = 100_000
 def tiles_json() -> dict:
     p = TILE_DIR / "tiles.json"
     assert p.exists(), f"{p} not found; run `make tiles` first"
-    return json.loads(p.read_text(encoding="utf-8"))
+    return manifest.load_full(TILE_DIR)  # root tiles.json plus the shards (T-6.3)
 
 
 @pytest.fixture(scope="module")
