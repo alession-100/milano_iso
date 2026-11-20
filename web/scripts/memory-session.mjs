@@ -19,7 +19,7 @@
 //      held minus textures of the tiles in the scene is at most 0, and the geometry count never exceeds
 //      (largest tile count the cache can hold) x (largest geometry count of one tile) + 1;
 //   3. the cache never holds more tiles than its limit (64) or the largest set the view asked for
-//      (`tiles.wanted`: a wanted tile is never evicted, ADR-0038), whichever is larger.
+//      (`tiles.peakWanted`, the largest set of the session: a wanted tile is never evicted, ADR-0038), whichever is larger.
 import { writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 
@@ -103,6 +103,7 @@ for (let i = 1; i * SAMPLE_S <= durationS; i++) {
     maxGeomsPerTile: state.gpu.maxGeomsPerTile,
     tilesInScene: state.gpu.tilesInScene,
     tilesWanted: state.tiles.wanted,
+    peakWanted: state.tiles.peakWanted,
     tilesLoaded: state.tiles.loaded,
     tilesLoading: state.tiles.loading,
     level: state.tiles.level,
@@ -133,7 +134,7 @@ const heapL = median(last.map((s) => s.heapUsedMB));
 const after = inRange(60, durationS);
 const maxGeomsPerTile = Math.max(...samples.map((s) => s.maxGeomsPerTile));
 const limit = samples[0].cacheLimit;
-const maxWanted = Math.max(...samples.map((s) => s.tilesWanted ?? 0));
+const maxWanted = Math.max(...samples.map((s) => s.peakWanted ?? 0));
 const maxHold = Math.max(limit, maxWanted);
 const orphanGeom = after.map((s) => s.geometries - s.tileGeometries);
 const orphanTex = after.map((s) => s.textures - s.tileTextures);

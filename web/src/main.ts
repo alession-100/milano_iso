@@ -100,6 +100,7 @@ function tilesState() {
     ...(lod?.state() ?? { visible: 0, pending: 0, level: 0 }),
     // T-6.3 checks: tile groups in the scene (equals `loaded`: a cancelled tile is never added), and requests in flight that are not wanted (0)
     inScene: tileRoot.children.length,
+    peakWanted: streamer?.peakWanted ?? 0,
     wanted: streamer?.wantedCount ?? 0, // T-6.4: the cache may hold more than its limit only while this is larger
     unwantedInFlight: streamer?.unwantedInFlight() ?? 0,
   };

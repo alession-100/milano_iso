@@ -208,6 +208,12 @@ describe('TileStreamer', () => {
     await tick();
     expect(evicted).toEqual(['t0']);
     expect(s.stats.loaded).toBe(3);
+    // T-6.4: the largest wanted set is remembered (the cache holds at most the larger of it and the limit)
+    expect(s.peakWanted).toBe(3);
+    expect(s.wantedCount).toBe(3);
+    s.update(['t3'], ['t3']);
+    expect(s.wantedCount).toBe(1);
+    expect(s.peakWanted).toBe(3);
   });
 
   it('drops queued tiles that are no longer wanted', async () => {

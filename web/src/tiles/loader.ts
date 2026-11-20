@@ -76,6 +76,7 @@ export class TileStreamer<T> {
   private startedN = 0;
   private completedN = 0;
   private cancelledN = 0;
+  private peakWantedN = 0;
 
   constructor(
     tiles: TileEntry[],
@@ -99,6 +100,7 @@ export class TileStreamer<T> {
     }
     this.order = wantedNearestFirst;
     this.wanted = new Set(wantedNearestFirst);
+    this.peakWantedN = Math.max(this.peakWantedN, this.wanted.size);
     this.cancelUnwanted();
     this.pump();
   }
@@ -123,6 +125,11 @@ export class TileStreamer<T> {
   /** Tiles the last update asked for (in view and the prefetch ring); a wanted tile is never evicted. */
   get wantedCount(): number {
     return this.wanted.size;
+  }
+
+  /** The largest set of wanted tiles of the session: the cache never holds more than the larger of this and its limit. */
+  get peakWanted(): number {
+    return this.peakWantedN;
   }
 
   get stats(): TileStats {
