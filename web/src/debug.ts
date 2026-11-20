@@ -245,9 +245,17 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
    * screens: bottom left. Wide screens: bottom right. Where the room is short (a bottom sheet, or under
    * 600 px high) it is collapsed to its title bar, one line: the numbers are in the DOM but not drawn.
    */
+  /** On a small screen the readout is hidden; a tap on the title opens it, and a finished run opens it (T-6.4). */
+  let expanded = false;
+  title.style.cursor = 'pointer';
+  title.addEventListener('click', () => {
+    expanded = !expanded;
+    place();
+  });
+  const isSmall = (): boolean => window.matchMedia(SHEET_QUERY).matches || window.innerHeight < 600;
   function place(): void {
     const sheet = window.matchMedia(SHEET_QUERY).matches;
-    const compact = sheet || window.innerHeight < 600;
+    const compact = isSmall() && !expanded;
     live.style.display = compact ? 'none' : '';
     out.style.display = compact ? 'none' : '';
     bar.style.marginBottom = compact ? '0' : '4px';
@@ -255,7 +263,11 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
     root.style.bottom = 'var(--band, 56px)';
     root.style.left = sheet ? '6px' : 'auto';
     root.style.right = sheet ? 'auto' : '6px';
-    root.style.maxHeight = compact ? 'none' : 'min(28vh, calc(100vh - var(--band, 56px) - 150px))';
+    root.style.maxHeight = compact
+      ? 'none'
+      : expanded
+        ? 'calc(100vh - var(--band, 56px) - 12px)' // opened by hand or by the finished run on a small screen (T-6.4)
+        : 'min(28vh, calc(100vh - var(--band, 56px) - 150px))';
     requestFit();
   }
   place();
@@ -350,6 +362,10 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
       },
     };
     out.dataset.json = JSON.stringify(state.results); // for scripts/bench-city.mjs: no test hook (e2e=1 turns off MSAA)
+    if (!expanded && isSmall()) {
+      expanded = true; // a phone cannot read a collapsed overlay: show the results when the run is over
+      place();
+    }
     benchBtn.disabled = false;
     drawResults();
   }

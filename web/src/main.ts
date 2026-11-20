@@ -100,6 +100,7 @@ function tilesState() {
     ...(lod?.state() ?? { visible: 0, pending: 0, level: 0 }),
     // T-6.3 checks: tile groups in the scene (equals `loaded`: a cancelled tile is never added), and requests in flight that are not wanted (0)
     inScene: tileRoot.children.length,
+    wanted: streamer?.wantedCount ?? 0, // T-6.4: the cache may hold more than its limit only while this is larger
     unwantedInFlight: streamer?.unwantedInFlight() ?? 0,
   };
 }
@@ -114,6 +115,11 @@ registerTestState('gpu', () => {
     geoms.add(mesh.geometry);
     for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
       for (const v of Object.values(m)) if ((v as THREE.Texture | null)?.isTexture) texs.add(v as THREE.Texture);
+      // the per-tile lookup materials keep their colour-index and mask textures in userData (materials.ts)
+      for (const k of ['lookup', 'mask'] as const) {
+        const v = m.userData[k] as THREE.Texture | undefined;
+        if (v?.isTexture) texs.add(v);
+      }
       for (const u of Object.values((m as THREE.ShaderMaterial).uniforms ?? {})) {
         if ((u.value as THREE.Texture | null)?.isTexture) texs.add(u.value as THREE.Texture);
       }

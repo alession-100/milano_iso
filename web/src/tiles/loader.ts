@@ -120,6 +120,11 @@ export class TileStreamer<T> {
     }
   }
 
+  /** Tiles the last update asked for (in view and the prefetch ring); a wanted tile is never evicted. */
+  get wantedCount(): number {
+    return this.wanted.size;
+  }
+
   get stats(): TileStats {
     return {
       loaded: this.loadedMap.size,

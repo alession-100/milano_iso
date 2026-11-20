@@ -12,11 +12,14 @@
 // the scene, and the DOM node count.
 //
 // Pass rule (stated in the report), on the samples after the first minute (warm-up):
-//   1. heap: median of the last minute is within 10 % of the median of the second minute;
-//   2. geometries and textures never exceed what the tile cache allows: geometries <= CACHE_LIMIT x
-//      (largest geometry count of a tile) + static, textures likewise, where "static" is what the
-//      renderer holds outside the tiles (ground, shared meshes); and the static part does not grow.
-//   3. tiles in the scene never exceed the cache limit.
+//   1. heap: the median of the last minute is within 10 % of the median of the second minute;
+//   2. geometries and textures never exceed what the tile cache allows. The renderer holds a geometry
+//      only for a tile that is in the scene (evicted tiles are disposed), so: geometries held by the
+//      renderer minus geometries of the tiles in the scene is at most 1 (the ground plane), textures
+//      held minus textures of the tiles in the scene is at most 0, and the geometry count never exceeds
+//      (largest tile count the cache can hold) x (largest geometry count of one tile) + 1;
+//   3. the cache never holds more tiles than its limit (64) or the largest set the view asked for
+//      (`tiles.wanted`: a wanted tile is never evicted, ADR-0038), whichever is larger.
 import { writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 
@@ -99,6 +102,7 @@ for (let i = 1; i * SAMPLE_S <= durationS; i++) {
     tileTextures: state.gpu.tileTextures,
     maxGeomsPerTile: state.gpu.maxGeomsPerTile,
     tilesInScene: state.gpu.tilesInScene,
+    tilesWanted: state.tiles.wanted,
     tilesLoaded: state.tiles.loaded,
     tilesLoading: state.tiles.loading,
     level: state.tiles.level,
@@ -129,8 +133,10 @@ const heapL = median(last.map((s) => s.heapUsedMB));
 const after = inRange(60, durationS);
 const maxGeomsPerTile = Math.max(...samples.map((s) => s.maxGeomsPerTile));
 const limit = samples[0].cacheLimit;
-const staticGeom = after.map((s) => s.geometries - s.tileGeometries);
-const staticTex = after.map((s) => s.textures - s.tileTextures);
+const maxWanted = Math.max(...samples.map((s) => s.tilesWanted ?? 0));
+const maxHold = Math.max(limit, maxWanted);
+const orphanGeom = after.map((s) => s.geometries - s.tileGeometries);
+const orphanTex = after.map((s) => s.textures - s.tileTextures);
 const analysis = {
   heapMedianMinute2MB: heap2,
   heapMedianLastMinuteMB: heapL,
@@ -141,20 +147,18 @@ const analysis = {
   maxGeomsPerTile,
   maxTilesInScene: Math.max(...samples.map((s) => s.tilesInScene)),
   cacheLimit: limit,
-  staticGeometries: [Math.min(...staticGeom), Math.max(...staticGeom)],
-  staticTextures: [Math.min(...staticTex), Math.max(...staticTex)],
+  maxWantedTiles: maxWanted,
+  geometryBound: maxHold * maxGeomsPerTile + 1,
+  orphanGeometriesMax: Math.max(...orphanGeom),
+  orphanTexturesMax: Math.max(...orphanTex),
   maxPrograms: Math.max(...samples.map((s) => s.programs)),
   programsAfterMinute1: [Math.min(...after.map((s) => s.programs)), Math.max(...after.map((s) => s.programs))],
   domNodesAfterMinute1: [Math.min(...after.map((s) => s.domNodes)), Math.max(...after.map((s) => s.domNodes))],
 };
-const geomBound = limit * maxGeomsPerTile + Math.max(...staticGeom);
-analysis.geometryBound = geomBound;
-analysis.geometriesWithinCache = analysis.maxGeometries <= geomBound;
-analysis.staticGeometriesStable = Math.max(...staticGeom) - Math.min(...staticGeom) <= 2;
-analysis.texturesWithinCache = Math.max(...staticTex) - Math.min(...staticTex) <= 2 && analysis.maxTextures <= limit * Math.max(1, ...samples.map((s) => s.tileTextures / Math.max(1, s.tilesInScene))) + Math.max(...staticTex) + limit;
-analysis.tilesWithinLimit = analysis.maxTilesInScene <= limit;
-analysis.pass =
-  analysis.heapWithin10pct && analysis.geometriesWithinCache && analysis.staticGeometriesStable && analysis.texturesWithinCache && analysis.tilesWithinLimit;
+analysis.geometriesWithinCache = analysis.maxGeometries <= analysis.geometryBound && analysis.orphanGeometriesMax <= 1;
+analysis.texturesWithinCache = analysis.orphanTexturesMax <= 0;
+analysis.tilesWithinLimit = analysis.maxTilesInScene <= maxHold;
+analysis.pass = analysis.heapWithin10pct && analysis.geometriesWithinCache && analysis.texturesWithinCache && analysis.tilesWithinLimit;
 const result = { durationS, sampleS: SAMPLE_S, backend: headless ? 'software (SwiftShader)' : 'headed, real GPU', tiles, problems, samples, analysis };
 if (out) writeFileSync(out, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(analysis, null, 2));

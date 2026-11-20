@@ -1,0 +1,124 @@
+{
+  "gpu": {
+    "vendor": "Google Inc. (Intel)",
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "backend": {
+    "angle": null,
+    "glImplementation": null,
+    "webgl": null,
+    "rasterization": null
+  },
+  "viewport": [
+    1280,
+    720
+  ],
+  "unlimited": false,
+  "results": {
+    "frames": 9579,
+    "durationS": 80.00760000038147,
+    "meanFps": 119.72612601745745,
+    "p5Fps": 107.5268850283536,
+    "meanFrameMs": 8.352395865996604,
+    "p95FrameMs": 9.299999713897705,
+    "maxDrawCalls": 290,
+    "maxTriangles": 2033726,
+    "p1LowFps": 97.0873813375653,
+    "segments": [
+      {
+        "name": "L0 pan at 600 m",
+        "from": 0,
+        "to": 12,
+        "frames": 1436,
+        "meanFps": 119.74549911644506,
+        "p1LowFps": 96.4785352129019,
+        "p99FrameMs": 10.36499981880189,
+        "maxDrawCalls": 207,
+        "maxTriangles": 632465,
+        "levelMin": 0,
+        "levelMax": 0
+      },
+      {
+        "name": "zoom 600-1200 m",
+        "from": 12,
+        "to": 22,
+        "frames": 1200,
+        "meanFps": 120.00240005143432,
+        "p1LowFps": 106.3490364949519,
+        "p99FrameMs": 9.403000092506407,
+        "maxDrawCalls": 188,
+        "maxTriangles": 1068971,
+        "levelMin": 0,
+        "levelMax": 1
+      },
+      {
+        "name": "zoom 1200-2400 m",
+        "from": 22,
+        "to": 32,
+        "frames": 1200,
+        "meanFps": 119.994000299985,
+        "p1LowFps": 90.90082720540768,
+        "p99FrameMs": 11.000999999046325,
+        "maxDrawCalls": 254,
+        "maxTriangles": 1632030,
+        "levelMin": 1,
+        "levelMax": 2
+      },
+      {
+        "name": "zoom 2400-4000 m",
+        "from": 32,
+        "to": 44,
+        "frames": 1438,
+        "meanFps": 119.75748692589868,
+        "p1LowFps": 96.15384527212065,
+        "p99FrameMs": 10.400000095367432,
+        "maxDrawCalls": 290,
+        "maxTriangles": 2032826,
+        "levelMin": 2,
+        "levelMax": 3
+      },
+      {
+        "name": "pan at 4000 m across the city",
+        "from": 44,
+        "to": 56,
+        "frames": 1439,
+        "meanFps": 119.99466319488246,
+        "p1LowFps": 103.09278553230807,
+        "p99FrameMs": 9.699999809265137,
+        "maxDrawCalls": 211,
+        "maxTriangles": 1869308,
+        "levelMin": 3,
+        "levelMax": 3
+      },
+      {
+        "name": "pan at 4000 m, other diagonal",
+        "from": 56,
+        "to": 68,
+        "frames": 1438,
+        "meanFps": 119.84132275675529,
+        "p1LowFps": 101.01010183718313,
+        "p99FrameMs": 9.899999918937683,
+        "maxDrawCalls": 239,
+        "maxTriangles": 2033726,
+        "levelMin": 3,
+        "levelMax": 3
+      },
+      {
+        "name": "zoom in 4000-600 m",
+        "from": 68,
+        "to": 80,
+        "frames": 1427,
+        "meanFps": 118.83843136507355,
+        "p1LowFps": 89.28571580624096,
+        "p99FrameMs": 11.199999809265137,
+        "maxDrawCalls": 173,
+        "maxTriangles": 1135306,
+        "levelMin": 1,
+        "levelMax": 3
+      }
+    ],
+    "meanCpuMs": 2.6207119714916343,
+    "tilesBase": "default (tiles/city/)"
+  },
+  "problems": []
+}
