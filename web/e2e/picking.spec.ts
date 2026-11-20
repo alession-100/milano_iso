@@ -317,7 +317,7 @@ test.describe('picking (desktop 1280x720)', () => {
     });
     await expect
       .poll(() => page.evaluate(() => (window as unknown as { __milanoIso: { tiles: { loaded: number; loading: number } } }).__milanoIso.tiles))
-      .toEqual({ loaded: 3, loading: 1, failed: 0, visible: 4 });
+      .toMatchObject({ loaded: 3, loading: 1, failed: 0, visible: 4 }); // T-6.2: the state also reports the level
     await page.evaluate(() =>
       (window as unknown as { __milanoIsoSelect: (r: unknown, s: string) => void }).__milanoIsoSelect({ layer: 'buildings', key: 'fix:B3' }, 'search'),
     );

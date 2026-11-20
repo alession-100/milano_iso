@@ -115,7 +115,9 @@ def test_tiles_sha256_and_sizes_match_files(man):
         listed.add(e["file"])
         assert p.stat().st_size == e["bytes"], p.name
         assert manifest.sha256_file(p) == e["sha256"], p.name
-    for t in man["tiles"]:
+    # T-6.2: the coarse levels' tiles are listed in `levels[].tiles` and checked the same way
+    coarse = [t for lv in man.get("levels", []) for t in lv.get("tiles", [])]
+    for t in [*man["tiles"], *coarse]:
         for key in ("glb", "features"):
             e = t[key]
             p = TILE_DIR / e["file"]

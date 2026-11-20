@@ -159,7 +159,7 @@ test('tiles loaded and failed stay correct after every rotation', async ({ page 
         },
         { timeout: 20_000 },
       )
-      .toEqual({ step: (4 - i) % 4, az: 45 + 90 * ((4 - i) % 4), loaded: total, loading: 0, failed: 0, visible: total });
+      .toMatchObject({ step: (4 - i) % 4, az: 45 + 90 * ((4 - i) % 4), loaded: total, loading: 0, failed: 0, visible: total });
     await page.keyboard.press('e');
   }
   expect((await cam(page)).azimuthDeg).toBe(45);

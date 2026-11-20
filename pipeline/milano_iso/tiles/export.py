@@ -21,7 +21,7 @@ from shapely.geometry import box
 from milano_iso import config, landmark_details, landmark_style, style
 from milano_iso import extent as extent_mod
 from milano_iso.measure import report_counts
-from milano_iso.tiles import geom, glb, grid, manifest, minimap
+from milano_iso.tiles import geom, glb, grid, lod, manifest, minimap
 from milano_iso.tiles import index as search_index
 
 SUMMARY_DIR = config.REPO_ROOT / "reports" / "artifacts" / "T-2.3"
@@ -287,14 +287,16 @@ def _max_offset(meshes: list[dict], centre: tuple[float, float]) -> float:
     return float(max(np.abs(m["positions"] - c).max() for m in meshes))
 
 
-def _content_bbox(meshes: list[dict], centre: tuple[float, float]) -> dict:
+def _content_bbox(
+    meshes: list[dict], centre: tuple[float, float], unit: float = glb.QUANT_SCALE
+) -> dict:
     """Extent of the dequantised vertices (what the client decodes), client frame, metres.
 
     Whole buildings may overhang the tile cell (ADR-0022 point 5), so the grid cell is not a
     bound of the content. Rounded to 3 decimals (the quantisation unit is 0.02 m).
     """
     pts = np.concatenate(
-        [glb.dequantise(glb.quantise(m["positions"], centre), centre) for m in meshes]
+        [glb.dequantise(glb.quantise(m["positions"], centre, unit), centre, unit) for m in meshes]
     )
     lo, hi = pts.min(axis=0), pts.max(axis=0)
     return {
@@ -321,15 +323,28 @@ def _sample(meshes: list[dict]) -> list[dict]:
     return out
 
 
-def write_tile(out_dir, name, i, j, meshes, tables, layer_stats, centre):
+def write_tile(
+    out_dir,
+    name,
+    i,
+    j,
+    meshes,
+    tables,
+    layer_stats,
+    centre,
+    unit=glb.QUANT_SCALE,
+    size=config.TILE_SIZE_M,
+):
     """Write ``<name>.glb`` and ``<name>.json``; return (manifest entry, glb bytes).
+
+    ``unit`` and ``size`` are the quantisation unit and the cell size (coarse levels, T-6.2).
 
     A tile without meshes writes nothing and returns None: never a 0-byte .glb (T-2.5).
     """
     if not meshes:
         return None
     n_features = sum(len(t) for t in tables.values())
-    blob = glb.write_glb(meshes, centre, n_features)
+    blob = glb.write_glb(meshes, centre, n_features, unit)
     (out_dir / f"{name}.glb").write_bytes(blob)
     (out_dir / f"{name}.json").write_bytes(_json_bytes({"tile": name, "layers": tables}))
     entry = manifest.tile_entry(
@@ -338,7 +353,8 @@ def write_tile(out_dir, name, i, j, meshes, tables, layer_stats, centre):
         i,
         j,
         {k: v["features"] for k, v in layer_stats.items()},
-        _content_bbox(meshes, centre),
+        _content_bbox(meshes, centre, unit),
+        size,
     )
     return entry, blob
 
@@ -349,7 +365,12 @@ def build(
     summary_dir: Path | None = None,
     specs: dict | None = None,
     landmark_names: dict[str, str] | None = None,
+    levels: tuple | None = None,
 ):
+    """Build the tiles of an extent. ``levels``: the coarse levels (default ``lod.LEVELS``; ``()``
+    writes the base tiles only, as the visual-regression fixture does)."""
+    levels = lod.LEVELS if levels is None else levels
+    minimap_lite = extent != "pilot"  # T-6.2: the city minimap is the light one (minimap.render)
     extent_poly = extent_mod.polygon(extent)
     bbox = extent_mod.bbox(extent)
     gpkg = extent_mod.processed_gpkg(extent)
@@ -588,6 +609,23 @@ def build(
     index_entries = search_index.build_entries(
         index_buildings, streets, areas, landmark_names, roof_landmarks
     )
+    coarse = []
+    lod_dropped: list = []
+    for level in levels:
+        res = lod.build_level(
+            level,
+            out_dir=out_dir,
+            rendered=rendered,
+            vols_by_building=vols_by_building,
+            flat=flat,
+            flat_index=flat_index,
+            extent_poly=extent_poly,
+            extent_box=extent_box,
+            bbox=bbox,
+            to_local=_to_local,
+        )
+        coarse.append(res)
+        lod_dropped += res["dropped"]
     index_path = out_dir / search_index.INDEX_NAME
     index_path.write_bytes(_json_bytes(search_index.index_document(index_entries)))
 
@@ -609,6 +647,7 @@ def build(
             polys_of["green"],
             [r["geom"] for r in index_buildings],
             [(f["entry"]["class"], f["geom"]) for f in flat["roads"]],
+            lite=minimap_lite,
         )
     )
 
@@ -620,6 +659,7 @@ def build(
             list(INSTANCED_LAYERS),
             index=manifest.file_entry(index_path),
             minimap=manifest.file_entry(minimap_path),
+            levels=[lod.base_level(), *(c["manifest"] for c in coarse)] if coarse else None,
         ),
     )
     n_trees_in_tiles = sum(
@@ -657,11 +697,39 @@ def build(
             ),
         },
     }
+    if coarse:
+        # T-6.2: separate files, so export_summary.json keeps its shape
+        (summary_dir / "lod_summary.json").write_bytes(
+            _json_bytes({"extent": extent, "levels": [c["summary"] for c in coarse]})
+        )
+        (summary_dir / "lod_summary.md").write_text(
+            lod_markdown(coarse), encoding="utf-8", newline="\n"
+        )
+        (summary_dir / "lod_dropped_buildings.csv").write_bytes(lod.dropped_csv(lod_dropped))
     (summary_dir / "export_summary.json").write_bytes(_json_bytes(summary))
     (summary_dir / "export_summary.md").write_text(
         _markdown(summary), encoding="utf-8", newline="\n"
     )
     return summary
+
+
+def lod_markdown(coarse: list[dict]) -> str:
+    lines = ["# Coarse levels (T-6.2)", ""]
+    lines += [
+        (
+            "| level | block m | tolerance m | blocks | buildings in | kept | dropped | "
+            "max error bound m | max block gzip-9 | total gzip-9 |"
+        ),
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for c in coarse:
+        s, m = c["summary"], c["manifest"]
+        lines.append(
+            f"| {s['level']} | {s['block_m']} | {s['tolerance_m']} | {m['totals']['tiles']} | "
+            f"{s['buildings_in']} | {s['buildings_kept']} | {s['buildings_dropped']} | "
+            f"{s['max_error_bound_m']} | {s['max_gzip9_bytes']} | {m['totals']['gzip9_bytes']} |"
+        )
+    return "\n".join(lines) + "\n"
 
 
 def _markdown(s: dict) -> str:

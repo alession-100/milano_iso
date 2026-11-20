@@ -99,6 +99,16 @@ export class TileStreamer<T> {
     return this.loadedMap.has(id);
   }
 
+  /** A tile that failed for good (after its one retry). */
+  isFailed(id: string): boolean {
+    return this.failedSet.has(id);
+  }
+
+  /** Ids of every loaded tile (any level), in load order. */
+  loadedIds(): string[] {
+    return [...this.loadedMap.keys()];
+  }
+
   get(id: string): T | undefined {
     return this.loadedMap.get(id)?.obj;
   }

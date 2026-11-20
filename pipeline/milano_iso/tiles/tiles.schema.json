@@ -56,6 +56,12 @@
       "description": "T-5.3a: minimap drawing of the whole tileset extent (minimap.svg).",
       "$ref": "#/$defs/extra_file"
     },
+    "levels": {
+      "description": "T-6.2: levels of detail. Level 0 is the base tiles (listed in `tiles`); every other level is a set of coarser blocks with its own `tiles`. A level may be shown where metres per pixel >= tolerance_m.",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/level"}
+    },
     "tiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tile"}},
     "totals": {
       "type": "object",
@@ -105,6 +111,32 @@
         "sha256": {"$ref": "#/$defs/sha256"}
       }
     },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "block_m", "tolerance_m", "unit_m"],
+      "properties": {
+        "level": {"type": "integer", "minimum": 0},
+        "block_m": {"type": "number", "exclusiveMinimum": 0},
+        "tolerance_m": {"type": "number", "exclusiveMinimum": 0},
+        "unit_m": {"type": "number", "exclusiveMinimum": 0},
+        "max_tile_gzip_bytes": {"type": "integer", "minimum": 1},
+        "keeps": {"type": "object"},
+        "tiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tile"}},
+        "totals": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tiles", "counts", "glb_bytes", "gzip9_bytes", "features_bytes"],
+          "properties": {
+            "tiles": {"type": "integer", "minimum": 1},
+            "counts": {"$ref": "#/$defs/counts"},
+            "glb_bytes": {"type": "integer", "minimum": 0},
+            "gzip9_bytes": {"type": "integer", "minimum": 0},
+            "features_bytes": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
     "tile": {
       "type": "object",
       "additionalProperties": false,
@@ -113,7 +145,7 @@
         "features"
       ],
       "properties": {
-        "id": {"type": "string", "pattern": "^-?[0-9]+_-?[0-9]+$"},
+        "id": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+(q[0-3]+)?$"},
         "i": {"type": "integer"},
         "j": {"type": "integer"},
         "bbox_local": {"$ref": "#/$defs/bbox"},
@@ -125,7 +157,7 @@
           "additionalProperties": false,
           "required": ["file", "bytes", "gzip9_bytes", "sha256"],
           "properties": {
-            "file": {"type": "string", "pattern": "^-?[0-9]+_-?[0-9]+\\.glb$"},
+            "file": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+(q[0-3]+)?\\.glb$"},
             "bytes": {"type": "integer", "minimum": 0},
             "gzip9_bytes": {"type": "integer", "minimum": 0},
             "sha256": {"$ref": "#/$defs/sha256"}
@@ -136,7 +168,7 @@
           "additionalProperties": false,
           "required": ["file", "bytes", "sha256"],
           "properties": {
-            "file": {"type": "string", "pattern": "^-?[0-9]+_-?[0-9]+\\.json$"},
+            "file": {"type": "string", "pattern": "^(L[0-9]+_)?-?[0-9]+_-?[0-9]+(q[0-3]+)?\\.json$"},
             "bytes": {"type": "integer", "minimum": 0},
             "sha256": {"$ref": "#/$defs/sha256"}
           }

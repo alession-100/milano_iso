@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   type Manifest,
   ManifestError,
+  allTiles,
   attributionUrl,
   contentBounds,
   indexUrl,
+  levelSpecs,
   minimapUrl,
   parseManifest,
   resolveTilesBase,
@@ -135,5 +137,60 @@ describe('attributionUrl', () => {
     expect(attributionUrl({ source: 'a', licence: 'b', text: 'x', url: 'javascript:alert(1)' })).toBe(
       undefined,
     );
+  });
+});
+
+describe('levels of detail (T-6.2)', () => {
+  const coarse = (id: string) => ({
+    id,
+    i: 0,
+    j: 0,
+    bbox_local: [0, -500, 500, 0],
+    content_bbox_local: { min: [-5, 0, -500], max: [500, 30, 3] },
+    glb: { file: `${id}.glb` },
+    features: { file: `${id}.json` },
+  });
+  function withLevels(): Record<string, unknown> {
+    const m = valid();
+    m.levels = [
+      { level: 0, tolerance_m: 0.2, block_m: 250 },
+      { level: 1, tolerance_m: 1, block_m: 500, tiles: [coarse('L1_0_0')] },
+    ];
+    return m;
+  }
+  it('a manifest without levels has the base level only', () => {
+    const m = parseManifest(valid());
+    expect(levelSpecs(m)).toEqual([{ level: 0, tolerance_m: 0 }]);
+    expect(allTiles(m).map((t) => t.level)).toEqual([0, 0]);
+  });
+  it('lists the levels with their tolerance and stamps every tile with its level', () => {
+    const m = parseManifest(withLevels());
+    expect(levelSpecs(m)).toEqual([
+      { level: 0, tolerance_m: 0.2 },
+      { level: 1, tolerance_m: 1 },
+    ]);
+    expect(allTiles(m).map((t) => `${t.id}:${t.level}`)).toEqual(['0_0:0', '1_0:0', 'L1_0_0:1']);
+  });
+  it('rejects levels out of order, without a tolerance, without tiles or with a falling tolerance', () => {
+    const bad = (mutate: (l: Record<string, unknown>[]) => void): void => {
+      const m = withLevels();
+      mutate(m.levels as Record<string, unknown>[]);
+      expect(() => parseManifest(m)).toThrow(ManifestError);
+    };
+    bad((l) => {
+      l[1].level = 3;
+    });
+    bad((l) => {
+      delete l[1].tolerance_m;
+    });
+    bad((l) => {
+      l[1].tiles = [];
+    });
+    bad((l) => {
+      l[1].tolerance_m = 0.1;
+    });
+    bad((l) => {
+      (l[1].tiles as Record<string, unknown>[])[0].glb = {};
+    });
   });
 });
