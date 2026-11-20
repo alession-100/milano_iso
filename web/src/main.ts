@@ -178,7 +178,9 @@ function updateTiles(): void {
   lod.update(frustumOf(camera), rig.metresPerPixel(window.innerWidth), cx, cz); // T-6.2
 }
 
+let lastRenderMs = 0; // T-6.4: CPU time of the last render(), for the benchmark
 function render(): void {
+  const t0 = performance.now();
   renderQueued = false;
   camera.updateMatrixWorld();
   const key = cameraKey();
@@ -191,6 +193,7 @@ function render(): void {
   if (shadowsOn) fitSunShadow(sun, camera, rig.bounds); // T-3.3 style
   renderer.render(scene, camera);
   lastRender = { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
+  lastRenderMs = performance.now() - t0;
   for (const hook of frameHooks) hook(); // T-3.4: empty unless ?debug
 }
 
@@ -378,6 +381,7 @@ initLayout(); // T-5.7: the attribution band; the toolbar zone and the card are 
         {
           renderInfo: () => lastRender,
           tiles: tilesState,
+          lastRenderMs: () => lastRenderMs,
           camera: () => rig.snapshot(),
           canvas: renderer.domElement,
           pixelRatio: () => renderer.getPixelRatio(),

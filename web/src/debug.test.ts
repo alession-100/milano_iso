@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { BENCH_DURATION_S, BENCH_KEYFRAMES, benchPose, mean, percentile, summarise } from './debug';
+import {
+  BENCH_DURATION_S,
+  BENCH_KEYFRAMES,
+  CITY_BENCH_KEYFRAMES,
+  benchKeyframesFor,
+  benchPose,
+  mean,
+  percentile,
+  summarise,
+  summariseSegments,
+} from './debug';
 
 describe('statistics', () => {
   it('mean', () => {
@@ -52,5 +62,50 @@ describe('benchmark path', () => {
     const mid = benchPose(2.5);
     expect(mid.x).toBeCloseTo(0, 9);
     expect(mid.width).toBeCloseTo(Math.sqrt(600 * 4000), 6);
+  });
+});
+
+describe('city benchmark path (T-6.4)', () => {
+  it('lasts at least 60 s, is named per segment and stays inside the zoom range', () => {
+    const last = CITY_BENCH_KEYFRAMES[CITY_BENCH_KEYFRAMES.length - 1];
+    expect(last?.t).toBeGreaterThanOrEqual(60);
+    for (let i = 1; i < CITY_BENCH_KEYFRAMES.length; i++) {
+      const k = CITY_BENCH_KEYFRAMES[i];
+      expect(k?.seg).toBeTruthy();
+      expect(k?.t).toBeGreaterThan(CITY_BENCH_KEYFRAMES[i - 1]?.t ?? 0);
+    }
+    for (const k of CITY_BENCH_KEYFRAMES) {
+      expect(k.width).toBeGreaterThanOrEqual(60);
+      expect(k.width).toBeLessThanOrEqual(4000);
+    }
+  });
+
+  it('is deterministic and hits the keyframes', () => {
+    const a = Array.from({ length: 161 }, (_, i) => benchPose(i / 2, CITY_BENCH_KEYFRAMES));
+    const b = Array.from({ length: 161 }, (_, i) => benchPose(i / 2, CITY_BENCH_KEYFRAMES));
+    expect(a).toEqual(b);
+    expect(benchPose(0, CITY_BENCH_KEYFRAMES)).toEqual({ x: 0, z: 0, width: 600 });
+    expect(benchPose(44, CITY_BENCH_KEYFRAMES)).toEqual({ x: -2500, z: 1500, width: 4000 });
+  });
+
+  it('is the default; ?tiles=...pilot... selects the pilot path', () => {
+    expect(benchKeyframesFor(null)).toBe(CITY_BENCH_KEYFRAMES);
+    expect(benchKeyframesFor('tiles/city/')).toBe(CITY_BENCH_KEYFRAMES);
+    expect(benchKeyframesFor('tiles/pilot/')).toBe(BENCH_KEYFRAMES);
+  });
+
+  it('summarises per segment', () => {
+    const keys = [
+      { t: 0, x: 0, z: 0, width: 1 },
+      { t: 1, seg: 'a', x: 0, z: 0, width: 1 },
+      { t: 2, seg: 'b', x: 0, z: 0, width: 1 },
+    ];
+    const f = (at: number, ms: number, calls: number, level: number) => ({ at, ms, calls, triangles: calls * 10, level });
+    const r = summariseSegments([f(0.5, 10, 5, 0), f(1, 10, 7, 0), f(1.5, 20, 9, 1), f(2, 20, 3, 2)], keys);
+    expect(r.map((g) => [g.name, g.frames, g.maxDrawCalls, g.maxTriangles, g.levelMin, g.levelMax])).toEqual([
+      ['a', 2, 7, 70, 0, 0],
+      ['b', 2, 9, 90, 1, 2],
+    ]);
+    expect(r[1]?.meanFps).toBeCloseTo(50, 9);
   });
 });

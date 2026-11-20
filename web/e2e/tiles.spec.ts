@@ -26,7 +26,7 @@ test('the fixture tiles load, attribution comes from the manifest, draw calls wi
   const expected = manifest.tiles.length;
 
   // 1200 m wide covers all fixture tiles (they span about 500 m around the origin).
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 1200);
   await expect
@@ -58,7 +58,7 @@ test('a manifest with an unexpected format shows an error and stops', async ({ p
   await page.route('**/tiles/pilot/tiles.json', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: '{"format_version":1}' }),
   );
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('#error')).toBeVisible();
   const s = await state(page);
   expect(s.tiles.loaded).toBe(0);
@@ -67,7 +67,7 @@ test('a manifest with an unexpected format shows an error and stops', async ({ p
 test('the attribution is visible on a mobile viewport', async ({ page }) => {
   await routeFixtureTiles(page);
   await page.setViewportSize({ width: 412, height: 915 });
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await setView(page, 0, 0, 1200);
   await expect(page.locator('#attribution')).toContainText('OpenStreetMap contributors');
   await expect(page.locator('#attribution')).toBeInViewport();
@@ -93,7 +93,7 @@ test('a tile that keeps failing is retried once, then a dismissible notice appea
     hits += 1;
     await route.fulfill({ status: 404, body: 'not found' });
   });
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 1200);
   await expect.poll(async () => (await state(page)).tiles.failed, { timeout: 20_000 }).toBe(1);

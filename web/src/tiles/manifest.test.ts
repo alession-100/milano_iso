@@ -192,8 +192,13 @@ describe('contentBounds', () => {
 });
 
 describe('resolveTilesBase', () => {
-  it('defaults to tiles/pilot/ relative to the page', () => {
-    expect(resolveTilesBase('', 'http://h/app/index.html').href).toBe('http://h/app/tiles/pilot/');
+  it('defaults to tiles/city/ relative to the page (T-6.4)', () => {
+    expect(resolveTilesBase('', 'http://h/app/index.html').href).toBe('http://h/app/tiles/city/');
+  });
+  it('opens the pilot with ?tiles=tiles/pilot/', () => {
+    expect(resolveTilesBase('?tiles=tiles/pilot/', 'http://h/app/index.html').href).toBe(
+      'http://h/app/tiles/pilot/',
+    );
   });
   it('honours ?tiles= and adds a trailing slash', () => {
     expect(resolveTilesBase('?tiles=/fx/tiles', 'http://h/').href).toBe('http://h/fx/tiles/');

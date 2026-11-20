@@ -45,7 +45,7 @@ async function open(page: Page, o: OpenOptions = {}): Promise<string[]> {
   await page.emulateMedia({ reducedMotion: o.reduced === false ? 'no-preference' : 'reduce' });
   await routeFixtureTiles(page);
   if (o.failTile) await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
-  await page.goto(`/?e2e=1${o.query ?? ''}`);
+  await page.goto(`/?e2e=1&tiles=tiles/pilot/${o.query ?? ''}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 600);
   await settleRendered(page);
@@ -176,9 +176,9 @@ test.describe('language (VERIFICATION 4a item 7)', () => {
     expect(await page.evaluate(() => window.localStorage.getItem('milano-iso.lang'))).toBe('it');
     await page.locator('#lang-toggle').click(); // it -> en
     expect(await page.evaluate(() => window.localStorage.getItem('milano-iso.lang'))).toBe('en');
-    await page.goto('/?e2e=1'); // no parameter: the remembered English
+    await page.goto('/?e2e=1&tiles=tiles/pilot/'); // no parameter: the remembered English
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await page.goto('/?e2e=1&lang=it'); // the URL wins
+    await page.goto('/?e2e=1&tiles=tiles/pilot/&lang=it'); // the URL wins
     await expect(page.locator('html')).toHaveAttribute('lang', 'it');
     await expect(page.locator('#layers-button')).toHaveText('Livelli');
     await page.evaluate(() => window.localStorage.removeItem('milano-iso.lang'));

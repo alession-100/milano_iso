@@ -11,6 +11,8 @@ export const BENCH_DURATION_S = 10;
 export interface Keyframe {
   /** Seconds from the start of the run. */
   t: number;
+  /** Name of the segment that ENDS at this keyframe (the interval from the previous keyframe); T-6.4. */
+  seg?: string;
   /** Look-at ground point in client metres. */
   x: number;
   z: number;
@@ -24,9 +26,32 @@ export interface Keyframe {
  */
 export const BENCH_KEYFRAMES: readonly Keyframe[] = [
   { t: 0, x: -400, z: -400, width: 600 },
-  { t: 5, x: 400, z: 400, width: 4000 },
-  { t: BENCH_DURATION_S, x: -400, z: -400, width: 600 },
+  { t: 5, seg: 'pilot out', x: 400, z: 400, width: 4000 },
+  { t: BENCH_DURATION_S, seg: 'pilot back', x: -400, z: -400, width: 600 },
 ];
+
+/**
+ * Fixed city benchmark path (T-6.4): centre (the Duomo, 0 0) at the base level, then outward across
+ * the levels and over the city at the widest zoom, and back. Client metres; the poses are data, so
+ * every run is the same. Which level a width draws depends on the viewport: at 1280 px wide the
+ * metres per pixel are width/1280, so 600 m is level 0 (< 0.5), 1200 m level 1, 2400 m level 2 and
+ * 4000 m level 3 (tolerances 0.2, 0.5, 1.5, 3.0 m, ADR-0037). The level drawn is reported per segment.
+ */
+export const CITY_BENCH_KEYFRAMES: readonly Keyframe[] = [
+  { t: 0, x: 0, z: 0, width: 600 },
+  { t: 12, seg: 'L0 pan at 600 m', x: 500, z: -300, width: 600 },
+  { t: 22, seg: 'zoom 600-1200 m', x: 500, z: -300, width: 1200 },
+  { t: 32, seg: 'zoom 1200-2400 m', x: 0, z: 0, width: 2400 },
+  { t: 44, seg: 'zoom 2400-4000 m', x: -2500, z: 1500, width: 4000 },
+  { t: 56, seg: 'pan at 4000 m across the city', x: 2500, z: -2500, width: 4000 },
+  { t: 68, seg: 'pan at 4000 m, other diagonal', x: -4000, z: -3000, width: 4000 },
+  { t: 80, seg: 'zoom in 4000-600 m', x: 0, z: 0, width: 600 },
+];
+
+/** The path for the `?tiles=` value: the pilot path for a pilot tileset, the city path otherwise (the default). */
+export function benchKeyframesFor(tilesParam: string | null): readonly Keyframe[] {
+  return tilesParam !== null && /pilot/.test(tilesParam) ? BENCH_KEYFRAMES : CITY_BENCH_KEYFRAMES;
+}
 
 /** Deterministic camera pose at time t (seconds): linear in position, geometric in width. */
 export function benchPose(
@@ -69,6 +94,60 @@ export function percentile(values: readonly number[], p: number): number {
   return (s[lo] as number) + ((s[hi] as number) - (s[lo] as number)) * (pos - lo);
 }
 
+export interface FrameSample {
+  /** Seconds since the start of the timed run. */
+  at: number;
+  ms: number;
+  calls: number;
+  triangles: number;
+  /** Level in use (lod) at this frame. */
+  level: number;
+}
+
+export interface SegmentResult {
+  name: string;
+  from: number;
+  to: number;
+  frames: number;
+  meanFps: number;
+  /** 1 % low: the frame rate of the 99th percentile frame time. */
+  p1LowFps: number;
+  p99FrameMs: number;
+  maxDrawCalls: number;
+  maxTriangles: number;
+  levelMin: number;
+  levelMax: number;
+}
+
+/** Per-segment statistics of the timed frames; the segment of a frame is the keyframe interval it falls in. */
+export function summariseSegments(
+  samples: readonly FrameSample[],
+  keys: readonly Keyframe[],
+): SegmentResult[] {
+  const out: SegmentResult[] = [];
+  for (let i = 1; i < keys.length; i++) {
+    const a = keys[i - 1] as Keyframe;
+    const b = keys[i] as Keyframe;
+    const inSeg = samples.filter((f) => f.at > a.t && f.at <= b.t);
+    const ms = inSeg.map((f) => f.ms);
+    const levels = inSeg.map((f) => f.level);
+    out.push({
+      name: b.seg ?? `${a.t}-${b.t} s`,
+      from: a.t,
+      to: b.t,
+      frames: inSeg.length,
+      meanFps: 1000 / mean(ms),
+      p1LowFps: 1000 / percentile(ms, 99),
+      p99FrameMs: percentile(ms, 99),
+      maxDrawCalls: inSeg.reduce((m, f) => Math.max(m, f.calls), 0),
+      maxTriangles: inSeg.reduce((m, f) => Math.max(m, f.triangles), 0),
+      levelMin: levels.length ? Math.min(...levels) : NaN,
+      levelMax: levels.length ? Math.max(...levels) : NaN,
+    });
+  }
+  return out;
+}
+
 export interface BenchResults {
   frames: number;
   durationS: number;
@@ -78,6 +157,12 @@ export interface BenchResults {
   p95FrameMs: number;
   maxDrawCalls: number;
   maxTriangles: number;
+  /** Per segment of the path (T-6.4). */
+  segments: SegmentResult[];
+  /** Whole run: 1 % low, level range, mean CPU time of the render call (ms). */
+  p1LowFps: number;
+  meanCpuMs: number;
+  tilesBase: string;
 }
 
 /** Summarise per-frame times (ms between consecutive rendered frames). */
@@ -85,7 +170,7 @@ export function summarise(
   frameMs: readonly number[],
   maxDrawCalls: number,
   maxTriangles: number,
-): BenchResults {
+): Omit<BenchResults, 'segments' | 'meanCpuMs' | 'tilesBase'> {
   const total = frameMs.reduce((a, b) => a + b, 0);
   const meanMs = mean(frameMs);
   return {
@@ -100,12 +185,15 @@ export function summarise(
     p95FrameMs: percentile(frameMs, 95),
     maxDrawCalls,
     maxTriangles,
+    p1LowFps: 1000 / percentile(frameMs, 99),
   };
 }
 
 export interface DebugContext {
   renderInfo: () => { calls: number; triangles: number };
-  tiles: () => { loaded: number; loading: number; failed: number; visible: number };
+  tiles: () => { loaded: number; loading: number; failed: number; visible: number; level: number; pending: number };
+  /** CPU time of the last render() call, ms (T-6.4). */
+  lastRenderMs: () => number;
   camera: () => { target: [number, number]; visibleWidth: number; azimuthDeg: number };
   canvas: HTMLCanvasElement;
   pixelRatio: () => number;
@@ -189,9 +277,14 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   let lastFrameAt = 0;
   let lastFrameMs = 0;
   let runStart = 0;
-  let frameMs: number[] = [];
-  let maxCalls = 0;
-  let maxTris = 0;
+  let samples: FrameSample[] = [];
+  let cpuSum = 0;
+  let keys: readonly Keyframe[] = BENCH_KEYFRAMES;
+  /** Warm-up: the first pose is held, untimed, until the tiles of the view are in (or WARMUP_MAX_S). */
+  let warmStart = 0;
+  let idleFrames = 0;
+  const WARMUP_MAX_S = 60;
+  let lastLiveAt = 0;
 
   const fmt = (n: number, d = 1): string => (Number.isFinite(n) ? n.toFixed(d) : '-');
 
@@ -201,7 +294,7 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
     const cam = ctx.camera();
     live.textContent =
       `frame ${fmt(lastFrameMs)} ms (${fmt(lastFrameMs > 0 ? 1000 / lastFrameMs : NaN, 0)} fps)\n` +
-      `draw calls ${info.calls}  triangles ${info.triangles}\n` +
+      `draw calls ${info.calls}  triangles ${info.triangles}  level ${tl.level}\n` +
       `tiles loaded ${tl.loaded} loading ${tl.loading} failed ${tl.failed} visible ${tl.visible}\n` +
       `target ${fmt(cam.target[0], 0)}, ${fmt(cam.target[1], 0)} m  width ${fmt(cam.visibleWidth, 0)} m  az ${fmt(cam.azimuthDeg, 0)}\n` +
       `dpr ${ctx.pixelRatio()} (device ${window.devicePixelRatio})  canvas ${ctx.canvas.width}x${ctx.canvas.height}`;
@@ -213,10 +306,16 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
       out.textContent = t('benchRunning');
     } else if (r) {
       out.textContent =
-        `fps mean ${fmt(r.meanFps)}  p5 ${fmt(r.p5Fps)}\n` +
-        `frame ms mean ${fmt(r.meanFrameMs)}  p95 ${fmt(r.p95FrameMs)}\n` +
+        `fps mean ${fmt(r.meanFps)}  1% low ${fmt(r.p1LowFps)}  p5 ${fmt(r.p5Fps)}\n` +
+        `frame ms mean ${fmt(r.meanFrameMs)}  p95 ${fmt(r.p95FrameMs)}  cpu ${fmt(r.meanCpuMs)}\n` +
         `max draw calls ${r.maxDrawCalls}  max triangles ${r.maxTriangles}\n` +
-        `frames ${r.frames} in ${fmt(r.durationS)} s`;
+        `frames ${r.frames} in ${fmt(r.durationS)} s\n` +
+        r.segments
+          .map(
+            (g) =>
+              `${g.name}: ${fmt(g.meanFps, 0)} fps, 1% low ${fmt(g.p1LowFps, 0)}, calls ${g.maxDrawCalls}, tris ${g.maxTriangles}, L${g.levelMin}${g.levelMax !== g.levelMin ? '-' + g.levelMax : ''}`,
+          )
+          .join('\n');
     } else {
       out.textContent = '';
     }
@@ -225,42 +324,72 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
   function startBench(): void {
     if (state.status === 'running') return;
     state = { status: 'running', results: null };
-    frameMs = [];
-    maxCalls = 0;
-    maxTris = 0;
+    keys = benchKeyframesFor(new URLSearchParams(window.location.search).get('tiles'));
+    samples = [];
+    cpuSum = 0;
     runStart = 0;
+    warmStart = 0;
+    idleFrames = 0;
     lastFrameAt = 0;
     benchBtn.disabled = true;
     drawResults();
     ctx.requestRender();
   }
 
+  function finish(): void {
+    const ms = samples.map((f) => f.ms);
+    const calls = samples.reduce((m, f) => Math.max(m, f.calls), 0);
+    const tris = samples.reduce((m, f) => Math.max(m, f.triangles), 0);
+    state = {
+      status: 'done',
+      results: {
+        ...summarise(ms, calls, tris),
+        segments: summariseSegments(samples, keys),
+        meanCpuMs: cpuSum / Math.max(1, samples.length),
+        tilesBase: new URLSearchParams(window.location.search).get('tiles') ?? 'default (tiles/city/)',
+      },
+    };
+    benchBtn.disabled = false;
+    drawResults();
+  }
+
   ctx.addFrameHook(() => {
     const now = performance.now();
     lastFrameMs = lastFrameAt > 0 ? now - lastFrameAt : 0;
     lastFrameAt = now;
-    const info = ctx.renderInfo();
     if (state.status === 'running') {
-      const first = runStart === 0;
-      if (first) {
-        runStart = now; // the first frame only sets the time origin
+      const info = ctx.renderInfo();
+      const tl = ctx.tiles();
+      const first = keys[0] as Keyframe;
+      const duration = (keys[keys.length - 1] as Keyframe).t;
+      if (runStart === 0) {
+        // Warm-up (untimed): hold the first pose until nothing is loading or pending for 10 frames
+        // (at least 1 s), so the timed run measures the path and not the first fetch of the start view.
+        if (warmStart === 0) warmStart = now;
+        ctx.setView(first.x, first.z, first.width);
+        idleFrames = tl.loading === 0 && tl.pending === 0 && tl.loaded > 0 ? idleFrames + 1 : 0;
+        const waited = (now - warmStart) / 1000;
+        if ((idleFrames >= 10 && waited >= 1) || waited >= WARMUP_MAX_S) runStart = now; // time origin
+        ctx.requestRender();
       } else {
-        frameMs.push(lastFrameMs);
-        maxCalls = Math.max(maxCalls, info.calls);
-        maxTris = Math.max(maxTris, info.triangles);
-      }
-      const elapsed = (now - runStart) / 1000;
-      if (!first && elapsed >= BENCH_DURATION_S) {
-        state = { status: 'done', results: summarise(frameMs, maxCalls, maxTris) };
-        benchBtn.disabled = false;
-        drawResults();
-      } else {
-        const p = benchPose(elapsed);
-        ctx.setView(p.x, p.z, p.width);
-        ctx.requestRender(); // continuous rendering only while the benchmark runs
+        const elapsed = (now - runStart) / 1000;
+        samples.push({ at: elapsed, ms: lastFrameMs, calls: info.calls, triangles: info.triangles, level: tl.level });
+        cpuSum += ctx.lastRenderMs();
+        if (elapsed >= duration) {
+          finish();
+        } else {
+          const p = benchPose(elapsed, keys);
+          ctx.setView(p.x, p.z, p.width);
+          ctx.requestRender(); // continuous rendering only while the benchmark runs
+        }
       }
     }
-    drawLive();
+    // The readout is 4 Hz while a run is going: rewriting five lines of text every frame would be
+    // part of what the run measures.
+    if (state.status !== 'running' || now - lastLiveAt >= 250) {
+      lastLiveAt = now;
+      drawLive();
+    }
   });
 
   benchBtn.addEventListener('click', startBench); // Enter on the focused button also clicks

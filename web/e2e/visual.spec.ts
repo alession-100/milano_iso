@@ -43,7 +43,7 @@ test.describe('visual regression (fixture tiles)', () => {
           await routeFixtureTiles(page);
           const expected = readFixtureManifest().tiles.length;
           await page.goto(
-            `/?e2e=1${mode === 'night' ? '&time=night' : ''}${rot ? `&rot=${rot}` : ''}`,
+            `/?e2e=1&tiles=tiles/pilot/${mode === 'night' ? '&time=night' : ''}${rot ? `&rot=${rot}` : ''}`,
           );
           await expect(page.locator('canvas')).toHaveCount(1);
           await setView(page, x, z, w);
@@ -71,7 +71,7 @@ test.describe('visual regression: info card (fixture tiles)', () => {
       test('info card open on B1', async ({ page }) => {
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await routeFixtureTiles(page);
-        await page.goto('/?e2e=1');
+        await page.goto('/?e2e=1&tiles=tiles/pilot/');
         await expect(page.locator('canvas')).toHaveCount(1);
         await setView(page, 30, -30, 150);
         await settleRendered(page);

@@ -6,7 +6,7 @@ import { collectProblems, readFixtureManifest, routeFixtureTiles, settleRendered
 async function open(page: Page, query = ''): Promise<string[]> {
   const problems = collectProblems(page);
   await routeFixtureTiles(page);
-  await page.goto(`/?e2e=1${query}`);
+  await page.goto(`/?e2e=1&tiles=tiles/pilot/${query}`);
   const expected = readFixtureManifest().tiles.length;
   await expect
     .poll(
@@ -112,7 +112,7 @@ test('?time=night starts in night mode, ?time=day overrides a remembered night',
   // The URL does not overwrite the remembered choice; a click does.
   await page.locator('#mode-toggle').click();
   expect(await mode(page)).toBe('day');
-  await page.goto('/?e2e=1&time=night');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/&time=night');
   expect(await mode(page)).toBe('night');
   expect(problems).toEqual([]);
 });
@@ -150,7 +150,7 @@ test('the toggle does not overlap the tiles notice when a tile fails', async ({ 
   const page = await ctx.newPage();
   await routeFixtureTiles(page);
   await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   const notice = page.locator('#tiles-notice');
   await expect(notice).toBeVisible({ timeout: 20_000 });
   const a = await notice.boundingBox();

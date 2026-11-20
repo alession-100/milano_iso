@@ -36,7 +36,7 @@ async function open(page: Page, query = '', reduced = true): Promise<string[]> {
   const problems = collectProblems(page);
   await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
   await routeFixtureTiles(page);
-  await page.goto(`/?e2e=1${query}`);
+  await page.goto(`/?e2e=1&tiles=tiles/pilot/${query}`);
   await settleTiles(page);
   await expect.poll(async () => (await tb(page)).minimapLoaded).toBe(true);
   return problems;
@@ -218,14 +218,14 @@ test('?layers= sets the toggles, tiles loaded later honour them, and the URL is 
     landmarkDetails: false,
   });
   const some = await stableCalls(page);
-  await page.goto('/?e2e=1&layers=none');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/&layers=none');
   await settleTiles(page);
   expect(Object.values((await tb(page)).layers).every((v) => v === false)).toBe(true);
   // Only the ground plane is drawn; every tile was loaded after the state was set.
   expect(await stableCalls(page)).toBeLessThan(some);
   expect(await stableCalls(page)).toBeLessThanOrEqual(1);
   // A ?layers= value is for tests: it is not stored, so a plain reload shows everything again.
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await settleTiles(page);
   expect(Object.values((await tb(page)).layers).every((v) => v === true)).toBe(true);
 });
@@ -395,7 +395,7 @@ test.describe('412 px layout', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await routeFixtureTiles(page);
     await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
-    await page.goto('/?e2e=1');
+    await page.goto('/?e2e=1&tiles=tiles/pilot/');
     await expect(page.locator('#tiles-notice')).toBeVisible({ timeout: 20_000 });
     await expect.poll(async () => (await tb(page)).minimapLoaded).toBe(true);
     const fixed = ['#attribution', '#mode-toggle', '#rotation-controls', '#tiles-notice', '#toolbar'];
@@ -578,7 +578,7 @@ for (const [lang, many, one, some] of [
     await page.route('**/tiles/pilot/index.json*', (route) =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ entries }) }),
     );
-    await page.goto(`/?e2e=1&lang=${lang}`);
+    await page.goto(`/?e2e=1&tiles=tiles/pilot/&lang=${lang}`);
     await settleTiles(page);
     await type(page, 'galleria');
     await expect(page.locator('#search-list li')).toHaveCount(8);

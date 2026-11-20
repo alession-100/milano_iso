@@ -17,7 +17,7 @@ async function open(page: Page): Promise<string[]> {
 }
 
 async function start(page: Page): Promise<void> {
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('canvas')).toHaveCount(1);
 }
 
