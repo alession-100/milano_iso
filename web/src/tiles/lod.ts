@@ -69,7 +69,9 @@ export class LodController<T extends THREE.Object3D> {
   private estimated: number | null = null;
   private readonly cap: number;
   private readonly castersBelow: number;
+  /** Per tile: draw calls of its meshes, and of its shadow pass. */
   private readonly calls = new Map<string, number>();
+  private readonly shadowCalls = new Map<string, number>();
   private mpp = 0;
   private visible: string[] = [];
   private neededShards: ShardRecord[] = [];
@@ -101,7 +103,9 @@ export class LodController<T extends THREE.Object3D> {
       list.push(t);
       this.byLevel.set(lv, list);
       this.cells.set(t.id, cellOf(t));
-      this.calls.set(t.id, tileCalls(lv, t.counts, this.manifest.layers, lv < this.castersBelow));
+      const meshes = tileCalls(lv, t.counts, this.manifest.layers, false);
+      this.calls.set(t.id, meshes);
+      this.shadowCalls.set(t.id, tileCalls(lv, t.counts, this.manifest.layers, lv < this.castersBelow) - meshes);
     }
     this.streamer.addTiles(tiles);
   }
@@ -139,7 +143,11 @@ export class LodController<T extends THREE.Object3D> {
       if (v.missing > 0) return null; // the tiles of this level in view are not all known yet
       // counted over the tiles three.js will draw: its per-mesh test is a bounding sphere, wider than the box test of `visible`
       const cells = v.tiles.filter((t) => tileSphereIntersects(t, frustum)).map((t) => this.cells.get(t.id) as Cell);
-      return plannedCalls(l, cells, (id) => this.calls.get(id) ?? 0);
+      // The shadow pass draws the casters that meet the sun's view volume, which reaches past the view
+      // (a building outside the view can shade a street inside it), so it is counted over the view and
+      // its ring of prefetch tiles, the meshes over the tiles in view only.
+      const ring = v.culled.wanted.map((id) => this.cells.get(id) as Cell);
+      return plannedCalls(l, cells, (id) => this.calls.get(id) ?? 0) + plannedCalls(l, ring, (id) => this.shadowCalls.get(id) ?? 0);
     };
     const unknown: number[] = [];
     const maxLevel = Math.min(BUDGET_MAX_LEVEL, this.specs[this.specs.length - 1]?.level ?? 0);

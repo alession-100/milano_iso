@@ -84,6 +84,9 @@ for (const [w, h] of windows) {
           baseLevel: st.t.baseLevel ?? null,
           budgetSwitched: st.t.budgetSwitched ?? null,
           estimatedCalls: st.t.estimatedCalls ?? null,
+          // error of the level drawn, in CSS pixels: its tolerance over the metres per pixel (ADR-0037 allows 1)
+          mpp: st.t.mpp,
+          errorPx: st.t.tolerances ? st.t.tolerances[st.t.level] / st.t.mpp : null,
           drawnByLevel: st.t.drawnByLevel,
           visible: st.t.visible,
           loaded: st.t.loaded,
@@ -106,10 +109,12 @@ const unsettled = views.filter((v) => !v.settled);
 const maxBy = {};
 for (const v of views) if (!maxBy[v.window] || v.calls > maxBy[v.window].calls) maxBy[v.window] = v;
 const switched = views.filter((v) => v.budgetSwitched === true).length;
-const result = { label, cap: CAP, views: views.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: views.some((v) => v.budgetSwitched !== null) ? switched : null, maxByWindow: maxBy, data: views };
+const worstPx = views.filter((v) => v.budgetSwitched === true).sort((a, b) => b.errorPx - a.errorPx)[0] ?? null;
+const result = { label, cap: CAP, views: views.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: views.some((v) => v.budgetSwitched !== null) ? switched : null, worstErrorPxOnSwitchedViews: worstPx, maxByWindow: maxBy, data: views };
 if (out) writeFileSync(out, JSON.stringify(result, null, 1));
 const lines = [
   `Sweep ${label}: ${views.length} views, ${unsettled.length} not settled, ${over.length} over ${CAP} draw calls, budget switch fired on ${result.budgetSwitchedViews ?? 'n/a (no switch in this build)'}.`,
+  worstPx ? `Worst error on a view where the budget switched the level: ${worstPx.errorPx.toFixed(2)} px (${worstPx.window}, (${worstPx.x}, ${worstPx.z}), step ${worstPx.step}, ${Math.round(worstPx.width)} m, level ${worstPx.level} from base ${worstPx.baseLevel}).` : '',
   '',
   '| Window | Max draw calls | At (centre, step, width m) | Level | Views over cap |',
   '|---|---:|---|---:|---:|',
