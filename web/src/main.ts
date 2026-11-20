@@ -23,7 +23,16 @@ import { type IndexEntry, parseIndex, refOf } from './search';
 import { currentSelection, onSelect, select } from './selection';
 import { initLayout } from './layout';
 import { createToolbar } from './toolbar';
-import { type Manifest, allTiles, contentBounds, fetchManifest, indexUrl, minimapUrl, resolveTilesBase } from './tiles/manifest';
+import {
+  type Manifest,
+  assetUrl,
+  contentBounds,
+  fetchManifest,
+  fetchShard,
+  indexUrl,
+  minimapUrl,
+  resolveTilesBase,
+} from './tiles/manifest';
 
 const host = document.getElementById('app') as HTMLElement;
 // T-5.4 language (ADR-0006): ?lang= wins, then the remembered choice, then Italian. Every module
@@ -87,8 +96,11 @@ let lod: LodController<THREE.Group> | null = null;
 /** Tile state for the e2e hook and the debug overlay; `visible` counts the tiles of the level in use. */
 function tilesState() {
   return {
-    ...(streamer?.stats ?? { loaded: 0, loading: 0, failed: 0 }),
+    ...(streamer?.stats ?? { loaded: 0, loading: 0, failed: 0, started: 0, completed: 0, cancelled: 0 }),
     ...(lod?.state() ?? { visible: 0, pending: 0, level: 0 }),
+    // T-6.3 checks: tile groups in the scene (equals `loaded`: a cancelled tile is never added), and requests in flight that are not wanted (0)
+    inScene: tileRoot.children.length,
+    unwantedInFlight: streamer?.unwantedInFlight() ?? 0,
   };
 }
 registerTestState('tiles', tilesState);
@@ -205,7 +217,7 @@ async function startTiles(): Promise<void> {
   void loadMinimap(manifest, base);
   rig.setBounds(contentBounds(manifest));
   rig.apply();
-  streamer = new TileStreamer<THREE.Group>(allTiles(manifest), {
+  streamer = new TileStreamer<THREE.Group>([], {
     load: createGltfTileLoader(base),
     onLoaded: (_id, obj) => {
       applyLayerVisibility(obj); // T-5.3b: tiles loaded later honour the layer toggles
@@ -225,7 +237,17 @@ async function startTiles(): Promise<void> {
     },
     onChange: requestRender,
   });
-  lod = new LodController<THREE.Group>(manifest, streamer);
+  lod = new LodController<THREE.Group>(manifest, streamer, {
+    fetchShard: (rec, signal) => fetchShard(base, rec, signal),
+    onShardsChanged: () => {
+      lastKey = ''; // a shard arrived (or a retry is due): cull again although the camera did not move
+      requestRender();
+    },
+    onShardError: (rec, err) => {
+      console.error(`shard ${rec.id} failed to load: ${err instanceof Error ? err.message : String(err)}`);
+      showTilesNotice();
+    },
+  });
   lastKey = ''; // force a cull on the next frame
   requestRender();
 }
@@ -317,7 +339,7 @@ onSelect((sel) => {
 async function loadSearchIndex(base: URL, m: Manifest): Promise<void> {
   if (!m.index) return; // tilesets before T-5.3a have no index: the card then shows tile data only
   try {
-    const res = await fetch(new URL(m.index.file, base).href);
+    const res = await fetch(assetUrl(base, m.index.file, m.index.sha256).href);
     if (!res.ok) throw new Error(`index ${m.index.file}: HTTP ${res.status}`);
     const body = (await res.json()) as { entries: PickIndexEntry[] };
     picker.setIndex(body.entries);

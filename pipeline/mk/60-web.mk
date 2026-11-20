@@ -8,5 +8,6 @@ DATA_DIR ?= $(if $(MILANO_ISO_DATA),$(MILANO_ISO_DATA),data)
 web-tiles:
 	test -f "$(DATA_DIR)/tiles/$(EXTENT)/tiles.json" || (echo "no tiles in $(DATA_DIR)/tiles/$(EXTENT); run make tiles EXTENT=$(EXTENT)" && exit 1)
 	mkdir -p web/public/tiles/$(EXTENT)
-	cp -f "$(DATA_DIR)"/tiles/$(EXTENT)/* web/public/tiles/$(EXTENT)/
+	rm -rf web/public/tiles/$(EXTENT)/shards
+	cp -rf "$(DATA_DIR)"/tiles/$(EXTENT)/. web/public/tiles/$(EXTENT)/
 	@echo "web-tiles: copied $(DATA_DIR)/tiles/$(EXTENT) to web/public/tiles/$(EXTENT)"

@@ -18,7 +18,7 @@ TILE_DIR = config.DATA_DIR / "tiles" / "pilot"
 
 @pytest.fixture(scope="module")
 def man() -> dict:
-    return json.loads((TILE_DIR / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    return manifest.load_full(TILE_DIR)
 
 
 @pytest.fixture(scope="module")
@@ -34,7 +34,8 @@ def volumes_by_building(gpkg: Path) -> dict[str, list]:
 
 def test_manifest_lists_the_levels_and_validates(man):
     schema = json.loads(manifest.SCHEMA_PATH.read_text(encoding="utf-8"))
-    assert schema_check.validate(man, schema) == []
+    root = json.loads((TILE_DIR / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    assert schema_check.validate(root, schema) == []
     assert [lv["level"] for lv in man["levels"]] == [0, *[lv.level for lv in lod.LEVELS]]
     for rec, lv in zip(man["levels"][1:], lod.LEVELS, strict=True):
         assert (rec["tolerance_m"], rec["block_m"], rec["unit_m"]) == (

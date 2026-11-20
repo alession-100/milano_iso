@@ -134,7 +134,7 @@ async function open(page: Page, lang: string, extra = ''): Promise<string[]> {
   const problems = collectProblems(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await routeFixtureTiles(page);
-  await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' }));
+  await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
   await page.goto(`/?e2e=1&lang=${lang}${extra}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 600);
@@ -269,10 +269,10 @@ for (const [w, h, withCard] of [
       tiles: ['0_0'],
     }));
     await routeFixtureTiles(page);
-    await page.route('**/tiles/pilot/index.json', (route) =>
+    await page.route('**/tiles/pilot/index.json*', (route) =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ entries }) }),
     );
-    await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' })); // the notice is there
+    await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' })); // the notice is there
     await page.setViewportSize({ width: w, height: h });
     await page.goto('/?e2e=1&lang=en');
     await expect(page.locator('canvas')).toHaveCount(1);
@@ -316,7 +316,7 @@ for (const [w, h, drawn] of [
     let release: () => void = () => undefined;
     const gate = new Promise<void>((resolve) => (release = resolve));
     await routeFixtureTiles(page);
-    await page.route('**/tiles/pilot/-1_0.glb', async (route) => {
+    await page.route('**/tiles/pilot/-1_0.glb*', async (route) => {
       await gate;
       await route.fulfill({ status: 404, body: 'x' });
     });

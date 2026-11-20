@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Milano Iso tiles.json",
+  "title": "Milano Iso tiles.json (the root manifest, T-6.3). The tile entries are in shards/*.json, see $defs.shard_file",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "format_version", "crs", "origin", "tile_size_m", "axis", "quantization", "layers",
-    "attribution", "tiles", "totals", "instanced_layers", "index", "minimap"
+    "attribution", "totals", "instanced_layers", "index", "minimap", "bounds_local", "shards"
   ],
   "properties": {
-    "format_version": {"const": 1},
+    "format_version": {"const": 2},
     "crs": {"const": "EPSG:32632"},
     "origin": {
       "type": "object",
@@ -62,7 +62,16 @@
       "minItems": 1,
       "items": {"$ref": "#/$defs/level"}
     },
-    "tiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tile"}},
+    "bounds_local": {
+      "description": "T-6.3: ground extent [xmin, zmin, xmax, zmax] of the content of the base tiles (client metres), for the camera bounds.",
+      "$ref": "#/$defs/bbox"
+    },
+    "shards": {
+      "description": "T-6.3: the shard files that hold the tile entries (levels 0..n), sorted by level then id.",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/shard_record"}
+    },
     "totals": {
       "type": "object",
       "additionalProperties": false,
@@ -111,6 +120,33 @@
         "sha256": {"$ref": "#/$defs/sha256"}
       }
     },
+    "shard_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "id", "file", "bytes", "gzip9_bytes", "sha256", "tiles", "content_bbox_local"],
+      "properties": {
+        "level": {"type": "integer", "minimum": 0},
+        "id": {"type": "string", "pattern": "^S[0-9]+_-?[0-9]+_-?[0-9]+$"},
+        "file": {"type": "string", "pattern": "^shards/S[0-9]+_-?[0-9]+_-?[0-9]+\\.json$"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "gzip9_bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "tiles": {"type": "integer", "minimum": 1},
+        "content_bbox_local": {"$ref": "#/$defs/bbox3"}
+      }
+    },
+    "shard_file": {
+      "description": "T-6.3: shards/S<level>_<a>_<b>.json, a slice of the tile entries of one level.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format_version", "id", "level", "tiles"],
+      "properties": {
+        "format_version": {"const": 2},
+        "id": {"type": "string", "pattern": "^S[0-9]+_-?[0-9]+_-?[0-9]+$"},
+        "level": {"type": "integer", "minimum": 0},
+        "tiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tile"}}
+      }
+    },
     "level": {
       "type": "object",
       "additionalProperties": false,
@@ -122,7 +158,6 @@
         "unit_m": {"type": "number", "exclusiveMinimum": 0},
         "max_tile_gzip_bytes": {"type": "integer", "minimum": 1},
         "keeps": {"type": "object"},
-        "tiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/tile"}},
         "totals": {
           "type": "object",
           "additionalProperties": false,

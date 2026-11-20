@@ -2,32 +2,55 @@ import { describe, expect, it } from 'vitest';
 import {
   type Manifest,
   ManifestError,
-  allTiles,
+  assetUrl,
   attributionUrl,
   contentBounds,
   indexUrl,
   levelSpecs,
   minimapUrl,
   parseManifest,
+  parseShard,
   resolveTilesBase,
 } from './manifest';
 
+const SHA = 'a'.repeat(64);
+
+const SHARD_REC = {
+  level: 0,
+  id: 'S0_0_-1',
+  file: 'shards/S0_0_-1.json',
+  bytes: 900,
+  sha256: 'b'.repeat(64),
+  tiles: 2,
+  content_bbox_local: { min: [-5, 0, -260], max: [500, 30, 3] },
+};
+
 function valid(): Record<string, unknown> {
   return {
-    format_version: 1,
+    format_version: 2,
     axis: 'x=E-E0, y=up, z=-(N-N0)',
     quantization: { unit_m: 0.02, anchor: 'tile_center' },
     tile_size_m: 250,
     layers: ['buildings'],
     attribution: [{ source: 'OpenStreetMap', licence: 'ODbL 1.0', text: '(c) OpenStreetMap contributors' }],
+    bounds_local: [-5, -260, 500, 3],
+    shards: [{ ...SHARD_REC }],
+  };
+}
+
+function shardDoc(): Record<string, unknown> {
+  return {
+    format_version: 2,
+    id: 'S0_0_-1',
+    level: 0,
     tiles: [
       {
         id: '0_0',
         i: 0,
         j: 0,
         content_bbox_local: { min: [-5, 0, -250], max: [250, 30, 3] },
-        glb: { file: '0_0.glb' },
-        features: { file: '0_0.json' },
+        glb: { file: '0_0.glb', sha256: SHA },
+        features: { file: '0_0.json', sha256: SHA },
       },
       {
         id: '1_0',
@@ -41,7 +64,6 @@ function valid(): Record<string, unknown> {
   };
 }
 
-const SHA = 'a'.repeat(64);
 
 describe('index and minimap entries (T-5.3a)', () => {
   const base = new URL('https://example.test/tiles/pilot/');
@@ -55,8 +77,8 @@ describe('index and minimap entries (T-5.3a)', () => {
     const m = parseManifest(withFiles());
     expect(m.index?.file).toBe('index.json');
     expect(m.minimap?.gzip9_bytes).toBe(8);
-    expect(indexUrl(m, base)?.href).toBe('https://example.test/tiles/pilot/index.json');
-    expect(minimapUrl(m, base)?.href).toBe('https://example.test/tiles/pilot/minimap.svg');
+    expect(indexUrl(m, base)?.href).toBe('https://example.test/tiles/pilot/index.json?v=aaaaaaaaaaaa');
+    expect(minimapUrl(m, base)?.href).toBe('https://example.test/tiles/pilot/minimap.svg?v=aaaaaaaaaaaa');
   });
   it('still accepts a manifest without them (older tilesets)', () => {
     const m = parseManifest(valid());
@@ -75,12 +97,12 @@ describe('index and minimap entries (T-5.3a)', () => {
 });
 
 describe('parseManifest', () => {
-  it('accepts a valid manifest', () => {
-    expect(parseManifest(valid()).tiles).toHaveLength(2);
+  it('accepts a valid root manifest', () => {
+    expect(parseManifest(valid()).shards).toHaveLength(1);
   });
-  it('rejects a wrong format_version', () => {
+  it('rejects a wrong format_version (the old single-file format 1 included)', () => {
     const m = valid();
-    m.format_version = 2;
+    m.format_version = 1;
     expect(() => parseManifest(m)).toThrow(ManifestError);
   });
   it('rejects a wrong quantization unit', () => {
@@ -93,22 +115,77 @@ describe('parseManifest', () => {
     m.axis = 'x=E, y=N, z=up';
     expect(() => parseManifest(m)).toThrow(/axis/);
   });
-  it('rejects a tile without a valid content box', () => {
-    const m = valid();
-    (m.tiles as Record<string, unknown>[])[0].content_bbox_local = { min: [0, 0], max: [1, 1, 1] };
-    expect(() => parseManifest(m)).toThrow(/content_bbox_local/);
-  });
-  it('rejects non-objects and empty tile lists', () => {
+  it('rejects non-objects, missing shards and bad bounds', () => {
     expect(() => parseManifest(null)).toThrow(ManifestError);
     expect(() => parseManifest([])).toThrow(ManifestError);
     const m = valid();
-    m.tiles = [];
-    expect(() => parseManifest(m)).toThrow(/tiles/);
+    m.shards = [];
+    expect(() => parseManifest(m)).toThrow(/shards/);
+    const n = valid();
+    n.bounds_local = [1, 2, 3];
+    expect(() => parseManifest(n)).toThrow(/bounds_local/);
+  });
+  it('rejects a malformed shard record', () => {
+    const bad = (mutate: (r: Record<string, unknown>) => void): void => {
+      const m = valid();
+      mutate((m.shards as Record<string, unknown>[])[0]);
+      expect(() => parseManifest(m)).toThrow(/shard record invalid/);
+    };
+    bad((r) => {
+      r.file = '../tiles.json';
+    });
+    bad((r) => {
+      r.file = 'S0_0_0.json';
+    });
+    bad((r) => {
+      r.sha256 = 'xyz';
+    });
+    bad((r) => {
+      r.level = -1;
+    });
+    bad((r) => {
+      r.content_bbox_local = { min: [0, 0], max: [1, 1, 1] };
+    });
+  });
+});
+
+describe('parseShard', () => {
+  it('returns the tile entries stamped with the level of the shard', () => {
+    const tiles = parseShard(shardDoc(), SHARD_REC as never);
+    expect(tiles.map((t) => `${t.id}:${t.level}`)).toEqual(['0_0:0', '1_0:0']);
+  });
+  it('rejects a shard that does not match its record, or has a bad tile', () => {
+    const rec = SHARD_REC as never;
+    expect(() => parseShard({ ...shardDoc(), id: 'S0_1_1' }, rec)).toThrow(/differs from the root/);
+    expect(() => parseShard({ ...shardDoc(), level: 1 }, rec)).toThrow(/differs from the root/);
+    expect(() => parseShard({ ...shardDoc(), format_version: 1 }, rec)).toThrow(ManifestError);
+    expect(() => parseShard({ ...shardDoc(), tiles: [] }, rec)).toThrow(/tiles missing/);
+    const d = shardDoc();
+    (d.tiles as Record<string, unknown>[])[0].content_bbox_local = { min: [0, 0], max: [1, 1, 1] };
+    expect(() => parseShard(d, rec)).toThrow(/content_bbox_local/);
+    const e = shardDoc();
+    (e.tiles as Record<string, unknown>[])[1].glb = {};
+    expect(() => parseShard(e, rec)).toThrow(/glb.file/);
+  });
+});
+
+describe('assetUrl (cache busting by content hash, T-6.3)', () => {
+  const base = new URL('https://example.test/tiles/city/');
+  it('adds the first 12 hex digits of the sha256 as ?v=', () => {
+    expect(assetUrl(base, '0_0.glb', SHA).href).toBe('https://example.test/tiles/city/0_0.glb?v=aaaaaaaaaaaa');
+    expect(assetUrl(base, 'shards/S0_0_0.json', 'c0ffee'.padEnd(64, '1')).search).toBe('?v=c0ffee111111');
+  });
+  it('leaves the URL plain when there is no valid hash', () => {
+    expect(assetUrl(base, '0_0.glb').href).toBe('https://example.test/tiles/city/0_0.glb');
+    expect(assetUrl(base, '0_0.glb', 'xyz').search).toBe('');
+  });
+  it('a different content gives a different URL', () => {
+    expect(assetUrl(base, 'a.glb', 'a'.repeat(64)).href).not.toBe(assetUrl(base, 'a.glb', 'b'.repeat(64)).href);
   });
 });
 
 describe('contentBounds', () => {
-  it('is the union of the content boxes on x and z', () => {
+  it('is the extent of the base tiles given by the root (bounds_local)', () => {
     const m = parseManifest(valid()) as Manifest;
     expect(contentBounds(m)).toEqual({ minX: -5, maxX: 500, minZ: -260, maxZ: 3 });
   });
@@ -141,37 +218,24 @@ describe('attributionUrl', () => {
 });
 
 describe('levels of detail (T-6.2)', () => {
-  const coarse = (id: string) => ({
-    id,
-    i: 0,
-    j: 0,
-    bbox_local: [0, -500, 500, 0],
-    content_bbox_local: { min: [-5, 0, -500], max: [500, 30, 3] },
-    glb: { file: `${id}.glb` },
-    features: { file: `${id}.json` },
-  });
   function withLevels(): Record<string, unknown> {
     const m = valid();
     m.levels = [
       { level: 0, tolerance_m: 0.2, block_m: 250 },
-      { level: 1, tolerance_m: 1, block_m: 500, tiles: [coarse('L1_0_0')] },
+      { level: 1, tolerance_m: 1, block_m: 500 },
     ];
     return m;
   }
   it('a manifest without levels has the base level only', () => {
-    const m = parseManifest(valid());
-    expect(levelSpecs(m)).toEqual([{ level: 0, tolerance_m: 0 }]);
-    expect(allTiles(m).map((t) => t.level)).toEqual([0, 0]);
+    expect(levelSpecs(parseManifest(valid()))).toEqual([{ level: 0, tolerance_m: 0 }]);
   });
-  it('lists the levels with their tolerance and stamps every tile with its level', () => {
-    const m = parseManifest(withLevels());
-    expect(levelSpecs(m)).toEqual([
+  it('lists the levels with their tolerance', () => {
+    expect(levelSpecs(parseManifest(withLevels()))).toEqual([
       { level: 0, tolerance_m: 0.2 },
       { level: 1, tolerance_m: 1 },
     ]);
-    expect(allTiles(m).map((t) => `${t.id}:${t.level}`)).toEqual(['0_0:0', '1_0:0', 'L1_0_0:1']);
   });
-  it('rejects levels out of order, without a tolerance, without tiles or with a falling tolerance', () => {
+  it('rejects levels out of order, without a tolerance or with a falling tolerance', () => {
     const bad = (mutate: (l: Record<string, unknown>[]) => void): void => {
       const m = withLevels();
       mutate(m.levels as Record<string, unknown>[]);
@@ -184,13 +248,7 @@ describe('levels of detail (T-6.2)', () => {
       delete l[1].tolerance_m;
     });
     bad((l) => {
-      l[1].tiles = [];
-    });
-    bad((l) => {
       l[1].tolerance_m = 0.1;
-    });
-    bad((l) => {
-      (l[1].tiles as Record<string, unknown>[])[0].glb = {};
     });
   });
 });

@@ -32,7 +32,7 @@ FLAT_LINE_LAYERS = ("roads", "rail")
 def man() -> dict:
     p = TILE_DIR / manifest.MANIFEST_NAME
     assert p.exists(), f"{p} not found; run `make tiles` first"
-    return json.loads(p.read_text(encoding="utf-8"))
+    return manifest.load_full(TILE_DIR)
 
 
 @pytest.fixture(scope="module")

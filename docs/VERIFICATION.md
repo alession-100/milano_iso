@@ -73,7 +73,7 @@ The reviewer checks each item on the fixture (e2e) and on real pilot data, at 12
 | Metric | Target |
 |---|---|
 | Frame rate, pilot AOI | >= 60 fps desktop, >= 30 fps mid-range phone |
-| Initial payload (gzip/brotli) | <= 3 MB |
+| Initial payload (as served with brotli, until the default view is drawn; prefetch excluded; ADR-0038) | <= 3 MB (3,000,000 bytes) |
 | JS bundle (gzip) | <= 600 KB |
 | Tile size (gzip) | <= 250 KB each |
 | Draw calls, typical view | <= 300 |

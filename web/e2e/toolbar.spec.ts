@@ -295,7 +295,7 @@ test('the minimap file is sanitised: scripts and on* attributes never reach the 
   const evil = original
     .replace('<rect', '<script>window.__pwned = 1</script><rect onclick="window.__pwned = 2"')
     .replace('</svg>', '<a href="javascript:window.__pwned=3"><path d="M0 0l1 1" onmouseover="window.__pwned=4"/></a></svg>');
-  await page.route('**/tiles/pilot/minimap.svg', (route) =>
+  await page.route('**/tiles/pilot/minimap.svg*', (route) =>
     route.fulfill({ status: 200, contentType: 'image/svg+xml', body: evil }),
   );
   const problems = await open(page);
@@ -394,7 +394,7 @@ test.describe('412 px layout', () => {
     const problems = collectProblems(page);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await routeFixtureTiles(page);
-    await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' }));
+    await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
     await page.goto('/?e2e=1');
     await expect(page.locator('#tiles-notice')).toBeVisible({ timeout: 20_000 });
     await expect.poll(async () => (await tb(page)).minimapLoaded).toBe(true);
@@ -575,7 +575,7 @@ for (const [lang, many, one, some] of [
       entry('Passante Nord', 22), // same name and kind as the one above: one hit
     ];
     await routeFixtureTiles(page);
-    await page.route('**/tiles/pilot/index.json', (route) =>
+    await page.route('**/tiles/pilot/index.json*', (route) =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ entries }) }),
     );
     await page.goto(`/?e2e=1&lang=${lang}`);

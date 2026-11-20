@@ -20,11 +20,18 @@ function manual() {
   const started: string[] = [];
   let inFlight = 0;
   let maxInFlight = 0;
-  const load = (t: TileEntry) =>
+  const signals = new Map<string, AbortSignal>();
+  const load = (t: TileEntry, signal: AbortSignal) =>
     new Promise<string>((ok, ko) => {
       started.push(t.id);
+      signals.set(t.id, signal);
       inFlight += 1;
       maxInFlight = Math.max(maxInFlight, inFlight);
+      // like fetch: an abort rejects the promise (and the request stops, so it no longer counts)
+      signal.addEventListener('abort', () => {
+        inFlight -= 1;
+        ko(new DOMException('aborted', 'AbortError'));
+      });
       pending.set(t.id, {
         ok: (v) => {
           inFlight -= 1;
@@ -36,7 +43,7 @@ function manual() {
         },
       });
     });
-  return { load, pending, started, max: () => maxInFlight };
+  return { load, pending, started, signals, max: () => maxInFlight };
 }
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
@@ -54,7 +61,7 @@ describe('TileStreamer', () => {
     const order = ts.map((t) => t.id);
     s.update(order, order);
     expect(m.started).toEqual(['t0', 't1', 't2', 't3']);
-    expect(s.stats).toEqual({ loaded: 0, loading: 4, failed: 0 });
+    expect(s.stats).toMatchObject({ loaded: 0, loading: 4, failed: 0 });
     m.pending.get('t0')?.ok('a');
     await tick();
     expect(m.started).toEqual(['t0', 't1', 't2', 't3', 't4']);
@@ -63,7 +70,7 @@ describe('TileStreamer', () => {
       m.pending.get(id)?.ok(id);
     }
     await tick();
-    expect(s.stats).toEqual({ loaded: 7, loading: 0, failed: 0 });
+    expect(s.stats).toMatchObject({ loaded: 7, loading: 0, failed: 0 });
     expect(m.max()).toBe(4);
   });
 
@@ -83,7 +90,7 @@ describe('TileStreamer', () => {
     await tick();
     // Waiting for the retry: not reported, still counted as loading.
     expect(errors).toEqual([]);
-    expect(s.stats).toEqual({ loaded: 1, loading: 1, failed: 0 });
+    expect(s.stats).toMatchObject({ loaded: 1, loading: 1, failed: 0 });
     await new Promise((r) => setTimeout(r, 40));
     expect(m.started).toEqual(['t0', 't1', 't0']);
     m.pending.get('t0')?.ko(new Error('boom again'));
@@ -91,7 +98,7 @@ describe('TileStreamer', () => {
     s.update(['t0', 't1'], ['t0', 't1']);
     s.update(['t0', 't1'], ['t0', 't1']);
     expect(errors).toEqual(['t0']);
-    expect(s.stats).toEqual({ loaded: 1, loading: 0, failed: 1 });
+    expect(s.stats).toMatchObject({ loaded: 1, loading: 0, failed: 1 });
     expect(m.started).toEqual(['t0', 't1', 't0']);
     // T-6.2: the level logic asks which tiles are loaded and which failed for good
     expect(s.loadedIds()).toEqual(['t1']);
@@ -164,7 +171,7 @@ describe('TileStreamer', () => {
     m.pending.get('t0')?.ok('a');
     await tick();
     expect(errors).toEqual([]);
-    expect(s.stats).toEqual({ loaded: 1, loading: 0, failed: 0 });
+    expect(s.stats).toMatchObject({ loaded: 1, loading: 0, failed: 0 });
   });
 
   it('evicts the least recently visible tile that is not wanted, and disposes it', async () => {
@@ -216,6 +223,89 @@ describe('TileStreamer', () => {
     m.pending.get('t0')?.ok('0');
     await tick();
     expect(m.started).toEqual(['t0', 't2']);
+  });
+});
+
+describe('TileStreamer cancellation (T-6.3)', () => {
+  function streamer(n: number, loaded: string[] = [], errors: string[] = []) {
+    const m = manual();
+    const s = new TileStreamer<string>(entries(n), {
+      load: m.load,
+      onLoaded: (id) => loaded.push(id),
+      onEvict: () => {},
+      onError: (id) => errors.push(id),
+    });
+    return { m, s };
+  }
+
+  it('aborts a request in flight when its tile is no longer wanted, and never adds the tile', async () => {
+    const loaded: string[] = [];
+    const errors: string[] = [];
+    const { m, s } = streamer(6, loaded, errors);
+    s.update(['t0', 't1', 't2', 't3'], []);
+    expect(m.started).toEqual(['t0', 't1', 't2', 't3']);
+    s.update(['t2', 't3', 't4', 't5'], []); // t0 and t1 left the view
+    expect(m.signals.get('t0')?.aborted).toBe(true);
+    expect(m.signals.get('t1')?.aborted).toBe(true);
+    expect(m.signals.get('t2')?.aborted).toBe(false);
+    expect(s.stats).toMatchObject({ started: 6, cancelled: 2, loading: 4, completed: 0 });
+    expect(m.started).toEqual(['t0', 't1', 't2', 't3', 't4', 't5']); // freed slots go to the next wanted
+    // a late answer for a cancelled tile (the network was faster than the abort) is ignored
+    m.pending.get('t0')?.ok('late');
+    await tick();
+    expect(loaded).toEqual([]);
+    expect(errors).toEqual([]); // an abort is not a failure
+    expect(s.isLoaded('t0')).toBe(false);
+    expect(s.isFailed('t0')).toBe(false);
+  });
+
+  it('never has more than the limit in flight across a change of level, nearest first', () => {
+    const { m, s } = streamer(10);
+    s.update(['t0', 't1', 't2', 't3', 't4'], []); // the old level
+    s.update(['t9', 't8', 't7', 't6', 't5'], []); // another level replaces it, nearest first
+    expect(m.started).toEqual(['t0', 't1', 't2', 't3', 't9', 't8', 't7', 't6']);
+    expect(s.stats).toMatchObject({ loading: 4, cancelled: 4 });
+    expect(m.max()).toBe(4); // aborted requests are gone before the new ones start
+  });
+
+  it('a cancelled tile can load again later', async () => {
+    const loaded: string[] = [];
+    const { m, s } = streamer(2, loaded);
+    s.update(['t0'], []);
+    s.update(['t1'], []);
+    expect(s.stats).toMatchObject({ cancelled: 1 });
+    s.update(['t0', 't1'], []); // t0 is wanted again
+    expect(m.started).toEqual(['t0', 't1', 't0']);
+    expect(m.signals.get('t0')?.aborted).toBe(false); // the new request has a fresh signal
+    m.pending.get('t0')?.ok('again');
+    await tick();
+    expect(loaded).toEqual(['t0']);
+    expect(s.isLoaded('t0')).toBe(true);
+    expect(s.stats).toMatchObject({ started: 3, completed: 1, cancelled: 1, failed: 0 });
+  });
+
+  it('keeps a tile that stays wanted: nothing is aborted by an update that still wants it', () => {
+    const { m, s } = streamer(3);
+    s.update(['t0', 't1'], []);
+    s.update(['t1', 't0', 't2'], []);
+    expect(m.signals.get('t0')?.aborted).toBe(false);
+    expect(m.signals.get('t1')?.aborted).toBe(false);
+    expect(s.stats.cancelled).toBe(0);
+  });
+
+  it('addTiles makes entries known later; an unknown id is skipped until then', () => {
+    const m = manual();
+    const s = new TileStreamer<string>([], {
+      load: m.load,
+      onLoaded: () => {},
+      onEvict: () => {},
+      onError: () => {},
+    });
+    s.update(['t0'], []);
+    expect(m.started).toEqual([]);
+    s.addTiles(entries(1));
+    s.update(['t0'], []);
+    expect(m.started).toEqual(['t0']);
   });
 });
 

@@ -23,7 +23,7 @@ GZIP_BUDGET = 256_000
 def man() -> dict:
     p = TILE_DIR / manifest.MANIFEST_NAME
     assert p.exists(), f"{p} not found; run `make tiles` first"
-    return json.loads(p.read_text(encoding="utf-8"))
+    return manifest.load_full(TILE_DIR)
 
 
 @pytest.fixture(scope="module")
@@ -34,12 +34,19 @@ def rendered_keys(gpkg: Path) -> list[str]:
 
 def test_tiles_manifest_validates_against_schema(man):
     schema = json.loads(manifest.SCHEMA_PATH.read_text(encoding="utf-8"))
-    assert schema_check.validate(man, schema) == []
+    root = json.loads((TILE_DIR / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    assert schema_check.validate(root, schema) == []
+    for rec in root["shards"]:  # T-6.3: every shard validates too
+        doc = json.loads((TILE_DIR / rec["file"]).read_text(encoding="utf-8"))
+        assert schema_check.validate(doc, {"$ref": "#/$defs/shard_file"}, schema) == []
 
 
 def test_tiles_manifest_file_is_canonical(man):
     raw = (TILE_DIR / manifest.MANIFEST_NAME).read_bytes()
-    assert raw == manifest.manifest_bytes(man)
+    assert raw == manifest.manifest_bytes(json.loads(raw))
+    for rec in json.loads(raw)["shards"]:
+        sraw = (TILE_DIR / rec["file"]).read_bytes()
+        assert sraw == manifest.manifest_bytes(json.loads(sraw))
     assert b"\r" not in raw
     assert [t["id"] for t in man["tiles"]] == sorted(t["id"] for t in man["tiles"])
 
@@ -109,6 +116,12 @@ def test_tiles_gzip9_within_budget(man):
 
 def test_tiles_sha256_and_sizes_match_files(man):
     listed = {manifest.MANIFEST_NAME}
+    root = json.loads((TILE_DIR / manifest.MANIFEST_NAME).read_text(encoding="utf-8"))
+    for rec in root["shards"]:  # T-6.3: size and hash of every shard as recorded in the root
+        p = TILE_DIR / rec["file"]
+        listed.add(rec["file"])
+        assert p.stat().st_size == rec["bytes"], rec["file"]
+        assert manifest.sha256_file(p) == rec["sha256"], rec["file"]
     for key in ("index", "minimap"):  # T-5.3a
         e = man[key]
         p = TILE_DIR / e["file"]
@@ -124,4 +137,5 @@ def test_tiles_sha256_and_sizes_match_files(man):
             listed.add(e["file"])
             assert p.stat().st_size == e["bytes"], p.name
             assert manifest.sha256_file(p) == e["sha256"], p.name
-    assert {p.name for p in TILE_DIR.iterdir()} == listed, "files not in the manifest"
+    on_disk = {p.relative_to(TILE_DIR).as_posix() for p in TILE_DIR.rglob("*") if p.is_file()}
+    assert on_disk == listed, "files not in the manifest"

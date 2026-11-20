@@ -239,6 +239,7 @@ def build(out_dir: Path, specs: dict | None = None, levels: tuple | None = ()) -
                 specs=specs,
                 landmark_names=FIXTURE_LANDMARK_NAMES,
                 levels=levels,
+                shard_factor=1,  # one shard per block: the 4-tile fixture then has several shards
             )
         finally:
             config.PROCESSED_DIR = saved

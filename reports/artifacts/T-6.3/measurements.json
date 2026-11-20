@@ -1,0 +1,1521 @@
+{
+ "meta": {
+  "profile": "40 Mbit/s down, 20 Mbit/s up, 20 ms latency (CDP Network.emulateNetworkConditions)",
+  "node": "v24.12.0",
+  "runsPerCell": 3,
+  "pathSteps": 27,
+  "dwellMs": 150,
+  "date": "2026-11-20",
+  "chromium": "159.0.8154.6"
+ },
+ "js": [
+  {
+   "file": "debug-LHK59Sxn.js",
+   "raw": 4298,
+   "gzip": 1946,
+   "brotli": 1713
+  },
+  {
+   "file": "index-D_5xaBar.js",
+   "raw": 707775,
+   "gzip": 183174,
+   "brotli": 150328
+  }
+ ],
+ "br": {
+  "1280x720": {
+   "initial": [
+    {
+     "firstRenderMs": 968,
+     "viewLoadedMs": 983,
+     "completeMs": 2732,
+     "settledMs": 2927,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 68,
+       "bytes": 1464022
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 76,
+       "bytes": 1795122
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 2225615
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 2556715
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 34,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 554,
+     "viewLoadedMs": 888,
+     "completeMs": 2622,
+     "settledMs": 2898,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 47,
+       "bytes": 1068629
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 55,
+       "bytes": 1399729
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 2225615
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 2556715
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 24,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 822,
+     "viewLoadedMs": 957,
+     "completeMs": 3351,
+     "settledMs": 3597,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 56,
+       "bytes": 1252102
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 64,
+       "bytes": 1583202
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 2225615
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 2556715
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 28,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    }
+   ],
+   "path": [
+    {
+     "mode": "scrub 150 ms",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 813,
+      "completed": 772,
+      "cancelled": 41,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 146,
+      "bytesCompleted": 15735121,
+      "bytesCancelled": 314438
+     },
+     "glb": {
+      "started": 393,
+      "completed": 369,
+      "cancelled": 24,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 70,
+      "bytesCompleted": 14824356,
+      "bytesCancelled": 314438
+     },
+     "shards": {
+      "started": 27,
+      "completed": 27,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 184905,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 393,
+      "tilesCompleted": 368,
+      "tilesCancelled": 25,
+      "shardsStarted": 27,
+      "shardsCompleted": 27,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 41,
+     "sceneMismatchSamples": 0,
+     "samples": 1047,
+     "failedAtEnd": 0,
+     "problems": []
+    },
+    {
+     "mode": "settled",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 1087,
+      "completed": 1087,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 300,
+      "bytesCompleted": 18949877,
+      "bytesCancelled": 0
+     },
+     "glb": {
+      "started": 530,
+      "completed": 530,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 150,
+      "bytesCompleted": 17866387,
+      "bytesCancelled": 0
+     },
+     "shards": {
+      "started": 27,
+      "completed": 27,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 184905,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 530,
+      "tilesCompleted": 530,
+      "tilesCancelled": 0,
+      "shardsStarted": 27,
+      "shardsCompleted": 27,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 41,
+     "sceneMismatchSamples": 0,
+     "samples": 1563,
+     "failedAtEnd": 0,
+     "problems": []
+    }
+   ]
+  },
+  "412x915": {
+   "initial": [
+    {
+     "firstRenderMs": 643,
+     "viewLoadedMs": 986,
+     "completeMs": 1225,
+     "settledMs": 1337,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 60,
+       "bytes": 2234735
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 68,
+       "bytes": 2564626
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 2824975
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 3154866
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 30,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 643,
+     "viewLoadedMs": 1058,
+     "completeMs": 1288,
+     "settledMs": 1479,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 58,
+       "bytes": 2146500
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 66,
+       "bytes": 2476391
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 2824975
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 3154866
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 29,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 639,
+     "viewLoadedMs": 925,
+     "completeMs": 1310,
+     "settledMs": 1322,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 58,
+       "bytes": 2239764
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 66,
+       "bytes": 2569655
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1956
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 150661
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 2824975
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 3154866
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 29,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    }
+   ],
+   "path": [
+    {
+     "mode": "scrub 150 ms",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 741,
+      "completed": 700,
+      "cancelled": 41,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 262,
+      "bytesCompleted": 13502914,
+      "bytesCancelled": 266489
+     },
+     "glb": {
+      "started": 361,
+      "completed": 336,
+      "cancelled": 25,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 128,
+      "bytesCompleted": 12767521,
+      "bytesCancelled": 264989
+     },
+     "shards": {
+      "started": 19,
+      "completed": 19,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 120686,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 361,
+      "tilesCompleted": 334,
+      "tilesCancelled": 27,
+      "shardsStarted": 19,
+      "shardsCompleted": 19,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 57,
+     "sceneMismatchSamples": 0,
+     "samples": 923,
+     "failedAtEnd": 0,
+     "problems": []
+    },
+    {
+     "mode": "settled",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 977,
+      "completed": 977,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 396,
+      "bytesCompleted": 16027898,
+      "bytesCancelled": 0
+     },
+     "glb": {
+      "started": 479,
+      "completed": 479,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 198,
+      "bytesCompleted": 15147091,
+      "bytesCancelled": 0
+     },
+     "shards": {
+      "started": 19,
+      "completed": 19,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 120686,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 479,
+      "tilesCompleted": 479,
+      "tilesCancelled": 0,
+      "shardsStarted": 19,
+      "shardsCompleted": 19,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 57,
+     "sceneMismatchSamples": 0,
+     "samples": 1256,
+     "failedAtEnd": 0,
+     "problems": []
+    }
+   ]
+  }
+ },
+ "gzip": {
+  "1280x720": {
+   "initial": [
+    {
+     "firstRenderMs": 851,
+     "viewLoadedMs": 3302,
+     "completeMs": 3489,
+     "settledMs": 3802,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 50230
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 54,
+       "bytes": 2235503
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 62,
+       "bytes": 2620402
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 50230
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 4107068
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 4491967
+      }
+     },
+     "encodings": [
+      "gzip"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 27,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 871,
+     "viewLoadedMs": 903,
+     "completeMs": 1026,
+     "settledMs": 3446,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 50230
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 46,
+       "bytes": 1886560
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 54,
+       "bytes": 2271459
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 50230
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 4107068
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 4491967
+      }
+     },
+     "encodings": [
+      "gzip"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 23,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 986,
+     "viewLoadedMs": 2501,
+     "completeMs": 2687,
+     "settledMs": 3021,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 50230
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 51,
+       "bytes": 2154059
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 59,
+       "bytes": 2538958
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 50230
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 4107068
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 4491967
+      }
+     },
+     "encodings": [
+      "gzip"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 26,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    }
+   ],
+   "path": [
+    {
+     "mode": "scrub 150 ms",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 713,
+      "completed": 642,
+      "cancelled": 71,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 95,
+      "bytesCompleted": 20319225,
+      "bytesCancelled": 2250822
+     },
+     "glb": {
+      "started": 343,
+      "completed": 291,
+      "cancelled": 52,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 41,
+      "bytesCompleted": 19361269,
+      "bytesCancelled": 2250822
+     },
+     "shards": {
+      "started": 27,
+      "completed": 27,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 224383,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 343,
+      "tilesCompleted": 290,
+      "tilesCancelled": 53,
+      "shardsStarted": 27,
+      "shardsCompleted": 27,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 41,
+     "sceneMismatchSamples": 0,
+     "samples": 1029,
+     "failedAtEnd": 0,
+     "problems": []
+    },
+    {
+     "mode": "settled",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 1087,
+      "completed": 1087,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 300,
+      "bytesCompleted": 34654551,
+      "bytesCancelled": 0
+     },
+     "glb": {
+      "started": 530,
+      "completed": 530,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 150,
+      "bytesCompleted": 33352435,
+      "bytesCancelled": 0
+     },
+     "shards": {
+      "started": 27,
+      "completed": 27,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 224383,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 530,
+      "tilesCompleted": 530,
+      "tilesCancelled": 0,
+      "shardsStarted": 27,
+      "shardsCompleted": 27,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 41,
+     "sceneMismatchSamples": 0,
+     "samples": 1745,
+     "failedAtEnd": 0,
+     "problems": []
+    }
+   ]
+  },
+  "412x915": {
+   "initial": [
+    {
+     "firstRenderMs": 537,
+     "viewLoadedMs": 1469,
+     "completeMs": 1713,
+     "settledMs": 1717,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 48906
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 62,
+       "bytes": 4249130
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 70,
+       "bytes": 4632705
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 48906
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 5213471
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 5597046
+      }
+     },
+     "encodings": [
+      "gzip"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 31,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 704,
+     "viewLoadedMs": 1484,
+     "completeMs": 1730,
+     "settledMs": 1732,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 48906
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 62,
+       "bytes": 4174130
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 70,
+       "bytes": 4557705
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 48906
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 5213471
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 5597046
+      }
+     },
+     "encodings": [
+      "gzip"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 31,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 680,
+     "viewLoadedMs": 1454,
+     "completeMs": 1711,
+     "settledMs": 1725,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 48906
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 60,
+       "bytes": 4055495
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 68,
+       "bytes": 4439070
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 2331
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 183645
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 48906
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 148693
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 5213471
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 5597046
+      }
+     },
+     "encodings": [
+      "gzip"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 30,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    }
+   ],
+   "path": [
+    {
+     "mode": "scrub 150 ms",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 563,
+      "completed": 512,
+      "cancelled": 51,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 161,
+      "bytesCompleted": 19419306,
+      "bytesCancelled": 1362421
+     },
+     "glb": {
+      "started": 272,
+      "completed": 238,
+      "cancelled": 34,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 76,
+      "bytesCompleted": 18706794,
+      "bytesCancelled": 1358659
+     },
+     "shards": {
+      "started": 19,
+      "completed": 19,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 146097,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 272,
+      "tilesCompleted": 238,
+      "tilesCancelled": 34,
+      "shardsStarted": 19,
+      "shardsCompleted": 19,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 57,
+     "sceneMismatchSamples": 0,
+     "samples": 946,
+     "failedAtEnd": 0,
+     "problems": []
+    },
+    {
+     "mode": "settled",
+     "steps": 27,
+     "levelsVisited": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "tileFilesAndShards": {
+      "started": 977,
+      "completed": 977,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 396,
+      "bytesCompleted": 29475133,
+      "bytesCancelled": 0
+     },
+     "glb": {
+      "started": 479,
+      "completed": 479,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 198,
+      "bytesCompleted": 28415441,
+      "bytesCancelled": 0
+     },
+     "shards": {
+      "started": 19,
+      "completed": 19,
+      "cancelled": 0,
+      "failed": 0,
+      "unfinished": 0,
+      "fromCache": 0,
+      "bytesCompleted": 146097,
+      "bytesCancelled": 0
+     },
+     "app": {
+      "tilesStarted": 479,
+      "tilesCompleted": 479,
+      "tilesCancelled": 0,
+      "shardsStarted": 19,
+      "shardsCompleted": 19,
+      "shardsCancelled": 0,
+      "loadedAtEnd": 64,
+      "inSceneAtEnd": 64,
+      "unwantedInFlightAtEnd": 0
+     },
+     "maxUnwantedInFlight": 0,
+     "maxLoaded": 64,
+     "maxLoadingTiles": 4,
+     "maxVisible": 57,
+     "sceneMismatchSamples": 0,
+     "samples": 1441,
+     "failedAtEnd": 0,
+     "problems": []
+    }
+   ]
+  }
+ }
+}

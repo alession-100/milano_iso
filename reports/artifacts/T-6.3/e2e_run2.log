@@ -1,0 +1,9 @@
+
+> milano-iso-web@0.1.0 e2e
+> playwright test
+
+  168 passed (5.0m)
+
+real	4m58.255s
+user	0m0.090s
+sys	0m0.090s

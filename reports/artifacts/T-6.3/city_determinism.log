@@ -1,0 +1,6 @@
+uv run python -m milano_iso.tiles.check_determinism --extent city
+OK   -10_-1.glb aec967e8be72f4e8cf5e30441e949c0af161de9806e070642b3f600f9a5820f9
+OK   -10_-1.json d2ccd74b9b85fb8d468735480ee25283fc660fd2005906c5408739ff1f118d61
+OK   tiles.json e25f6da0cffaf88856f78cf281ceddfcbc8aa75f1010042bc72103a721afa207
+files: run1=8802 run2=8802; differences: 0
+tiles are byte-identical across two builds

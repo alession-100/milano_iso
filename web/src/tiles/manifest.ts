@@ -1,9 +1,18 @@
 /**
  * tiles.json: fetch and validate the minimal shape the client relies on (ADR-0021, ADR-0022, ADR-0025).
  * The full schema lives in pipeline/milano_iso/tiles/tiles.schema.json; here only what is read.
+ *
+ * Format 2 (T-6.3, ADR-0038): tiles.json is a small root (header, attribution, levels, the list of
+ * shards). The tile entries are in `shards/S<level>_<a>_<b>.json`, fetched when the view needs them.
  */
 
 export type Vec3 = [number, number, number];
+
+export interface FileRef {
+  file: string;
+  /** Content hash; the client appends its first 12 hex digits as `?v=`, so a cached file is never stale (T-6.3). */
+  sha256?: string;
+}
 
 export interface TileEntry {
   id: string;
@@ -11,22 +20,33 @@ export interface TileEntry {
   j: number;
   /** Extent of the decoded vertices in the client frame (metres); may exceed the grid cell. */
   content_bbox_local: { min: Vec3; max: Vec3 };
-  glb: { file: string };
-  features: { file: string };
+  glb: FileRef;
+  features: FileRef;
   /** Level of detail (T-6.2): 0 for the base tiles (and when absent), 1..n for the coarse blocks. */
   level?: number;
   /** Grid cell [xmin, zmin, xmax, zmax] in client metres; the cells of the levels nest. */
   bbox_local?: [number, number, number, number];
 }
 
-/** One level of detail as listed in tiles.json `levels` (T-6.2). Level 0 is the base `tiles`. */
+/** One level of detail as listed in tiles.json `levels` (T-6.2). Its tiles are in the shards. */
 export interface LevelRecord {
   level: number;
   /** Simplification error in metres: the level may be shown where metres per pixel >= this. */
   tolerance_m: number;
   block_m: number;
-  /** Coarse levels only; level 0 uses `Manifest.tiles`. */
-  tiles?: TileEntry[];
+}
+
+/** One shard file of tile entries (T-6.3): one level, one square of ground. */
+export interface ShardRecord {
+  level: number;
+  id: string;
+  /** Relative to the tiles directory: `shards/S<level>_<a>_<b>.json`. */
+  file: string;
+  bytes: number;
+  sha256: string;
+  tiles: number;
+  /** Union of the content boxes of its tiles, to decide whether the shard is in view. */
+  content_bbox_local: { min: Vec3; max: Vec3 };
 }
 
 export interface AttributionEntry {
@@ -44,22 +64,25 @@ export interface ExtraFile {
   sha256: string;
 }
 
+/** The root manifest, tiles.json. */
 export interface Manifest {
-  format_version: 1;
+  format_version: 2;
   axis: string;
   tile_size_m: number;
   layers: string[];
   attribution: AttributionEntry[];
-  tiles: TileEntry[];
+  /** Ground extent [xmin, zmin, xmax, zmax] of the content of the base tiles, for the camera bounds. */
+  bounds_local: [number, number, number, number];
+  shards: ShardRecord[];
   /** Search index of named features; absent in tilesets built before T-5.3a. */
   index?: ExtraFile;
   /** Minimap drawing of the whole tileset extent; absent in tilesets built before T-5.3a. */
   minimap?: ExtraFile;
-  /** Levels of detail (T-6.2); absent in tilesets built before it: the base tiles only. */
+  /** Levels of detail (T-6.2); absent when the tileset has the base level only. */
   levels?: LevelRecord[];
 }
 
-export const EXPECTED_FORMAT_VERSION = 1;
+export const EXPECTED_FORMAT_VERSION = 2;
 export const EXPECTED_UNIT_M = 0.02;
 export const EXPECTED_AXIS = 'x=E-E0, y=up, z=-(N-N0)';
 export const DEFAULT_TILES_BASE = 'tiles/pilot/';
@@ -74,6 +97,10 @@ function isVec3(v: unknown): v is Vec3 {
   return (
     Array.isArray(v) && v.length === 3 && v.every((n) => typeof n === 'number' && Number.isFinite(n))
   );
+}
+
+function isBox(v: unknown): boolean {
+  return isRecord(v) && isVec3(v.min) && isVec3(v.max);
 }
 
 function fail(msg: string): never {
@@ -93,6 +120,25 @@ function checkExtraFile(raw: Record<string, unknown>, key: 'index' | 'minimap'):
     !/^[0-9a-f]{64}$/.test(v.sha256)
   ) {
     fail(`${key} entry invalid`);
+  }
+}
+
+function checkShardRecord(sh: unknown): void {
+  if (
+    !isRecord(sh) ||
+    typeof sh.id !== 'string' ||
+    typeof sh.file !== 'string' ||
+    !/^shards\/[^/\\]+\.json$/.test(sh.file) ||
+    typeof sh.level !== 'number' ||
+    !Number.isInteger(sh.level) ||
+    sh.level < 0 ||
+    typeof sh.sha256 !== 'string' ||
+    !/^[0-9a-f]{64}$/.test(sh.sha256) ||
+    typeof sh.bytes !== 'number' ||
+    typeof sh.tiles !== 'number' ||
+    !isBox(sh.content_bbox_local)
+  ) {
+    fail('shard record invalid');
   }
 }
 
@@ -117,24 +163,19 @@ export function parseManifest(raw: unknown): Manifest {
       fail('attribution entry invalid');
     }
   }
-  if (!Array.isArray(raw.tiles) || raw.tiles.length === 0) fail('tiles missing');
-  for (const tile of raw.tiles) {
-    if (!isRecord(tile) || typeof tile.id !== 'string') fail('tile entry invalid');
-    const cb = tile.content_bbox_local;
-    if (!isRecord(cb) || !isVec3(cb.min) || !isVec3(cb.max)) {
-      fail(`tile ${tile.id}: content_bbox_local invalid`);
-    }
-    if (!isRecord(tile.glb) || typeof tile.glb.file !== 'string') {
-      fail(`tile ${tile.id}: glb.file missing`);
-    }
+  const bl = raw.bounds_local;
+  if (!Array.isArray(bl) || bl.length !== 4 || !bl.every((n) => typeof n === 'number' && Number.isFinite(n))) {
+    fail('bounds_local invalid');
   }
+  if (!Array.isArray(raw.shards) || raw.shards.length === 0) fail('shards missing');
+  for (const sh of raw.shards) checkShardRecord(sh);
   checkExtraFile(raw, 'index');
   checkExtraFile(raw, 'minimap');
   checkLevels(raw);
   return raw as unknown as Manifest;
 }
 
-/** `levels` (T-6.2): ascending levels from 0, growing tolerance; coarse ones carry their tiles. */
+/** `levels` (T-6.2): ascending levels from 0, growing tolerance. */
 function checkLevels(raw: Record<string, unknown>): void {
   const lv = raw.levels;
   if (lv === undefined) return;
@@ -150,33 +191,29 @@ function checkLevels(raw: Record<string, unknown>): void {
     ) {
       fail(`levels[${k}] invalid`);
     }
-    if (k > 0 && (l.tolerance_m as number) <= ((lv[k - 1] as LevelRecord).tolerance_m)) {
+    if (k > 0 && (l.tolerance_m as number) <= (lv[k - 1] as LevelRecord).tolerance_m) {
       fail('levels: tolerance_m must grow with the level');
-    }
-    if (k === 0) return;
-    if (!Array.isArray(l.tiles) || l.tiles.length === 0) fail(`levels[${k}]: tiles missing`);
-    for (const t of l.tiles) {
-      if (!isRecord(t) || typeof t.id !== 'string') fail(`levels[${k}]: tile entry invalid`);
-      const cb = t.content_bbox_local;
-      if (!isRecord(cb) || !isVec3(cb.min) || !isVec3(cb.max)) {
-        fail(`levels[${k}]: tile ${t.id}: content_bbox_local invalid`);
-      }
-      if (!isRecord(t.glb) || typeof t.glb.file !== 'string') {
-        fail(`levels[${k}]: tile ${t.id}: glb.file missing`);
-      }
-      if (!isRecord(t.features) || typeof t.features.file !== 'string') {
-        fail(`levels[${k}]: tile ${t.id}: features.file missing`);
-      }
     }
   });
 }
 
-/** Every tile of every level, each stamped with its level (the base tiles are level 0). */
-export function allTiles(manifest: Manifest): TileEntry[] {
-  const out: TileEntry[] = manifest.tiles.map((t) => ({ ...t, level: 0 }));
-  for (const l of manifest.levels ?? []) {
-    if (l.level === 0 || !l.tiles) continue;
-    for (const t of l.tiles) out.push({ ...t, level: l.level });
+/** A shard document, checked against its record in the root; every tile entry gets the shard's level. */
+export function parseShard(raw: unknown, rec: ShardRecord): TileEntry[] {
+  const bad = (msg: string): never => {
+    throw new ManifestError(`${rec.file}: ${msg}`);
+  };
+  if (!isRecord(raw) || raw.format_version !== EXPECTED_FORMAT_VERSION) return bad('format_version');
+  if (raw.id !== rec.id || raw.level !== rec.level) return bad('id or level differs from the root');
+  if (!Array.isArray(raw.tiles) || raw.tiles.length === 0) return bad('tiles missing');
+  const out: TileEntry[] = [];
+  for (const t of raw.tiles as unknown[]) {
+    if (!isRecord(t) || typeof t.id !== 'string') return bad('tile entry invalid');
+    if (!isBox(t.content_bbox_local)) return bad(`tile ${t.id}: content_bbox_local invalid`);
+    if (!isRecord(t.glb) || typeof t.glb.file !== 'string') return bad(`tile ${t.id}: glb.file missing`);
+    if (!isRecord(t.features) || typeof t.features.file !== 'string') {
+      return bad(`tile ${t.id}: features.file missing`);
+    }
+    out.push({ ...(t as unknown as TileEntry), level: rec.level });
   }
   return out;
 }
@@ -188,14 +225,28 @@ export function levelSpecs(manifest: Manifest): { level: number; tolerance_m: nu
   return l.map((x) => ({ level: x.level, tolerance_m: x.tolerance_m }));
 }
 
+/** Digits of the content hash used as the `?v=` of a file (T-6.3). */
+export const VERSION_LENGTH = 12;
+
+/**
+ * URL of a file of the tileset: `file` next to the tiles, with `?v=<first 12 hex digits of its sha256>`.
+ * The hash comes from the manifest: a file that changes gets a new URL, so a cached copy is never stale,
+ * and a file that does not change keeps its URL, so its cached copy stays valid (ADR-0038).
+ */
+export function assetUrl(base: URL, file: string, sha256?: string): URL {
+  const u = new URL(file, base);
+  if (sha256 !== undefined && /^[0-9a-f]{64}$/.test(sha256)) u.search = `v=${sha256.slice(0, VERSION_LENGTH)}`;
+  return u;
+}
+
 /** URL of the search index file, or undefined if the tileset has none. */
 export function indexUrl(manifest: Manifest, base: URL): URL | undefined {
-  return manifest.index === undefined ? undefined : new URL(manifest.index.file, base);
+  return manifest.index === undefined ? undefined : assetUrl(base, manifest.index.file, manifest.index.sha256);
 }
 
 /** URL of the minimap drawing, or undefined if the tileset has none. */
 export function minimapUrl(manifest: Manifest, base: URL): URL | undefined {
-  return manifest.minimap === undefined ? undefined : new URL(manifest.minimap.file, base);
+  return manifest.minimap === undefined ? undefined : assetUrl(base, manifest.minimap.file, manifest.minimap.sha256);
 }
 
 /** Base URL of the tile directory: `?tiles=<base>` if given, else `tiles/pilot/` (ADR-0025). */
@@ -205,17 +256,28 @@ export function resolveTilesBase(search: string, pageUrl: string): URL {
   return new URL(base.endsWith('/') ? base : `${base}/`, pageUrl);
 }
 
-export async function fetchManifest(base: URL): Promise<Manifest> {
-  const url = new URL('tiles.json', base);
-  const res = await fetch(url);
+async function fetchJson(url: URL, what: string, init: RequestInit = {}): Promise<unknown> {
+  const { signal } = init;
+  const res = await fetch(url, init);
   if (!res.ok) fail(`HTTP ${res.status} for ${url.pathname}`);
-  let json: unknown;
   try {
-    json = await res.json();
-  } catch {
-    fail('not valid JSON');
+    return await res.json();
+  } catch (err) {
+    if (signal?.aborted) throw err;
+    return fail(`${what}: not valid JSON`);
   }
-  return parseManifest(json);
+}
+
+/** The root manifest, tiles.json. */
+export async function fetchManifest(base: URL): Promise<Manifest> {
+  // The one file that is not content-addressed: always revalidated (ETag/304 where the host has them),
+  // so a new build is seen at once whatever Cache-Control the host sends (ADR-0038).
+  return parseManifest(await fetchJson(new URL('tiles.json', base), 'tiles.json', { cache: 'no-cache' }));
+}
+
+/** The tile entries of one shard; the signal cancels the request (T-6.3). */
+export async function fetchShard(base: URL, rec: ShardRecord, signal?: AbortSignal): Promise<TileEntry[]> {
+  return parseShard(await fetchJson(assetUrl(base, rec.file, rec.sha256), rec.file, { signal }), rec);
 }
 
 export interface Bounds {
@@ -225,17 +287,10 @@ export interface Bounds {
   maxZ: number;
 }
 
-/** Ground rectangle covered by all tile content, for the camera's `setBounds` (T-3.1). */
+/** Ground rectangle covered by the content of the base tiles, for the camera's `setBounds` (T-3.1). */
 export function contentBounds(manifest: Manifest): Bounds {
-  const b: Bounds = { minX: Infinity, maxX: -Infinity, minZ: Infinity, maxZ: -Infinity };
-  for (const t of manifest.tiles) {
-    const { min, max } = t.content_bbox_local;
-    b.minX = Math.min(b.minX, min[0]);
-    b.maxX = Math.max(b.maxX, max[0]);
-    b.minZ = Math.min(b.minZ, min[2]);
-    b.maxZ = Math.max(b.maxZ, max[2]);
-  }
-  return b;
+  const [minX, minZ, maxX, maxZ] = manifest.bounds_local;
+  return { minX, maxX, minZ, maxZ };
 }
 
 // Public pages of the licences / copyright notices named in the manifest. Link targets, not data.

@@ -18,7 +18,12 @@ from milano_iso.tiles import export
 
 
 def _hashes(d: Path) -> dict[str, str]:
-    return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(d.iterdir())}
+    # files of the directory and of shards/ (T-6.3), named relative to it
+    return {
+        p.relative_to(d).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in sorted(d.rglob("*"))
+        if p.is_file()
+    }
 
 
 def main(argv=None) -> int:

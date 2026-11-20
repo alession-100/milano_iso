@@ -34,7 +34,8 @@ export async function routeFixtureTiles(page: Page, dir: string = FIXTURE_DIR): 
       await route.fallback();
       return;
     }
-    const file = decodeURIComponent(url.pathname.split('/').pop() ?? '');
+    // the path below the tileset directory: a tile file, or shards/<name>.json (T-6.3)
+    const file = decodeURIComponent(url.pathname.split('/tiles/pilot/')[1] ?? '');
     try {
       const body = readFileSync(path.join(dir, file));
       const contentType = file.endsWith('.glb') ? 'model/gltf-binary' : 'application/json';
@@ -45,23 +46,34 @@ export async function routeFixtureTiles(page: Page, dir: string = FIXTURE_DIR): 
   });
 }
 
-/** Ground rectangle of all fixture tile content, computed independently of the app. */
-export function fixtureContentBounds(): { minX: number; maxX: number; minZ: number; maxZ: number } {
-  const m = JSON.parse(readFileSync(path.join(FIXTURE_DIR, 'tiles.json'), 'utf-8')) as {
-    tiles: { content_bbox_local: { min: number[]; max: number[] } }[];
-  };
-  const xs = m.tiles.flatMap((t) => [t.content_bbox_local.min[0], t.content_bbox_local.max[0]]);
-  const zs = m.tiles.flatMap((t) => [t.content_bbox_local.min[2], t.content_bbox_local.max[2]]);
-  return {
-    minX: Math.min(...xs),
-    maxX: Math.max(...xs),
-    minZ: Math.min(...zs),
-    maxZ: Math.max(...zs),
-  };
+type Root = {
+  bounds_local: [number, number, number, number];
+  shards: { level: number; file: string }[];
+  attribution: { text: string }[];
+};
+
+function readRoot(dir: string = FIXTURE_DIR): Root {
+  return JSON.parse(readFileSync(path.join(dir, 'tiles.json'), 'utf-8')) as Root;
 }
 
-export function readFixtureManifest(): { tiles: { id: string }[]; attribution: { text: string }[] } {
-  return JSON.parse(readFileSync(path.join(FIXTURE_DIR, 'tiles.json'), 'utf-8'));
+/** Ground rectangle of all fixture tile content: the root manifest's bounds_local (T-6.3). */
+export function fixtureContentBounds(): { minX: number; maxX: number; minZ: number; maxZ: number } {
+  const [minX, minZ, maxX, maxZ] = readRoot().bounds_local;
+  return { minX, maxX, minZ, maxZ };
+}
+
+type FixtureTile = { id: string; glb: { file: string } };
+
+/** The root of the fixture with `tiles` = the base tiles (level 0), read from the shards. */
+export function readFixtureManifest(dir: string = FIXTURE_DIR): {
+  tiles: FixtureTile[];
+  attribution: { text: string }[];
+} {
+  const root = readRoot(dir);
+  const tiles = root.shards
+    .filter((s) => s.level === 0)
+    .flatMap((s) => (JSON.parse(readFileSync(path.join(dir, s.file), 'utf-8')) as { tiles: FixtureTile[] }).tiles);
+  return { tiles, attribution: root.attribution };
 }
 
 // --- Settle helpers (T-5.4) ---------------------------------------------------------------------
@@ -83,6 +95,14 @@ export interface TilesState {
   drawnByLevel?: Record<number, number>;
   loadedByLevel?: Record<number, number>;
   mpp?: number;
+  /** T-6.3: requests of tile files started, completed and cancelled since the start. */
+  started?: number;
+  completed?: number;
+  cancelled?: number;
+  shardsPending?: number;
+  /** T-6.3: tile groups in the scene (equals `loaded`), and requests in flight that are not wanted (0). */
+  inScene?: number;
+  unwantedInFlight?: number;
 }
 
 type MilanoWindow = {
