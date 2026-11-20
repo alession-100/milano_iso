@@ -104,3 +104,10 @@ def test_every_rendered_building_is_kept_or_logged_at_every_level(man):
         assert kept | dropped == base
         assert not kept & dropped
         assert all(r for _, _, r in [x for x in log if int(x[0]) == rec["level"]])
+
+
+def test_no_coarse_tile_is_over_its_gzip_budget(man):
+    for rec in man["levels"][1:]:
+        assert rec["max_tile_gzip_bytes"] == 250_000
+        for t in rec["tiles"]:
+            assert t["glb"]["gzip9_bytes"] <= rec["max_tile_gzip_bytes"], t["id"]

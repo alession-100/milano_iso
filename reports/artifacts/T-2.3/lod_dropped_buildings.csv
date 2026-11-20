@@ -55,7 +55,6 @@ level,building_key,reason
 2,osm:w437510390,footprint 2.0 m2 < 40 m2
 2,osm:w437510407,footprint 14.4 m2 < 40 m2
 2,osm:w437510414,footprint 4.4 m2 < 40 m2
-3,dbt:EDIFC_2841,every volume is under the tolerance
 3,dbt:EDIFC_3294,footprint 27.5 m2 < 300 m2
 3,dbt:EDIFC_4444,footprint 143.9 m2 < 300 m2
 3,dbt:EDIFC_4462,footprint 50.9 m2 < 300 m2
@@ -67,11 +66,9 @@ level,building_key,reason
 3,dbt:EDI_MIN_11687,footprint 65.0 m2 < 300 m2
 3,dbt:EDI_MIN_12027,footprint 12.1 m2 < 300 m2
 3,dbt:EDI_MIN_12056,footprint 216.9 m2 < 300 m2
-3,dbt:EDI_MIN_1208,every volume is under the tolerance
 3,dbt:EDI_MIN_14861,footprint 19.4 m2 < 300 m2
 3,dbt:EDI_MIN_15791,footprint 27.1 m2 < 300 m2
 3,dbt:EDI_MIN_15926,footprint 236.0 m2 < 300 m2
-3,dbt:EDI_MIN_16469,every volume is under the tolerance
 3,dbt:EDI_MIN_17319,footprint 10.8 m2 < 300 m2
 3,dbt:EDI_MIN_1768,footprint 77.5 m2 < 300 m2
 3,dbt:EDI_MIN_22506,footprint 27.8 m2 < 300 m2
