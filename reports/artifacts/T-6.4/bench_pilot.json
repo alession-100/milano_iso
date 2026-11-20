@@ -1,0 +1,78 @@
+{
+  "gpu": {
+    "vendor": "Google Inc. (Intel)",
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "backend": {
+    "devices": [
+      " Intel(R) Iris(R) Xe Graphics (driver 32.0.101.7085)",
+      " NVIDIA RTX 4000 Ada Generation Laptop GPU (driver 32.0.15.9706)",
+      " Microsoft Basic Render Driver (driver 10.0.26100.9711)"
+    ],
+    "glRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11-32.0.101.7085)",
+    "glImplementation": "(gl=egl-angle,angle=d3d11)",
+    "featureStatus": {
+      "2d_canvas": "enabled",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "enabled",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "enabled_on",
+      "rasterization": "enabled",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "enabled",
+      "video_encode": "enabled",
+      "webgl": "enabled",
+      "webgpu": "enabled",
+      "webnn": "disabled_off"
+    },
+    "browser": "157.0.8103.79"
+  },
+  "viewport": [
+    1280,
+    720
+  ],
+  "unlimited": false,
+  "results": {
+    "frames": 1015,
+    "durationS": 10.002599999904632,
+    "meanFps": 101.47361686058397,
+    "p5Fps": 96.15384527212065,
+    "meanFrameMs": 9.854778325029194,
+    "p95FrameMs": 10.400000095367432,
+    "maxDrawCalls": 99,
+    "maxTriangles": 274036,
+    "p1LowFps": 91.86110855074068,
+    "segments": [
+      {
+        "name": "pilot out",
+        "from": 0,
+        "to": 5,
+        "frames": 506,
+        "meanFps": 101.31144258684553,
+        "p1LowFps": 90.13069023575989,
+        "p99FrameMs": 11.094999909400938,
+        "maxDrawCalls": 99,
+        "maxTriangles": 274036,
+        "levelMin": 0,
+        "levelMax": 3
+      },
+      {
+        "name": "pilot back",
+        "from": 5,
+        "to": 10,
+        "frames": 508,
+        "meanFps": 101.640656262505,
+        "p1LowFps": 94.33962349027618,
+        "p99FrameMs": 10.599999904632568,
+        "maxDrawCalls": 43,
+        "maxTriangles": 248621,
+        "levelMin": 1,
+        "levelMax": 3
+      }
+    ],
+    "meanCpuMs": 0.6718226587831093,
+    "tilesBase": "tiles/pilot/"
+  },
+  "problems": []
+}
