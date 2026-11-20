@@ -250,10 +250,13 @@ for (const [vpName, w, h] of VIEWPORTS) {
     for (const view of VIEWS) {
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
-      const manifest = await (await page.request.get(`${base}/tiles/pilot/tiles.json`)).json();
-      const failing = manifest.tiles[manifest.tiles.length - 1];
+      const root = await (await page.request.get(`${base}/tiles/pilot/tiles.json`)).json();
+      // T-6.3: the tile entries are in the shards; the last tile of the last base-level shard
+      const lastShard = root.shards.filter((s) => s.level === 0).at(-1);
+      const shard = await (await page.request.get(`${base}/tiles/pilot/${lastShard.file}`)).json();
+      const failing = shard.tiles[shard.tiles.length - 1];
       // One tile fails for good, so the tiles notice is on screen when that tile is wanted.
-      await page.route(`**/tiles/pilot/${failing.glb.file}`, (route) => route.abort());
+      await page.route(`**/tiles/pilot/${failing.glb.file}*`, (route) => route.abort());
       await page.goto(`${base}/?e2e=1&time=${mode}`);
       await page.waitForFunction(() => typeof window.__milanoIsoSetView === 'function' && window.__milanoIso.camera.bounds.maxX !== 500, null, { timeout: 60_000 });
       // The card: search the Duomo and choose it (a real selection, so the real card is measured).

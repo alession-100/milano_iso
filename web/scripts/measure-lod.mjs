@@ -56,7 +56,7 @@ async function measure(vp, centre, width) {
   let nGlb = 0;
   let maxGlbGz = 0;
   const glbFiles = [];
-  let gzMap = new Map(); // glb file -> gzip-9 bytes recorded by the pipeline (tiles.json)
+  const gzMap = new Map(); // glb file -> gzip-9 bytes recorded by the pipeline (the shards, T-6.3)
   const problems = [];
   page.on('console', (m) => {
     if (m.type() === 'error') problems.push(m.text());
@@ -74,7 +74,7 @@ async function measure(vp, centre, width) {
     } catch {
       return;
     }
-    const kind = u.pathname.endsWith('tiles.json')
+    const kind = u.pathname.endsWith('tiles.json') || /\/shards\/S\d+_/.test(u.pathname)
       ? 'tilesJson'
       : u.pathname.endsWith('minimap.svg')
         ? 'minimap'
@@ -83,10 +83,10 @@ async function measure(vp, centre, width) {
             ? 'tileGlb'
             : 'tileJson'
           : 'other';
-    if (kind === 'tilesJson') {
+    if (kind === 'tilesJson' && /\/shards\//.test(u.pathname)) {
+      // T-6.3: the tile entries are in the shards (the root tiles.json has none)
       const m = JSON.parse(buf.toString('utf8'));
-      const all = [...m.tiles, ...(m.levels ?? []).flatMap((l) => l.tiles ?? [])];
-      gzMap = new Map(all.map((t) => [t.glb.file, t.glb.gzip9_bytes]));
+      for (const t of m.tiles) gzMap.set(t.glb.file, t.glb.gzip9_bytes);
     }
     bytes[kind] += buf.length;
     const g = gzipSync(buf, { level: 9 }).length;

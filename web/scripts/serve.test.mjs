@@ -107,6 +107,38 @@ describe('content negotiation (T-6.3)', () => {
   });
 });
 
+describe('the encodings option (a client without brotli, the plain files)', () => {
+  async function withServer(encodings, fn) {
+    const s = createStaticServer(dir, { encodings });
+    await new Promise((r) => s.listen(0, '127.0.0.1', r));
+    const saved = base;
+    base = `http://127.0.0.1:${s.address().port}`;
+    try {
+      await fn();
+    } finally {
+      base = saved;
+      await new Promise((r) => s.close(r));
+    }
+  }
+
+  it('gzip only: a client that accepts br still gets gzip', async () => {
+    await withServer(['gzip'], async () => {
+      const r = await get('/tiles/city/tiles.json', { 'Accept-Encoding': 'br, gzip' });
+      expect(r.headers['content-encoding']).toBe('gzip');
+      expect(zlib.gunzipSync(r.body).toString()).toBe(TEXT);
+    });
+  });
+
+  it('none: the plain file, and no Vary (nothing varies)', async () => {
+    await withServer([], async () => {
+      const r = await get('/tiles/city/tiles.json', { 'Accept-Encoding': 'br, gzip' });
+      expect(r.headers['content-encoding']).toBeUndefined();
+      expect(r.headers.vary).toBeUndefined();
+      expect(r.body.toString()).toBe(TEXT);
+    });
+  });
+});
+
 describe('cache headers (T-6.3)', () => {
   it('the page and the root manifest are revalidated; hashed assets and versioned tile files are immutable', async () => {
     expect((await get('/')).headers['cache-control']).toBe(NO_CACHE);

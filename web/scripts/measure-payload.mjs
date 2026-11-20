@@ -1,4 +1,4 @@
-/* global process, console, window, requestAnimationFrame, setTimeout, URL */
+/* global process, console, window, document, requestAnimationFrame, setTimeout, URL */
 // T-6.3 evidence: bytes on the wire, JS size, time to first render and to the complete view, and the
 // requests of a scripted pan and zoom path, on the CITY tileset, served by `npm run serve`.
 //
@@ -14,11 +14,19 @@
 // are an upper bound), a fresh browser context per run (cold HTTP cache), network throttled with CDP
 // Network.emulateNetworkConditions: 40 Mbit/s down (5,000,000 B/s), 20 Mbit/s up, 20 ms latency.
 // Bytes are CDP encodedDataLength (what crossed the connection: compressed body plus response
-// headers) of every request from navigation until the default view (origin, 600 m wide) is complete
-// and nothing is in flight. Times are in-page performance.now() since navigation start: first render
-// = a frame with triangles was drawn and a tile is drawn; complete = every tile and shard of the view
-// loaded, nothing in flight, draw calls unchanged for 300 ms (the time reported is when they stopped
-// changing).
+// headers) of every request from navigation until the default view (origin, 600 m wide) is complete.
+// Times are in-page performance.now() since navigation start. First render = a tile is drawn, a frame
+// with triangles has run, and one more frame (the change is on the canvas). View complete = every
+// tile in the view and every shard it needs is loaded and drawn (the app's `pending` is 0) and two
+// frames have run. "Settled" = the same and nothing in flight, i.e. the prefetch ring (one tile ring
+// around the view, fetched after the tiles in view) has arrived too. The bytes of the budget are those
+// that had crossed until the last tile of the view had arrived ("view loaded", before the two frames
+// that draw it, during which the prefetch ring keeps loading); the CDP timestamps of every data chunk
+// are mapped to the page clock. The bytes until settled are reported next to them.
+//
+// Every run has its own browser, warmed up first (a page with a WebGL context is opened and closed): the
+// first WebGL context of a SwiftShader browser needs about 2.5 s of its own, which has nothing to do
+// with the payload; the HTTP cache of every run is cold (a new context).
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +44,7 @@ const port = Number(arg('port', 4189));
 const runs = Number(arg('runs', 3));
 const dist = path.resolve(arg('dist', path.join(here, '..', 'dist')));
 const outDir = path.resolve(arg('out', path.join(here, '..', '..', 'reports', 'artifacts', 'T-6.3')));
-const only = arg('only', ''); // 'initial' or 'path' to run one part
+const only = arg('only', ''); // 'initial' or 'path' to run one part, 'tables' to only rewrite the tables
 const base = `http://127.0.0.1:${port}`;
 const URL_QUERY = '?e2e=1&tiles=tiles/city/';
 
@@ -97,7 +105,9 @@ async function watch(ctx, page) {
   await cdp.send('Network.enable');
   await cdp.send('Network.emulateNetworkConditions', { offline: false, ...PROFILE });
   const reqs = new Map();
+  let offset = 0; // wall clock ms minus CDP monotonic ms
   cdp.on('Network.requestWillBeSent', (e) => {
+    offset = e.wallTime * 1000 - e.timestamp * 1000;
     if (e.request.url.startsWith('data:')) return;
     if (reqs.has(e.requestId)) return; // a redirect: keep the first
     reqs.set(e.requestId, {
@@ -108,6 +118,8 @@ async function watch(ctx, page) {
       received: 0,
       total: 0,
       end: null,
+      endT: Infinity,
+      chunks: [], // [wall ms, encoded bytes]
     });
   });
   cdp.on('Network.responseReceived', (e) => {
@@ -120,27 +132,34 @@ async function watch(ctx, page) {
   });
   cdp.on('Network.dataReceived', (e) => {
     const r = reqs.get(e.requestId);
-    if (r) r.received += e.encodedDataLength;
+    if (!r) return;
+    r.received += e.encodedDataLength;
+    r.chunks.push([e.timestamp * 1000 + offset, e.encodedDataLength]);
   });
   cdp.on('Network.loadingFinished', (e) => {
     const r = reqs.get(e.requestId);
     if (r) {
       r.end = 'finished';
       r.total = e.encodedDataLength;
+      r.endT = e.timestamp * 1000 + offset;
     }
   });
   cdp.on('Network.loadingFailed', (e) => {
     const r = reqs.get(e.requestId);
-    if (r) r.end = e.canceled ? 'cancelled' : `failed:${e.errorText}`;
+    if (r) {
+      r.end = e.canceled ? 'cancelled' : `failed:${e.errorText}`;
+      r.endT = e.timestamp * 1000 + offset;
+    }
   });
   return { cdp, reqs };
 }
 
 const WATCHER = `(() => {
-  const t = { first: null, complete: null, maxUnwanted: 0, sceneMismatch: 0, samples: 0 };
+  const t = { origin: performance.timeOrigin, first: null, viewLoaded: null, viewComplete: null, settled: null, maxUnwanted: 0, sceneMismatch: 0, samples: 0, maxLoaded: 0, maxLoading: 0, maxVisible: 0 };
   window.__t = t;
-  let stableSince = null;
-  let lastCalls = null;
+  let firstSeen = false;
+  let completeSeen = false;
+  const twoFrames = (fn) => requestAnimationFrame(() => requestAnimationFrame(() => fn(performance.now())));
   setInterval(() => {
     const m = window.__milanoIso;
     if (!m || !m.tiles || !m.render) return;
@@ -149,13 +168,22 @@ const WATCHER = `(() => {
     const now = performance.now();
     t.samples += 1;
     if ((s.unwantedInFlight || 0) > t.maxUnwanted) t.maxUnwanted = s.unwantedInFlight;
+    t.maxLoaded = Math.max(t.maxLoaded, s.loaded);
+    t.maxLoading = Math.max(t.maxLoading, s.loading);
+    t.maxVisible = Math.max(t.maxVisible, s.visible);
     if (s.inScene !== undefined && s.inScene !== s.loaded) t.sceneMismatch += 1;
-    const drawn = Object.values(s.drawnByLevel || {}).some((n) => n > 0);
-    if (t.first === null && r.triangles > 0 && drawn) t.first = now;
-    const ok = t.first !== null && s.visible > 0 && s.loading === 0 && s.pending === 0 && (!s.shards || s.shards.loading === 0);
-    if (!ok) { stableSince = null; return; }
-    if (stableSince === null || r.calls !== lastCalls) { stableSince = now; lastCalls = r.calls; }
-    if (now - stableSince >= 300 && t.complete === null) t.complete = stableSince;
+    const drawn = Object.values(s.drawnByLevel || {}).reduce((a, b) => a + b, 0);
+    if (!firstSeen && r.triangles > 0 && drawn > 0) {
+      firstSeen = true;
+      twoFrames((x) => { t.first = x; });
+    }
+    const view = s.visible > 0 && s.pending === 0 && (s.shardsPending || 0) === 0 && (s.drawnByLevel[s.level] || 0) >= s.visible;
+    if (!completeSeen && view) {
+      completeSeen = true;
+      t.viewLoaded = now;
+      twoFrames((x) => { t.viewComplete = x; });
+    }
+    if (t.viewComplete !== null && t.settled === null && s.loading === 0 && (!s.shards || s.shards.loading === 0)) t.settled = now;
   }, 10);
 })();`;
 
@@ -175,17 +203,19 @@ async function openPage(browser, vp) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function waitComplete(page, timeout = 300_000) {
-  await page.waitForFunction(() => window.__t && window.__t.complete !== null, null, { timeout, polling: 50 });
+  await page.waitForFunction(() => window.__t && window.__t.settled !== null, null, { timeout, polling: 50 });
 }
 
-function summarise(reqs, filter = () => true) {
+/** Bytes by kind of the requests, counting only what had crossed by wall-clock `cut` ms (default: all). */
+function summarise(reqs, cut = Infinity) {
   const out = {};
   for (const k of ['html', 'js', 'manifest', 'minimap', 'tiles', 'other']) out[k] = { requests: 0, bytes: 0 };
   for (const r of reqs.values()) {
-    if (!filter(r)) continue;
+    const first = r.chunks.length ? r.chunks[0][0] : r.endT;
+    if (first > cut) continue; // nothing of it had arrived yet
     const o = out[r.kind];
     o.requests += 1;
-    o.bytes += r.end === 'finished' ? r.total : r.received;
+    o.bytes += r.end === 'finished' && r.endT <= cut ? r.total : r.chunks.filter(([t]) => t <= cut).reduce((a, [, n]) => a + n, 0);
   }
   out.total = {
     requests: Object.values(out).reduce((a, b) => a + b.requests, 0),
@@ -208,13 +238,17 @@ async function initialRun(browser, vp) {
   }));
   const res = {
     firstRenderMs: Math.round(t.first),
-    completeMs: Math.round(t.complete),
-    bytes: summarise(reqs),
+    viewLoadedMs: Math.round(t.viewLoaded),
+    completeMs: Math.round(t.viewComplete),
+    settledMs: Math.round(t.settled),
+    bytes: summarise(reqs, t.origin + t.viewLoaded),
+    bytesSettled: summarise(reqs),
     encodings: [...new Set([...reqs.values()].map((r) => r.encoding || 'identity'))].sort(),
     cacheControl: Object.fromEntries(
       [...new Map([...reqs.values()].map((r) => [r.kind, r.cacheControl])).entries()].sort(),
     ),
-    tileRequests: [...reqs.values()].filter((r) => r.kind === 'tiles' && /\.glb$/.test(new URL(r.url).pathname)).length,
+    tileFilesInView: [...reqs.values()].filter((r) => r.kind === 'tiles' && /\.glb$/.test(new URL(r.url).pathname) && (r.chunks[0]?.[0] ?? Infinity) <= t.origin + t.viewLoaded).length,
+    tileFilesTotal: [...reqs.values()].filter((r) => r.kind === 'tiles' && /\.glb$/.test(new URL(r.url).pathname)).length,
     level: state.tiles.level,
     tilesLoaded: state.tiles.loaded,
     visible: state.tiles.visible,
@@ -300,6 +334,9 @@ async function pathRun(browser, vp, settle) {
     },
     // sampled every 10 ms for the whole session
     maxUnwantedInFlight: t.maxUnwanted,
+    maxLoaded: t.maxLoaded,
+    maxLoadingTiles: t.maxLoading,
+    maxVisible: t.maxVisible,
     sceneMismatchSamples: t.sceneMismatch,
     samples: t.samples,
     failedAtEnd: after.failed,
@@ -330,6 +367,7 @@ mkdirSync(outDir, { recursive: true });
 const jsonPath = path.join(outDir, 'measurements.json');
 const data = existsSync(jsonPath) ? JSON.parse(readFileSync(jsonPath, 'utf8')) : {};
 data.meta = {
+  ...data.meta,
   profile: `${(PROFILE.downloadThroughput * 8) / 1e6} Mbit/s down, ${(PROFILE.uploadThroughput * 8) / 1e6} Mbit/s up, ${PROFILE.latency} ms latency (CDP Network.emulateNetworkConditions)`,
   node: process.version,
   runsPerCell: runs,
@@ -338,29 +376,45 @@ data.meta = {
   date: new Date().toISOString().slice(0, 10),
 };
 data.js = jsSizes();
-const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-data.meta.chromium = browser.version();
+/**
+ * A fresh, warmed-up browser for every run, then closed. Runs in one browser disturbed each other: the first
+ * run after a heavy one (a 4000 m view with software GL) saw animation frames stall for 35 s while the
+ * GPU process cleaned up (T-6.3 first measurement), which has nothing to do with the app or its bytes.
+ */
+async function inFreshBrowser(fn) {
+  const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  try {
+    data.meta.chromium = browser.version();
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await page.goto('about:blank');
+    await page.evaluate(() => document.createElement('canvas').getContext('webgl2'));
+    await ctx.close();
+    return await fn(browser);
+  } finally {
+    await browser.close();
+  }
+}
 data[label] = data[label] ?? {};
 for (const vp of VIEWPORTS) {
   const cell = (data[label][vp[0]] = data[label][vp[0]] ?? {});
-  if (only !== 'path') {
+  if (only === '' || only === 'initial') {
     cell.initial = [];
     for (let i = 0; i < runs; i++) {
-      const r = await initialRun(browser, vp);
+      const r = await inFreshBrowser((browser) => initialRun(browser, vp));
       cell.initial.push(r);
       console.log(JSON.stringify({ label, vp: vp[0], run: i, firstRenderMs: r.firstRenderMs, completeMs: r.completeMs, total: r.bytes.total, level: r.level }));
     }
   }
-  if (only !== 'initial') {
+  if (only === '' || only === 'path') {
     cell.path = [];
     for (const settle of [false, true]) {
-      const r = await pathRun(browser, vp, settle);
+      const r = await inFreshBrowser((browser) => pathRun(browser, vp, settle));
       cell.path.push(r);
       console.log(JSON.stringify({ label, vp: vp[0], mode: r.mode, glb: r.glb, shards: r.shards, app: r.app, maxUnwanted: r.maxUnwantedInFlight, sceneMismatch: r.sceneMismatchSamples }));
     }
   }
 }
-await browser.close();
 writeFileSync(jsonPath, JSON.stringify(data, null, 1) + '\n');
 
 // --- tables ---------------------------------------------------------------------------------------------
@@ -370,7 +424,7 @@ lines.push('# T-6.3 measurements (city tileset, `npm run serve`, Playwright Chro
 lines.push('');
 lines.push(`Generated by \`web/scripts/measure-payload.mjs\` on ${data.meta.date}; Node ${data.meta.node}, Chromium ${data.meta.chromium}.`);
 lines.push(`Network profile: ${data.meta.profile}. Software rendering (SwiftShader): times are an upper bound for a GPU browser.`);
-lines.push(`Initial view: origin, 600 m wide (the default view), \`?tiles=tiles/city/\`. ${data.meta.runsPerCell} cold runs per cell; bytes are identical between runs (they are listed once, from the median run by completion time).`);
+lines.push(`Initial view: origin, 600 m wide (the default view), \`?tiles=tiles/city/\`. ${data.meta.runsPerCell} cold runs per cell, each in its own warmed-up browser. Times are listed for every run; bytes and request counts are those of the median run by view-complete time (they differ a little between runs: the cut is the moment the last tile of the view arrived, and the prefetch ring has started by then; the range over the runs is in the report).`);
 lines.push('');
 lines.push('## JS bundle (budget 600 KB gzip)');
 lines.push('');
@@ -382,8 +436,10 @@ for (const lb of ['br', 'gzip']) {
   if (!data[lb]) continue;
   lines.push(`## Initial payload until the default view is complete: client accepts ${lb === 'br' ? 'br, gzip' : 'gzip only'} (budget 3 MB = 3,145,728 B)`);
   lines.push('');
-  lines.push('| viewport | level | HTML B | JS B | manifest B (tiles.json + shards) | minimap B | tiles B (glb + feature json) | other B | total B | total KB | requests | first render ms (runs) | complete ms (runs) |');
-  lines.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|');
+  lines.push('Bytes that had crossed the connection when the last tile of the view had arrived ("view loaded"; the prefetch ring is in them only if it had started); `settled` columns: when the prefetch ring had arrived too.');
+  lines.push('');
+  lines.push('| viewport | level | HTML B | JS B | manifest B (tiles.json + shards) | minimap B | tiles B (glb + feature json) | other B | total B | total KB | total B of each run | requests | tile files (glb) | first render ms (runs) | view loaded ms (runs) | view complete (drawn) ms (runs) | settled: total B | settled: tile files | settled ms (runs) |');
+  lines.push('|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---|---|---|---:|---:|---|');
   for (const vp of VIEWPORTS) {
     const runsList = data[lb][vp[0]]?.initial;
     if (!runsList) continue;
@@ -391,7 +447,7 @@ for (const lb of ['br', 'gzip']) {
     const m = byTime[Math.floor(byTime.length / 2)];
     const b = m.bytes;
     lines.push(
-      `| ${vp[0]} | ${m.level} | ${b.html.bytes} | ${b.js.bytes} | ${b.manifest.bytes} | ${b.minimap.bytes} | ${b.tiles.bytes} | ${b.other.bytes} | ${b.total.bytes} | ${kb(b.total.bytes)} | ${b.total.requests} | ${runsList.map((r) => r.firstRenderMs).join(' / ')} (median ${median(runsList.map((r) => r.firstRenderMs))}) | ${runsList.map((r) => r.completeMs).join(' / ')} (median ${median(runsList.map((r) => r.completeMs))}) |`,
+      `| ${vp[0]} | ${m.level} | ${b.html.bytes} | ${b.js.bytes} | ${b.manifest.bytes} | ${b.minimap.bytes} | ${b.tiles.bytes} | ${b.other.bytes} | ${b.total.bytes} | ${kb(b.total.bytes)} | ${runsList.map((r) => r.bytes.total.bytes).join(' / ')} | ${b.total.requests} | ${m.tileFilesInView} | ${runsList.map((r) => r.firstRenderMs).join(' / ')} (median ${median(runsList.map((r) => r.firstRenderMs))}) | ${runsList.map((r) => r.viewLoadedMs).join(' / ')} (median ${median(runsList.map((r) => r.viewLoadedMs))}) | ${runsList.map((r) => r.completeMs).join(' / ')} (median ${median(runsList.map((r) => r.completeMs))}) | ${m.bytesSettled.total.bytes} | ${m.tileFilesTotal} | ${runsList.map((r) => r.settledMs).join(' / ')} |`,
     );
   }
   lines.push('');
@@ -402,14 +458,14 @@ for (const lb of ['br', 'gzip']) {
   lines.push('');
   lines.push('Counts are CDP network requests from the end of the initial load. "glb" = tile files (each tile also fetches its feature .json). Wasted = encoded bytes received by requests that ended cancelled.');
   lines.push('');
-  lines.push('| viewport | mode | levels visited | glb started | glb completed | glb cancelled | glb from cache | shards started / completed / cancelled | cancelled bytes (tiles + shards) | completed bytes (tiles + shards) | app counters: tiles started / completed / cancelled | max unwanted in flight (10 ms samples) | scene != loaded samples | failed |');
-  lines.push('|---|---|---|---:|---:|---:|---:|---|---:|---:|---|---:|---:|---:|');
+  lines.push('| viewport | mode | levels visited | glb started | glb completed | glb cancelled | glb from cache | shards started / completed / cancelled | cancelled bytes (tiles + shards) | completed bytes (tiles + shards) | app counters: tiles started / completed / cancelled | max unwanted in flight (10 ms samples) | scene != loaded samples | failed | peak tiles in memory (cache limit 64) | peak visible tiles | peak loading (limit 4) |');
+  lines.push('|---|---|---|---:|---:|---:|---:|---|---:|---:|---|---:|---:|---:|---:|---:|---:|');
   for (const vp of VIEWPORTS) {
     for (const p of data[lb][vp[0]]?.path ?? []) {
       const g = p.glb;
       const t = p.tileFilesAndShards;
       lines.push(
-        `| ${vp[0]} | ${p.mode} | ${p.levelsVisited.join(',')} | ${g.started} | ${g.completed} | ${g.cancelled} | ${g.fromCache} | ${p.shards.started} / ${p.shards.completed} / ${p.shards.cancelled} | ${t.bytesCancelled} | ${t.bytesCompleted} | ${p.app.tilesStarted} / ${p.app.tilesCompleted} / ${p.app.tilesCancelled} | ${p.maxUnwantedInFlight} | ${p.sceneMismatchSamples} | ${p.failedAtEnd} |`,
+        `| ${vp[0]} | ${p.mode} | ${p.levelsVisited.join(',')} | ${g.started} | ${g.completed} | ${g.cancelled} | ${g.fromCache} | ${p.shards.started} / ${p.shards.completed} / ${p.shards.cancelled} | ${t.bytesCancelled} | ${t.bytesCompleted} | ${p.app.tilesStarted} / ${p.app.tilesCompleted} / ${p.app.tilesCancelled} | ${p.maxUnwantedInFlight} | ${p.sceneMismatchSamples} | ${p.failedAtEnd} | ${p.maxLoaded} | ${p.maxVisible} | ${p.maxLoadingTiles} |`,
       );
     }
   }

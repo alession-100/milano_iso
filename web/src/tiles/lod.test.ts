@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { CameraRig, createCamera } from '../camera';
-import { frustumOf } from './culling';
+import { cullTiles, frustumOf } from './culling';
 import { LodController } from './lod';
 import type { TileStreamer } from './loader';
 import { type Manifest, type ShardRecord, type TileEntry, parseManifest } from './manifest';
@@ -135,6 +135,43 @@ describe('LodController', () => {
     expect(asked[1].wanted.every((id) => !id.startsWith('L1'))).toBe(true);
     expect(asked[1].wanted).toContain('0_0');
     expect(lod.state().tolerances).toEqual([0.2, 1]);
+  });
+
+  it('asks for the tiles in view first, nearest first, and the prefetch ring only after them', async () => {
+    // a row of 8 base tiles along x; the view (about 400 m wide) sees the middle ones only
+    const row = Array.from({ length: 8 }, (_, k) => entry(`${k}_0`, 0, k * 250, -250, (k + 1) * 250, 0));
+    const f = fakeStreamer();
+    const lod = new LodController(
+      parseManifest({
+        format_version: 2,
+        axis: 'x=E-E0, y=up, z=-(N-N0)',
+        quantization: { unit_m: 0.02, anchor: 'tile_center' },
+        tile_size_m: 250,
+        layers: ['buildings'],
+        attribution: [{ source: 'OpenStreetMap', licence: 'ODbL 1.0', text: '(c) OpenStreetMap contributors' }],
+        bounds_local: [0, -250, 2000, 0],
+        shards: [shardRecord(0, 'S0_0_-1', row)],
+      }),
+      f.streamer,
+      { fetchShard: () => Promise.resolve(row.map((t) => ({ ...t, level: 0 }))) },
+    );
+    const frustum = view(400);
+    lod.update(frustum, 0.3, 1000, -125);
+    await flush();
+    lod.update(frustum, 0.3, 1000, -125);
+    const { visible, wanted } = cullTiles(row, frustum, 250);
+    expect(visible.length).toBeGreaterThan(0);
+    expect(wanted.length).toBeGreaterThan(visible.length); // there is a ring
+    const asked = f.asked[f.asked.length - 1].wanted;
+    expect(asked).toHaveLength(wanted.length);
+    expect(new Set(asked.slice(0, visible.length))).toEqual(new Set(visible)); // the view first
+    const dist = (id: string): number => {
+      const t = row.find((r) => r.id === id) as TileEntry;
+      return Math.abs((t.content_bbox_local.min[0] + t.content_bbox_local.max[0]) / 2 - 1000);
+    };
+    const sorted = (ids: string[]): boolean => ids.every((id, k) => k === 0 || dist(ids[k - 1]) <= dist(id));
+    expect(sorted(asked.slice(0, visible.length))).toBe(true); // each part nearest first
+    expect(sorted(asked.slice(visible.length))).toBe(true);
   });
 
   it('counts a shard that is still on its way as pending, so the view is not complete', () => {

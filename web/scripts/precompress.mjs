@@ -61,9 +61,23 @@ function* walk(dir) {
   }
 }
 
+/** True when `file` holds a valid brotli/gzip stream that decodes to `raw` (an up-to-date variant). */
+function decodesTo(file, ext, raw) {
+  try {
+    const packed = readFileSync(file);
+    const plain = ext === 'br' ? zlib.brotliDecompressSync(packed) : zlib.gunzipSync(packed);
+    return packed.length < raw.length && plain.equals(raw);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Compress every compressible file under `dir`. A variant that is not smaller is not written, and an
- * old one is removed. Returns one record per file, in path order, with the sizes.
+ * old one is removed. A variant that already decodes to the file is kept as it is (so the 340 MB of
+ * city tiles are compressed once, in `public/tiles/<extent>`, and a later build only compresses the
+ * new JS and HTML; delete the .br/.gz to force a rebuild of them). Returns one record per file, in
+ * path order, with the sizes.
  */
 export function compressTree(dir) {
   const rows = [];
@@ -75,6 +89,10 @@ export function compressTree(dir) {
       ['br', brotli],
       ['gz', gzip],
     ]) {
+      if (decodesTo(`${file}.${ext}`, ext, raw)) {
+        row[ext] = statSync(`${file}.${ext}`).size;
+        continue;
+      }
       const out = fn(raw);
       if (out.length < raw.length) {
         writeFileSync(`${file}.${ext}`, out);

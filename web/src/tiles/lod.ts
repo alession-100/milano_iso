@@ -92,7 +92,14 @@ export class LodController<T extends THREE.Object3D> {
     const tiles = this.byLevel.get(this.level) ?? [];
     const { visible, wanted } = cullTiles(tiles, frustum, this.manifest.tile_size_m);
     this.visible = visible;
-    this.streamer.update(sortNearestFirst(tiles, wanted, cx, cz), [...this.plan(), ...visible]);
+    // Order (T-6.3): the tiles in view first, nearest to the view centre first, then the prefetch ring,
+    // nearest first. The view is complete before a single tile of the ring is fetched.
+    const inView = new Set(visible);
+    const ring = wanted.filter((id) => !inView.has(id));
+    this.streamer.update(
+      [...sortNearestFirst(tiles, visible, cx, cz), ...sortNearestFirst(tiles, ring, cx, cz)],
+      [...this.plan(), ...visible],
+    );
     this.apply();
   }
 

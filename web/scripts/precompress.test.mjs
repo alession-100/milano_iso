@@ -93,6 +93,26 @@ describe('precompress (T-6.3)', () => {
     expect(brotli(Buffer.concat([TEXT, Buffer.from('x')]))).not.toEqual(brotli(TEXT));
   });
 
+  it('keeps a variant that already decodes to the file, and replaces one that does not', () => {
+    const d = site();
+    compressTree(d);
+    const f = path.join(d, 'tiles/x/tiles.json');
+    // a valid but different gzip of the same bytes (level 1) is kept: it is up to date
+    const other = zlib.gzipSync(TEXT, { level: 1 });
+    writeFileSync(`${f}.gz`, other);
+    compressTree(d);
+    expect(readFileSync(`${f}.gz`)).toEqual(other);
+    // a stale variant (the file changed since) is replaced
+    writeFileSync(f, TEXT + ' ');
+    compressTree(d);
+    expect(zlib.gunzipSync(readFileSync(`${f}.gz`)).toString()).toBe(TEXT + ' ');
+    expect(zlib.brotliDecompressSync(readFileSync(`${f}.br`)).toString()).toBe(TEXT + ' ');
+    // a corrupt one is replaced too
+    writeFileSync(`${f}.br`, 'not brotli');
+    compressTree(d);
+    expect(zlib.brotliDecompressSync(readFileSync(`${f}.br`)).toString()).toBe(TEXT + ' ');
+  });
+
   it('removes the stale copy of a file that no longer shrinks', () => {
     const d = site();
     compressTree(d);
