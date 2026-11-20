@@ -56,7 +56,7 @@ test('the fixture tiles load, attribution comes from the manifest, draw calls wi
 
 test('a manifest with an unexpected format shows an error and stops', async ({ page }) => {
   await page.route('**/tiles/pilot/tiles.json', (route) =>
-    route.fulfill({ status: 200, contentType: 'application/json', body: '{"format_version":2}' }),
+    route.fulfill({ status: 200, contentType: 'application/json', body: '{"format_version":1}' }),
   );
   await page.goto('/?e2e=1');
   await expect(page.locator('#error')).toBeVisible();
@@ -89,7 +89,7 @@ test('a tile that keeps failing is retried once, then a dismissible notice appea
   const bad = manifest.tiles[0];
   let hits = 0;
   // Registered after the fixture route, so it takes precedence for this one file.
-  await page.route(`**/tiles/pilot/${bad.glb.file}`, async (route) => {
+  await page.route(`**/tiles/pilot/${bad.glb.file}*`, async (route) => {
     hits += 1;
     await route.fulfill({ status: 404, body: 'not found' });
   });

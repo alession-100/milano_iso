@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "precompress": "node scripts/precompress.mjs",
+    "build:prod": "vite build && node scripts/precompress.mjs",
+    "serve": "node scripts/serve.mjs",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

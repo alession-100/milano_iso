@@ -106,11 +106,15 @@ test.describe('level selection (desktop 1280x720)', () => {
       release = r;
     });
     // Every L1 block of the fixture has exactly one base tile inside it. Hold back tile 0_0 (block L1_0_0).
-    await page.route(/\/tiles\/pilot\/0_0\.(glb|json)$/, async (route) => {
+    await page.route(/\/tiles\/pilot\/0_0\.(glb|json)(\?.*)?$/, async (route) => {
       await gate;
       await route.fallback();
     });
     await start(page);
+    // T-6.3: a tile in flight when the level changes is cancelled, so the three base tiles that are not
+    // held back must have arrived before the view goes to level 1 (0_0 stays in flight, then cancelled).
+    await setView(page, 0, 0, 500);
+    await expect.poll(async () => (await tilesState(page)).loadedByLevel?.[0], { timeout: 20_000 }).toBe(3);
     await setView(page, 0, 0, 800);
     await expect
       .poll(async () => {
@@ -188,5 +192,69 @@ test.describe('level selection (mobile 412x915)', () => {
       expect(s.level, `width ${width}`).toBe(level);
       expect(await drawnLevels(page)).toEqual([level]);
     }
+  });
+});
+
+// T-6.3: a tile that is no longer wanted is cancelled; it never reaches the scene and can load again.
+test.describe('cancelling tiles that are no longer wanted', () => {
+  test('a base tile in flight when the view moves to a coarser level is cancelled and never drawn; it loads again later', async ({
+    page,
+  }) => {
+    const problems = await open(page);
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
+    let held = 0;
+    // Hold every base tile (not the L1_.. blocks, not the shards): they stay in flight until released.
+    await page.route(/\/tiles\/pilot\/-?\d+_-?\d+\.(glb|json)(\?.*)?$/, async (route) => {
+      held += 1;
+      await gate;
+      await route.fallback().catch(() => undefined); // the page may have cancelled it by now
+    });
+    await start(page);
+    await expect.poll(async () => (await tilesState(page)).loading, { timeout: 20_000 }).toBeGreaterThan(0);
+    expect(held).toBeGreaterThan(0);
+    const before = await tilesState(page);
+    expect(before.cancelled ?? 0).toBe(0);
+
+    await setView(page, 0, 0, 4000); // level 3 replaces level 0 before a single base tile has arrived
+    await expect.poll(async () => (await tilesState(page)).level).toBe(3);
+    await expect.poll(async () => (await tilesState(page)).cancelled, { timeout: 20_000 }).toBeGreaterThan(0);
+    release(); // the held requests are let go after the page cancelled them
+    await settleRendered(page);
+    const s = await tilesState(page);
+    expect(s.failed).toBe(0);
+    expect(Object.keys(s.loadedByLevel ?? {}), 'no cancelled base tile is in the scene').toEqual(['3']);
+    expect(s.inScene, 'what is in the scene is exactly what was loaded').toBe(s.loaded);
+    expect(s.unwantedInFlight).toBe(0);
+    expect(await drawnLevels(page)).toEqual([3]);
+    // every request that was started is accounted for: completed, cancelled, or still in flight (none)
+    expect(s.started).toBe((s.completed ?? 0) + (s.cancelled ?? 0));
+
+    await setView(page, 0, 0, 400); // back to the base level: the cancelled tiles load again
+    await settleRendered(page);
+    const again = await tilesState(page);
+    expect(again.level).toBe(0);
+    expect(again.loadedByLevel?.[0] ?? 0).toBeGreaterThan(0);
+    expect(await drawnLevels(page)).toEqual([0]);
+    expect(again.failed).toBe(0);
+    expect(problems).toEqual([]);
+  });
+
+  test('shard requests are made for the level in view only', async ({ page }) => {
+    await open(page);
+    const shards: string[] = [];
+    page.on('request', (r) => {
+      const m = /\/shards\/(S\d+)_/.exec(r.url());
+      if (m) shards.push(m[1]);
+    });
+    await start(page);
+    await setView(page, 0, 0, 400);
+    await settleRendered(page);
+    expect(new Set(shards)).toEqual(new Set(['S0'])); // base level only
+    await setView(page, 0, 0, 4000);
+    await settleRendered(page);
+    expect(new Set(shards)).toEqual(new Set(['S0', 'S3']));
   });
 });

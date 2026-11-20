@@ -173,7 +173,7 @@ test('a failed tile stays failed (and counted once) through all four views; cont
   const manifest = readFixtureManifest() as unknown as { tiles: { id: string; glb: { file: string } }[] };
   const bad = manifest.tiles[0];
   await open(page, true, '', () =>
-    page.route(`**/tiles/pilot/${bad.glb.file}`, (route) =>
+    page.route(`**/tiles/pilot/${bad.glb.file}*`, (route) =>
       route.fulfill({ status: 404, body: 'not found' }),
     ),
   );

@@ -44,7 +44,7 @@ async function open(page: Page, o: OpenOptions = {}): Promise<string[]> {
   const problems = collectProblems(page);
   await page.emulateMedia({ reducedMotion: o.reduced === false ? 'no-preference' : 'reduce' });
   await routeFixtureTiles(page);
-  if (o.failTile) await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' }));
+  if (o.failTile) await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
   await page.goto(`/?e2e=1${o.query ?? ''}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 600);

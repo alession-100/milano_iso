@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { type FeatureTable, applyStyle, disposeLookupMaterial } from '../style/materials';
 import { buildTreeMesh } from '../style/trees';
-import type { TileEntry } from './manifest';
+import { type TileEntry, assetUrl } from './manifest';
 
 /** Most tiles fetched and decoded at the same time. */
 export const MAX_CONCURRENT = 4;
@@ -13,11 +13,18 @@ export interface TileStats {
   loaded: number;
   loading: number;
   failed: number;
+  /** Requests started, completed and cancelled since the start (T-6.3). A cancelled tile can start again. */
+  started: number;
+  completed: number;
+  cancelled: number;
 }
 
 export interface StreamerOptions<T> {
-  /** Fetch and decode one tile. */
-  load: (tile: TileEntry) => Promise<T>;
+  /**
+   * Fetch and decode one tile. The signal is aborted when the tile is no longer wanted: the request
+   * must stop and the promise must reject (its result is dropped either way).
+   */
+  load: (tile: TileEntry, signal: AbortSignal) => Promise<T>;
   /** A tile finished loading (add it to the scene). */
   onLoaded: (id: string, obj: T) => void;
   /** A tile leaves the cache (remove it from the scene and dispose it). */
@@ -43,6 +50,10 @@ interface Entry<T> {
 /**
  * Loads wanted tiles nearest first with a concurrency limit, keeps at most `cacheLimit` tiles,
  * and evicts the least recently visible first. Tiles that are currently wanted are never evicted.
+ * A tile in flight that is no longer wanted (it left the view, or another level replaced it) is
+ * cancelled with its AbortController: its request stops, it never reaches the scene, and it can be
+ * requested again later (T-6.3). The tile entries may be added while running (`addTiles`), as the
+ * shards that list them arrive.
  * A failed tile is retried once after `retryDelayMs`. While it waits it is counted as loading but
  * holds no loader slot (T-5.4), and it is retried only if it is still wanted when the wait ends;
  * if the retry fails too it is recorded and reported once.
@@ -61,6 +72,10 @@ export class TileStreamer<T> {
   private readonly retried = new Set<string>();
   /** Failed once, waiting for the retry delay: counted as loading, but not using a slot. */
   private readonly retryWait = new Set<string>();
+  private readonly controllers = new Map<string, AbortController>();
+  private startedN = 0;
+  private completedN = 0;
+  private cancelledN = 0;
 
   constructor(
     tiles: TileEntry[],
@@ -84,7 +99,25 @@ export class TileStreamer<T> {
     }
     this.order = wantedNearestFirst;
     this.wanted = new Set(wantedNearestFirst);
+    this.cancelUnwanted();
     this.pump();
+  }
+
+  /** Make tile entries known (a shard arrived); entries already known are kept as they are. */
+  addTiles(tiles: readonly TileEntry[]): void {
+    for (const t of tiles) if (!this.tilesById.has(t.id)) this.tilesById.set(t.id, t);
+  }
+
+  /** Abort every request in flight whose tile is no longer wanted; the tile is forgotten, not failed. */
+  private cancelUnwanted(): void {
+    for (const [id, ctl] of this.controllers) {
+      if (this.wanted.has(id)) continue;
+      this.controllers.delete(id);
+      this.loadingSet.delete(id);
+      this.cancelledN += 1;
+      ctl.abort();
+      this.opts.onChange?.();
+    }
   }
 
   get stats(): TileStats {
@@ -92,6 +125,9 @@ export class TileStreamer<T> {
       loaded: this.loadedMap.size,
       loading: this.loadingSet.size + this.retryWait.size,
       failed: this.failedSet.size,
+      started: this.startedN,
+      completed: this.completedN,
+      cancelled: this.cancelledN,
     };
   }
 
@@ -102,6 +138,13 @@ export class TileStreamer<T> {
   /** A tile that failed for good (after its one retry). */
   isFailed(id: string): boolean {
     return this.failedSet.has(id);
+  }
+
+  /** Requests in flight whose tile is not wanted: always 0 after `update` (the invariant of T-6.3). */
+  unwantedInFlight(): number {
+    let n = 0;
+    for (const id of this.loadingSet) if (!this.wanted.has(id)) n += 1;
+    return n;
   }
 
   /** Ids of every loaded tile (any level), in load order. */
@@ -124,17 +167,27 @@ export class TileStreamer<T> {
   }
 
   private start(tile: TileEntry): void {
+    const ctl = new AbortController();
+    this.controllers.set(tile.id, ctl);
     this.loadingSet.add(tile.id);
+    this.startedN += 1;
     this.opts.onChange?.();
     this.opts
-      .load(tile)
+      .load(tile, ctl.signal)
       .then((obj) => {
+        // cancelled while the answer was on its way: the tile is not used (and `load` must have
+        // released what it built; the loader checks the signal before it returns)
+        if (ctl.signal.aborted) return;
+        this.controllers.delete(tile.id);
         this.loadingSet.delete(tile.id);
+        this.completedN += 1;
         this.loadedMap.set(tile.id, { obj, lastVisible: this.tick });
         this.opts.onLoaded(tile.id, obj);
         this.evict();
       })
       .catch((err: unknown) => {
+        if (ctl.signal.aborted) return; // an abort is not a failure
+        this.controllers.delete(tile.id);
         if (!this.retried.has(tile.id)) {
           // First failure: free the slot, count as loading, and try once more after the delay.
           this.retried.add(tile.id);
@@ -199,10 +252,16 @@ export function disposeTile(obj: THREE.Object3D): void {
   });
 }
 
-async function fetchFeatureTable(url: string): Promise<FeatureTable> {
-  const res = await fetch(url);
+async function fetchFeatureTable(url: string, signal: AbortSignal): Promise<FeatureTable> {
+  const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`feature table ${url}: HTTP ${res.status}`);
   return (await res.json()) as FeatureTable;
+}
+
+async function fetchGlb(url: string, signal: AbortSignal): Promise<ArrayBuffer> {
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error(`tile ${url}: HTTP ${res.status}`);
+  return res.arrayBuffer();
 }
 
 /**
@@ -210,14 +269,21 @@ async function fetchFeatureTable(url: string): Promise<FeatureTable> {
  * geometry as the attribute `_feature_id` (three lower-cases custom attribute names) for Phase 5.
  * The file's placeholder materials are replaced by the style (T-3.3): the tile's feature table
  * is fetched next to the glb and drives the per-building colours (see style/materials.ts).
+ * Both files are fetched here with the tile's AbortSignal (T-6.3) and the glb is parsed from the
+ * bytes; an aborted tile throws before it builds anything, so nothing of it reaches the scene.
  */
-export function createGltfTileLoader(base: URL): (tile: TileEntry) => Promise<THREE.Group> {
+export function createGltfTileLoader(
+  base: URL,
+): (tile: TileEntry, signal: AbortSignal) => Promise<THREE.Group> {
   const loader = new GLTFLoader();
-  return async (tile) => {
-    const [gltf, table] = await Promise.all([
-      loader.loadAsync(new URL(tile.glb.file, base).href),
-      fetchFeatureTable(new URL(tile.features.file, base).href),
+  return async (tile, signal) => {
+    const [buf, table] = await Promise.all([
+      fetchGlb(assetUrl(base, tile.glb.file, tile.glb.sha256).href, signal),
+      fetchFeatureTable(assetUrl(base, tile.features.file, tile.features.sha256).href, signal),
     ]);
+    signal.throwIfAborted();
+    const gltf = await loader.parseAsync(buf, '');
+    signal.throwIfAborted();
     const group = gltf.scene;
     group.name = tile.id;
     group.userData.table = table; // feature table, read by picking and the info card (T-5.1)

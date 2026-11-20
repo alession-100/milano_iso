@@ -149,7 +149,7 @@ test('the toggle does not overlap the tiles notice when a tile fails', async ({ 
   const ctx = await browser.newContext({ viewport: { width: 412, height: 915 } });
   const page = await ctx.newPage();
   await routeFixtureTiles(page);
-  await page.route('**/tiles/pilot/-1_0.glb', (route) => route.fulfill({ status: 404, body: 'x' }));
+  await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
   await page.goto('/?e2e=1');
   const notice = page.locator('#tiles-notice');
   await expect(notice).toBeVisible({ timeout: 20_000 });
