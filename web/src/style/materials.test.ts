@@ -94,3 +94,23 @@ describe('layerOf', () => {
     expect(layerOf('roads')).toBe('roads');
   });
 });
+
+describe('setShadowCasters (T-6.4)', () => {
+  it('switches the casting layers off and back on, and leaves the others alone', async () => {
+    const THREE = await import('three');
+    const { applyStyle, setShadowCasters } = await import('./materials');
+    const root = new THREE.Group();
+    const building = new THREE.Mesh(new THREE.BufferGeometry());
+    building.name = 'buildings';
+    const green = new THREE.Mesh(new THREE.BufferGeometry());
+    green.name = 'green';
+    root.add(building, green);
+    applyStyle(building, undefined);
+    applyStyle(green, undefined);
+    expect([building.castShadow, green.castShadow]).toEqual([true, false]);
+    setShadowCasters(root, false);
+    expect([building.castShadow, green.castShadow]).toEqual([false, false]);
+    setShadowCasters(root, true);
+    expect([building.castShadow, green.castShadow]).toEqual([true, false]);
+  });
+});

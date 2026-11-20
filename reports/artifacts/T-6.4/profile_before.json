@@ -1,0 +1,155 @@
+{
+  "totalMs": 82378.186,
+  "top": [
+    {
+      "fn": "(idle) :0",
+      "selfMs": 45599.503,
+      "pct": 55.35385666297629
+    },
+    {
+      "fn": "(program) :0",
+      "selfMs": 6294.307,
+      "pct": 7.64074484475781
+    },
+    {
+      "fn": "compose index-DuFJXv9o.js:7561",
+      "selfMs": 1590.661,
+      "pct": 1.930925014542078
+    },
+    {
+      "fn": "bindVertexArray :0",
+      "selfMs": 1510.745,
+      "pct": 1.8339138956033822
+    },
+    {
+      "fn": "updateMatrixWorld index-DuFJXv9o.js:9047",
+      "selfMs": 1367.824,
+      "pct": 1.6604201505481075
+    },
+    {
+      "fn": "projectObject index-DuFJXv9o.js:35211",
+      "selfMs": 1283.599,
+      "pct": 1.5581782779242068
+    },
+    {
+      "fn": "setProgram index-DuFJXv9o.js:35471",
+      "selfMs": 1210.554,
+      "pct": 1.4695079593036924
+    },
+    {
+      "fn": "update index-DuFJXv9o.js:25397",
+      "selfMs": 1147.055,
+      "pct": 1.3924256598706848
+    },
+    {
+      "fn": "flatten index-DuFJXv9o.js:28025",
+      "selfMs": 1048.394,
+      "pct": 1.2726597305747906
+    },
+    {
+      "fn": "WebGLRenderer.renderBufferDirect index-DuFJXv9o.js:34916",
+      "selfMs": 959.796,
+      "pct": 1.1651094137955404
+    },
+    {
+      "fn": "upload index-DuFJXv9o.js:28568",
+      "selfMs": 856.065,
+      "pct": 1.0391889425678784
+    },
+    {
+      "fn": "updateMatrix index-DuFJXv9o.js:9024",
+      "selfMs": 853.052,
+      "pct": 1.0355314209031017
+    },
+    {
+      "fn": "multiplyMatrices index-DuFJXv9o.js:7251",
+      "selfMs": 789.092,
+      "pct": 0.9578895073023337
+    },
+    {
+      "fn": "boxOf index-DuFJXv9o.js:38056",
+      "selfMs": 667.061,
+      "pct": 0.8097544172676976
+    },
+    {
+      "fn": "copy index-DuFJXv9o.js:3247",
+      "selfMs": 627.153,
+      "pct": 0.7613095534781501
+    },
+    {
+      "fn": "intersectsObject index-DuFJXv9o.js:16912",
+      "selfMs": 568.239,
+      "pct": 0.6897930478828461
+    },
+    {
+      "fn": "uniformMatrix4fv :0",
+      "selfMs": 548.535,
+      "pct": 0.6658740943870748
+    },
+    {
+      "fn": "renderObject index-DuFJXv9o.js:30511",
+      "selfMs": 508.769,
+      "pct": 0.6176016063281607
+    },
+    {
+      "fn": "bindTexture :0",
+      "selfMs": 490.699,
+      "pct": 0.595666187648269
+    },
+    {
+      "fn": "copy index-DuFJXv9o.js:12111",
+      "selfMs": 489.732,
+      "pct": 0.5944923332009278
+    },
+    {
+      "fn": "drawElements :0",
+      "selfMs": 473.852,
+      "pct": 0.5752153852962968
+    },
+    {
+      "fn": "getBindingState index-DuFJXv9o.js:26211",
+      "selfMs": 416.511,
+      "pct": 0.5056083657875157
+    },
+    {
+      "fn": "render index-DuFJXv9o.js:43448",
+      "selfMs": 389.032,
+      "pct": 0.4722512340827704
+    },
+    {
+      "fn": "needsUpdate index-DuFJXv9o.js:26257",
+      "selfMs": 376.226,
+      "pct": 0.45670585657227264
+    },
+    {
+      "fn": "markUniformsLightsNeedsUpdate index-DuFJXv9o.js:35637",
+      "selfMs": 361.724,
+      "pct": 0.4391016816029428
+    },
+    {
+      "fn": "sortNearestFirst index-DuFJXv9o.js:38090",
+      "selfMs": 344.901,
+      "pct": 0.4186800131772749
+    },
+    {
+      "fn": "copyArray index-DuFJXv9o.js:28048",
+      "selfMs": 326.663,
+      "pct": 0.3965406570132535
+    },
+    {
+      "fn": "arraysEqual index-DuFJXv9o.js:28043",
+      "selfMs": 314.907,
+      "pct": 0.3822698887785657
+    },
+    {
+      "fn": "setTexture2D index-DuFJXv9o.js:31561",
+      "selfMs": 281.274,
+      "pct": 0.341442332803978
+    },
+    {
+      "fn": "setup index-DuFJXv9o.js:26186",
+      "selfMs": 266.465,
+      "pct": 0.3234654863606732
+    }
+  ]
+}

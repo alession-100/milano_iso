@@ -135,7 +135,7 @@ async function open(page: Page, lang: string, extra = ''): Promise<string[]> {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await routeFixtureTiles(page);
   await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' }));
-  await page.goto(`/?e2e=1&lang=${lang}${extra}`);
+  await page.goto(`/?e2e=1&tiles=tiles/pilot/&lang=${lang}${extra}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 600);
   await settleRendered(page);
@@ -274,7 +274,7 @@ for (const [w, h, withCard] of [
     );
     await page.route('**/tiles/pilot/-1_0.glb*', (route) => route.fulfill({ status: 404, body: 'x' })); // the notice is there
     await page.setViewportSize({ width: w, height: h });
-    await page.goto('/?e2e=1&lang=en');
+    await page.goto('/?e2e=1&tiles=tiles/pilot/&lang=en');
     await expect(page.locator('canvas')).toHaveCount(1);
     if (withCard) {
       await page.evaluate((ref) => (window as unknown as Win).__milanoIsoSelect(ref, 'search'), LANDMARK);
@@ -321,7 +321,7 @@ for (const [w, h, drawn] of [
       await route.fulfill({ status: 404, body: 'x' });
     });
     await page.setViewportSize({ width: w, height: h });
-    await page.goto('/?e2e=1&lang=en');
+    await page.goto('/?e2e=1&tiles=tiles/pilot/&lang=en');
     await expect(page.locator('canvas')).toHaveCount(1);
     await page.evaluate(() => document.querySelector<HTMLElement>('#layers-button')?.click());
     await expect(page.locator('#layers-panel')).toBeVisible();

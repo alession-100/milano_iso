@@ -85,7 +85,7 @@ export interface Manifest {
 export const EXPECTED_FORMAT_VERSION = 2;
 export const EXPECTED_UNIT_M = 0.02;
 export const EXPECTED_AXIS = 'x=E-E0, y=up, z=-(N-N0)';
-export const DEFAULT_TILES_BASE = 'tiles/pilot/';
+export const DEFAULT_TILES_BASE = 'tiles/city/';
 
 export class ManifestError extends Error {}
 

@@ -16,7 +16,7 @@ test('renders a canvas with no console errors or warnings, at both elevations, a
   const expectedTiles = readFixtureManifest().tiles.length;
 
   for (const elev of ELEVATIONS) {
-    await page.goto(`/?e2e=1&elev=${elev}`);
+    await page.goto(`/?e2e=1&tiles=tiles/pilot/&elev=${elev}`);
     await expect
       .poll(() =>
         page.evaluate(

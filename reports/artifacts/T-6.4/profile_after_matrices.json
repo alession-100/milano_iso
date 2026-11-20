@@ -1,0 +1,155 @@
+{
+  "totalMs": 81401.92,
+  "top": [
+    {
+      "fn": "(idle) :0",
+      "selfMs": 46103.601,
+      "pct": 56.63699455737653
+    },
+    {
+      "fn": "(program) :0",
+      "selfMs": 6231.496,
+      "pct": 7.655219926016487
+    },
+    {
+      "fn": "updateMatrixWorld index-CiK0vPCl.js:9047",
+      "selfMs": 1659.678,
+      "pct": 2.038868370672338
+    },
+    {
+      "fn": "bindVertexArray :0",
+      "selfMs": 1644.229,
+      "pct": 2.019889702847304
+    },
+    {
+      "fn": "projectObject index-CiK0vPCl.js:35211",
+      "selfMs": 1501.929,
+      "pct": 1.845078101351909
+    },
+    {
+      "fn": "setProgram index-CiK0vPCl.js:35471",
+      "selfMs": 1305.051,
+      "pct": 1.6032189412731297
+    },
+    {
+      "fn": "update index-CiK0vPCl.js:25397",
+      "selfMs": 1148.049,
+      "pct": 1.4103463407251329
+    },
+    {
+      "fn": "flatten index-CiK0vPCl.js:28025",
+      "selfMs": 1082.272,
+      "pct": 1.3295411213887829
+    },
+    {
+      "fn": "copy index-CiK0vPCl.js:3247",
+      "selfMs": 987.027,
+      "pct": 1.2125352817230846
+    },
+    {
+      "fn": "upload index-CiK0vPCl.js:28568",
+      "selfMs": 947.601,
+      "pct": 1.1641015347058152
+    },
+    {
+      "fn": "WebGLRenderer.renderBufferDirect index-CiK0vPCl.js:34916",
+      "selfMs": 903.662,
+      "pct": 1.1101236924141347
+    },
+    {
+      "fn": "renderObject index-CiK0vPCl.js:30511",
+      "selfMs": 656.022,
+      "pct": 0.8059048238665624
+    },
+    {
+      "fn": "uniformMatrix4fv :0",
+      "selfMs": 554.32,
+      "pct": 0.6809667388680758
+    },
+    {
+      "fn": "intersectsObject index-CiK0vPCl.js:16912",
+      "selfMs": 540.019,
+      "pct": 0.6633983571886265
+    },
+    {
+      "fn": "copy index-CiK0vPCl.js:12111",
+      "selfMs": 537.706,
+      "pct": 0.6605569008691687
+    },
+    {
+      "fn": "bindTexture :0",
+      "selfMs": 513.042,
+      "pct": 0.6302578612396366
+    },
+    {
+      "fn": "getBindingState index-CiK0vPCl.js:26211",
+      "selfMs": 493.587,
+      "pct": 0.6063579335720828
+    },
+    {
+      "fn": "drawElements :0",
+      "selfMs": 476.378,
+      "pct": 0.585217154583086
+    },
+    {
+      "fn": "boxOf index-CiK0vPCl.js:38059",
+      "selfMs": 446.376,
+      "pct": 0.5483605300710351
+    },
+    {
+      "fn": "needsUpdate index-CiK0vPCl.js:26257",
+      "selfMs": 436.892,
+      "pct": 0.5367096992306816
+    },
+    {
+      "fn": "sortNearestFirst index-CiK0vPCl.js:38095",
+      "selfMs": 406.829,
+      "pct": 0.49977813791124337
+    },
+    {
+      "fn": "multiplyMatrices index-CiK0vPCl.js:7251",
+      "selfMs": 391.215,
+      "pct": 0.48059677216458774
+    },
+    {
+      "fn": "markUniformsLightsNeedsUpdate index-CiK0vPCl.js:35637",
+      "selfMs": 327.606,
+      "pct": 0.4024548806711193
+    },
+    {
+      "fn": "render index-CiK0vPCl.js:43487",
+      "selfMs": 324.966,
+      "pct": 0.39921171392517524
+    },
+    {
+      "fn": "setTexture2D index-CiK0vPCl.js:31561",
+      "selfMs": 320.934,
+      "pct": 0.394258513804097
+    },
+    {
+      "fn": "copyArray index-CiK0vPCl.js:28048",
+      "selfMs": 315.631,
+      "pct": 0.3877439254504071
+    },
+    {
+      "fn": "setup index-CiK0vPCl.js:26186",
+      "selfMs": 312.926,
+      "pct": 0.38442090800806666
+    },
+    {
+      "fn": "arraysEqual index-CiK0vPCl.js:28043",
+      "selfMs": 272.668,
+      "pct": 0.334965072076924
+    },
+    {
+      "fn": "refreshUniformsCommon index-CiK0vPCl.js:33197",
+      "selfMs": 257.557,
+      "pct": 0.3164016278731509
+    },
+    {
+      "fn": "renderObjects index-CiK0vPCl.js:35332",
+      "selfMs": 234.578,
+      "pct": 0.2881725639886627
+    }
+  ]
+}

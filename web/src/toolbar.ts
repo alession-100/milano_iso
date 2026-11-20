@@ -345,6 +345,7 @@ export function createToolbar(deps: ToolbarDeps): Toolbar {
   let svg: SVGSVGElement | null = null;
   let viewPoly: SVGPolygonElement | null = null;
   let viewPoints: [number, number][] | null = null;
+  let viewPointsAttr = ''; // what the polygon shows now
   const closeMinimapPanel = (): void => {
     mm.classList.remove('open');
     mmBtn.setAttribute('aria-expanded', 'false');
@@ -420,12 +421,17 @@ export function createToolbar(deps: ToolbarDeps): Toolbar {
       viewPoly = document.createElementNS(ns, 'polygon');
       viewPoly.setAttribute('class', 'mm-view');
       svg.append(viewPoly);
-      if (viewPoints) viewPoly.setAttribute('points', polygonPoints(viewPoints));
+      viewPointsAttr = viewPoints ? polygonPoints(viewPoints) : '';
+      if (viewPoints) viewPoly.setAttribute('points', viewPointsAttr);
       mm.append(svg);
     },
     setView: (poly) => {
       viewPoints = poly;
-      viewPoly?.setAttribute('points', polygonPoints(poly));
+      const points = polygonPoints(poly);
+      if (viewPoly && points !== viewPointsAttr) {
+        viewPoly.setAttribute('points', points); // only on a change: called every frame (T-6.4)
+        viewPointsAttr = points;
+      }
     },
     state: () => ({
       query: input.value,

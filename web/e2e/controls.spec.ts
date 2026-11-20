@@ -39,7 +39,7 @@ function ground(c: CameraState, px: number, py: number, vw: number, vh: number):
 async function open(page: Page, reduced: boolean): Promise<void> {
   await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
   await routeFixtureTiles(page);
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('canvas')).toHaveCount(1);
   await page.waitForFunction(() => '__milanoIso' in window);
   // The camera bounds come from the manifest: wait until they replace the 500 m fallback.

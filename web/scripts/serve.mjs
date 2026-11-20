@@ -1,7 +1,10 @@
 /* global process, console, URL */
 // T-6.3: a local static server for the built site (web/dist), Node built-ins only, bound to 127.0.0.1.
 //
-//   node scripts/serve.mjs [--dir dist] [--port 4174] [--encodings br,gzip]      (npm run serve)
+//   node scripts/serve.mjs [--dir dist] [--port 4174] [--host 127.0.0.1] [--encodings br,gzip]      (npm run serve)
+//
+// Bound to 127.0.0.1 unless `--host` says otherwise: `--host 0.0.0.0` makes it reachable from the local
+// network (a phone on the same Wi-Fi, T-6.4); it then serves to anyone on that network, so stop it after.
 //
 // It serves the precompressed files that scripts/precompress.mjs wrote: for `x` it looks for `x.br`
 // and `x.gz` and picks one by the request's Accept-Encoding (br first, then gzip, else the plain
@@ -164,7 +167,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   }
   const encodings = arg('encodings', 'br,gzip').split(',').filter(Boolean);
   const server = createStaticServer(dir, { encodings });
-  server.listen(port, '127.0.0.1', () => console.log(`serving ${dir} on http://127.0.0.1:${port}/`));
+  const host = arg('host', '127.0.0.1');
+  server.listen(port, host, () => console.log(`serving ${dir} on http://${host === '0.0.0.0' ? 'this-machine-LAN-address' : host}:${port}/`));
   const stop = () => server.close(() => process.exit(0));
   process.on('SIGINT', stop);
   process.on('SIGTERM', stop);

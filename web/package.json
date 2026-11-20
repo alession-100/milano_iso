@@ -13,7 +13,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "bench:city": "node scripts/bench-city.mjs",
+    "memory": "node scripts/memory-session.mjs"
   },
   "dependencies": {
     "three": "0.187.0"

@@ -41,7 +41,7 @@ async function open(page: Page, width = 600, x = 0, z = 0, hold?: () => Promise<
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await routeFixtureTiles(page);
   if (hold) await hold();
-  await page.goto(`/?e2e=1${query}`);
+  await page.goto(`/?e2e=1&tiles=tiles/pilot/${query}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await page.waitForFunction(
     () =>

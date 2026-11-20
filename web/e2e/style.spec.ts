@@ -9,7 +9,7 @@ type Page = import('@playwright/test').Page;
 
 async function load(page: Page, query: string): Promise<void> {
   await routeFixtureTiles(page);
-  await page.goto(`/?e2e=1${query}`);
+  await page.goto(`/?e2e=1&tiles=tiles/pilot/${query}`);
   await setView(page, 0, 0, 600);
   const expected = readFixtureManifest().tiles.length;
   await expect

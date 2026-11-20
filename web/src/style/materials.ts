@@ -286,6 +286,19 @@ export function applyStyle(mesh: THREE.Mesh, table: FeatureTable | undefined): v
   } else {
     mesh.material = materialFor(layer);
   }
-  mesh.castShadow = CASTING_LAYERS.has(layer);
+  mesh.userData.casts = CASTING_LAYERS.has(layer);
+  mesh.castShadow = mesh.userData.casts as boolean;
   mesh.receiveShadow = true;
+}
+
+/**
+ * Switches the shadow casting of every mesh below `root` that casts by its layer (T-6.4, ADR-0039):
+ * with `on` false nothing is drawn into the shadow map. The receiving side and the lights are not
+ * touched, so no shader changes and nothing recompiles.
+ */
+export function setShadowCasters(root: THREE.Object3D, on: boolean): void {
+  root.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (mesh.isMesh && mesh.userData.casts !== undefined) mesh.castShadow = on && (mesh.userData.casts as boolean);
+  });
 }

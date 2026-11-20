@@ -1,7 +1,7 @@
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { expect, test } from '@playwright/test';
-import { collectProblems, readFixtureManifest, routeFixtureTiles, setView, settleRendered } from './support';
+import { FIXTURE_DIR, collectProblems, readFixtureManifest, routeFixtureTiles, setView, settleRendered } from './support';
 
 const OUT = path.resolve(process.cwd(), process.env.E2E_OUT_DIR ?? 'e2e-output');
 
@@ -26,7 +26,7 @@ test('the fixture tiles load, attribution comes from the manifest, draw calls wi
   const expected = manifest.tiles.length;
 
   // 1200 m wide covers all fixture tiles (they span about 500 m around the origin).
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 1200);
   await expect
@@ -58,7 +58,7 @@ test('a manifest with an unexpected format shows an error and stops', async ({ p
   await page.route('**/tiles/pilot/tiles.json', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: '{"format_version":1}' }),
   );
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('#error')).toBeVisible();
   const s = await state(page);
   expect(s.tiles.loaded).toBe(0);
@@ -67,7 +67,7 @@ test('a manifest with an unexpected format shows an error and stops', async ({ p
 test('the attribution is visible on a mobile viewport', async ({ page }) => {
   await routeFixtureTiles(page);
   await page.setViewportSize({ width: 412, height: 915 });
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await setView(page, 0, 0, 1200);
   await expect(page.locator('#attribution')).toContainText('OpenStreetMap contributors');
   await expect(page.locator('#attribution')).toBeInViewport();
@@ -93,7 +93,7 @@ test('a tile that keeps failing is retried once, then a dismissible notice appea
     hits += 1;
     await route.fulfill({ status: 404, body: 'not found' });
   });
-  await page.goto('/?e2e=1');
+  await page.goto('/?e2e=1&tiles=tiles/pilot/');
   await expect(page.locator('canvas')).toHaveCount(1);
   await setView(page, 0, 0, 1200);
   await expect.poll(async () => (await state(page)).tiles.failed, { timeout: 20_000 }).toBe(1);
@@ -118,3 +118,33 @@ test('a tile that keeps failing is retried once, then a dismissible notice appea
   await notice.getByRole('button').click();
   await expect(notice).toHaveCount(0);
 });
+
+// T-6.4: the city is the default tileset; ?tiles=tiles/pilot/ still opens the pilot. The fixture stands in for
+// whichever directory is asked for: what is checked is which directory the page asks for first.
+for (const [name, query, dir] of [
+  ['without ?tiles the page opens tiles/city/', '/?e2e=1', '/tiles/city/'],
+  ['?tiles=tiles/pilot/ opens tiles/pilot/', '/?e2e=1&tiles=tiles/pilot/', '/tiles/pilot/'],
+] as const) {
+  test(name, async ({ page }) => {
+    const asked: string[] = [];
+    await page.route('**/tiles/**', async (route) => {
+      const url = new URL(route.request().url());
+      asked.push(url.pathname);
+      const file = decodeURIComponent(url.pathname.split(/\/tiles\/(?:city|pilot)\//)[1] ?? '');
+      try {
+        const body = readFileSync(path.join(FIXTURE_DIR, file));
+        await route.fulfill({
+          status: 200,
+          contentType: file.endsWith('.glb') ? 'model/gltf-binary' : 'application/json',
+          body,
+        });
+      } catch {
+        await route.fulfill({ status: 404, body: 'not found' });
+      }
+    });
+    await page.goto(query);
+    await expect.poll(async () => (await state(page)).tiles.loaded, { timeout: 30_000 }).toBeGreaterThan(0);
+    expect(asked[0]).toBe(`${dir}tiles.json`);
+    expect(asked.every((p) => p.startsWith(dir))).toBe(true);
+  });
+}

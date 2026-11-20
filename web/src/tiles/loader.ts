@@ -76,6 +76,7 @@ export class TileStreamer<T> {
   private startedN = 0;
   private completedN = 0;
   private cancelledN = 0;
+  private peakWantedN = 0;
 
   constructor(
     tiles: TileEntry[],
@@ -99,6 +100,7 @@ export class TileStreamer<T> {
     }
     this.order = wantedNearestFirst;
     this.wanted = new Set(wantedNearestFirst);
+    this.peakWantedN = Math.max(this.peakWantedN, this.wanted.size);
     this.cancelUnwanted();
     this.pump();
   }
@@ -118,6 +120,16 @@ export class TileStreamer<T> {
       ctl.abort();
       this.opts.onChange?.();
     }
+  }
+
+  /** Tiles the last update asked for (in view and the prefetch ring); a wanted tile is never evicted. */
+  get wantedCount(): number {
+    return this.wanted.size;
+  }
+
+  /** The largest set of wanted tiles of the session: the cache never holds more than the larger of this and its limit. */
+  get peakWanted(): number {
+    return this.peakWantedN;
   }
 
   get stats(): TileStats {
@@ -297,6 +309,19 @@ export function createGltfTileLoader(
     // Trees (T-4.1): instance data lives in the feature table, one InstancedMesh per tile.
     const trees = buildTreeMesh(table.layers.trees ?? []);
     if (trees) group.add(trees);
+    freezeMatrices(group);
     return group;
   };
+}
+
+/**
+ * A loaded tile never moves: compute every local matrix once and stop three.js recomputing them (compose,
+ * updateMatrix, multiplyMatrices) for every mesh of every tile on every frame (T-6.4, measured in R-6.4).
+ * The world matrices are still computed once by the first updateMatrixWorld after the tile is added.
+ */
+export function freezeMatrices(root: THREE.Object3D): void {
+  root.traverse((o) => {
+    o.updateMatrix();
+    o.matrixAutoUpdate = false;
+  });
 }

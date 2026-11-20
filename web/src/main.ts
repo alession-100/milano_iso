@@ -5,8 +5,8 @@ import { getLang, initialLang, onLangChange, setLang, t } from './i18n';
 import { RotationAnimator, createRotationButtons } from './rotation';
 import { createScene } from './scene';
 import { createModeToggle } from './modeToggle';
-import { applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows } from './style/lights';
-import { setPaletteMode } from './style/materials';
+import { NO_SHADOW_FROM_LEVEL, applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows } from './style/lights';
+import { setPaletteMode, setShadowCasters } from './style/materials';
 import { initialMode, storeMode } from './style/mode';
 import { type StyleMode, paletteFor } from './style/palette';
 import { e2eEnabled, registerSetView, registerTestState } from './testhook';
@@ -15,7 +15,7 @@ import { frustumOf, viewCentre } from './tiles/culling';
 import { LodController } from './tiles/lod';
 import { Picker } from './pick/picker';
 import type { IndexEntry as PickIndexEntry } from './pick/rows';
-import { TileStreamer, createGltfTileLoader, disposeTile } from './tiles/loader';
+import { CACHE_LIMIT, TileStreamer, createGltfTileLoader, disposeTile } from './tiles/loader';
 import { FlyAnimator, fitWidth } from './fly';
 import { applyLayerVisibility, initialLayers, layerState, setLayerState, storeLayers } from './layers';
 import { parseMinimapSvg, viewFootprint } from './minimap';
@@ -100,17 +100,59 @@ function tilesState() {
     ...(lod?.state() ?? { visible: 0, pending: 0, level: 0 }),
     // T-6.3 checks: tile groups in the scene (equals `loaded`: a cancelled tile is never added), and requests in flight that are not wanted (0)
     inScene: tileRoot.children.length,
+    peakWanted: streamer?.peakWanted ?? 0,
+    wanted: streamer?.wantedCount ?? 0, // T-6.4: the cache may hold more than its limit only while this is larger
     unwantedInFlight: streamer?.unwantedInFlight() ?? 0,
   };
 }
 registerTestState('tiles', tilesState);
+// T-6.4 memory session: what the renderer holds, against what the tiles in the scene account for.
+registerTestState('gpu', () => {
+  const geoms = new Set<THREE.BufferGeometry>();
+  const texs = new Set<THREE.Texture>();
+  tileRoot.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    geoms.add(mesh.geometry);
+    for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+      for (const v of Object.values(m)) if ((v as THREE.Texture | null)?.isTexture) texs.add(v as THREE.Texture);
+      // the per-tile lookup materials keep their colour-index and mask textures in userData (materials.ts)
+      for (const k of ['lookup', 'mask'] as const) {
+        const v = m.userData[k] as THREE.Texture | undefined;
+        if (v?.isTexture) texs.add(v);
+      }
+      for (const u of Object.values((m as THREE.ShaderMaterial).uniforms ?? {})) {
+        if ((u.value as THREE.Texture | null)?.isTexture) texs.add(u.value as THREE.Texture);
+      }
+    }
+  });
+  let maxGeomsPerTile = 0;
+  for (const tile of tileRoot.children) {
+    const g = new Set<THREE.BufferGeometry>();
+    tile.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) g.add((o as THREE.Mesh).geometry);
+    });
+    maxGeomsPerTile = Math.max(maxGeomsPerTile, g.size);
+  }
+  return {
+    maxGeomsPerTile,
+    geometries: renderer.info.memory.geometries,
+    textures: renderer.info.memory.textures,
+    programs: renderer.info.programs?.length ?? 0,
+    tileGeometries: geoms.size,
+    tileTextures: texs.size,
+    tilesInScene: tileRoot.children.length,
+    cacheLimit: CACHE_LIMIT,
+    domNodes: document.getElementsByTagName('*').length,
+  };
+});
 
 // Render on demand: any number of requests coalesce into one animation frame; there is no
 // permanent loop. Everything that can change the picture (controls, inertia, resize, tile
 // load or evict, manifest load) calls requestRender().
 const frameHooks: (() => void)[] = [];
 let renderQueued = false;
-let lastKey = '';
+let forceCull = true; // cull on the next frame although the camera did not move
 
 function requestRender(): void {
   if (renderQueued) return;
@@ -118,8 +160,25 @@ function requestRender(): void {
   requestAnimationFrame(render);
 }
 
-function cameraKey(): string {
-  return `${camera.projectionMatrix.elements.join()}|${camera.matrixWorld.elements.join()}`;
+// The camera as it was at the last cull: compared number by number, no string built per frame (T-6.4).
+const lastProjection: number[] = new Array<number>(16).fill(NaN);
+const lastWorld: number[] = new Array<number>(16).fill(NaN);
+/** True (and remembers the camera) if the projection or the world matrix differs from the last call. */
+function cameraMoved(): boolean {
+  const p = camera.projectionMatrix.elements;
+  const w = camera.matrixWorld.elements;
+  let moved = false;
+  for (let i = 0; i < 16; i++) {
+    if (p[i] !== lastProjection[i]) {
+      lastProjection[i] = p[i] as number;
+      moved = true;
+    }
+    if (w[i] !== lastWorld[i]) {
+      lastWorld[i] = w[i] as number;
+      moved = true;
+    }
+  }
+  return moved;
 }
 
 let errorEl: HTMLElement | null = null;
@@ -172,25 +231,36 @@ function renderAttributionNow(): void {
   renderAttribution(document.getElementById('attribution') as HTMLElement, manifest.attribution, t('dataLabel'));
 }
 
+/** Whether buildings cast shadows now: not at the coarsest level (T-6.4, ADR-0039). */
+let castersOn = true;
+
 function updateTiles(): void {
   if (!manifest || !streamer || !lod) return;
   const [cx, cz] = viewCentre(camera);
   lod.update(frustumOf(camera), rig.metresPerPixel(window.innerWidth), cx, cz); // T-6.2
+  const casters = lod.currentLevel < NO_SHADOW_FROM_LEVEL;
+  if (casters !== castersOn) {
+    castersOn = casters;
+    setShadowCasters(tileRoot, casters);
+  }
 }
 
+let lastRenderMs = 0; // T-6.4: CPU time of the last render(), for the benchmark
 function render(): void {
+  const t0 = performance.now();
   renderQueued = false;
   camera.updateMatrixWorld();
-  const key = cameraKey();
-  if (key !== lastKey) {
-    lastKey = key;
+  const moved = cameraMoved() || forceCull;
+  if (moved) {
+    forceCull = false;
     updateTiles();
   } else {
     lod?.apply(); // a tile arrived or left: which of the loaded tiles are drawn may have changed (T-6.2)
   }
-  if (shadowsOn) fitSunShadow(sun, camera, rig.bounds); // T-3.3 style
+  if (shadowsOn && moved) fitSunShadow(sun, camera, rig.bounds); // T-3.3 style; the fit depends on the camera and the bounds only (T-6.4)
   renderer.render(scene, camera);
   lastRender = { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
+  lastRenderMs = performance.now() - t0;
   for (const hook of frameHooks) hook(); // T-3.4: empty unless ?debug
 }
 
@@ -221,6 +291,7 @@ async function startTiles(): Promise<void> {
     load: createGltfTileLoader(base),
     onLoaded: (_id, obj) => {
       applyLayerVisibility(obj); // T-5.3b: tiles loaded later honour the layer toggles
+      if (!castersOn) setShadowCasters(obj, false); // T-6.4
       tileRoot.add(obj);
       picker.tilesChanged(); // T-5.1
       requestRender();
@@ -240,7 +311,7 @@ async function startTiles(): Promise<void> {
   lod = new LodController<THREE.Group>(manifest, streamer, {
     fetchShard: (rec, signal) => fetchShard(base, rec, signal),
     onShardsChanged: () => {
-      lastKey = ''; // a shard arrived (or a retry is due): cull again although the camera did not move
+      forceCull = true; // a shard arrived (or a retry is due): cull again although the camera did not move
       requestRender();
     },
     onShardError: (rec, err) => {
@@ -248,7 +319,7 @@ async function startTiles(): Promise<void> {
       showTilesNotice();
     },
   });
-  lastKey = ''; // force a cull on the next frame
+  forceCull = true; // force a cull on the next frame
   requestRender();
 }
 
@@ -378,6 +449,7 @@ initLayout(); // T-5.7: the attribution band; the toolbar zone and the card are 
         {
           renderInfo: () => lastRender,
           tiles: tilesState,
+          lastRenderMs: () => lastRenderMs,
           camera: () => rig.snapshot(),
           canvas: renderer.domElement,
           pixelRatio: () => renderer.getPixelRatio(),

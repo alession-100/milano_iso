@@ -1,0 +1,533 @@
+{
+ "meta": {
+  "profile": "40 Mbit/s down, 20 Mbit/s up, 20 ms latency (CDP Network.emulateNetworkConditions)",
+  "node": "v24.12.0",
+  "runsPerCell": 3,
+  "pathSteps": 27,
+  "dwellMs": 150,
+  "date": "2026-11-20",
+  "chromium": "159.0.8154.6"
+ },
+ "js": [
+  {
+   "file": "debug-KBXnh96Z.js",
+   "raw": 6388,
+   "gzip": 2763,
+   "brotli": 2462
+  },
+  {
+   "file": "index-BIVPy9Gh.js",
+   "raw": 709389,
+   "gzip": 183715,
+   "brotli": 150983
+  }
+ ],
+ "br": {
+  "1280x720": {
+   "initial": [
+    {
+     "firstRenderMs": 1054,
+     "viewLoadedMs": 1072,
+     "completeMs": 1449,
+     "settledMs": 1869,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 46,
+       "bytes": 1020148
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 54,
+       "bytes": 1351921
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 2225615
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 2557388
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 23,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 922,
+     "viewLoadedMs": 1012,
+     "completeMs": 1443,
+     "settledMs": 1768,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 55,
+       "bytes": 1160767
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 63,
+       "bytes": 1492540
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 2225615
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 2557388
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 28,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 762,
+     "viewLoadedMs": 901,
+     "completeMs": 1390,
+     "settledMs": 1700,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 48,
+       "bytes": 1040566
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 56,
+       "bytes": 1372339
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 41543
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 108,
+       "bytes": 2225615
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 116,
+       "bytes": 2557388
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 24,
+     "tileFilesTotal": 54,
+     "level": 0,
+     "tilesLoaded": 54,
+     "visible": 22,
+     "cameraWidth": 600,
+     "problems": []
+    }
+   ]
+  },
+  "412x915": {
+   "initial": [
+    {
+     "firstRenderMs": 597,
+     "viewLoadedMs": 1025,
+     "completeMs": 1264,
+     "settledMs": 1444,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 56,
+       "bytes": 2058059
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 64,
+       "bytes": 2388623
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 2824975
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 3155539
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 28,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 481,
+     "viewLoadedMs": 1033,
+     "completeMs": 1269,
+     "settledMs": 1397,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 59,
+       "bytes": 2218041
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 67,
+       "bytes": 2548605
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 2824975
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 3155539
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 30,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    },
+    {
+     "firstRenderMs": 534,
+     "viewLoadedMs": 1227,
+     "completeMs": 1356,
+     "settledMs": 1380,
+     "bytes": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 60,
+       "bytes": 2352656
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 68,
+       "bytes": 2683220
+      }
+     },
+     "bytesSettled": {
+      "html": {
+       "requests": 1,
+       "bytes": 1974
+      },
+      "js": {
+       "requests": 1,
+       "bytes": 151316
+      },
+      "manifest": {
+       "requests": 5,
+       "bytes": 40334
+      },
+      "minimap": {
+       "requests": 1,
+       "bytes": 136940
+      },
+      "tiles": {
+       "requests": 74,
+       "bytes": 2824975
+      },
+      "other": {
+       "requests": 0,
+       "bytes": 0
+      },
+      "total": {
+       "requests": 82,
+       "bytes": 3155539
+      }
+     },
+     "encodings": [
+      "br"
+     ],
+     "cacheControl": {
+      "html": "no-cache",
+      "js": "public, max-age=31536000, immutable",
+      "manifest": "public, max-age=31536000, immutable",
+      "minimap": "public, max-age=31536000, immutable",
+      "tiles": "public, max-age=31536000, immutable"
+     },
+     "tileFilesInView": 30,
+     "tileFilesTotal": 37,
+     "level": 1,
+     "tilesLoaded": 37,
+     "visible": 25,
+     "cameraWidth": 600,
+     "problems": []
+    }
+   ]
+  }
+ }
+}

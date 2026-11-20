@@ -1,0 +1,143 @@
+{
+  "gpu": {
+    "vendor": "Google Inc. (Intel)",
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "backend": {
+    "devices": [
+      " Intel(R) Iris(R) Xe Graphics (driver 32.0.101.7085)",
+      " NVIDIA RTX 4000 Ada Generation Laptop GPU (driver 32.0.15.9706)",
+      " Microsoft Basic Render Driver (driver 10.0.26100.9711)"
+    ],
+    "glRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11-32.0.101.7085)",
+    "glImplementation": "(gl=egl-angle,angle=d3d11)",
+    "featureStatus": {
+      "2d_canvas": "enabled",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "enabled",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "enabled_on",
+      "rasterization": "enabled",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "enabled",
+      "video_encode": "enabled",
+      "webgl": "enabled",
+      "webgpu": "enabled",
+      "webnn": "disabled_off"
+    },
+    "browser": "157.0.8103.79"
+  },
+  "viewport": [
+    1280,
+    720
+  ],
+  "unlimited": true,
+  "results": {
+    "frames": 16571,
+    "durationS": 80.00619999980927,
+    "meanFps": 207.12144808826696,
+    "p5Fps": 59.70202451629568,
+    "meanFrameMs": 4.828085209088726,
+    "p95FrameMs": 16.75,
+    "maxDrawCalls": 290,
+    "maxTriangles": 2033726,
+    "p1LowFps": 39.682539757627424,
+    "segments": [
+      {
+        "name": "L0 pan at 600 m",
+        "from": 0,
+        "to": 12,
+        "frames": 3116,
+        "meanFps": 259.7077870683498,
+        "p1LowFps": 88.61320493989453,
+        "p99FrameMs": 11.284999799728384,
+        "maxDrawCalls": 207,
+        "maxTriangles": 632465,
+        "levelMin": 0,
+        "levelMax": 0
+      },
+      {
+        "name": "zoom 600-1200 m",
+        "from": 12,
+        "to": 22,
+        "frames": 2575,
+        "meanFps": 257.48970040952804,
+        "p1LowFps": 30.650401633146643,
+        "p99FrameMs": 32.62599987983706,
+        "maxDrawCalls": 188,
+        "maxTriangles": 1068971,
+        "levelMin": 0,
+        "levelMax": 1
+      },
+      {
+        "name": "zoom 1200-2400 m",
+        "from": 22,
+        "to": 32,
+        "frames": 1850,
+        "meanFps": 185.02960473499303,
+        "p1LowFps": 40.65040666165548,
+        "p99FrameMs": 24.59999990463257,
+        "maxDrawCalls": 254,
+        "maxTriangles": 1632030,
+        "levelMin": 1,
+        "levelMax": 2
+      },
+      {
+        "name": "zoom 2400-4000 m",
+        "from": 32,
+        "to": 44,
+        "frames": 1928,
+        "meanFps": 160.64524730163646,
+        "p1LowFps": 38.840985167079275,
+        "p99FrameMs": 25.745999894142155,
+        "maxDrawCalls": 290,
+        "maxTriangles": 2032826,
+        "levelMin": 2,
+        "levelMax": 3
+      },
+      {
+        "name": "pan at 4000 m across the city",
+        "from": 44,
+        "to": 56,
+        "frames": 2065,
+        "meanFps": 172.15937039132592,
+        "p1LowFps": 35.842293784294355,
+        "p99FrameMs": 27.90000009536743,
+        "maxDrawCalls": 211,
+        "maxTriangles": 1869308,
+        "levelMin": 3,
+        "levelMax": 3
+      },
+      {
+        "name": "pan at 4000 m, other diagonal",
+        "from": 56,
+        "to": 68,
+        "frames": 2106,
+        "meanFps": 175.42106052137126,
+        "p1LowFps": 39.68253923201327,
+        "p99FrameMs": 25.200000286102295,
+        "maxDrawCalls": 239,
+        "maxTriangles": 2033726,
+        "levelMin": 3,
+        "levelMax": 3
+      },
+      {
+        "name": "zoom in 4000-600 m",
+        "from": 68,
+        "to": 80,
+        "frames": 2930,
+        "meanFps": 244.19922656160085,
+        "p1LowFps": 52.43563544389191,
+        "p99FrameMs": 19.070999932289126,
+        "maxDrawCalls": 202,
+        "maxTriangles": 1183213,
+        "levelMin": 1,
+        "levelMax": 3
+      }
+    ],
+    "meanCpuMs": 4.01241928665965,
+    "tilesBase": "default (tiles/city/)"
+  },
+  "problems": []
+}

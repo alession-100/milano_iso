@@ -35,7 +35,7 @@ async function open(
   await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
   await routeFixtureTiles(page);
   if (beforeGoto) await beforeGoto();
-  await page.goto(`/?e2e=1${query}`);
+  await page.goto(`/?e2e=1&tiles=tiles/pilot/${query}`);
   await expect(page.locator('canvas')).toHaveCount(1);
   await page.waitForFunction(
     () =>
