@@ -297,6 +297,19 @@ export function createGltfTileLoader(
     // Trees (T-4.1): instance data lives in the feature table, one InstancedMesh per tile.
     const trees = buildTreeMesh(table.layers.trees ?? []);
     if (trees) group.add(trees);
+    freezeMatrices(group);
     return group;
   };
+}
+
+/**
+ * A loaded tile never moves: compute every local matrix once and stop three.js recomputing them (compose,
+ * updateMatrix, multiplyMatrices) for every mesh of every tile on every frame (T-6.4, measured in R-6.4).
+ * The world matrices are still computed once by the first updateMatrixWorld after the tile is added.
+ */
+export function freezeMatrices(root: THREE.Object3D): void {
+  root.traverse((o) => {
+    o.updateMatrix();
+    o.matrixAutoUpdate = false;
+  });
 }

@@ -28,6 +28,14 @@ export const SHADOW_MAP_SIZE = 2048;
 export const SHADOW_CASTER_MAX_HEIGHT_M = 150;
 const SHADOW_PAD_M = 20;
 
+/**
+ * From this level of detail on (the coarsest of the city tileset: 3 m per pixel or more, ADR-0037)
+ * buildings no longer cast shadows (T-6.4, ADR-0039). Style constant. At that scale the 2048 px shadow
+ * map is about one screen pixel per texel, the shadow pass drew half of the frame's triangles, and
+ * the phone portrait view went over the draw-call budget. Levels 0 to 2 are unchanged.
+ */
+export const NO_SHADOW_FROM_LEVEL = 3;
+
 /** `?shadows=0` turns shadows off; anything else (or absent) leaves them on. */
 export function parseShadows(search: string): boolean {
   return new URLSearchParams(search).get('shadows') !== '0';

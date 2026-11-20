@@ -349,6 +349,7 @@ export function initDebug(ctx: DebugContext, bench: boolean): void {
         tilesBase: new URLSearchParams(window.location.search).get('tiles') ?? 'default (tiles/city/)',
       },
     };
+    out.dataset.json = JSON.stringify(state.results); // for scripts/bench-city.mjs: no test hook (e2e=1 turns off MSAA)
     benchBtn.disabled = false;
     drawResults();
   }

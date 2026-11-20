@@ -18,12 +18,15 @@ export function frustumOf(camera: THREE.Camera): THREE.Frustum {
   return new THREE.Frustum().setFromProjectionMatrix(m);
 }
 
+// One scratch box for every test: the culling runs on every camera change over every tile of the level,
+// and a new Box3 and two Vector3 per tile per frame is garbage for nothing (T-6.4).
+const SCRATCH = new THREE.Box3();
+
 function boxOf(tile: TileEntry, margin: number): THREE.Box3 {
   const { min, max } = tile.content_bbox_local;
-  return new THREE.Box3(
-    new THREE.Vector3(min[0] - margin, min[1], min[2] - margin),
-    new THREE.Vector3(max[0] + margin, max[1], max[2] + margin),
-  );
+  SCRATCH.min.set(min[0] - margin, min[1], min[2] - margin);
+  SCRATCH.max.set(max[0] + margin, max[1], max[2] + margin);
+  return SCRATCH;
 }
 
 /** True if the tile's 3D content box (grown horizontally by `margin` metres) meets the frustum. */

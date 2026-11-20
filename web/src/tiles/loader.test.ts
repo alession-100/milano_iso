@@ -1,6 +1,7 @@
+import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { layerOf } from '../style/materials';
-import { TileStreamer } from './loader';
+import { TileStreamer, freezeMatrices } from './loader';
 import type { TileEntry } from './manifest';
 
 function entries(n: number): TileEntry[] {
@@ -313,5 +314,25 @@ describe('layerOf', () => {
   it('strips the chunk suffix', () => {
     expect(layerOf('buildings#3')).toBe('buildings');
     expect(layerOf('roads')).toBe('roads');
+  });
+});
+
+describe('freezeMatrices (T-6.4)', () => {
+  it('computes the local matrices once and stops the per-frame recomputation', () => {
+    const root = new THREE.Group();
+    const mesh = new THREE.Mesh();
+    mesh.position.set(1, 2, 3);
+    mesh.scale.set(0.02, 0.02, 0.02);
+    root.add(mesh);
+    freezeMatrices(root);
+    expect(root.matrixAutoUpdate).toBe(false);
+    expect(mesh.matrixAutoUpdate).toBe(false);
+    expect(mesh.matrix.elements[12]).toBe(1);
+    expect(mesh.matrix.elements[0]).toBeCloseTo(0.02, 12);
+    const scene = new THREE.Scene();
+    scene.matrixAutoUpdate = false;
+    scene.add(root);
+    scene.updateMatrixWorld();
+    expect(mesh.matrixWorld.elements[13]).toBe(2); // the world matrix is still computed once
   });
 });

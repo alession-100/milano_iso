@@ -125,6 +125,11 @@ export class LodController<T extends THREE.Object3D> {
     return changed;
   }
 
+  /** Level in use (0 = base tiles). */
+  get currentLevel(): number {
+    return this.level;
+  }
+
   state(): LodState {
     const drawn: Record<number, number> = {};
     const loaded: Record<number, number> = {};

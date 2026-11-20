@@ -36,6 +36,11 @@ export function createScene(shadows = true): SceneParts {
   const tileRoot = new THREE.Group();
   tileRoot.name = 'tiles';
   scene.add(tileRoot);
+  // The scene and the tile root stay at the identity and the loaded tiles are frozen (loader.ts
+  // freezeMatrices): with matrixAutoUpdate on, three.js marks the root's world matrix as changed on
+  // every render and then recomputes the world matrix of every mesh of every tile (T-6.4).
+  scene.matrixAutoUpdate = false;
+  tileRoot.matrixAutoUpdate = false;
 
   const lights = createLights(shadows);
   const { sun, fill } = lights;
