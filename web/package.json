@@ -15,6 +15,7 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "bench:city": "node scripts/bench-city.mjs",
+    "sweep:city": "node scripts/sweep-city.mjs",
     "memory": "node scripts/memory-session.mjs"
   },
   "dependencies": {

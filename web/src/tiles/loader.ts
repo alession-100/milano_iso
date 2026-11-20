@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { type FeatureTable, applyStyle, disposeLookupMaterial } from '../style/materials';
+import { isCoarseMesh, mergeCoarseLayers } from '../style/coarse';
 import { buildTreeMesh } from '../style/trees';
 import { type TileEntry, assetUrl } from './manifest';
 
@@ -299,9 +300,11 @@ export function createGltfTileLoader(
     const group = gltf.scene;
     group.name = tile.id;
     group.userData.table = table; // feature table, read by picking and the info card (T-5.1)
+    // Coarse tiles (T-6.5, ADR-0040): the flat layers become one mesh, so a tile costs two draw calls, not five or six.
+    if ((tile.level ?? 0) > 0) mergeCoarseLayers(group, table);
     group.traverse((o) => {
       const mesh = o as THREE.Mesh;
-      if (!mesh.isMesh) return;
+      if (!mesh.isMesh || isCoarseMesh(mesh)) return;
       const own = mesh.material;
       for (const m of Array.isArray(own) ? own : [own]) m.dispose();
       applyStyle(mesh, table);

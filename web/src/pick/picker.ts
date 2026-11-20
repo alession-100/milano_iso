@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { type Lang, getLang } from '../i18n';
 import { layerVisible } from '../layers';
+import { type CoarsePart, isCoarseMesh, partOf } from '../style/coarse';
 import { type FeatureRef, currentSelection, onSelect, select } from '../selection';
 import { MASK_HOVER, MASK_SELECTED, clearMask, hasMask, layerOf, setMask } from '../style/materials';
 import type { FeatureTable } from '../style/materials';
@@ -144,7 +145,9 @@ export class Picker {
       for (const m of g.children) {
         const layer = layerOf(m.name);
         // A layer hidden by a toggle (T-5.3b) is not pickable either.
-        if ((m as THREE.Mesh).isMesh && m.visible && PICKABLE_LAYERS.has(layer) && layerVisible(layer)) out.push(m);
+        // a merged coarse mesh (T-6.5) is a candidate; the layer of the face that is hit is checked in `pickAt`
+        if ((m as THREE.Mesh).isMesh && m.visible && isCoarseMesh(m)) out.push(m);
+        else if ((m as THREE.Mesh).isMesh && m.visible && PICKABLE_LAYERS.has(layer) && layerVisible(layer)) out.push(m);
       }
     }
     return out;
@@ -161,10 +164,20 @@ export class Picker {
     const hits = this.raycaster.intersectObjects(this.candidates(), false);
     for (const hit of hits) {
       const mesh = hit.object as THREE.Mesh;
-      const layer = layerOf(mesh.name);
+      let layer = layerOf(mesh.name);
       const group = mesh.parent;
       if (!group) continue;
-      const row = this.rowOfHit(hit, mesh, layer, group);
+      let row: Row | null;
+      if (isCoarseMesh(mesh)) {
+        // merged coarse mesh: the face's id says which layer and which row it is
+        const attr = mesh.geometry.getAttribute('_feature_id');
+        const part = hit.face && attr ? partOf(mesh.userData.parts as CoarsePart[], attr.getX(hit.face.a)) : null;
+        if (!part || !layerVisible(part.layer)) continue;
+        layer = part.layer;
+        row = rowForFeature(group.userData.table as FeatureTable | undefined, layer, part.row);
+      } else {
+        row = this.rowOfHit(hit, mesh, layer, group);
+      }
       if (!isPickable(layer, row) || !row) continue;
       const ref = refForRow(layer, group.name, row);
       if (ref) {
@@ -300,22 +313,30 @@ export class Picker {
           this.markTrees(inst, hm, sm);
           continue;
         }
-        const rows = table.layers[layer];
         const mat = mesh.material as THREE.Material;
-        if (!rows || !hasMask(mat)) continue;
+        if (!hasMask(mat)) continue;
+        // a merged coarse mesh (T-6.5) holds several layers, each at its own offset of the mask
+        const parts: CoarsePart[] = isCoarseMesh(mesh)
+          ? (mesh.userData.parts as CoarsePart[])
+          : [{ layer, offset: 0, count: 0 }];
+        if (parts.length === 1 && !isCoarseMesh(mesh) && !table.layers[layer]) continue;
         clearMask(mat);
-        const hIds: number[] = [];
-        const sIds: number[] = [];
-        rows.forEach((row, i) => {
-          if (hm?.(layer, row)) hIds.push(i);
-          if (sm?.(layer, row)) sIds.push(i);
-        });
-        setMask(mat, hIds, MASK_HOVER);
-        setMask(mat, sIds, MASK_SELECTED); // selection wins where both apply
-        const k = `${group.name}|${layer}`;
-        if (!counted.has(k)) {
-          counted.add(k);
-          hoverCount += hIds.length;
+        for (const part of parts) {
+          const rows = table.layers[part.layer];
+          if (!rows) continue;
+          const hIds: number[] = [];
+          const sIds: number[] = [];
+          rows.forEach((row, i) => {
+            if (hm?.(part.layer, row)) hIds.push(i + part.offset);
+            if (sm?.(part.layer, row)) sIds.push(i + part.offset);
+          });
+          setMask(mat, hIds, MASK_HOVER);
+          setMask(mat, sIds, MASK_SELECTED); // selection wins where both apply
+          const k = `${group.name}|${part.layer}`;
+          if (!counted.has(k)) {
+            counted.add(k);
+            hoverCount += hIds.length;
+          }
         }
       }
     }
