@@ -46,6 +46,11 @@ const FLAT_COLOURS: Record<string, PaletteName> = {
   landmark_details: 'landmarkDetail',
 };
 
+/** Palette index of a flat layer's single colour (the lookup of a merged coarse mesh, T-6.5). */
+export function flatPaletteIndex(layer: string): number {
+  return paletteIndex(FLAT_COLOURS[layer] ?? 'ground');
+}
+
 /** Mesh names are layer names, with a `#n` suffix when a layer is split in chunks. */
 export function layerOf(meshName: string): string {
   const k = meshName.indexOf('#');
@@ -187,6 +192,7 @@ export function clearMask(m: THREE.Material): boolean {
 
 const PROGRAM_KEY = 'milano-iso-feature-colour-v1';
 const WATER_PROGRAM_KEY = 'milano-iso-feature-colour-water-v1';
+const MERGED_PROGRAM_KEY = 'milano-iso-feature-colour-merged-v1';
 
 /**
  * Water sheen (STYLE, not data): a static, very soft diagonal banding in world space, as if light
@@ -203,9 +209,19 @@ const WATER_SHEEN = `{
  * One instance per (tile, mesh), all with the same program (same `customProgramCacheKey`), so the
  * draw-call count is the same as with a shared material. The texture is owned by the material and
  * freed by `disposeLookupMaterial`.
+ *
+ * `waterRange` (T-6.5) is for the merged coarse mesh: the feature ids [lo, hi) of its water layer get
+ * the same sheen as the separate water layer, by the id, so one material and one draw call serve all of
+ * its layers. It has its own program.
  */
-export function createLookupMaterial(layer: string, lookup: THREE.DataTexture): THREE.MeshLambertMaterial {
+export function createLookupMaterial(
+  layer: string,
+  lookup: THREE.DataTexture,
+  waterRange?: readonly [number, number],
+): THREE.MeshLambertMaterial {
   const water = layer === 'water';
+  const merged = waterRange !== undefined;
+  const wp = water || merged; // the world position varying is needed
   const m = new THREE.MeshLambertMaterial({ flatShading: true });
   m.name = layer;
   m.userData.lookup = lookup;
@@ -227,17 +243,18 @@ export function createLookupMaterial(layer: string, lookup: THREE.DataTexture): 
     shader.uniforms.featureMask = featureMask;
     shader.uniforms.highlightTint = HIGHLIGHT_TINT;
     shader.uniforms.paletteColours = paletteUniform;
+    if (waterRange) shader.uniforms.waterRange = { value: new THREE.Vector2(waterRange[0], waterRange[1]) };
     shader.vertexShader = shader.vertexShader
       .replace(
         '#include <common>',
         `#include <common>
 attribute float _feature_id;
-flat varying float vFeatureId;${water ? 'varying vec2 vWaterPos;' : ''}`,
+flat varying float vFeatureId;${wp ? 'varying vec2 vWaterPos;' : ''}`,
       )
       .replace(
         '#include <begin_vertex>',
         `#include <begin_vertex>
-vFeatureId = _feature_id;${water ? 'vWaterPos = (modelMatrix * vec4(transformed, 1.0)).xz;' : ''}`,
+vFeatureId = _feature_id;${wp ? 'vWaterPos = (modelMatrix * vec4(transformed, 1.0)).xz;' : ''}`,
       );
     shader.fragmentShader = shader.fragmentShader
       .replace(
@@ -246,8 +263,8 @@ vFeatureId = _feature_id;${water ? 'vWaterPos = (modelMatrix * vec4(transformed,
 uniform sampler2D featureIndex;
 uniform sampler2D featureMask;
 uniform vec3 highlightTint;
-uniform vec3 paletteColours[${PALETTE_ORDER.length}];
-flat varying float vFeatureId;${water ? 'varying vec2 vWaterPos;' : ''}`,
+uniform vec3 paletteColours[${PALETTE_ORDER.length}];${merged ? 'uniform vec2 waterRange;' : ''}
+flat varying float vFeatureId;${wp ? 'varying vec2 vWaterPos;' : ''}`,
       )
       .replace(
         '#include <color_fragment>',
@@ -259,11 +276,11 @@ flat varying float vFeatureId;${water ? 'varying vec2 vWaterPos;' : ''}`,
   int hl = int(texelFetch(featureMask, ivec2(fid % ${LOOKUP_WIDTH}, fid / ${LOOKUP_WIDTH}), 0).r * 255.0 + 0.5);
   if (hl == 1) diffuseColor.rgb = mix(diffuseColor.rgb, highlightTint, ${HOVER_MIX});
   else if (hl == 2) diffuseColor.rgb = mix(diffuseColor.rgb, highlightTint, ${SELECTED_MIX});
-${water ? WATER_SHEEN : ''}
+${water ? WATER_SHEEN : merged ? `if (vFeatureId > waterRange.x - 0.5 && vFeatureId < waterRange.y - 0.5) ${WATER_SHEEN}` : ''}
 }`,
       );
   };
-  m.customProgramCacheKey = () => (water ? WATER_PROGRAM_KEY : PROGRAM_KEY);
+  m.customProgramCacheKey = () => (merged ? MERGED_PROGRAM_KEY : water ? WATER_PROGRAM_KEY : PROGRAM_KEY);
   return m;
 }
 

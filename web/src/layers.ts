@@ -3,6 +3,8 @@
  * loaded later); the state is remembered in localStorage and can be set with `?layers=`.
  * `layerVisible` is the single question picking has to ask: a hidden layer is not pickable.
  */
+import type * as THREE from 'three';
+import { applyCoarseVisibility, isCoarseMesh } from './style/coarse';
 
 export const TOGGLE_IDS = ['buildings', 'trees', 'markings', 'roads', 'waterGreen', 'landmarkDetails'] as const;
 export type ToggleId = (typeof TOGGLE_IDS)[number];
@@ -108,6 +110,11 @@ interface Visual {
 export function applyLayerVisibility(root: Visual): void {
   root.traverse((o) => {
     if (!o.isMesh) return;
+    // a merged coarse mesh (T-6.5) holds several layers: its draw range follows the toggles
+    if (isCoarseMesh(o as unknown as THREE.Object3D)) {
+      applyCoarseVisibility(o as unknown as THREE.Mesh, layerVisible);
+      return;
+    }
     const hash = o.name.indexOf('#');
     o.visible = layerVisible(hash < 0 ? o.name : o.name.slice(0, hash));
   });

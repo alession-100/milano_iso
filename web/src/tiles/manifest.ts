@@ -24,6 +24,8 @@ export interface TileEntry {
   features: FileRef;
   /** Level of detail (T-6.2): 0 for the base tiles (and when absent), 1..n for the coarse blocks. */
   level?: number;
+  /** Features per layer in the tile (T-6.5 reads it to count the draw calls of a plan); absent in old tilesets. */
+  counts?: Record<string, number>;
   /** Grid cell [xmin, zmin, xmax, zmax] in client metres; the cells of the levels nest. */
   bbox_local?: [number, number, number, number];
 }

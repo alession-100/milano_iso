@@ -34,6 +34,20 @@ export function tileIntersects(tile: TileEntry, frustum: THREE.Frustum, margin =
   return frustum.intersectsBox(boxOf(tile, margin));
 }
 
+const SPHERE = new THREE.Sphere();
+
+/**
+ * True if the bounding sphere of the tile's content (the box's own centre, half its diagonal) meets the
+ * frustum: the test three.js applies to each mesh before it draws it, so it admits a little more than the
+ * box test above. The draw calls of a view are counted with this one (T-6.5).
+ */
+export function tileSphereIntersects(tile: TileEntry, frustum: THREE.Frustum): boolean {
+  const { min, max } = tile.content_bbox_local;
+  SPHERE.center.set((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2);
+  SPHERE.radius = Math.hypot(max[0] - min[0], max[1] - min[1], max[2] - min[2]) / 2;
+  return frustum.intersectsSphere(SPHERE);
+}
+
 /**
  * Tiles in view and tiles to load. The margin is one tile ring: the content box grown by one
  * tile size on x and z. Output ids keep the manifest order.
