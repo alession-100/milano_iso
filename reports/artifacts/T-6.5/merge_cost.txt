@@ -1,0 +1,3 @@
+L1: 40 tiles; parse 1.02 ms/tile, merge 0.25 ms/tile; geometry 48 KB -> 46 KB per tile; meshes 4.65 -> 1.98; not merged 0
+L2: 40 tiles; parse 3.63 ms/tile, merge 0.61 ms/tile; geometry 171 KB -> 166 KB per tile; meshes 5.30 -> 1.95; not merged 0
+L3: 18 tiles; parse 1.71 ms/tile, merge 0.98 ms/tile; geometry 207 KB -> 201 KB per tile; meshes 4.39 -> 1.94; not merged 0

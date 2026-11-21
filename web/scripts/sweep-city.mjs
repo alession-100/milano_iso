@@ -12,7 +12,7 @@
 // One page per (window, centre, step); the widths run in ascending order on it, so the level
 // hysteresis is the same on every run (zooming out never waits for a threshold). The result JSON is a
 // list of views; `--summary file.md` also writes the table (max per window, every view over the cap).
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
 
 function arg(name, fallback) {
@@ -93,6 +93,7 @@ for (const [w, h] of windows) {
           failedTiles: st.t.failed,
           settled: same >= 3,
           problems: errs.length,
+          problemMessages: errs.slice(0, 3).map((e) => e.slice(0, 200)),
         };
         views.push(v);
         n += 1;
@@ -104,16 +105,25 @@ for (const [w, h] of windows) {
 }
 await browser.close();
 
-const over = views.filter((v) => v.calls > CAP);
-const unsettled = views.filter((v) => !v.settled);
+// --base <json>: the views of this run replace the same views (window, centre, step, width) of an earlier
+// result, which is then written out whole. Used to run again a group of views that did not settle.
+let all = views;
+if (arg('base', '')) {
+  const key = (v) => [v.window, v.x, v.z, v.step, v.requestedWidth].join('|');
+  const merged = new Map(JSON.parse(readFileSync(arg('base', ''), 'utf8')).data.map((v) => [key(v), v]));
+  for (const v of views) merged.set(key(v), v);
+  all = [...merged.values()];
+}
+const over = all.filter((v) => v.calls > CAP);
+const unsettled = all.filter((v) => !v.settled);
 const maxBy = {};
-for (const v of views) if (!maxBy[v.window] || v.calls > maxBy[v.window].calls) maxBy[v.window] = v;
-const switched = views.filter((v) => v.budgetSwitched === true).length;
-const worstPx = views.filter((v) => v.budgetSwitched === true).sort((a, b) => b.errorPx - a.errorPx)[0] ?? null;
-const result = { label, cap: CAP, views: views.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: views.some((v) => v.budgetSwitched !== null) ? switched : null, worstErrorPxOnSwitchedViews: worstPx, maxByWindow: maxBy, data: views };
+for (const v of all) if (!maxBy[v.window] || v.calls > maxBy[v.window].calls) maxBy[v.window] = v;
+const switched = all.filter((v) => v.budgetSwitched === true).length;
+const worstPx = all.filter((v) => v.budgetSwitched === true).sort((a, b) => b.errorPx - a.errorPx)[0] ?? null;
+const result = { label, cap: CAP, views: all.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: all.some((v) => v.budgetSwitched !== null) ? switched : null, worstErrorPxOnSwitchedViews: worstPx, maxByWindow: maxBy, data: all };
 if (out) writeFileSync(out, JSON.stringify(result, null, 1));
 const lines = [
-  `Sweep ${label}: ${views.length} views, ${unsettled.length} not settled, ${over.length} over ${CAP} draw calls, budget switch fired on ${result.budgetSwitchedViews ?? 'n/a (no switch in this build)'}.`,
+  `Sweep ${label}: ${all.length} views, ${unsettled.length} not settled, ${over.length} over ${CAP} draw calls, budget switch fired on ${result.budgetSwitchedViews ?? 'n/a (no switch in this build)'}.`,
   worstPx ? `Worst error on a view where the budget switched the level: ${worstPx.errorPx.toFixed(2)} px (${worstPx.window}, (${worstPx.x}, ${worstPx.z}), step ${worstPx.step}, ${Math.round(worstPx.width)} m, level ${worstPx.level} from base ${worstPx.baseLevel}).` : '',
   '',
   '| Window | Max draw calls | At (centre, step, width m) | Level | Views over cap |',
