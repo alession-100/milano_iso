@@ -1,0 +1,30 @@
+== e2e1
+Error: worker-1 process did not exit within 300000ms after stop, force-killed it
+Error: worker-1 process did not exit within 300000ms after stop, force-killed it
+
+  170 passed (3.5h)
+  2 errors were not a part of any test, see above for details
+
+real	209m45.718s
+user	0m0.122s
+sys	0m0.136s
+== e2e2
+  ok 169 e2e\ui.spec.ts:604:3 › screen reader semantics (VERIFICATION 4a item 8) › every control has an accessible name; the card is a dialog; search is a combobox with a listbox; notices are live regions (4.4s)
+  ok 170 e2e\ui.spec.ts:657:1 › switching the language does not change the draw calls (the map is not touched) (3.6s)
+
+  170 passed (6.8m)
+
+real	6m48.933s
+user	0m0.092s
+sys	0m0.106s
+Sat Nov 21 09:02:00 RST 2026
+== e2e3
+  ok 169 e2e\ui.spec.ts:604:3 › screen reader semantics (VERIFICATION 4a item 8) › every control has an accessible name; the card is a dialog; search is a combobox with a listbox; notices are live regions (4.4s)
+  ok 170 e2e\ui.spec.ts:657:1 › switching the language does not change the draw calls (the map is not touched) (3.6s)
+
+  170 passed (6.6m)
+
+real	6m35.981s
+user	0m0.060s
+sys	0m0.106s
+Sat Nov 21 09:09:34 RST 2026

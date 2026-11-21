@@ -7,6 +7,7 @@
    "differ": 0,
    "differOver16": 0,
    "maxChannelDiff": 0,
+   "firstDifferingPixels": [],
    "picksTested": 45,
    "picksHit": 44,
    "picksDifferent": 0,
@@ -20,6 +21,7 @@
    "differ": 0,
    "differOver16": 0,
    "maxChannelDiff": 0,
+   "firstDifferingPixels": [],
    "picksTested": 45,
    "picksHit": 44,
    "picksDifferent": 0,
@@ -33,6 +35,36 @@
    "differ": 2,
    "differOver16": 2,
    "maxChannelDiff": 38,
+   "firstDifferingPixels": [
+    {
+     "x": 757,
+     "y": 41,
+     "before": [
+      145,
+      166,
+      116
+     ],
+     "after": [
+      167,
+      161,
+      150
+     ]
+    },
+    {
+     "x": 669,
+     "y": 66,
+     "before": [
+      168,
+      191,
+      132
+     ],
+     "after": [
+      193,
+      185,
+      170
+     ]
+    }
+   ],
    "picksTested": 45,
    "picksHit": 43,
    "picksDifferent": 0,
@@ -46,6 +78,36 @@
    "differ": 2,
    "differOver16": 2,
    "maxChannelDiff": 25,
+   "firstDifferingPixels": [
+    {
+     "x": 757,
+     "y": 41,
+     "before": [
+      25,
+      53,
+      62
+     ],
+     "after": [
+      33,
+      43,
+      84
+     ]
+    },
+    {
+     "x": 669,
+     "y": 66,
+     "before": [
+      30,
+      63,
+      73
+     ],
+     "after": [
+      40,
+      52,
+      98
+     ]
+    }
+   ],
    "picksTested": 45,
    "picksHit": 43,
    "picksDifferent": 0,
@@ -59,6 +121,36 @@
    "differ": 2,
    "differOver16": 2,
    "maxChannelDiff": 50,
+   "firstDifferingPixels": [
+    {
+     "x": 196,
+     "y": 120,
+     "before": [
+      216,
+      203,
+      178
+     ],
+     "after": [
+      180,
+      170,
+      154
+     ]
+    },
+    {
+     "x": 683,
+     "y": 260,
+     "before": [
+      216,
+      203,
+      178
+     ],
+     "after": [
+      189,
+      153,
+      136
+     ]
+    }
+   ],
    "picksTested": 45,
    "picksHit": 41,
    "picksDifferent": 0,
@@ -72,6 +164,36 @@
    "differ": 2,
    "differOver16": 2,
    "maxChannelDiff": 32,
+   "firstDifferingPixels": [
+    {
+     "x": 196,
+     "y": 120,
+     "before": [
+      24,
+      35,
+      78
+     ],
+     "after": [
+      52,
+      62,
+      102
+     ]
+    },
+    {
+     "x": 683,
+     "y": 260,
+     "before": [
+      24,
+      35,
+      78
+     ],
+     "after": [
+      56,
+      59,
+      99
+     ]
+    }
+   ],
    "picksTested": 45,
    "picksHit": 41,
    "picksDifferent": 0,
@@ -85,6 +207,7 @@
    "differ": 0,
    "differOver16": 0,
    "maxChannelDiff": 0,
+   "firstDifferingPixels": [],
    "picksTested": 45,
    "picksHit": 41,
    "picksDifferent": 0,
@@ -98,6 +221,36 @@
    "differ": 2,
    "differOver16": 2,
    "maxChannelDiff": 73,
+   "firstDifferingPixels": [
+    {
+     "x": 238,
+     "y": 58,
+     "before": [
+      146,
+      140,
+      129
+     ],
+     "after": [
+      122,
+      116,
+      110
+     ]
+    },
+    {
+     "x": 1271,
+     "y": 146,
+     "before": [
+      206,
+      194,
+      170
+     ],
+     "after": [
+      136,
+      127,
+      97
+     ]
+    }
+   ],
    "picksTested": 45,
    "picksHit": 42,
    "picksDifferent": 0,
