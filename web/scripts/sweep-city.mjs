@@ -25,7 +25,9 @@ const summaryOut = arg('summary', '');
 const label = arg('label', '');
 const CAP = Number(arg('cap', 300));
 // T-6.5a: 16:10 windows (1440x900, 1680x1050, 1920x1200) and 3440x1440 added.
-const windows = arg('windows', '360x640,412x915,768x1024,1280x720,1366x768,1440x900,1680x1050,1920x1080,1920x1200,2560x1440,3440x1440')
+// `--merge-only` (T-6.5b): measure nothing; --base then lists result files (comma separated) to put together and summarise.
+const mergeOnly = process.argv.includes('--merge-only');
+const windows = mergeOnly ? [] : arg('windows', '360x640,412x915,768x1024,1280x720,1366x768,1440x900,1680x1050,1920x1080,1920x1200,2560x1440,3440x1440')
   .split(',')
   .map((s) => s.split('x').map(Number));
 // `--dense` (T-6.5a): every 40 m from 520 to 1,320 m, added to --widths.
@@ -119,7 +121,7 @@ await browser.close();
 let all = views;
 if (arg('base', '')) {
   const key = (v) => [v.window, v.order ?? 'asc', v.x, v.z, v.step, v.requestedWidth].join('|');
-  const merged = new Map(JSON.parse(readFileSync(arg('base', ''), 'utf8')).data.map((v) => [key(v), v]));
+  const merged = new Map(arg('base', '').split(',').flatMap((f) => JSON.parse(readFileSync(f, 'utf8')).data).map((v) => [key(v), v]));
   for (const v of views) merged.set(key(v), v);
   all = [...merged.values()];
 }
