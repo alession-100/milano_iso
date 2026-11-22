@@ -47,6 +47,33 @@ const centres = arg('centres', '0:0,1000:-1000,-1250:750,2500:2000,-3500:-2500')
   .split(',')
   .map((s) => s.split(':').map(Number));
 const steps = arg('steps', '0,1').split(',').map(Number);
+// T-6.6: `--widths-range a:b:c` adds every c metres from a to b (e.g. 840:1000:20); the raw GL draw calls of the last frame are
+// recorded as `gl` (counted per animation frame in the page), next to renderer.info (`calls`).
+const rangeArg = arg('widths-range', '');
+if (rangeArg) {
+  const [a, b, c] = rangeArg.split(':').map(Number);
+  for (let w = a; w <= b; w += c) if (!widths.includes(w)) widths.push(w);
+  widths.sort((p, q) => p - q);
+}
+const initGL = () => {
+  const g = (window.__gl = { cur: 0, last: null });
+  for (const C of [WebGL2RenderingContext, WebGLRenderingContext]) {
+    for (const f of ['drawElements', 'drawArrays', 'drawElementsInstanced', 'drawArraysInstanced', 'drawRangeElements']) {
+      const o = C.prototype[f];
+      if (!o) continue;
+      C.prototype[f] = function (...a) {
+        g.cur += 1;
+        return o.apply(this, a);
+      };
+    }
+  }
+  const tick = () => {
+    if (g.cur > 0) g.last = g.cur;
+    g.cur = 0;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+};
 
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const views = [];
@@ -56,6 +83,7 @@ for (const [w, h] of windows) {
     for (const step of steps) {
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
+      await page.addInitScript(initGL);
       const errs = [];
       page.on('console', (m) => {
         // the software GL driver's ReadPixels stall note is not an app problem (ADR-0012)
@@ -75,7 +103,7 @@ for (const [w, h] of windows) {
           await page.waitForTimeout(250);
           await page.evaluate(set, [x, z, width, step]); // request a frame
           await page.waitForTimeout(100);
-          st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles, c: window.__milanoIso.camera }));
+          st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles, c: window.__milanoIso.camera, gl: window.__gl?.last ?? null }));
           const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.r.calls === last; // T-6.5b: a plan still unknown means shards of the level are on the way
           same = done ? same + 1 : 0;
           last = st.r.calls;
@@ -90,11 +118,13 @@ for (const [w, h] of windows) {
           requestedWidth: width,
           width: st.c.visibleWidth,
           calls: st.r.calls,
+          gl: st.gl,
           triangles: st.r.triangles,
           level: st.t.level,
           baseLevel: st.t.baseLevel ?? null,
           budgetSwitched: st.t.budgetSwitched ?? null,
           estimatedCalls: st.t.estimatedCalls ?? null,
+          estimatedExact: st.t.estimatedExact ?? null,
           // error of the level drawn, in CSS pixels: its tolerance over the metres per pixel (ADR-0037 allows 1)
           mpp: st.t.mpp,
           errorPx: st.t.tolerances ? st.t.tolerances[st.t.level] / st.t.mpp : null,
@@ -138,17 +168,27 @@ const dist = (a) => {
   const s = [...a].sort((p, q) => p - q);
   return { min: s[0], median: s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2, max: s[s.length - 1], n: s.length };
 };
+// T-6.6: the same for the views whose count is exact (every tile of it loaded): count minus real, never below 0 by design
+const exactBy = {};
+for (const v of all) if (v.settled && v.estimatedExact === true) (exactBy[v.window] ??= []).push(v.estimatedCalls - v.calls);
+const exactViews = all.filter((v) => v.settled && v.estimatedCalls != null).length;
+const exactCount = all.filter((v) => v.settled && v.estimatedExact === true).length;
+const countBelowReal = all.filter((v) => v.settled && v.estimatedExact === true && v.estimatedCalls < v.calls).length;
+const countBelowRealGl = all.filter((v) => v.settled && v.estimatedExact === true && v.gl != null && v.estimatedCalls < v.gl).length;
+const exactMinusReal = Object.fromEntries(Object.entries(exactBy).map(([k, a]) => [k, dist(a)]));
+const exactMinusRealAll = Object.values(exactBy).flat().length ? dist(Object.values(exactBy).flat()) : null;
 const planMinusReal = Object.fromEntries(Object.entries(diffsBy).map(([k, a]) => [k, dist(a)]));
 const planMinusRealAll = Object.values(diffsBy).flat().length ? dist(Object.values(diffsBy).flat()) : null;
 const planBelowReal = all.filter((v) => v.settled && v.estimatedCalls != null && v.estimatedCalls < v.calls).length;
 const switchedByWindow = {};
 for (const v of all) if (v.budgetSwitched === true) (switchedByWindow[v.window] ??= []).push(`(${v.x},${v.z}) s${v.step} ${v.order ?? 'asc'} ${Math.round(v.width)} m L${v.baseLevel}->L${v.level} est ${v.estimatedCalls} real ${v.calls} err ${v.errorPx.toFixed(2)} px`);
-const result = { label, planBelowReal, planMinusRealAll, planMinusReal, switchedByWindow, cap: CAP, views: all.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: all.some((v) => v.budgetSwitched !== null) ? switched : null, worstErrorPxOnSwitchedViews: worstPx, maxByWindow: maxBy, data: all };
+const result = { label, planBelowReal, planMinusRealAll, planMinusReal, exactViews, exactCount, countBelowReal, countBelowRealGl, exactMinusRealAll, exactMinusReal, switchedByWindow, cap: CAP, views: all.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: all.some((v) => v.budgetSwitched !== null) ? switched : null, worstErrorPxOnSwitchedViews: worstPx, maxByWindow: maxBy, data: all };
 if (out) writeFileSync(out, JSON.stringify(result, null, 1));
 const lines = [
   `Sweep ${label}: ${all.length} views, ${unsettled.length} not settled, ${over.length} over ${CAP} draw calls, budget switch fired on ${result.budgetSwitchedViews ?? 'n/a (no switch in this build)'}.`,
   worstPx ? `Worst error on a view where the budget switched the level: ${worstPx.errorPx.toFixed(2)} px (${worstPx.window}, (${worstPx.x}, ${worstPx.z}), step ${worstPx.step}, ${Math.round(worstPx.width)} m, level ${worstPx.level} from base ${worstPx.baseLevel}).` : '',
   '',
+  `Count minus real (T-6.6), settled views with an exact count (${exactCount} of ${exactViews}): ${exactMinusRealAll ? `min ${exactMinusRealAll.min}, median ${exactMinusRealAll.median}, max ${exactMinusRealAll.max}` : 'n/a'}; views with the count below real: ${countBelowReal} (below the raw GL count: ${countBelowRealGl}).`,
   `Plan minus real, all settled views: ${planMinusRealAll ? `min ${planMinusRealAll.min}, median ${planMinusRealAll.median}, max ${planMinusRealAll.max} (n ${planMinusRealAll.n})` : 'n/a'}; views with plan below real: ${planBelowReal}.`,
   '',
   '| Window | Max draw calls | At (centre, step, order, width m) | Level | Views over cap | Switch fired | Worst px (switched) | Plan - real min / median / max |',

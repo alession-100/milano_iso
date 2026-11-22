@@ -166,6 +166,7 @@ export class LodController<T extends THREE.Object3D> {
       let n = this.nonTile;
       let tilesInPlan = 0;
       const pending: string[] = [];
+      const wanted = new Set(v.culled.wanted);
       for (const t of v.tiles) {
         const obj = this.streamer.get(t.id);
         const mb = obj ? this.boundsOf(obj) : null;
@@ -175,6 +176,8 @@ export class LodController<T extends THREE.Object3D> {
           if (c.main + c.shadow > 0) tilesInPlan += 1;
           continue;
         }
+        // a tile that is not loaded and not wanted (outside the view and its ring of prefetch) never will be: it adds nothing to the frame
+        if (!wanted.has(t.id)) continue;
         const inMain = tileSphereIntersects(t, frustum);
         const inShadow = sh !== undefined && (this.shadowCalls.get(t.id) ?? 0) > 0 && tileSphereIntersects(t, sh);
         if (!inMain && !inShadow) continue;
@@ -185,7 +188,6 @@ export class LodController<T extends THREE.Object3D> {
       }
       return { n, tilesInPlan, pending };
     };
-    const needs = new Map<number, string[]>();
     const planCalls = (l: number, limit: number): number | null => {
       if (view(l).missing > 0) return null; // the tiles of this level in view are not all known yet
       const c = count(l);
@@ -193,7 +195,6 @@ export class LodController<T extends THREE.Object3D> {
       // Over the limit only by the bound on tiles not loaded yet. Whether it fits is told by loading them (the manifest
       // bound can be well above the frame), unless it cannot fit by any measured margin or there are too many to hold.
       if (c.tilesInPlan > PROBE_MAX_TILES || c.n * PROBE_RATIO > this.cap) return c.n;
-      needs.set(l, c.pending);
       return null;
     };
     const unknown: number[] = [];
@@ -215,15 +216,15 @@ export class LodController<T extends THREE.Object3D> {
     // nearest first. The view is complete before a single tile of the ring is fetched.
     const inView = new Set(visible);
     const ring = wanted.filter((id) => !inView.has(id));
-    // After them: the tiles of the level in use that its count still waits for, and those of the levels being counted.
+    // After them: the tiles in view and ring of the levels being counted (all of them, loaded or not: a tile that is not wanted
+    // is evicted, and would be loaded again by the next question).
     const listed = new Set([...visible, ...ring]);
-    const extra = (own?.pending ?? []).filter((id) => !listed.has(id));
     const probes = unknown.flatMap((l) => {
-      const ids = (needs.get(l) ?? []).filter((id) => !listed.has(id) && !extra.includes(id));
+      const ids = view(l).culled.wanted.filter((id) => !listed.has(id));
       return sortNearestFirst(view(l).tiles, ids, cx, cz);
     });
     this.streamer.update(
-      [...sortNearestFirst(tiles, visible, cx, cz), ...sortNearestFirst(tiles, ring, cx, cz), ...sortNearestFirst(tiles, extra, cx, cz), ...probes],
+      [...sortNearestFirst(tiles, visible, cx, cz), ...sortNearestFirst(tiles, ring, cx, cz), ...probes],
       [...this.plan(), ...visible],
     );
     this.seenTiles = this.tilesSignal();
