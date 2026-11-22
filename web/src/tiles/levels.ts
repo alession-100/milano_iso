@@ -50,10 +50,18 @@ export const BUDGET_HYSTERESIS = 0.9;
 export const BUDGET_MAX_LEVEL = 3;
 
 /**
+ * The flat layers a tile merges into one mesh at load (T-6.5, T-6.5b; see style/coarse.ts), in the order of
+ * their triangles. Everything else stays a mesh of its own: buildings (the only shadow casters), the painted
+ * markings (their own polygon offset), landmark details, and the instanced trees.
+ */
+export const MERGED_LAYERS = ['landuse', 'green', 'water', 'road_areas', 'roads', 'rail'] as const;
+
+/**
  * Draw calls of one tile with all its layers shown: one per mesh, one more for the shadow pass when its
- * buildings cast. A base tile has one mesh per layer it holds (trees are one instanced mesh); a coarse
- * tile (T-6.5) has its buildings, plus one merged mesh for the flat layers. `counts` is the tile entry's
- * feature count per layer; without it every layer of the tileset is assumed present.
+ * buildings cast. Every tile has its buildings and one merged mesh for its flat layers (T-6.5; level 0 too,
+ * T-6.5b); a base tile also has the layers that are never merged (markings, landmark details, and the
+ * instanced trees, one mesh). `counts` is the tile entry's feature count per layer; without it every layer
+ * of the tileset is assumed present.
  */
 export function tileCalls(
   level: number,
@@ -65,9 +73,13 @@ export function tileCalls(
   const layers = allLayers.filter(has);
   const buildings = has('buildings');
   const shadow = casting && buildings ? 1 : 0;
-  if (level === 0) return layers.length + shadow;
-  const flat = layers.filter((l) => l !== 'buildings').length;
-  return (buildings ? 1 : 0) + (flat > 0 ? 1 : 0) + shadow;
+  const rest = layers.filter((l) => l !== 'buildings');
+  if (level === 0) {
+    const isMerged = (l: string): boolean => (MERGED_LAYERS as readonly string[]).includes(l);
+    const merged = rest.some(isMerged) ? 1 : 0;
+    return (buildings ? 1 : 0) + merged + rest.filter((l) => !isMerged(l)).length + shadow;
+  }
+  return (buildings ? 1 : 0) + (rest.length > 0 ? 1 : 0) + shadow;
 }
 
 /** Draw calls the plan of `level` issues once all its `visible` tiles are loaded, by `planDraw`. */

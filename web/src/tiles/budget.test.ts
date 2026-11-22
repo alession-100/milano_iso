@@ -20,11 +20,13 @@ import { type ShardRecord, type TileEntry, parseManifest } from './manifest';
 const ALL = ['buildings', 'landuse', 'green', 'water', 'road_areas', 'roads', 'markings', 'rail', 'landmark_details', 'trees'];
 
 describe('tileCalls', () => {
-  it('counts one call per layer of a base tile, and the shadow pass of its buildings', () => {
+  it('counts a base tile as buildings, one merged flat mesh, the layers never merged, and the shadow pass (T-6.5b)', () => {
     const counts = { buildings: 7, green: 3, roads: 167, markings: 20, trees: 8, water: 0 };
-    expect(tileCalls(0, counts, ALL, false)).toBe(5);
-    expect(tileCalls(0, counts, ALL, true)).toBe(6);
+    expect(tileCalls(0, counts, ALL, false)).toBe(4); // buildings, merged (green, roads), markings, trees
+    expect(tileCalls(0, counts, ALL, true)).toBe(5);
     expect(tileCalls(0, { roads: 2 }, ALL, true)).toBe(1); // no buildings, no shadow pass
+    expect(tileCalls(0, { roads: 2, markings: 1, landmark_details: 4 }, ALL, false)).toBe(3);
+    expect(tileCalls(0, { buildings: 1, landmark_details: 4 }, ALL, true)).toBe(3);
   });
 
   it('counts a coarse tile as its buildings plus one merged mesh, and the shadow pass', () => {
@@ -36,7 +38,7 @@ describe('tileCalls', () => {
   });
 
   it('assumes every layer when the entry has no counts', () => {
-    expect(tileCalls(0, undefined, ALL, true)).toBe(ALL.length + 1);
+    expect(tileCalls(0, undefined, ALL, true)).toBe(1 + 1 + 3 + 1); // buildings, merged, markings + landmark_details + trees, shadow
     expect(tileCalls(2, undefined, ALL, false)).toBe(2);
   });
 });
@@ -255,8 +257,8 @@ describe('LodController, draw-call budget', () => {
     expect(lod.state()).toMatchObject({ level: 2, baseLevel: 0, budgetSwitched: true });
     expect(requested).toContain('S0_0_0');
     await flush();
-    // its plan is 1 tile x 4 calls, within 0.9 x 11: back to level 0
+    // its plan is 1 tile x 3 calls (buildings, merged flat mesh, shadow pass), within 0.9 x 11: back to level 0
     lod.update(frustum(700, 125, -125), 0.5, 125, -125);
-    expect(lod.state()).toMatchObject({ level: 0, baseLevel: 0, budgetSwitched: false, estimatedCalls: 4 });
+    expect(lod.state()).toMatchObject({ level: 0, baseLevel: 0, budgetSwitched: false, estimatedCalls: 3 });
   });
 });
