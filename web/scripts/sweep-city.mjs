@@ -76,7 +76,7 @@ for (const [w, h] of windows) {
           await page.evaluate(set, [x, z, width, step]); // request a frame
           await page.waitForTimeout(100);
           st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles, c: window.__milanoIso.camera }));
-          const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.r.calls === last;
+          const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.r.calls === last; // T-6.5b: a plan still unknown means shards of the level are on the way
           same = done ? same + 1 : 0;
           last = st.r.calls;
           if (same >= 3) break;

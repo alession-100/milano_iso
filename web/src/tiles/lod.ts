@@ -4,6 +4,7 @@ import {
   BUDGET_MAX_LEVEL,
   type Cell,
   DRAW_CALL_CAP,
+  NON_TILE_CALLS,
   cellOf,
   chooseBudgetLevel,
   chooseLevel,
@@ -55,6 +56,8 @@ export interface LodOptions {
   retryDelayMs?: number;
   /** Draw-call cap of a view (T-6.5); default DRAW_CALL_CAP. */
   cap?: number;
+  /** Draw calls of a view that are not tiles, added to every plan (default NON_TILE_CALLS; tests set 0). */
+  nonTileCalls?: number;
   /** Buildings cast shadows (one more draw call per tile) at the levels below this one; 0 when shadows are off. */
   castersBelowLevel?: number;
 }
@@ -68,6 +71,7 @@ export class LodController<T extends THREE.Object3D> {
   private baseLevel = 0;
   private estimated: number | null = null;
   private readonly cap: number;
+  private readonly nonTile: number;
   private readonly castersBelow: number;
   /** Per tile: draw calls of its meshes, and of its shadow pass. */
   private readonly calls = new Map<string, number>();
@@ -83,6 +87,7 @@ export class LodController<T extends THREE.Object3D> {
     opts: LodOptions,
   ) {
     this.cap = opts.cap ?? DRAW_CALL_CAP;
+    this.nonTile = opts.nonTileCalls ?? NON_TILE_CALLS;
     this.castersBelow = opts.castersBelowLevel ?? 0;
     this.specs = levelSpecs(manifest);
     this.catalog = new ShardCatalog(manifest.shards, {
@@ -149,7 +154,7 @@ export class LodController<T extends THREE.Object3D> {
       const shadowCells = shadowFrustum
         ? v.tiles.filter((t) => tileSphereIntersects(t, shadowFrustum)).map((t) => this.cells.get(t.id) as Cell)
         : cells;
-      return plannedCalls(l, cells, (id) => this.calls.get(id) ?? 0) + plannedCalls(l, shadowCells, (id) => this.shadowCalls.get(id) ?? 0);
+      return this.nonTile + plannedCalls(l, cells, (id) => this.calls.get(id) ?? 0) + plannedCalls(l, shadowCells, (id) => this.shadowCalls.get(id) ?? 0);
     };
     const unknown: number[] = [];
     const maxLevel = Math.min(BUDGET_MAX_LEVEL, this.specs[this.specs.length - 1]?.level ?? 0);
