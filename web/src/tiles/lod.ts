@@ -1,15 +1,16 @@
 import type * as THREE from 'three';
-import { cullTiles, sortNearestFirst, tileSphereIntersects } from './culling';
+import { type MeshBound, countBounds, cullTiles, meshBounds, sortNearestFirst, tileSphereIntersects } from './culling';
 import {
   BUDGET_MAX_LEVEL,
   type Cell,
   DRAW_CALL_CAP,
   NON_TILE_CALLS,
+  PROBE_MAX_TILES,
+  PROBE_RATIO,
   cellOf,
   chooseBudgetLevel,
   chooseLevel,
   planDraw,
-  plannedCalls,
   tileCalls,
 } from './levels';
 import { ShardCatalog, type CatalogStats } from './catalog';
@@ -22,8 +23,14 @@ export interface LodState {
   /** Level of the 1-pixel rule (ADR-0037); `level` is coarser than this when the draw-call budget switched (T-6.5). */
   baseLevel: number;
   budgetSwitched: boolean;
-  /** Draw calls of the plan of the level in use (all its tiles in view loaded, all layers shown), or null while its tiles are not known yet. */
+  /**
+   * Draw calls of the level in use with all layers shown (T-6.6): the meshes of its loaded tiles that meet the view, plus the
+   * casters that meet the sun's frustum, plus the ground; a tile not loaded yet counts as its manifest says. Null while the
+   * tiles of the level in view are not known yet.
+   */
   estimatedCalls: number | null;
+  /** True when every tile of that count is loaded: the count is then the frame's own, not a bound. */
+  estimatedExact: boolean | null;
   /** Metres per CSS pixel at the last camera change. */
   mpp: number;
   /** Tolerance in metres of every level of the tileset, ascending. */
@@ -70,6 +77,11 @@ export class LodController<T extends THREE.Object3D> {
   private level = 0;
   private baseLevel = 0;
   private estimated: number | null = null;
+  private estimatedIsExact: boolean | null = null;
+  /** The last decision waited for tiles (a count that is a bound, or a level being counted): ask again when tiles arrive. */
+  private waiting = false;
+  private seenTiles = 0;
+  private readonly bounds = new WeakMap<object, MeshBound[] | null>();
   private readonly cap: number;
   private readonly nonTile: number;
   private readonly castersBelow: number;
@@ -143,24 +155,55 @@ export class LodController<T extends THREE.Object3D> {
       }
       return v;
     };
-    const planCalls = (l: number): number | null => {
+    // The count of a level (T-6.6): the draw calls it will issue once its tiles in view are loaded. A loaded tile is counted
+    // from its meshes: each whose bounding sphere meets the view (three.js's own test), and each caster whose sphere meets
+    // the sun's shadow frustum (the shadow pass's own test). A tile not loaded yet is counted as its manifest says: every
+    // layer of a tile whose content sphere meets the view, a bound that is never below what the tile will cost.
+    const shadowOf = (l: number): THREE.Frustum | undefined => (l < this.castersBelow ? (shadowFrustum ?? frustum) : undefined);
+    const count = (l: number) => {
       const v = view(l);
-      if (v.missing > 0) return null; // the tiles of this level in view are not all known yet
-      // counted over the tiles three.js will draw: its per-mesh test is a bounding sphere, wider than the box test of `visible`
-      const cells = v.tiles.filter((t) => tileSphereIntersects(t, frustum)).map((t) => this.cells.get(t.id) as Cell);
-      // The shadow pass draws the casters whose bounding sphere meets the sun's shadow frustum (three.js tests each
-      // caster against it), not the view's: counted over the tiles that meet it (T-6.5a). Without a shadow frustum
-      // (no sun fitted) the view's own tiles are counted.
-      const shadowCells = shadowFrustum
-        ? v.tiles.filter((t) => tileSphereIntersects(t, shadowFrustum)).map((t) => this.cells.get(t.id) as Cell)
-        : cells;
-      return this.nonTile + plannedCalls(l, cells, (id) => this.calls.get(id) ?? 0) + plannedCalls(l, shadowCells, (id) => this.shadowCalls.get(id) ?? 0);
+      const sh = shadowOf(l);
+      let n = this.nonTile;
+      let tilesInPlan = 0;
+      const pending: string[] = [];
+      for (const t of v.tiles) {
+        const obj = this.streamer.get(t.id);
+        const mb = obj ? this.boundsOf(obj) : null;
+        if (mb) {
+          const c = countBounds(mb, frustum, sh);
+          n += c.main + c.shadow;
+          if (c.main + c.shadow > 0) tilesInPlan += 1;
+          continue;
+        }
+        const inMain = tileSphereIntersects(t, frustum);
+        const inShadow = sh !== undefined && (this.shadowCalls.get(t.id) ?? 0) > 0 && tileSphereIntersects(t, sh);
+        if (!inMain && !inShadow) continue;
+        if (inMain) n += this.calls.get(t.id) ?? 0;
+        if (inShadow) n += this.shadowCalls.get(t.id) ?? 0;
+        tilesInPlan += 1;
+        if (!obj && !this.streamer.isFailed(t.id)) pending.push(t.id);
+      }
+      return { n, tilesInPlan, pending };
+    };
+    const needs = new Map<number, string[]>();
+    const planCalls = (l: number, limit: number): number | null => {
+      if (view(l).missing > 0) return null; // the tiles of this level in view are not all known yet
+      const c = count(l);
+      if (c.pending.length === 0 || c.n <= limit) return c.n;
+      // Over the limit only by the bound on tiles not loaded yet. Whether it fits is told by loading them (the manifest
+      // bound can be well above the frame), unless it cannot fit by any measured margin or there are too many to hold.
+      if (c.tilesInPlan > PROBE_MAX_TILES || c.n * PROBE_RATIO > this.cap) return c.n;
+      needs.set(l, c.pending);
+      return null;
     };
     const unknown: number[] = [];
     const maxLevel = Math.min(BUDGET_MAX_LEVEL, this.specs[this.specs.length - 1]?.level ?? 0);
     this.level = chooseBudgetLevel(this.baseLevel, wasSwitched ? this.level : this.baseLevel, maxLevel, planCalls, this.cap, unknown);
     const chosen = view(this.level);
-    this.estimated = planCalls(this.level);
+    const own = chosen.missing > 0 ? null : count(this.level);
+    this.estimated = own ? own.n : null;
+    this.estimatedIsExact = own ? own.pending.length === 0 : null;
+    this.waiting = unknown.length > 0 || (own?.pending.length ?? 0) > 0;
     // Which shards of this level the view needs (nearest first): request them, cancel the others. The
     // finer levels whose plan is still unknown are asked for too, to answer the budget question.
     this.neededShards = chosen.shards;
@@ -172,11 +215,44 @@ export class LodController<T extends THREE.Object3D> {
     // nearest first. The view is complete before a single tile of the ring is fetched.
     const inView = new Set(visible);
     const ring = wanted.filter((id) => !inView.has(id));
+    // After them: the tiles of the level in use that its count still waits for, and those of the levels being counted.
+    const listed = new Set([...visible, ...ring]);
+    const extra = (own?.pending ?? []).filter((id) => !listed.has(id));
+    const probes = unknown.flatMap((l) => {
+      const ids = (needs.get(l) ?? []).filter((id) => !listed.has(id) && !extra.includes(id));
+      return sortNearestFirst(view(l).tiles, ids, cx, cz);
+    });
     this.streamer.update(
-      [...sortNearestFirst(tiles, visible, cx, cz), ...sortNearestFirst(tiles, ring, cx, cz)],
+      [...sortNearestFirst(tiles, visible, cx, cz), ...sortNearestFirst(tiles, ring, cx, cz), ...sortNearestFirst(tiles, extra, cx, cz), ...probes],
       [...this.plan(), ...visible],
     );
+    this.seenTiles = this.tilesSignal();
     this.apply();
+  }
+
+  /** Mesh bounds of a loaded tile, measured once (a tile never moves); null when it has no mesh (then its manifest count is used). */
+  private boundsOf(obj: T): MeshBound[] | null {
+    let b = this.bounds.get(obj);
+    if (b === undefined) {
+      const m = meshBounds(obj);
+      b = m.length > 0 ? m : null;
+      this.bounds.set(obj, b);
+    }
+    return b;
+  }
+
+  /** Changes whenever a tile finished loading or failed for good. */
+  private tilesSignal(): number {
+    const st = this.streamer.stats;
+    return st.completed + st.failed;
+  }
+
+  /**
+   * True when the last decision waited for tiles (a count that was a bound, or a finer level being counted) and tiles have
+   * arrived since: the camera did not move, but the question is to be asked again (T-6.6).
+   */
+  needsRecheck(): boolean {
+    return this.waiting && this.tilesSignal() !== this.seenTiles;
   }
 
   private plan(): Set<string> {
@@ -219,6 +295,7 @@ export class LodController<T extends THREE.Object3D> {
       baseLevel: this.baseLevel,
       budgetSwitched: this.level > this.baseLevel,
       estimatedCalls: this.estimated,
+      estimatedExact: this.estimatedIsExact,
       mpp: this.mpp,
       tolerances: this.specs.map((s) => s.tolerance_m),
       visible: this.visible.length,

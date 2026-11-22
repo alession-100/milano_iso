@@ -252,7 +252,7 @@ function render(): void {
   const t0 = performance.now();
   renderQueued = false;
   camera.updateMatrixWorld();
-  const moved = cameraMoved() || forceCull;
+  const moved = cameraMoved() || forceCull || (lod?.needsRecheck() ?? false); // T-6.6: a decision that waited for tiles is asked again when they arrive
   if (moved) {
     forceCull = false;
     updateTiles();

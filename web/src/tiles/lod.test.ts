@@ -91,7 +91,7 @@ const flush = async (): Promise<void> => {
 
 /** A streamer stand-in: tiles are "loaded" when the test says so; update() records what was asked. */
 function fakeStreamer() {
-  const loaded = new Map<string, { visible: boolean }>();
+  const loaded = new Map<string, THREE.Group>();
   const asked: { wanted: string[]; visible: string[] }[] = [];
   const streamer = {
     update: (wanted: string[], visible: Iterable<string>) => asked.push({ wanted, visible: [...visible] }),
@@ -99,6 +99,7 @@ function fakeStreamer() {
     loadedIds: () => [...loaded.keys()],
     isLoaded: (id: string) => loaded.has(id),
     isFailed: () => false,
+    stats: { completed: 0, failed: 0 },
     get: (id: string) => loaded.get(id),
   };
   return { loaded, asked, streamer: streamer as unknown as TileStreamer<THREE.Object3D> };
@@ -215,12 +216,12 @@ describe('LodController', () => {
     // the base shard is not loaded here, so register the base tiles through a base-level view
     lod.update(view(400), 0.3, 250, -125);
     await flush();
-    for (const t of BASE) loaded.set(t.id, { visible: true });
+    for (const t of BASE) loaded.set(t.id, group(true));
     lod.update(view(1400), 1.1, 250, -125); // level 1 chosen, block missing
     expect(loaded.get('0_0')?.visible).toBe(true);
     expect(loaded.get('1_0')?.visible).toBe(true);
     expect(lod.state()).toMatchObject({ level: 1, pending: 1, drawnByLevel: { 0: 2 } });
-    loaded.set('L1_0_0', { visible: true }); // the block arrives
+    loaded.set('L1_0_0', group(true)); // the block arrives
     expect(lod.apply()).toBe(true);
     expect(loaded.get('L1_0_0')?.visible).toBe(true);
     expect(loaded.get('0_0')?.visible).toBe(false);
@@ -231,9 +232,16 @@ describe('LodController', () => {
 
   it('a manifest without levels behaves as before: base tiles only, all drawn', async () => {
     const { lod, loaded, again } = await ready(4000, 9, false);
-    for (const t of BASE) loaded.set(t.id, { visible: false });
+    for (const t of BASE) loaded.set(t.id, group(false));
     again();
     expect(lod.state().level).toBe(0);
     expect(loaded.get('0_0')?.visible).toBe(true);
   });
 });
+
+/** A loaded tile stand-in: an empty group (no mesh, so the count uses the manifest). */
+function group(visible: boolean): THREE.Group {
+  const g = new THREE.Group();
+  g.visible = visible;
+  return g;
+}
