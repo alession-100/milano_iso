@@ -5,7 +5,7 @@ import { getLang, initialLang, onLangChange, setLang, t } from './i18n';
 import { RotationAnimator, createRotationButtons } from './rotation';
 import { createScene } from './scene';
 import { createModeToggle } from './modeToggle';
-import { NO_SHADOW_FROM_LEVEL, applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows } from './style/lights';
+import { NO_SHADOW_FROM_LEVEL, applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows, sunShadowFrustum } from './style/lights';
 import { setPaletteMode, setShadowCasters } from './style/materials';
 import { initialMode, storeMode } from './style/mode';
 import { type StyleMode, paletteFor } from './style/palette';
@@ -237,7 +237,9 @@ let castersOn = true;
 function updateTiles(): void {
   if (!manifest || !streamer || !lod) return;
   const [cx, cz] = viewCentre(camera);
-  lod.update(frustumOf(camera), rig.metresPerPixel(window.innerWidth), cx, cz); // T-6.2
+  // T-6.5a: the shadow frustum is fitted first, so the draw-call plan can count the casters the shadow pass will draw
+  if (shadowsOn) fitSunShadow(sun, camera, rig.bounds);
+  lod.update(frustumOf(camera), rig.metresPerPixel(window.innerWidth), cx, cz, shadowsOn ? sunShadowFrustum(sun) : undefined); // T-6.2
   const casters = lod.currentLevel < NO_SHADOW_FROM_LEVEL;
   if (casters !== castersOn) {
     castersOn = casters;
@@ -257,7 +259,7 @@ function render(): void {
   } else {
     lod?.apply(); // a tile arrived or left: which of the loaded tiles are drawn may have changed (T-6.2)
   }
-  if (shadowsOn && moved) fitSunShadow(sun, camera, rig.bounds); // T-3.3 style; the fit depends on the camera and the bounds only (T-6.4)
+  if (shadowsOn && moved) fitSunShadow(sun, camera, rig.bounds); // T-3.3 style; the fit depends on the camera and the bounds only (T-6.4); also done in updateTiles (T-6.5a)
   renderer.render(scene, camera);
   lastRender = { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
   lastRenderMs = performance.now() - t0;
@@ -311,6 +313,7 @@ async function startTiles(): Promise<void> {
   lod = new LodController<THREE.Group>(manifest, streamer, {
     fetchShard: (rec, signal) => fetchShard(base, rec, signal),
     castersBelowLevel: shadowsOn ? NO_SHADOW_FROM_LEVEL : 0, // T-6.5: the shadow pass is a draw call per tile
+    cap: new URLSearchParams(window.location.search).get('budget') === 'off' ? Infinity : undefined, // T-6.5a measuring flag: `?budget=off` never switches level for the budget
     onShardsChanged: () => {
       forceCull = true; // a shard arrived (or a retry is due): cull again although the camera did not move
       requestRender();

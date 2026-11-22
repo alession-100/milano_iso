@@ -24,13 +24,21 @@ const out = arg('out', '');
 const summaryOut = arg('summary', '');
 const label = arg('label', '');
 const CAP = Number(arg('cap', 300));
-const windows = arg('windows', '360x640,412x915,768x1024,1280x720,1366x768,1440x900,1920x1080,2560x1440')
+// T-6.5a: 16:10 windows (1440x900, 1680x1050, 1920x1200) and 3440x1440 added.
+const windows = arg('windows', '360x640,412x915,768x1024,1280x720,1366x768,1440x900,1680x1050,1920x1080,1920x1200,2560x1440,3440x1440')
   .split(',')
   .map((s) => s.split('x').map(Number));
-const widths = arg('widths', '300,600,1200,1800,2400,2800,3000,3300,3600,3830,4000')
-  .split(',')
-  .map(Number)
-  .sort((a, b) => a - b);
+// `--dense` (T-6.5a): every 40 m from 520 to 1,320 m, added to --widths.
+const dense = process.argv.includes('--dense');
+const widths = [...new Set([
+  ...arg('widths', '300,600,1200,1800,2400,2800,3000,3300,3600,3830,4000').split(',').filter(Boolean).map(Number),
+  ...(dense ? Array.from({ length: 21 }, (_, i) => 520 + 40 * i) : []),
+])].sort((a, b) => a - b);
+// `--orders asc,desc`: each group runs its widths in these orders one after the other on the same page, so the
+// hysteresis paths of zooming out and in are both covered (T-6.5a). Default asc only (T-6.5).
+const orders = arg('orders', 'asc').split(',');
+// `--query '&budget=off'`: extra query string, e.g. the switch disabled to measure the level the 1-pixel rule would draw.
+const query = arg('query', '');
 // The origin, the two reviewer centres, and two more points inside the comune (a tile exists there at
 // every level: east of the centre, and the north-west quarter).
 const centres = arg('centres', '0:0,1000:-1000,-1250:750,2500:2000,-3500:-2500')
@@ -52,9 +60,9 @@ for (const [w, h] of windows) {
         if ((m.type() === 'error' || m.type() === 'warning') && !/GPU stall due to ReadPixels/.test(m.text())) errs.push(m.text());
       });
       page.on('pageerror', (e) => errs.push(`pageerror: ${e.message}`));
-      await page.goto(`http://127.0.0.1:${port}/?e2e=1`);
+      await page.goto(`http://127.0.0.1:${port}/?e2e=1${query}`);
       await page.waitForFunction(() => typeof window.__milanoIsoSetView === 'function' && window.__milanoIso?.tiles?.loaded > 0, null, { timeout: 180000 });
-      for (const width of widths) {
+      for (const order of orders) for (const width of order === 'desc' ? [...widths].reverse() : widths) {
         const set = ([px, pz, pw, ps]) => window.__milanoIsoSetView(px, pz, pw, ps);
         await page.evaluate(set, [x, z, width, step]);
         let last = -1;
@@ -73,6 +81,7 @@ for (const [w, h] of windows) {
         }
         const v = {
           window: `${w}x${h}`,
+          order,
           x,
           z,
           step,
@@ -109,7 +118,7 @@ await browser.close();
 // result, which is then written out whole. Used to run again a group of views that did not settle.
 let all = views;
 if (arg('base', '')) {
-  const key = (v) => [v.window, v.x, v.z, v.step, v.requestedWidth].join('|');
+  const key = (v) => [v.window, v.order ?? 'asc', v.x, v.z, v.step, v.requestedWidth].join('|');
   const merged = new Map(JSON.parse(readFileSync(arg('base', ''), 'utf8')).data.map((v) => [key(v), v]));
   for (const v of views) merged.set(key(v), v);
   all = [...merged.values()];
@@ -120,16 +129,39 @@ const maxBy = {};
 for (const v of all) if (!maxBy[v.window] || v.calls > maxBy[v.window].calls) maxBy[v.window] = v;
 const switched = all.filter((v) => v.budgetSwitched === true).length;
 const worstPx = all.filter((v) => v.budgetSwitched === true).sort((a, b) => b.errorPx - a.errorPx)[0] ?? null;
-const result = { label, cap: CAP, views: all.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: all.some((v) => v.budgetSwitched !== null) ? switched : null, worstErrorPxOnSwitchedViews: worstPx, maxByWindow: maxBy, data: all };
+// plan minus real, per window (min, median, max) over the settled views that have a plan (T-6.5a)
+const diffsBy = {};
+for (const v of all) if (v.settled && v.estimatedCalls != null) (diffsBy[v.window] ??= []).push(v.estimatedCalls - v.calls);
+const dist = (a) => {
+  const s = [...a].sort((p, q) => p - q);
+  return { min: s[0], median: s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2, max: s[s.length - 1], n: s.length };
+};
+const planMinusReal = Object.fromEntries(Object.entries(diffsBy).map(([k, a]) => [k, dist(a)]));
+const planMinusRealAll = Object.values(diffsBy).flat().length ? dist(Object.values(diffsBy).flat()) : null;
+const planBelowReal = all.filter((v) => v.settled && v.estimatedCalls != null && v.estimatedCalls < v.calls).length;
+const switchedByWindow = {};
+for (const v of all) if (v.budgetSwitched === true) (switchedByWindow[v.window] ??= []).push(`(${v.x},${v.z}) s${v.step} ${v.order ?? 'asc'} ${Math.round(v.width)} m L${v.baseLevel}->L${v.level} est ${v.estimatedCalls} real ${v.calls} err ${v.errorPx.toFixed(2)} px`);
+const result = { label, planBelowReal, planMinusRealAll, planMinusReal, switchedByWindow, cap: CAP, views: all.length, unsettled: unsettled.length, over: over.length, budgetSwitchedViews: all.some((v) => v.budgetSwitched !== null) ? switched : null, worstErrorPxOnSwitchedViews: worstPx, maxByWindow: maxBy, data: all };
 if (out) writeFileSync(out, JSON.stringify(result, null, 1));
 const lines = [
   `Sweep ${label}: ${all.length} views, ${unsettled.length} not settled, ${over.length} over ${CAP} draw calls, budget switch fired on ${result.budgetSwitchedViews ?? 'n/a (no switch in this build)'}.`,
   worstPx ? `Worst error on a view where the budget switched the level: ${worstPx.errorPx.toFixed(2)} px (${worstPx.window}, (${worstPx.x}, ${worstPx.z}), step ${worstPx.step}, ${Math.round(worstPx.width)} m, level ${worstPx.level} from base ${worstPx.baseLevel}).` : '',
   '',
-  '| Window | Max draw calls | At (centre, step, width m) | Level | Views over cap |',
-  '|---|---:|---|---:|---:|',
-  ...Object.entries(maxBy).map(([k, v]) => `| ${k} | ${v.calls} | (${v.x}, ${v.z}) step ${v.step} ${Math.round(v.width)} | ${v.level} | ${over.filter((o) => o.window === k).length} |`),
+  `Plan minus real, all settled views: ${planMinusRealAll ? `min ${planMinusRealAll.min}, median ${planMinusRealAll.median}, max ${planMinusRealAll.max} (n ${planMinusRealAll.n})` : 'n/a'}; views with plan below real: ${planBelowReal}.`,
+  '',
+  '| Window | Max draw calls | At (centre, step, order, width m) | Level | Views over cap | Switch fired | Worst px (switched) | Plan - real min / median / max |',
+  '|---|---:|---|---:|---:|---:|---:|---|',
+  ...Object.entries(maxBy).map(([k, v]) => {
+    const sw = all.filter((o) => o.window === k && o.budgetSwitched === true);
+    const pr = planMinusReal[k];
+    return `| ${k} | ${v.calls} | (${v.x}, ${v.z}) step ${v.step} ${v.order ?? 'asc'} ${Math.round(v.width)} | ${v.level} | ${over.filter((o) => o.window === k).length} | ${sw.length} | ${sw.length ? Math.max(...sw.map((o) => o.errorPx)).toFixed(2) : '-'} | ${pr ? `${pr.min} / ${pr.median} / ${pr.max}` : 'n/a'} |`;
+  }),
 ];
+const swLines = Object.entries(switchedByWindow);
+if (swLines.length) {
+  lines.push('', 'Views where the switch fired:');
+  for (const [k, a] of swLines) lines.push('', `- ${k} (${a.length})`, ...a.map((t) => `  - ${t}`));
+}
 if (over.length) {
   lines.push('', '| Window | Centre | Step | Width m | Level | Draw calls |', '|---|---|---:|---:|---:|---:|');
   for (const v of over) lines.push(`| ${v.window} | (${v.x}, ${v.z}) | ${v.step} | ${Math.round(v.width)} | ${v.level} | ${v.calls} |`);

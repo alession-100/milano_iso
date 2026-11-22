@@ -124,7 +124,7 @@ export class LodController<T extends THREE.Object3D> {
   }
 
   /** Camera changed: choose the level, cull it, tell the streamer what to load. */
-  update(frustum: THREE.Frustum, mpp: number, cx: number, cz: number): void {
+  update(frustum: THREE.Frustum, mpp: number, cx: number, cz: number, shadowFrustum?: THREE.Frustum): void {
     this.mpp = mpp;
     const wasSwitched = this.level > this.baseLevel; // the level in use was chosen by the budget, not by the 1-pixel rule
     this.baseLevel = chooseLevel(this.specs, mpp, this.baseLevel);
@@ -143,11 +143,13 @@ export class LodController<T extends THREE.Object3D> {
       if (v.missing > 0) return null; // the tiles of this level in view are not all known yet
       // counted over the tiles three.js will draw: its per-mesh test is a bounding sphere, wider than the box test of `visible`
       const cells = v.tiles.filter((t) => tileSphereIntersects(t, frustum)).map((t) => this.cells.get(t.id) as Cell);
-      // The shadow pass draws the casters that meet the sun's view volume, which reaches past the view
-      // (a building outside the view can shade a street inside it), so it is counted over the view and
-      // its ring of prefetch tiles, the meshes over the tiles in view only.
-      const ring = v.culled.wanted.map((id) => this.cells.get(id) as Cell);
-      return plannedCalls(l, cells, (id) => this.calls.get(id) ?? 0) + plannedCalls(l, ring, (id) => this.shadowCalls.get(id) ?? 0);
+      // The shadow pass draws the casters whose bounding sphere meets the sun's shadow frustum (three.js tests each
+      // caster against it), not the view's: counted over the tiles that meet it (T-6.5a). Without a shadow frustum
+      // (no sun fitted) the view's own tiles are counted.
+      const shadowCells = shadowFrustum
+        ? v.tiles.filter((t) => tileSphereIntersects(t, shadowFrustum)).map((t) => this.cells.get(t.id) as Cell)
+        : cells;
+      return plannedCalls(l, cells, (id) => this.calls.get(id) ?? 0) + plannedCalls(l, shadowCells, (id) => this.shadowCalls.get(id) ?? 0);
     };
     const unknown: number[] = [];
     const maxLevel = Math.min(BUDGET_MAX_LEVEL, this.specs[this.specs.length - 1]?.level ?? 0);
