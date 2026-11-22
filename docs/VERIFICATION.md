@@ -76,7 +76,7 @@ The reviewer checks each item on the fixture (e2e) and on real pilot data, at 12
 | Initial payload (as served with brotli, until the default view is drawn; prefetch excluded; ADR-0038) | <= 3 MB (3,000,000 bytes) |
 | JS bundle (gzip) | <= 600 KB |
 | Tile size (gzip) | <= 250 KB each |
-| Draw calls, typical view | <= 300 |
+| Draw calls, every settled view (nothing pending; the short peaks while a new level loads are recorded, not capped; owner, 2026-11-22, ADR-0041) | <= 300 |
 | Time to first render | <= 3 s on a fast connection |
 
 ## 6. Failure protocol

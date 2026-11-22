@@ -1,0 +1,47 @@
+{
+ "window": "1280x720",
+ "runs": [
+  {
+   "run": 1,
+   "firstDrawMs": 3139,
+   "completeMs": 3580,
+   "calls": 113,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 2,
+   "firstDrawMs": 380,
+   "completeMs": 1067,
+   "calls": 129,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 3,
+   "firstDrawMs": 312,
+   "completeMs": 959,
+   "calls": 129,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 4,
+   "firstDrawMs": 337,
+   "completeMs": 1100,
+   "calls": 129,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 5,
+   "firstDrawMs": 310,
+   "completeMs": 962,
+   "calls": 129,
+   "level": 0,
+   "loaded": 54
+  }
+ ],
+ "medianFirstDrawMs": 337,
+ "medianCompleteMs": 1067
+}

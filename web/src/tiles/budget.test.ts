@@ -7,6 +7,7 @@ import {
   BUDGET_MAX_LEVEL,
   type Cell,
   DRAW_CALL_CAP,
+  NON_TILE_CALLS,
   chooseBudgetLevel,
   plannedCalls,
   tileCalls,
@@ -20,11 +21,13 @@ import { type ShardRecord, type TileEntry, parseManifest } from './manifest';
 const ALL = ['buildings', 'landuse', 'green', 'water', 'road_areas', 'roads', 'markings', 'rail', 'landmark_details', 'trees'];
 
 describe('tileCalls', () => {
-  it('counts one call per layer of a base tile, and the shadow pass of its buildings', () => {
+  it('counts a base tile as buildings, one merged flat mesh, the layers never merged, and the shadow pass (T-6.5b)', () => {
     const counts = { buildings: 7, green: 3, roads: 167, markings: 20, trees: 8, water: 0 };
-    expect(tileCalls(0, counts, ALL, false)).toBe(5);
-    expect(tileCalls(0, counts, ALL, true)).toBe(6);
+    expect(tileCalls(0, counts, ALL, false)).toBe(4); // buildings, merged (green, roads), markings, trees
+    expect(tileCalls(0, counts, ALL, true)).toBe(5);
     expect(tileCalls(0, { roads: 2 }, ALL, true)).toBe(1); // no buildings, no shadow pass
+    expect(tileCalls(0, { roads: 2, markings: 1, landmark_details: 4 }, ALL, false)).toBe(3);
+    expect(tileCalls(0, { buildings: 1, landmark_details: 4 }, ALL, true)).toBe(3);
   });
 
   it('counts a coarse tile as its buildings plus one merged mesh, and the shadow pass', () => {
@@ -36,7 +39,7 @@ describe('tileCalls', () => {
   });
 
   it('assumes every layer when the entry has no counts', () => {
-    expect(tileCalls(0, undefined, ALL, true)).toBe(ALL.length + 1);
+    expect(tileCalls(0, undefined, ALL, true)).toBe(1 + 1 + 3 + 1); // buildings, merged, markings + landmark_details + trees, shadow
     expect(tileCalls(2, undefined, ALL, false)).toBe(2);
   });
 });
@@ -95,6 +98,11 @@ describe('chooseBudgetLevel', () => {
     // nothing coarser in use: take the base level (its tiles get requested)
     expect(chooseBudgetLevel(2, 0, 3, calls({ 2: null }), 280, [])).toBe(2);
     expect(chooseBudgetLevel(1, 1, 3, calls({ 1: null }), 280, [])).toBe(1);
+    // T-6.5b: the level in use is over the cap and the coarser one is not known yet: the level in use stays, and the coarser one is asked for
+    const ask: number[] = [];
+    expect(chooseBudgetLevel(0, 0, 3, calls({ 0: 400, 1: null }), 280, ask)).toBe(0);
+    expect(ask).toEqual([1]);
+    expect(chooseBudgetLevel(0, 1, 3, calls({ 0: 400, 1: null }), 280, [])).toBe(1);
   });
 });
 
@@ -193,11 +201,12 @@ const flush = async (): Promise<void> => {
   for (let k = 0; k < 8; k++) await Promise.resolve();
 };
 
-function controller(opts: { cap: number; hold?: Set<string> }) {
+function controller(opts: { cap: number; hold?: Set<string>; nonTile?: number }) {
   const requested: string[] = [];
   const s = streamer();
   const lod = new LodController(manifest(), s.streamer, {
     cap: opts.cap,
+    nonTileCalls: opts.nonTile ?? 0,
     castersBelowLevel: 3,
     fetchShard: (rec) => {
       requested.push(rec.id);
@@ -209,6 +218,15 @@ function controller(opts: { cap: number; hold?: Set<string> }) {
 }
 
 describe('LodController, draw-call budget', () => {
+  it('adds the calls that are not tiles (ground plane, margin) to every plan', async () => {
+    const { lod } = controller({ cap: 100, nonTile: NON_TILE_CALLS });
+    lod.update(frustum(1400), 1.5, 500, -500);
+    await flush();
+    lod.update(frustum(1400), 1.5, 500, -500);
+    expect(lod.state().estimatedCalls).toBe(12 + NON_TILE_CALLS);
+    expect(NON_TILE_CALLS).toBe(3);
+  });
+
   // mpp 1.5 asks for level 1 (tolerance 1 m, below level 2's 2 m); every coarse tile with buildings, roads
   // and green costs 3 calls at levels 1 and 2 (buildings, merged flat mesh, shadow pass)
   const MPP = 1.5;
@@ -227,7 +245,8 @@ describe('LodController, draw-call budget', () => {
     await flush();
     lod.update(frustum(1400), MPP, 500, -500); // level 1 costs 4 x 3 = 12 > 11: level 2 is asked for
     expect(requested).toEqual(['S1_0_0', 'S2_0_0']);
-    expect(lod.state()).toMatchObject({ level: 2, baseLevel: 1, budgetSwitched: true });
+    // T-6.5b: level 2 is not known yet, so level 1 (its tiles are loaded) stays: no empty view while level 2 arrives
+    expect(lod.state()).toMatchObject({ level: 1, baseLevel: 1, budgetSwitched: false });
     await flush();
     lod.update(frustum(1400), MPP, 500, -500);
     expect(lod.state()).toMatchObject({ level: 2, baseLevel: 1, budgetSwitched: true, estimatedCalls: 3 });
@@ -255,8 +274,8 @@ describe('LodController, draw-call budget', () => {
     expect(lod.state()).toMatchObject({ level: 2, baseLevel: 0, budgetSwitched: true });
     expect(requested).toContain('S0_0_0');
     await flush();
-    // its plan is 1 tile x 4 calls, within 0.9 x 11: back to level 0
+    // its plan is 1 tile x 3 calls (buildings, merged flat mesh, shadow pass), within 0.9 x 11: back to level 0
     lod.update(frustum(700, 125, -125), 0.5, 125, -125);
-    expect(lod.state()).toMatchObject({ level: 0, baseLevel: 0, budgetSwitched: false, estimatedCalls: 4 });
+    expect(lod.state()).toMatchObject({ level: 0, baseLevel: 0, budgetSwitched: false, estimatedCalls: 3 });
   });
 });

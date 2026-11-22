@@ -1,0 +1,47 @@
+{
+ "window": "1280x720",
+ "runs": [
+  {
+   "run": 1,
+   "firstDrawMs": 2027,
+   "completeMs": 2890,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 2,
+   "firstDrawMs": 300,
+   "completeMs": 955,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 3,
+   "firstDrawMs": 308,
+   "completeMs": 969,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 4,
+   "firstDrawMs": 308,
+   "completeMs": 957,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 5,
+   "firstDrawMs": 304,
+   "completeMs": 950,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  }
+ ],
+ "medianFirstDrawMs": 308,
+ "medianCompleteMs": 957
+}

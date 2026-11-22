@@ -1,0 +1,71 @@
+{
+ "window": "1280x720",
+ "runs": [
+  {
+   "run": 1,
+   "firstDrawMs": 2093,
+   "completeMs": 2537,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 2,
+   "firstDrawMs": 274,
+   "completeMs": 926,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 3,
+   "firstDrawMs": 309,
+   "completeMs": 971,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 4,
+   "firstDrawMs": 280,
+   "completeMs": 924,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 5,
+   "firstDrawMs": 314,
+   "completeMs": 970,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 6,
+   "firstDrawMs": 322,
+   "completeMs": 976,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 7,
+   "firstDrawMs": 314,
+   "completeMs": 964,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  },
+  {
+   "run": 8,
+   "firstDrawMs": 273,
+   "completeMs": 1062,
+   "calls": 187,
+   "level": 0,
+   "loaded": 54
+  }
+ ],
+ "medianFirstDrawMs": 311.5,
+ "medianCompleteMs": 970.5
+}

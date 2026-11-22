@@ -46,14 +46,31 @@ export const DRAW_CALL_CAP = 280;
  */
 export const BUDGET_HYSTERESIS = 0.9;
 
+/**
+ * Draw calls a view issues that no tile accounts for: the ground plane (1 call: a view with no tile drawn reads 1), and a
+ * margin of 2 for what the plan's tile tests count differently from three.js (the sun's shadow frustum against the
+ * casters). Measured on the dense sweeps of T-6.5b (5,400 settled views): the plan, with the tiles alone, was 1 call
+ * below the real count on 280 views and 2 below on 8, never more. Added to every plan, so that the plan is never below
+ * the real count (T-6.5b).
+ */
+export const NON_TILE_CALLS = 3;
+
 /** The coarsest level the budget may choose (ADR-0037 error rule: a level above 3 is never shown). */
 export const BUDGET_MAX_LEVEL = 3;
 
 /**
+ * The flat layers a tile merges into one mesh at load (T-6.5, T-6.5b; see style/coarse.ts), in the order of
+ * their triangles. Everything else stays a mesh of its own: buildings (the only shadow casters), the painted
+ * markings (their own polygon offset), landmark details, and the instanced trees.
+ */
+export const MERGED_LAYERS = ['landuse', 'green', 'water', 'road_areas', 'roads', 'rail'] as const;
+
+/**
  * Draw calls of one tile with all its layers shown: one per mesh, one more for the shadow pass when its
- * buildings cast. A base tile has one mesh per layer it holds (trees are one instanced mesh); a coarse
- * tile (T-6.5) has its buildings, plus one merged mesh for the flat layers. `counts` is the tile entry's
- * feature count per layer; without it every layer of the tileset is assumed present.
+ * buildings cast. Every tile has its buildings and one merged mesh for its flat layers (T-6.5; level 0 too,
+ * T-6.5b); a base tile also has the layers that are never merged (markings, landmark details, and the
+ * instanced trees, one mesh). `counts` is the tile entry's feature count per layer; without it every layer
+ * of the tileset is assumed present.
  */
 export function tileCalls(
   level: number,
@@ -65,9 +82,13 @@ export function tileCalls(
   const layers = allLayers.filter(has);
   const buildings = has('buildings');
   const shadow = casting && buildings ? 1 : 0;
-  if (level === 0) return layers.length + shadow;
-  const flat = layers.filter((l) => l !== 'buildings').length;
-  return (buildings ? 1 : 0) + (flat > 0 ? 1 : 0) + shadow;
+  const rest = layers.filter((l) => l !== 'buildings');
+  if (level === 0) {
+    const isMerged = (l: string): boolean => (MERGED_LAYERS as readonly string[]).includes(l);
+    const merged = rest.some(isMerged) ? 1 : 0;
+    return (buildings ? 1 : 0) + merged + rest.filter((l) => !isMerged(l)).length + shadow;
+  }
+  return (buildings ? 1 : 0) + (rest.length > 0 ? 1 : 0) + shadow;
 }
 
 /** Draw calls the plan of `level` issues once all its `visible` tiles are loaded, by `planDraw`. */
@@ -82,8 +103,9 @@ export function plannedCalls(level: number, visible: readonly Cell[], callsOf: (
  * The level to draw: `base` (the level of the 1-pixel rule), or the next coarser levels while the plan is over
  * `cap`, never above `maxLevel`. `calls(level)` is the plan's draw calls, or null while the tiles of that
  * level in view are not all known yet. A level that was left (`current` is coarser) is taken again only at
- * `cap * BUDGET_HYSTERESIS`. While a plan is unknown the level in use stays when it is coarser, else the
- * level is taken (its tiles are then requested and the question asked again). `unknown` collects the levels
+ * `cap * BUDGET_HYSTERESIS`. While a plan is unknown the level in use stays when it is coarser, and also when it is finer than the
+ * unknown level (T-6.5b: no empty view while the tiles of the coarser level arrive); only the level of the 1-pixel
+ * rule is taken as it is (its tiles are then requested and the question asked again). `unknown` collects the levels
  * whose tiles must be requested to answer.
  */
 export function chooseBudgetLevel(
@@ -99,7 +121,10 @@ export function chooseBudgetLevel(
     const n = calls(level);
     if (n === null) {
       unknown.push(level);
-      return Math.max(level, Math.min(current, maxLevel));
+      // T-6.5b: a coarser level whose plan is not known yet is not taken while a finer one is in use: its tiles are not
+      // there, so the view would be empty until they arrive. The finer level stays and the coarser one is requested.
+      const inUse = Math.max(current, base);
+      return level > inUse ? inUse : Math.max(level, Math.min(current, maxLevel));
     }
     const limit = level < current ? cap * BUDGET_HYSTERESIS : cap;
     if (n <= limit) return level;

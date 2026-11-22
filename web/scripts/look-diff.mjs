@@ -7,7 +7,7 @@
 // Two servers of two builds of the same tileset (headless software GL, 1280x720). Every view is chosen so
 // that the 1-pixel rule picks the level, and the draw-call budget does not switch it, in both builds.
 // Output: <view>_before.png, <view>_after.png, <view>_diff.png (red where they differ), look.json, look.md.
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { chromium } from '@playwright/test';
 
@@ -17,6 +17,11 @@ function arg(name, fallback) {
 }
 const before = Number(arg('before', 4197));
 const after = Number(arg('after', 4196));
+// T-6.5b: --views l0 compares level-0 views; --phase before|after captures one build (--port) and writes picks_<phase>.json,
+// --phase compare reads both captures and compares them (one server at a time, so two builds need not run together).
+const viewSet = arg('views', 'coarse');
+const phase = arg('phase', 'both');
+const phasePort = Number(arg('port', 4204));
 const out = arg('out', '');
 if (!out) {
   console.error('usage: look-diff.mjs --before <port> --after <port> --out <dir>');
@@ -25,7 +30,7 @@ if (!out) {
 mkdirSync(out, { recursive: true });
 
 // name, level expected, centre, width, step, mode
-const VIEWS = [
+const VIEWS_COARSE = [
   ['l1-day', 1, 0, 0, 1500, 0, 'day'],
   ['l1-night', 1, 0, 0, 1500, 0, 'night'],
   ['l2-day', 2, 0, 0, 3000, 0, 'day'],
@@ -35,6 +40,18 @@ const VIEWS = [
   ['l2-east-rot1-day', 2, 2500, 2000, 2400, 1, 'day'],
   ['l1-water-day', 1, 1000, -1000, 1200, 0, 'day'],
 ];
+// level-0 views (T-6.5b): the default view, a close view, a rotated view, night, a view over water and a wide view
+const VIEWS_L0 = [
+  ['l0-default-day', 0, 0, 0, 600, 0, 'day'],
+  ['l0-default-night', 0, 0, 0, 600, 0, 'night'],
+  ['l0-close-day', 0, 0, 0, 250, 0, 'day'],
+  ['l0-rot1-day', 0, 0, 0, 600, 1, 'day'],
+  ['l0-rot2-day', 0, 300, -200, 500, 2, 'day'],
+  ['l0-water-day', 0, 1000, -1000, 450, 0, 'day'],
+  ['l0-east-rot3-day', 0, 2500, 2000, 500, 3, 'day'],
+  ['l0-west-day', 0, -1250, 750, 600, 0, 'day'],
+];
+const VIEWS = viewSet === 'l0' ? VIEWS_L0 : VIEWS_COARSE;
 const GRID = [];
 for (let r = 1; r <= 5; r++) for (let c = 1; c <= 9; c++) GRID.push([Math.round((c * 1280) / 10), Math.round((r * 720) / 6)]);
 
@@ -76,13 +93,25 @@ async function capture(port, tag) {
   return res;
 }
 
-const resBefore = await capture(before, 'before');
-const resAfter = await capture(after, 'after');
+let resBefore;
+let resAfter;
+if (phase === 'before' || phase === 'after') {
+  const res = await capture(phasePort, phase);
+  writeFileSync(path.join(out, `picks_${phase}.json`), JSON.stringify(res, null, 1));
+  await browser.close();
+  process.exit(0);
+}
+if (phase === 'compare') {
+  resBefore = JSON.parse(readFileSync(path.join(out, 'picks_before.json'), 'utf8'));
+  resAfter = JSON.parse(readFileSync(path.join(out, 'picks_after.json'), 'utf8'));
+} else {
+  resBefore = await capture(before, 'before');
+  resAfter = await capture(after, 'after');
+}
 
 // pixel comparison in a page: decode both PNGs, count the pixels that differ
 const cmpPage = await browser.newPage();
 await cmpPage.goto('about:blank');
-const { readFileSync } = await import('node:fs');
 const report = [];
 for (const [name, level] of VIEWS) {
   const a = readFileSync(path.join(out, `${name}_before.png`)).toString('base64');

@@ -300,8 +300,9 @@ export function createGltfTileLoader(
     const group = gltf.scene;
     group.name = tile.id;
     group.userData.table = table; // feature table, read by picking and the info card (T-5.1)
-    // Coarse tiles (T-6.5, ADR-0040): the flat layers become one mesh, so a tile costs two draw calls, not five or six.
-    if ((tile.level ?? 0) > 0) mergeCoarseLayers(group, table);
+    // The flat layers become one mesh (T-6.5, ADR-0040; level 0 too, T-6.5b, ADR-0041): a coarse tile costs two draw
+    // calls, not five or six; a base tile keeps its buildings, markings, landmark details and trees apart.
+    mergeCoarseLayers(group, table);
     group.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh || isCoarseMesh(mesh)) return;

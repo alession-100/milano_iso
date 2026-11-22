@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { MERGED_LAYERS } from '../tiles/levels';
 import {
   LOOKUP_WIDTH,
   type FeatureTable,
@@ -25,12 +26,13 @@ import {
  *    contiguous in the index, so a toggle only changes the draw range, with no rebuild.
  * Buildings stay a separate mesh: they are the only shadow casters. The geometry is the file's own
  * quantised data, concatenated; nothing is re-quantised, so every vertex is exactly where it was.
- * Level 0 is never merged.
+ * Level 0 is merged too (T-6.5b, ADR-0041): its markings (own polygon offset), landmark details and
+ * trees stay separate meshes.
  */
 export const COARSE_MESH = 'coarse';
 
 /** Flat layers that are merged, in the order of their triangles; the two toggle groups are contiguous. */
-export const MERGED_LAYERS = ['landuse', 'green', 'water', 'road_areas', 'roads', 'rail'] as const;
+export { MERGED_LAYERS };
 /** Layers of the toggle `waterGreen` come first in the index, those of `roads` after them. */
 const FIRST_GROUP: ReadonlySet<string> = new Set(['landuse', 'green', 'water']);
 

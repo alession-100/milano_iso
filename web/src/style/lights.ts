@@ -173,3 +173,15 @@ export function fitSunShadow(
   sun.target.updateMatrixWorld();
   sun.updateMatrixWorld();
 }
+
+/**
+ * The sun's shadow frustum as three.js will use it for the shadow pass (after `fitSunShadow`): a caster is drawn
+ * into the shadow map only if its bounding sphere meets it. The draw-call plan counts the casters with it (T-6.5a).
+ */
+export function sunShadowFrustum(sun: THREE.DirectionalLight): THREE.Frustum {
+  sun.shadow.updateMatrices(sun);
+  const cam = sun.shadow.camera;
+  return new THREE.Frustum().setFromProjectionMatrix(
+    new THREE.Matrix4().multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse),
+  );
+}
