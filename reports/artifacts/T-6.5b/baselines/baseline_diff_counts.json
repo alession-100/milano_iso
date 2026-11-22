@@ -1,0 +1,200 @@
+[
+ {
+  "name": "close-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "close-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-rot1-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-rot1-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-rot2-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-rot2-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-rot3-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "default-rot3-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "info-card-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "info-card-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "night-close-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "night-close-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "night-default-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "night-default-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "toolbar-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "toolbar-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "west-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "west-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "wide-desktop-1280x720-win32.png",
+  "width": 1280,
+  "height": 720,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ },
+ {
+  "name": "wide-mobile-412x915-win32.png",
+  "width": 412,
+  "height": 915,
+  "differingPixels": 0,
+  "over16": 0,
+  "maxChannelDiff": 0,
+  "firstPixels": []
+ }
+]

@@ -32,6 +32,10 @@ const cam = (page: Page): Promise<Cam> =>
 const calls = (page: Page): Promise<number> =>
   page.evaluate(() => ((window as unknown as Win).__milanoIso.render as { calls: number }).calls);
 
+/** Triangles of the last frame: a toggle that only narrows the draw range of a merged mesh (T-6.5b) lowers these, not the calls. */
+const triangles = (page: Page): Promise<number> =>
+  page.evaluate(() => ((window as unknown as Win).__milanoIso.render as { triangles: number }).triangles);
+
 async function open(page: Page, query = '', reduced = true): Promise<string[]> {
   const problems = collectProblems(page);
   await page.emulateMedia({ reducedMotion: reduced ? 'reduce' : 'no-preference' });
@@ -180,6 +184,7 @@ for (const [id, label] of TOGGLES) {
   test(`the ${id} toggle hides its layer (draw calls, test state) and survives a reload`, async ({ page }) => {
     const problems = await open(page);
     const base = await stableCalls(page);
+    const baseTriangles = await triangles(page);
     expect(base).toBeGreaterThan(5);
     await page.locator('#layers-button').click();
     await expect(page.locator('#layers-button')).toHaveAttribute('aria-expanded', 'true');
@@ -187,7 +192,10 @@ for (const [id, label] of TOGGLES) {
     await expect(box).toBeChecked();
     await box.uncheck();
     await expect.poll(async () => (await tb(page)).layers[id]).toBe(false);
-    await expect.poll(() => calls(page), { message: `draw calls after hiding ${id}` }).toBeLessThan(base);
+    // fewer draw calls, or, for a group that shares the merged flat mesh of a tile (T-6.5b), fewer triangles
+    await expect
+      .poll(async () => (await calls(page)) < base || (await triangles(page)) < baseTriangles, { message: `draw calls or triangles after hiding ${id}` })
+      .toBe(true);
     const hidden = await stableCalls(page);
     // Reload: the choice is remembered.
     await page.reload();

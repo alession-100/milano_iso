@@ -1,0 +1,58 @@
+t=10s heap 8.9 MB geoms 83 (tiles 164) tex 108 prog 6 loaded 64 inScene 64 dom 74 L1 w 656
+t=20s heap 9.3 MB geoms 126 (tiles 128) tex 234 prog 6 loaded 64 inScene 64 dom 74 L2 w 3080
+t=30s heap 9.9 MB geoms 122 (tiles 128) tex 238 prog 6 loaded 64 inScene 64 dom 74 L2 w 3062
+t=40s heap 9.2 MB geoms 114 (tiles 127) tex 206 prog 6 loaded 64 inScene 64 dom 74 L1 w 648
+t=50s heap 10.4 MB geoms 126 (tiles 192) tex 158 prog 6 loaded 64 inScene 64 dom 74 L0 w 250
+t=60s heap 10.6 MB geoms 117 (tiles 180) tex 154 prog 6 loaded 64 inScene 64 dom 74 L1 w 656
+t=70s heap 10.6 MB geoms 117 (tiles 128) tex 210 prog 6 loaded 64 inScene 64 dom 74 L2 w 3078
+t=80s heap 11.5 MB geoms 114 (tiles 128) tex 216 prog 6 loaded 64 inScene 64 dom 74 L2 w 3063
+t=90s heap 11.0 MB geoms 116 (tiles 128) tex 206 prog 6 loaded 64 inScene 64 dom 74 L1 w 648
+t=100s heap 11.2 MB geoms 96 (tiles 198) tex 132 prog 6 loaded 64 inScene 64 dom 74 L0 w 250
+t=110s heap 10.8 MB geoms 107 (tiles 177) tex 126 prog 6 loaded 64 inScene 64 dom 74 L1 w 656
+t=120s heap 10.4 MB geoms 122 (tiles 126) tex 228 prog 6 loaded 64 inScene 64 dom 74 L2 w 3082
+t=130s heap 11.6 MB geoms 126 (tiles 132) tex 236 prog 6 loaded 66 inScene 66 dom 74 L2 w 3052
+t=140s heap 11.2 MB geoms 117 (tiles 128) tex 212 prog 6 loaded 64 inScene 64 dom 74 L1 w 647
+t=150s heap 11.6 MB geoms 102 (tiles 195) tex 126 prog 6 loaded 64 inScene 64 dom 74 L0 w 250
+t=160s heap 10.8 MB geoms 132 (tiles 175) tex 170 prog 6 loaded 64 inScene 64 dom 74 L1 w 655
+t=170s heap 10.1 MB geoms 118 (tiles 121) tex 218 prog 6 loaded 64 inScene 64 dom 74 L2 w 3083
+t=180s heap 11.2 MB geoms 120 (tiles 124) tex 228 prog 6 loaded 64 inScene 64 dom 74 L2 w 3067
+t=190s heap 10.8 MB geoms 111 (tiles 128) tex 202 prog 6 loaded 64 inScene 64 dom 74 L1 w 647
+t=200s heap 11.4 MB geoms 118 (tiles 192) tex 156 prog 7 loaded 64 inScene 64 dom 74 L0 w 250
+t=210s heap 11.0 MB geoms 119 (tiles 176) tex 154 prog 7 loaded 64 inScene 64 dom 74 L1 w 656
+t=220s heap 11.6 MB geoms 122 (tiles 132) tex 222 prog 7 loaded 66 inScene 66 dom 74 L2 w 3083
+t=230s heap 11.5 MB geoms 111 (tiles 124) tex 204 prog 7 loaded 64 inScene 64 dom 74 L2 w 3058
+t=240s heap 10.8 MB geoms 116 (tiles 127) tex 208 prog 7 loaded 64 inScene 64 dom 74 L1 w 648
+t=250s heap 11.7 MB geoms 102 (tiles 193) tex 120 prog 7 loaded 64 inScene 64 dom 74 L0 w 250
+t=260s heap 10.9 MB geoms 118 (tiles 188) tex 136 prog 7 loaded 64 inScene 64 dom 74 L1 w 656
+t=270s heap 12.2 MB geoms 116 (tiles 128) tex 204 prog 7 loaded 64 inScene 64 dom 74 L2 w 3082
+t=280s heap 12.0 MB geoms 120 (tiles 128) tex 218 prog 7 loaded 64 inScene 64 dom 74 L2 w 3056
+t=290s heap 10.9 MB geoms 114 (tiles 128) tex 204 prog 7 loaded 64 inScene 64 dom 74 L1 w 647
+t=300s heap 11.8 MB geoms 98 (tiles 193) tex 118 prog 7 loaded 64 inScene 64 dom 74 L0 w 250
+{
+  "heapMedianMinute2MB": 10.904876708984375,
+  "heapMedianLastMinuteMB": 11.74951171875,
+  "heapChangePct": 7.745479681303889,
+  "heapWithin10pct": true,
+  "maxGeometries": 132,
+  "maxTextures": 238,
+  "maxGeomsPerTile": 5,
+  "maxTilesInScene": 66,
+  "cacheLimit": 64,
+  "maxWantedTiles": 69,
+  "geometryBound": 346,
+  "orphanGeometriesMax": -3,
+  "orphanTexturesMax": -20,
+  "maxPrograms": 7,
+  "programsAfterMinute1": [
+    6,
+    7
+  ],
+  "domNodesAfterMinute1": [
+    74,
+    74
+  ],
+  "geometriesWithinCache": true,
+  "texturesWithinCache": true,
+  "tilesWithinLimit": true,
+  "pass": true
+}

@@ -1,0 +1,51 @@
+{
+ "window": "1280x720",
+ "ok": true,
+ "rows": [
+  {
+   "width": 600,
+   "level": 0,
+   "baseLevel": 0,
+   "budgetSwitched": false,
+   "estimatedCalls": 175,
+   "calls": 129,
+   "settled": true
+  },
+  {
+   "width": 630,
+   "level": 0,
+   "baseLevel": 0,
+   "budgetSwitched": false,
+   "estimatedCalls": 189,
+   "calls": 139,
+   "settled": true
+  },
+  {
+   "width": 600,
+   "level": 0,
+   "baseLevel": 0,
+   "budgetSwitched": false,
+   "estimatedCalls": 175,
+   "calls": 130,
+   "settled": true
+  },
+  {
+   "width": 570,
+   "level": 0,
+   "baseLevel": 0,
+   "budgetSwitched": false,
+   "estimatedCalls": 161,
+   "calls": 126,
+   "settled": true
+  },
+  {
+   "width": 600,
+   "level": 0,
+   "baseLevel": 0,
+   "budgetSwitched": false,
+   "estimatedCalls": 175,
+   "calls": 130,
+   "settled": true
+  }
+ ]
+}

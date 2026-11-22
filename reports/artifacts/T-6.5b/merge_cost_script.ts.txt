@@ -1,0 +1,54 @@
+import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { it } from 'vitest';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeCoarseLayers } from './style/coarse';
+import type { FeatureTable } from './style/materials';
+
+// Throwaway (T-6.5b, not committed): merge cost of real level-0 tiles; the text is saved next to its output.
+const DIR = process.env.TILE_DIR as string;
+const OUT = process.env.MERGE_OUT as string;
+const med = (a: number[]) => {
+  const s = [...a].sort((x, y) => x - y);
+  return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+};
+
+it('merge cost of level-0 tiles', async () => {
+  const names = readdirSync(DIR)
+    .filter((f) => /^-?\d+_-?\d+\.glb$/.test(f))
+    .sort();
+  const pick = names.filter((_, i) => i % 6 === 0).slice(0, 200);
+  const loader = new GLTFLoader();
+  const parse: number[] = [];
+  const merge: number[] = [];
+  const before: number[] = [];
+  const after: number[] = [];
+  let notMerged = 0;
+  for (const f of pick) {
+    const buf = readFileSync(`${DIR}/${f}`);
+    const table = JSON.parse(readFileSync(`${DIR}/${f.replace('.glb', '.json')}`, 'utf8')) as FeatureTable;
+    const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
+    let t = performance.now();
+    const gltf = await loader.parseAsync(ab, '');
+    parse.push(performance.now() - t);
+    const g = gltf.scene;
+    const trees = table.layers.trees?.length ? 1 : 0;
+    before.push(g.children.filter((c) => (c as THREE.Mesh).isMesh).length + trees);
+    t = performance.now();
+    const m = mergeCoarseLayers(g, table);
+    merge.push(performance.now() - t);
+    if (!m) notMerged += 1;
+    after.push(g.children.filter((c) => (c as THREE.Mesh).isMesh).length + trees);
+  }
+  const avg = (a: number[]) => a.reduce((s, v) => s + v, 0) / a.length;
+  const res = {
+    tiles: pick.length,
+    notMerged,
+    parseMs: { mean: avg(parse), median: med(parse), max: Math.max(...parse) },
+    mergeMs: { mean: avg(merge), median: med(merge), max: Math.max(...merge) },
+    meshesBefore: avg(before),
+    meshesAfter: avg(after),
+  };
+  writeFileSync(OUT, JSON.stringify(res, null, 1));
+  console.log(JSON.stringify(res));
+}, 600000);

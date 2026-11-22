@@ -62,7 +62,7 @@ for (const [w, h] of windows) {
         if ((m.type() === 'error' || m.type() === 'warning') && !/GPU stall due to ReadPixels/.test(m.text())) errs.push(m.text());
       });
       page.on('pageerror', (e) => errs.push(`pageerror: ${e.message}`));
-      await page.goto(`http://127.0.0.1:${port}/?e2e=1${query}`);
+      await page.goto(`http://127.0.0.1:${port}/?e2e=1${query}`, { timeout: 180000 });
       await page.waitForFunction(() => typeof window.__milanoIsoSetView === 'function' && window.__milanoIso?.tiles?.loaded > 0, null, { timeout: 180000 });
       for (const order of orders) for (const width of order === 'desc' ? [...widths].reverse() : widths) {
         const set = ([px, pz, pw, ps]) => window.__milanoIsoSetView(px, pz, pw, ps);
