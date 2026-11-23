@@ -1,0 +1,143 @@
+{
+  "gpu": {
+    "vendor": "Google Inc. (Intel)",
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "backend": {
+    "devices": [
+      " Intel(R) Iris(R) Xe Graphics (driver 32.0.101.7085)",
+      " NVIDIA RTX 4000 Ada Generation Laptop GPU (driver 32.0.15.9706)",
+      " Microsoft Basic Render Driver (driver 10.0.26100.9711)"
+    ],
+    "glRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11-32.0.101.7085)",
+    "glImplementation": "(gl=egl-angle,angle=d3d11)",
+    "featureStatus": {
+      "2d_canvas": "enabled",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "enabled",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "enabled_on",
+      "rasterization": "enabled",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "enabled",
+      "video_encode": "enabled",
+      "webgl": "enabled",
+      "webgpu": "enabled",
+      "webnn": "disabled_off"
+    },
+    "browser": "158.0.8127.36"
+  },
+  "viewport": [
+    1920,
+    1080
+  ],
+  "unlimited": false,
+  "results": {
+    "frames": 7266,
+    "durationS": 80.00559999999403,
+    "meanFps": 90.81864269501811,
+    "p5Fps": 70.42253519648764,
+    "meanFrameMs": 11.010955133497665,
+    "p95FrameMs": 14.200000002980232,
+    "maxDrawCalls": 241,
+    "maxTriangles": 2866520,
+    "p1LowFps": 65.78947367131133,
+    "segments": [
+      {
+        "name": "L0 pan at 600 m",
+        "from": 0,
+        "to": 12,
+        "frames": 1214,
+        "meanFps": 101.17088212008834,
+        "p1LowFps": 69.44444445163057,
+        "p99FrameMs": 14.399999998509884,
+        "maxDrawCalls": 142,
+        "maxTriangles": 611559,
+        "levelMin": 0,
+        "levelMax": 0
+      },
+      {
+        "name": "zoom 600-1200 m",
+        "from": 12,
+        "to": 22,
+        "frames": 984,
+        "meanFps": 98.4,
+        "p1LowFps": 68.02721089917974,
+        "p99FrameMs": 14.699999996796251,
+        "maxDrawCalls": 218,
+        "maxTriangles": 1070397,
+        "levelMin": 0,
+        "levelMax": 1
+      },
+      {
+        "name": "zoom 1200-2400 m",
+        "from": 22,
+        "to": 32,
+        "frames": 894,
+        "meanFps": 89.45546238670642,
+        "p1LowFps": 70.42253523343756,
+        "p99FrameMs": 14.199999995529652,
+        "maxDrawCalls": 171,
+        "maxTriangles": 1898045,
+        "levelMin": 1,
+        "levelMax": 1
+      },
+      {
+        "name": "zoom 2400-4000 m",
+        "from": 32,
+        "to": 44,
+        "frames": 1038,
+        "meanFps": 86.5274003434206,
+        "p1LowFps": 66.66666666666667,
+        "p99FrameMs": 15,
+        "maxDrawCalls": 227,
+        "maxTriangles": 2160104,
+        "levelMin": 1,
+        "levelMax": 2
+      },
+      {
+        "name": "pan at 4000 m across the city",
+        "from": 44,
+        "to": 56,
+        "frames": 923,
+        "meanFps": 76.88335054812445,
+        "p1LowFps": 64.51612903225806,
+        "p99FrameMs": 15.5,
+        "maxDrawCalls": 241,
+        "maxTriangles": 2866520,
+        "levelMin": 2,
+        "levelMax": 2
+      },
+      {
+        "name": "pan at 4000 m, other diagonal",
+        "from": 56,
+        "to": 68,
+        "frames": 977,
+        "meanFps": 81.43431076734304,
+        "p1LowFps": 63.004032250256664,
+        "p99FrameMs": 15.872000001966956,
+        "maxDrawCalls": 216,
+        "maxTriangles": 2512376,
+        "levelMin": 2,
+        "levelMax": 2
+      },
+      {
+        "name": "zoom in 4000-600 m",
+        "from": 68,
+        "to": 80,
+        "frames": 1235,
+        "meanFps": 102.89437288586196,
+        "p1LowFps": 67.72314775372915,
+        "p99FrameMs": 14.766000003963716,
+        "maxDrawCalls": 167,
+        "maxTriangles": 1297850,
+        "levelMin": 0,
+        "levelMax": 2
+      }
+    ],
+    "meanCpuMs": 2.7508257638325695,
+    "tilesBase": "default (tiles/city/)"
+  },
+  "problems": []
+}

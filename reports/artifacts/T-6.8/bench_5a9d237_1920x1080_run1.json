@@ -1,0 +1,261 @@
+{
+  "gpu": {
+    "vendor": "Google Inc. (Intel)",
+    "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "backend": {
+    "devices": [
+      " Intel(R) Iris(R) Xe Graphics (driver 32.0.101.7085)",
+      " NVIDIA RTX 4000 Ada Generation Laptop GPU (driver 32.0.15.9706)",
+      " Microsoft Basic Render Driver (driver 10.0.26100.9711)"
+    ],
+    "glRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A0) Direct3D11 vs_5_0 ps_5_0, D3D11-32.0.101.7085)",
+    "glImplementation": "(gl=egl-angle,angle=d3d11)",
+    "featureStatus": {
+      "2d_canvas": "enabled",
+      "direct_rendering_display_compositor": "disabled_off_ok",
+      "gpu_compositing": "enabled",
+      "multiple_raster_threads": "enabled_on",
+      "opengl": "enabled_on",
+      "rasterization": "enabled",
+      "skia_graphite": "disabled_off",
+      "trees_in_viz": "disabled_off",
+      "video_decode": "enabled",
+      "video_encode": "enabled",
+      "webgl": "enabled",
+      "webgpu": "enabled",
+      "webnn": "disabled_off"
+    },
+    "browser": "158.0.8127.36"
+  },
+  "viewport": [
+    1920,
+    1080
+  ],
+  "unlimited": false,
+  "results": {
+    "frames": 7390,
+    "durationS": 80.00789999999851,
+    "meanFps": 92.36587886946336,
+    "p5Fps": 72.99270075374473,
+    "meanFrameMs": 10.826508795669623,
+    "p95FrameMs": 13.699999995529652,
+    "maxDrawCalls": 217,
+    "maxTriangles": 2655346,
+    "p1LowFps": 62.45706077008086,
+    "segments": [
+      {
+        "name": "L0 pan at 600 m",
+        "from": 0,
+        "to": 12,
+        "frames": 1207,
+        "meanFps": 100.61854982579736,
+        "p1LowFps": 78.19831093306803,
+        "p99FrameMs": 12.787999997287999,
+        "maxDrawCalls": 146,
+        "maxTriangles": 632965,
+        "levelMin": 0,
+        "levelMax": 0
+      },
+      {
+        "name": "zoom 600-1200 m",
+        "from": 12,
+        "to": 22,
+        "frames": 975,
+        "meanFps": 97.55267844634649,
+        "p1LowFps": 73.38910904610367,
+        "p99FrameMs": 13.626000001877545,
+        "maxDrawCalls": 217,
+        "maxTriangles": 1070397,
+        "levelMin": 0,
+        "levelMax": 1
+      },
+      {
+        "name": "zoom 1200-2400 m",
+        "from": 22,
+        "to": 32,
+        "frames": 894,
+        "meanFps": 89.31693525017741,
+        "p1LowFps": 70.92198580810766,
+        "p99FrameMs": 14.100000001490116,
+        "maxDrawCalls": 171,
+        "maxTriangles": 1898045,
+        "levelMin": 1,
+        "levelMax": 1
+      },
+      {
+        "name": "zoom 2400-4000 m",
+        "from": 32,
+        "to": 44,
+        "frames": 1005,
+        "meanFps": 83.75837583760456,
+        "p1LowFps": 57.51092708067871,
+        "p99FrameMs": 17.387999998629105,
+        "maxDrawCalls": 201,
+        "maxTriangles": 2135546,
+        "levelMin": 1,
+        "levelMax": 2
+      },
+      {
+        "name": "pan at 4000 m across the city",
+        "from": 44,
+        "to": 56,
+        "frames": 1039,
+        "meanFps": 86.73946436920868,
+        "p1LowFps": 59.708621928299834,
+        "p99FrameMs": 16.747999999076086,
+        "maxDrawCalls": 202,
+        "maxTriangles": 2655346,
+        "levelMin": 2,
+        "levelMax": 3
+      },
+      {
+        "name": "pan at 4000 m, other diagonal",
+        "from": 56,
+        "to": 68,
+        "frames": 1058,
+        "meanFps": 88.0683237052068,
+        "p1LowFps": 50.797521082086284,
+        "p99FrameMs": 19.68599999956788,
+        "maxDrawCalls": 211,
+        "maxTriangles": 2442948,
+        "levelMin": 2,
+        "levelMax": 3
+      },
+      {
+        "name": "zoom in 4000-600 m",
+        "from": 68,
+        "to": 80,
+        "frames": 1211,
+        "meanFps": 100.8511134428912,
+        "p1LowFps": 68.119890995728,
+        "p99FrameMs": 14.680000002682227,
+        "maxDrawCalls": 168,
+        "maxTriangles": 1564691,
+        "levelMin": 0,
+        "levelMax": 2
+      }
+    ],
+    "meanCpuMs": 2.7793098782250945,
+    "tilesBase": "default (tiles/city/)"
+  },
+  "problems": [],
+  "machineLoad": {
+    "before": {
+      "at": "2026-11-23T07:35:01.847Z",
+      "cpuTotalPct3s": [
+        0,
+        9,
+        12.9
+      ],
+      "topByCumulativeCpu": [
+        {
+          "Name": "Taskmgr",
+          "Id": 5232,
+          "CPU_s": 2263.5,
+          "WS_MB": 289
+        },
+        {
+          "Name": "PSExpressCore",
+          "Id": 10924,
+          "CPU_s": 1393.6,
+          "WS_MB": 277
+        },
+        {
+          "Name": "claude",
+          "Id": 18004,
+          "CPU_s": 948.2,
+          "WS_MB": 781
+        },
+        {
+          "Name": "claude",
+          "Id": 2060,
+          "CPU_s": 882.1,
+          "WS_MB": 326
+        },
+        {
+          "Name": "claude",
+          "Id": 10424,
+          "CPU_s": 769.1,
+          "WS_MB": 413
+        },
+        {
+          "Name": "PAD.Console.Host",
+          "Id": 24008,
+          "CPU_s": 581.7,
+          "WS_MB": 472
+        },
+        {
+          "Name": "claude",
+          "Id": 26404,
+          "CPU_s": 505,
+          "WS_MB": 259
+        },
+        {
+          "Name": "NVIDIA Share",
+          "Id": 15144,
+          "CPU_s": 329,
+          "WS_MB": 73
+        }
+      ]
+    },
+    "after": {
+      "at": "2026-11-23T07:36:29.177Z",
+      "cpuTotalPct3s": [
+        8.5,
+        4.6,
+        7.7
+      ],
+      "topByCumulativeCpu": [
+        {
+          "Name": "Taskmgr",
+          "Id": 5232,
+          "CPU_s": 2276.4,
+          "WS_MB": 289
+        },
+        {
+          "Name": "PSExpressCore",
+          "Id": 10924,
+          "CPU_s": 1397,
+          "WS_MB": 277
+        },
+        {
+          "Name": "claude",
+          "Id": 18004,
+          "CPU_s": 948.3,
+          "WS_MB": 762
+        },
+        {
+          "Name": "claude",
+          "Id": 2060,
+          "CPU_s": 882.7,
+          "WS_MB": 326
+        },
+        {
+          "Name": "claude",
+          "Id": 10424,
+          "CPU_s": 771.9,
+          "WS_MB": 404
+        },
+        {
+          "Name": "PAD.Console.Host",
+          "Id": 24008,
+          "CPU_s": 584.3,
+          "WS_MB": 472
+        },
+        {
+          "Name": "claude",
+          "Id": 26404,
+          "CPU_s": 505,
+          "WS_MB": 259
+        },
+        {
+          "Name": "NVIDIA Share",
+          "Id": 15144,
+          "CPU_s": 330.9,
+          "WS_MB": 73
+        }
+      ]
+    }
+  }
+}
