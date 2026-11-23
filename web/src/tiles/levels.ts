@@ -47,13 +47,20 @@ export const DRAW_CALL_CAP = 280;
 export const BUDGET_HYSTERESIS = 0.9;
 
 /**
- * Draw calls a view issues that no tile accounts for: the ground plane (1 call: a view with no tile drawn reads 1), and a
- * margin of 2 for what the plan's tile tests count differently from three.js (the sun's shadow frustum against the
- * casters). Measured on the dense sweeps of T-6.5b (5,400 settled views): the plan, with the tiles alone, was 1 call
- * below the real count on 280 views and 2 below on 8, never more. Added to every plan, so that the plan is never below
- * the real count (T-6.5b).
+ * Draw calls a view issues that no tile accounts for: the ground plane, one call (a view with no tile drawn reads 1).
+ * Added to every count. Until T-6.6 it was 3, a margin of 2 for a plan that was only a bound on the frame; the count of
+ * loaded tiles is now the frame's own (see `LodController`), so the margin is gone (measured in T-6.6).
  */
-export const NON_TILE_CALLS = 3;
+export const NON_TILE_CALLS = 1;
+
+/**
+ * A level whose tiles are not all loaded is not given up on while its manifest count (a bound, the real count was at
+ * least this fraction of it on the 6,600 views of T-6.5b: 0.44) could still fit under the cap, and at most this many
+ * tiles are in its plan: its tiles are then loaded to count them exactly (T-6.6). 192 is above the largest set of wanted tiles
+ * seen in the sweeps (162, level 1 at 3840x2160 and 3,600 m, where it is the level in use anyway).
+ */
+export const PROBE_RATIO = 0.4;
+export const PROBE_MAX_TILES = 192;
 
 /** The coarsest level the budget may choose (ADR-0037 error rule: a level above 3 is never shown). */
 export const BUDGET_MAX_LEVEL = 3;
@@ -101,8 +108,9 @@ export function plannedCalls(level: number, visible: readonly Cell[], callsOf: (
 
 /**
  * The level to draw: `base` (the level of the 1-pixel rule), or the next coarser levels while the plan is over
- * `cap`, never above `maxLevel`. `calls(level)` is the plan's draw calls, or null while the tiles of that
- * level in view are not all known yet. A level that was left (`current` is coarser) is taken again only at
+ * `cap`, never above `maxLevel`. `calls(level, limit)` is the plan's draw calls (`limit`: the most this level may cost to be taken), or null while that
+ * cannot be told yet: the tiles of that level in view are not all known, or (T-6.6) not all loaded and the count of the
+ * loaded ones cannot decide. A level that was left (`current` is coarser) is taken again only at
  * `cap * BUDGET_HYSTERESIS`. While a plan is unknown the level in use stays when it is coarser, and also when it is finer than the
  * unknown level (T-6.5b: no empty view while the tiles of the coarser level arrive); only the level of the 1-pixel
  * rule is taken as it is (its tiles are then requested and the question asked again). `unknown` collects the levels
@@ -112,13 +120,14 @@ export function chooseBudgetLevel(
   base: number,
   current: number,
   maxLevel: number,
-  calls: (level: number) => number | null,
+  calls: (level: number, limit: number) => number | null,
   cap: number = DRAW_CALL_CAP,
   unknown: number[] = [],
 ): number {
   let level = base;
   while (level < maxLevel) {
-    const n = calls(level);
+    const limit = level < current ? cap * BUDGET_HYSTERESIS : cap;
+    const n = calls(level, limit);
     if (n === null) {
       unknown.push(level);
       // T-6.5b: a coarser level whose plan is not known yet is not taken while a finer one is in use: its tiles are not
@@ -126,7 +135,6 @@ export function chooseBudgetLevel(
       const inUse = Math.max(current, base);
       return level > inUse ? inUse : Math.max(level, Math.min(current, maxLevel));
     }
-    const limit = level < current ? cap * BUDGET_HYSTERESIS : cap;
     if (n <= limit) return level;
     level += 1;
   }

@@ -48,6 +48,54 @@ export function tileSphereIntersects(tile: TileEntry, frustum: THREE.Frustum): b
   return frustum.intersectsSphere(SPHERE);
 }
 
+/** The world bounding sphere of one mesh of a loaded tile, and whether it casts shadows. */
+export interface MeshBound {
+  sphere: THREE.Sphere;
+  casts: boolean;
+}
+
+/**
+ * The bounding spheres of every mesh below a loaded tile, in world space: the sphere three.js tests against a
+ * frustum before it draws the mesh (`Frustum.intersectsObject`: the instance sphere of an InstancedMesh, else the
+ * geometry's own). A loaded tile never moves, so this is computed once (T-6.6). `casts` is the style's own flag
+ * (`userData.casts`, the buildings), not the current `castShadow`, which the level in use switches.
+ */
+export function meshBounds(root: THREE.Object3D): MeshBound[] {
+  root.updateWorldMatrix(true, true);
+  const out: MeshBound[] = [];
+  root.traverse((o) => {
+    const mesh = o as THREE.Mesh | THREE.InstancedMesh;
+    if (!mesh.isMesh) return;
+    const inst = mesh as THREE.InstancedMesh;
+    let s: THREE.Sphere | null;
+    if (inst.isInstancedMesh) {
+      if (inst.boundingSphere === null) inst.computeBoundingSphere();
+      s = inst.boundingSphere;
+    } else {
+      if (mesh.geometry.boundingSphere === null) mesh.geometry.computeBoundingSphere();
+      s = mesh.geometry.boundingSphere;
+    }
+    if (!s) return;
+    out.push({ sphere: s.clone().applyMatrix4(mesh.matrixWorld), casts: mesh.userData.casts === true });
+  });
+  return out;
+}
+
+/** Draw calls of a loaded tile's meshes: those that meet `frustum`, and the casters that meet `shadowFrustum` (if given). */
+export function countBounds(
+  bounds: readonly MeshBound[],
+  frustum: THREE.Frustum,
+  shadowFrustum?: THREE.Frustum,
+): { main: number; shadow: number } {
+  let main = 0;
+  let shadow = 0;
+  for (const b of bounds) {
+    if (frustum.intersectsSphere(b.sphere)) main += 1;
+    if (shadowFrustum && b.casts && shadowFrustum.intersectsSphere(b.sphere)) shadow += 1;
+  }
+  return { main, shadow };
+}
+
 /**
  * Tiles in view and tiles to load. The margin is one tile ring: the content box grown by one
  * tile size on x and z. Output ids keep the manifest order.
