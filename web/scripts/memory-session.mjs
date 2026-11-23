@@ -36,9 +36,10 @@
 //   3. the cache never holds more tiles than its limit (64) or the largest set the view asked for
 //      (`tiles.peakWanted`: a wanted tile is never evicted, ADR-0038), whichever is larger;
 //   4. DOM nodes are constant after warm-up (min = max); programs constant after warm-up.
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
+import { ZOOM_PERIOD_S, analyse } from './memory-analysis.mjs';
 
 function arg(name, fallback) {
   const i = process.argv.indexOf(`--${name}`);
@@ -48,16 +49,7 @@ const port = Number(arg('port', 4191));
 const out = arg('out', '');
 const durationS = Number(arg('duration', 300));
 const SAMPLE_S = Number(arg('sample', 7));
-const ZOOM_PERIOD_S = 50; // poseAt below
-const WARMUP_S = 60;
-const PERIOD_S = 60; // the early and the last period of the rule
-const SHARD_MB = Number(arg('shard-mb', 0.06)); // upper bound of the heap cost of one shard (ADR-0043)
-// thresholds of rule 1 (ADR-0043): the median change in per cent and the fitted slope in MB per minute
-const LIMITS = {
-  heapAdj: { pct: 5, slope: 0.5 },
-  external: { pct: 10, slope: 0.5 },
-  renderer: { pct: 10, slope: 5 },
-};
+const SHARD_MB = Number(arg('shard-mb', 0.06));
 const headless = process.argv.includes('--software');
 const tiles = arg('tiles', 'tiles/city/');
 
@@ -75,18 +67,39 @@ await cdp.send('HeapProfiler.enable');
 await cdp.send('Performance.enable');
 const bcdp = await browser.newBrowserCDPSession();
 
+// Windows: one long-lived PowerShell answers every query (starting one per sample took 20 s on a busy machine).
+const PS_LOOP =
+  'while (($l = [Console]::In.ReadLine()) -ne $null) { $r = (Get-Process -Id ($l -split ",") -ErrorAction SilentlyContinue | Measure-Object -Property PrivateMemorySize64 -Sum).Sum; Write-Output ("R " + $r) }';
+let winHelper = null;
+let winBuf = '';
+let winWaiting = null;
+function winQuery(pids) {
+  if (!winHelper) {
+    winHelper = spawn('powershell', ['-NoProfile', '-NoLogo', '-Command', PS_LOOP], { stdio: ['pipe', 'pipe', 'ignore'] });
+    winHelper.stdout.on('data', (d) => {
+      winBuf += d.toString();
+      const m = /R (\d*)\r?\n/.exec(winBuf);
+      if (m && winWaiting) {
+        winBuf = winBuf.slice(m.index + m[0].length);
+        const w = winWaiting;
+        winWaiting = null;
+        w(Number(m[1]));
+      }
+    });
+  }
+  return new Promise((resolve) => {
+    winWaiting = resolve;
+    winHelper.stdin.write(`${pids.join(',')}\n`);
+  });
+}
+
 /** Private memory in MB of a list of pids, from the OS. */
-function privateMB(pids) {
+async function privateMB(pids) {
   if (pids.length === 0) return 0;
   if (process.platform === 'win32') {
-    const r = spawnSync(
-      'powershell',
-      ['-NoProfile', '-Command', `(Get-Process -Id ${pids.join(',')} -ErrorAction SilentlyContinue | Measure-Object -Property PrivateMemorySize64 -Sum).Sum`],
-      { encoding: 'utf8' },
-    );
     // a process may exit between the CDP call and this one (a short-lived helper): the sum of the rest is used
-    const v = Number(r.stdout.trim());
-    if (!Number.isFinite(v) || v <= 0) throw new Error(`process memory (win32) failed: ${r.stderr}`);
+    const v = await winQuery(pids);
+    if (!Number.isFinite(v) || v <= 0) throw new Error('process memory (win32) failed');
     return v / 1048576;
   }
   if (process.platform === 'linux') {
@@ -103,7 +116,7 @@ function privateMB(pids) {
 async function processMemory() {
   const { processInfo } = await bcdp.send('SystemInfo.getProcessInfo');
   const of = (type) => processInfo.filter((p) => p.type === type).map((p) => p.id);
-  return { rendererMB: privateMB(of('renderer')), gpuMB: privateMB(of('GPU')) };
+  return { rendererMB: await privateMB(of('renderer')), gpuMB: await privateMB(of('GPU')) };
 }
 
 await page.goto(`http://127.0.0.1:${port}/?e2e=1&tiles=${tiles}`);
@@ -113,12 +126,16 @@ await page.waitForFunction(() => typeof window.__milanoIsoSetView === 'function'
 
 // The path: a Lissajous over the city (x, z in client metres inside the content bounds, taken from the
 // camera clamp) and a zoom that sweeps 250 m to 4000 m geometrically with a 50 s period.
-await page.evaluate(() => {
+// `--closed` (attribution experiment, T-6.7): every component has a period that divides 100 s, so the path
+// repeats exactly and the same tiles are visited again and again; the default path does not repeat.
+const closed = process.argv.includes('--closed');
+await page.evaluate((closedPath) => {
   const t0 = performance.now();
   window.__memSession = { stop: false };
   const poseAt = (s) => {
-    const x = 3500 * Math.sin((2 * Math.PI * s) / 97) - 2500 * Math.sin((2 * Math.PI * s) / 41);
-    const z = 3000 * Math.cos((2 * Math.PI * s) / 83) + 2500 * Math.sin((2 * Math.PI * s) / 53);
+    const [p1, p2, p3, p4] = closedPath ? [100, 50, 100, 25] : [97, 41, 83, 53];
+    const x = 3500 * Math.sin((2 * Math.PI * s) / p1) - 2500 * Math.sin((2 * Math.PI * s) / p2);
+    const z = 3000 * Math.cos((2 * Math.PI * s) / p3) + 2500 * Math.sin((2 * Math.PI * s) / p4);
     const u = 0.5 - 0.5 * Math.cos((2 * Math.PI * s) / 50); // 0..1..0
     const width = 250 * Math.pow(4000 / 250, u);
     return [x, z, width];
@@ -130,11 +147,11 @@ await page.evaluate(() => {
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
-});
+}, closed);
 
 const samples = [];
 const started = Date.now();
-for (let i = 1; i * SAMPLE_S <= durationS; i++) {
+for (let i = 1; i * SAMPLE_S <= durationS && Date.now() - started <= durationS * 1000; i++) {
   const due = started + i * SAMPLE_S * 1000;
   // real input for part of the interval: one wheel turn and one drag
   await page.mouse.move(640, 360);
@@ -192,102 +209,9 @@ await page.evaluate(() => {
   window.__memSession.stop = true;
 });
 await browser.close();
+winHelper?.kill();
 
-const median = (a) => {
-  const s = [...a].sort((x, y) => x - y);
-  const m = s.length >> 1;
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-};
-/** Least-squares slope of y against t (seconds), in units per minute. */
-const slopePerMin = (pts) => {
-  const n = pts.length;
-  const mt = pts.reduce((a, p) => a + p.t, 0) / n;
-  const my = pts.reduce((a, p) => a + p.y, 0) / n;
-  let num = 0;
-  let den = 0;
-  for (const p of pts) {
-    num += (p.t - mt) * (p.y - my);
-    den += (p.t - mt) ** 2;
-  }
-  return (60 * num) / den;
-};
-const inRange = (lo, hi) => samples.filter((s) => s.t > lo && s.t <= hi);
-const early = inRange(WARMUP_S, WARMUP_S + PERIOD_S);
-const last = inRange(durationS - PERIOD_S, durationS);
-const after = inRange(WARMUP_S, durationS);
-const metric = (key, lim) => {
-  const e = median(early.map((s) => s[key]));
-  const l = median(last.map((s) => s[key]));
-  const slope = slopePerMin(after.map((s) => ({ t: s.t, y: s[key] })));
-  const changePct = (100 * (l - e)) / e;
-  return {
-    earlyMedianMB: e,
-    lastMedianMB: l,
-    changeMB: l - e,
-    changePct,
-    slopeMBPerMin: slope,
-    limitPct: lim.pct,
-    limitSlopeMBPerMin: lim.slope,
-    pass: changePct <= lim.pct && slope <= lim.slope,
-  };
-};
-const widths = samples.map((s) => s.widthM);
-const bands = [0, 300, 600, 1500, 3000, 3800, Infinity];
-const widthBands = {};
-for (let b = 0; b + 1 < bands.length; b++) {
-  widthBands[`${bands[b]}-${bands[b + 1]} m`] = widths.filter((w) => w > bands[b] && w <= bands[b + 1]).length;
-}
-const maxGeomsPerTile = Math.max(...samples.map((s) => s.maxGeomsPerTile));
-const limit = samples[0].cacheLimit;
-const maxWanted = Math.max(...samples.map((s) => s.peakWanted ?? 0));
-const maxHold = Math.max(limit, maxWanted);
-const orphanGeom = samples.map((s) => s.geometries - s.tileGeometries);
-const orphanTex = samples.map((s) => s.textures - s.tileTextures);
-const analysis = {
-  rule: 'ADR-0043',
-  sampleS: SAMPLE_S,
-  zoomPeriodS: ZOOM_PERIOD_S,
-  distinctZoomPhasesSampled: new Set(samples.map((s) => s.phaseS)).size,
-  sampledWidthMinM: Math.min(...widths),
-  sampledWidthMaxM: Math.max(...widths),
-  sampledWidthBands: widthBands,
-  heapAdjusted: metric('heapAdjMB', LIMITS.heapAdj),
-  heapRaw: metric('heapUsedMB', { pct: Infinity, slope: Infinity }),
-  external: metric('externalMB', LIMITS.external),
-  rendererProcess: metric('rendererMB', LIMITS.renderer),
-  gpuProcess: metric('gpuProcessMB', { pct: Infinity, slope: Infinity }),
-  shardMBAssumed: SHARD_MB,
-  shardsLoadedFirstLast: [samples[0].shardsLoaded, samples.at(-1).shardsLoaded],
-  maxGeometries: Math.max(...samples.map((s) => s.geometries)),
-  maxTextures: Math.max(...samples.map((s) => s.textures)),
-  maxGeomsPerTile,
-  maxTilesInScene: Math.max(...samples.map((s) => s.tilesInScene)),
-  cacheLimit: limit,
-  maxWantedTiles: maxWanted,
-  geometryBound: maxHold * maxGeomsPerTile + 1,
-  orphanGeometriesMax: Math.max(...orphanGeom),
-  orphanTexturesMax: Math.max(...orphanTex),
-  programsAfterWarmup: [Math.min(...after.map((s) => s.programs)), Math.max(...after.map((s) => s.programs))],
-  domNodesAfterWarmup: [Math.min(...after.map((s) => s.domNodes)), Math.max(...after.map((s) => s.domNodes))],
-  browserNodesAfterWarmup: [Math.min(...after.map((s) => s.nodes)), Math.max(...after.map((s) => s.nodes))],
-};
-analysis.coverageOk = analysis.sampledWidthMinM <= 300 && analysis.sampledWidthMaxM >= 3800;
-analysis.geometriesWithinCache = analysis.maxGeometries <= analysis.geometryBound && analysis.orphanGeometriesMax <= 0;
-analysis.texturesWithinCache = analysis.orphanTexturesMax <= 0;
-analysis.tilesWithinLimit = analysis.maxTilesInScene <= maxHold;
-analysis.domConstant = analysis.domNodesAfterWarmup[0] === analysis.domNodesAfterWarmup[1];
-analysis.programsConstant = analysis.programsAfterWarmup[0] === analysis.programsAfterWarmup[1];
-analysis.pass =
-  durationS >= WARMUP_S + 2 * PERIOD_S &&
-  analysis.coverageOk &&
-  analysis.heapAdjusted.pass &&
-  analysis.external.pass &&
-  analysis.rendererProcess.pass &&
-  analysis.geometriesWithinCache &&
-  analysis.texturesWithinCache &&
-  analysis.tilesWithinLimit &&
-  analysis.domConstant &&
-  analysis.programsConstant;
+const analysis = analyse(samples, durationS, SAMPLE_S, SHARD_MB);
 const result = { durationS, sampleS: SAMPLE_S, backend: headless ? 'software (SwiftShader)' : 'headed, real GPU', tiles, problems, samples, analysis };
 if (out) writeFileSync(out, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(analysis, null, 2));
