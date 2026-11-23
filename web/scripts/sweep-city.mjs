@@ -1,4 +1,4 @@
-/* global process, console, window */
+/* global process, console, window, WebGL2RenderingContext, WebGLRenderingContext, requestAnimationFrame */
 // T-6.5: settled-view sweep of the real city tileset. Draw calls, triangles, level and tiles drawn per
 // level for every (window, centre, rotation step, visible width) view, each measured once the view has
 // settled (no tile pending or loading, scene equal to loaded, draw calls unchanged for three reads).
