@@ -33,6 +33,12 @@ export interface LodState {
   estimatedExact: boolean | null;
   /** Tiles of that count that are not loaded yet (0 when it is exact). */
   estimatedPending: number | null;
+  /**
+   * True while the last decision waited for something: tiles of the level in use that are not loaded, or a finer or coarser level
+   * whose shards or tiles are on the way (T-6.6). False means the level in use is the answer for this view: nothing changes
+   * until the camera does.
+   */
+  waiting: boolean;
   /** Metres per CSS pixel at the last camera change. */
   mpp: number;
   /** Tolerance in metres of every level of the tileset, ascending. */
@@ -302,6 +308,7 @@ export class LodController<T extends THREE.Object3D> {
       estimatedCalls: this.estimated,
       estimatedExact: this.estimatedIsExact,
       estimatedPending: this.estimatedPendingN,
+      waiting: this.waiting,
       mpp: this.mpp,
       tolerances: this.specs.map((s) => s.tolerance_m),
       visible: this.visible.length,

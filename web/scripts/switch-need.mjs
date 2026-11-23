@@ -44,7 +44,7 @@ for (const [k, g] of groups) {
       await page.evaluate(([px, pz, pw, ps]) => window.__milanoIsoSetView(px, pz, pw, ps), args);
       await page.waitForTimeout(100);
       st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles }));
-      const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.t.estimatedExact !== false && st.r.calls === last;
+      const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.t.estimatedExact !== false && st.t.waiting !== true && st.r.calls === last;
       same = done ? same + 1 : 0;
       last = st.r.calls;
       if (same >= 3) break;

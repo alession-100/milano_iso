@@ -101,22 +101,19 @@ for (const [w, h] of windows) {
         const t0 = Date.now();
         while (Date.now() - t0 < 240000) {
           await page.waitForTimeout(250);
+          // T-6.6: the raw GL draw count and renderer.info are read of the same fresh frame
+          await page.evaluate(() => {
+            window.__gl.last = null;
+          });
           await page.evaluate(set, [x, z, width, step]); // request a frame
+          await page.waitForFunction(() => window.__gl.last !== null, null, { timeout: 30000 }).catch(() => undefined);
           await page.waitForTimeout(100);
           st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles, c: window.__milanoIso.camera, gl: window.__gl?.last ?? null }));
-          const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.t.estimatedExact !== false && st.r.calls === last; // T-6.5b: a plan still unknown means shards of the level are on the way; T-6.6: a count still waiting for tiles is not settled (a read between the last tile and the next frame)
+          const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.t.estimatedExact !== false && st.t.waiting !== true && st.r.calls === last; // T-6.5b: a plan still unknown means shards of the level are on the way; T-6.6: a count still waiting for tiles is not settled (a read between the last tile and the next frame)
           same = done ? same + 1 : 0;
           last = st.r.calls;
           if (same >= 3) break;
         }
-        // T-6.6: one more frame on the settled view, so that the raw GL draw count and renderer.info are of the same frame
-        await page.evaluate(() => {
-          window.__gl.last = null;
-        });
-        await page.evaluate(set, [x, z, width, step]);
-        await page.waitForFunction(() => window.__gl.last !== null, null, { timeout: 30000 }).catch(() => undefined);
-        await page.waitForTimeout(150);
-        st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles, c: window.__milanoIso.camera, gl: window.__gl?.last ?? null }));
         const v = {
           window: `${w}x${h}`,
           order,
