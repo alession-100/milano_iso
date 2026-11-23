@@ -101,6 +101,8 @@ export class LodController<T extends THREE.Object3D> {
   private visible: string[] = [];
   private neededShards: ShardRecord[] = [];
   private drawn = new Set<string>();
+  /** Tiles of the level in use in view or in the ring: the only ones of that level that are drawn. */
+  private drawable = new Set<string>();
 
   constructor(
     private readonly manifest: Manifest,
@@ -177,6 +179,9 @@ export class LodController<T extends THREE.Object3D> {
       const pending: string[] = [];
       const wanted = new Set(v.culled.wanted);
       for (const t of v.tiles) {
+        // Only the tiles in view and their ring are drawn (`plan`), loaded or not: a tile of this level that is still in the
+        // cache from an earlier view is hidden, so what a level costs does not depend on what happened to be cached.
+        if (!wanted.has(t.id)) continue;
         const obj = this.streamer.get(t.id);
         const mb = obj ? this.boundsOf(obj) : null;
         if (mb) {
@@ -185,8 +190,6 @@ export class LodController<T extends THREE.Object3D> {
           if (c.main + c.shadow > 0) tilesInPlan += 1;
           continue;
         }
-        // a tile that is not loaded and not wanted (outside the view and its ring of prefetch) never will be: it adds nothing to the frame
-        if (!wanted.has(t.id)) continue;
         const inMain = tileSphereIntersects(t, frustum);
         const inShadow = sh !== undefined && (this.shadowCalls.get(t.id) ?? 0) > 0 && tileSphereIntersects(t, sh);
         if (!inMain && !inShadow) continue;
@@ -222,6 +225,7 @@ export class LodController<T extends THREE.Object3D> {
     const tiles = chosen.tiles;
     const { visible, wanted } = chosen.culled;
     this.visible = visible;
+    this.drawable = new Set(wanted);
     // Order (T-6.3): the tiles in view first, nearest to the view centre first, then the prefetch ring,
     // nearest first. The view is complete before a single tile of the ring is fetched.
     const inView = new Set(visible);
@@ -268,7 +272,11 @@ export class LodController<T extends THREE.Object3D> {
 
   private plan(): Set<string> {
     const visibleCells = this.visible.map((id) => this.cells.get(id) as Cell);
-    const loaded = this.streamer.loadedIds().map((id) => this.cells.get(id) as Cell);
+    // a loaded tile of the level in use that is outside the view and its ring is not drawn (T-6.6), whatever the cache holds
+    const loaded = this.streamer
+      .loadedIds()
+      .map((id) => this.cells.get(id) as Cell)
+      .filter((c) => c.level !== this.level || this.drawable.has(c.id));
     return planDraw(this.level, visibleCells, loaded, (id) => this.streamer.isLoaded(id));
   }
 

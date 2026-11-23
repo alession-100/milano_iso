@@ -399,7 +399,7 @@ describe('LodController, exact count of loaded tiles', () => {
       await step(c, 1400, MPP);
       levels.push(c.lod.state().level);
     }
-    expect(c.lod.state().level).toBe(2);
+    expect(c.lod.state()).toMatchObject({ level: 2, waiting: false, estimatedExact: true, estimatedPending: 0 });
     const first = levels.indexOf(2);
     expect(levels.slice(first).every((l) => l === 2)).toBe(true);
     expect(levels.slice(0, first).every((l) => l === 1)).toBe(true);
@@ -443,6 +443,18 @@ describe('LodController, exact count of loaded tiles', () => {
     c.arrive();
     c.lod.update(frustum(1400), MPP, 500, -500);
     expect(c.lod.state().level).toBe(2); // counted again: 12, over 0.9 x 11
+  });
+
+  it('a tile of the level in use that is outside the view and its ring is not drawn and not counted, whatever the cache holds', async () => {
+    const c = controller({ cap: 1000 });
+    for (let k = 0; k < 3; k++) await step(c, 300, MPP, 125, -125);
+    const before = c.lod.state().estimatedCalls;
+    // a tile left in the cache by an earlier view, far from this one, with a building that would cast into the shadow frustum
+    c.loaded.set('L1_1_1', tileWith([{ x: 750, z: -750, casts: true }, { x: 750, z: -750 }]));
+    c.lod.update(frustum(300, 125, -125), MPP, 125, -125);
+    expect(c.loaded.get('L1_1_1')?.visible).toBe(false);
+    expect(c.lod.state().estimatedCalls).toBe(before);
+    expect(c.lod.state().drawnByLevel[1] ?? 0).toBeLessThan(c.lod.state().loadedByLevel[1]);
   });
 
   it('asks again when tiles arrive after a decision that waited for them, and not otherwise', async () => {
