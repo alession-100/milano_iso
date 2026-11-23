@@ -24,18 +24,20 @@
 //   - renderer.info.memory (geometries, textures) against what the app itself holds (the whole scene
 //     graph plus the shadow map, `gpu` in testhook), programs, tiles and shards loaded, DOM node count.
 //
-// Pass rule (ADR-0043), on the samples after the first minute (warm-up WARMUP_S = 60 s):
+// Pass rule: ADR-0043, coded in memory-analysis.mjs (thresholds are constants there; the samples of a
+// finished run are judged again with `node scripts/memory-analysis.mjs run.json`). In short:
 //   0. coverage: the sampled widths reach <= 300 m and >= 3,800 m (the 4,000 m phase is sampled);
-//   1. heap, external (backing stores) and renderer process memory, each: (a) the median of the last
-//      minute exceeds the median of the second minute by at most LIMITS[m].pct per cent AND (b) the least
-//      squares slope over all samples after warm-up is at most LIMITS[m].slope MB per minute. The heap
-//      is first reduced by the shard catalogue, which is kept by design (ADR-0043): heap minus
-//      (shards loaded) x SHARD_MB, SHARD_MB being the measured maximum heap cost of one shard;
-//   2. geometries and textures: the renderer holds no more than the app holds (no slack: orphan <= 0; it holds fewer while a mesh is not yet drawn),
-//      and never more than the cache allows (largest tile count x largest geometry count of one tile);
-//   3. the cache never holds more tiles than its limit (64) or the largest set the view asked for
-//      (`tiles.peakWanted`: a wanted tile is never evicted, ADR-0038), whichever is larger;
-//   4. DOM nodes are constant after warm-up (min = max); programs constant after warm-up.
+//   1. heap (minus shards loaded x 0.06 MB, the catalogue is kept by design), external memory and
+//      renderer-process memory: last-minute median within a stated % of the first judged minute AND a
+//      fitted slope under a stated MB/min (warm-up 60 s, 180 s for the renderer process);
+//   2. renderer geometries and textures never exceed what the app holds (the whole scene plus shadow
+//      map): textures 0, geometries at most 1 and in at most 5 % of samples; and never more than the
+//      cache allows (peak tiles held x largest geometry count of one tile + 1);
+//   3. tiles in the scene at most max(64, `tiles.peakWanted`) (a wanted tile is never evicted, ADR-0038);
+//   4. DOM nodes constant after warm-up; shader programs at most 8 and unchanged in the last minute.
+//
+// Options: --port, --duration (s), --out, --software, --closed (a path that repeats every 100 s, for
+// attribution experiments), --shard-mb.
 import { spawn, spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
