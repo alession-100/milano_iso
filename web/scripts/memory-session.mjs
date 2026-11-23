@@ -1,4 +1,4 @@
-/* global process, console, window, performance, requestAnimationFrame, Buffer */
+/* global process, console, window, performance, requestAnimationFrame, Buffer, document */
 // T-6.4 / T-6.7: a scripted pan/zoom session on the served build, sampling memory every SAMPLE_S seconds.
 // Not part of the default e2e run: `npm run memory -- --port 4191 --out memory_run1.json [--duration 300]`
 // (the server must already run: `npm run serve -- --port 4191`). Headed on the real GPU by default;
@@ -218,6 +218,7 @@ await page.evaluate(([closedPath, mode]) => {
     if (mode === 'zoom') window.__milanoIsoSetView(0, 0, w);
     else if (mode === 'pan') window.__milanoIsoSetView(x, z, 1000);
     else window.__milanoIsoSetView(x, z, w);
+    window.__memFrames = (window.__memFrames ?? 0) + 1; // T-6.9: frames of the scripted path, to compare workloads
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
@@ -261,6 +262,9 @@ for (let i = 1; i * SAMPLE_S <= durationS && Date.now() - started <= durationS *
     gpu: window.__milanoIso.gpu,
     tiles: window.__milanoIso.tiles,
     camera: window.__milanoIso.camera,
+    frames: window.__memFrames ?? 0,
+    visibility: document.visibilityState,
+    hasFocus: document.hasFocus(),
   }));
   const s = {
     t: Math.round((Date.now() - started) / 1000),
@@ -290,6 +294,10 @@ for (let i = 1; i * SAMPLE_S <= durationS && Date.now() - started <= durationS *
     cacheLimit: state.gpu.cacheLimit,
     domNodes: state.gpu.domNodes,
     widthM: state.camera.visibleWidth,
+    frames: state.frames,
+    tilesStarted: state.tiles.started,
+    visibility: state.visibility,
+    hasFocus: state.hasFocus,
   };
   s.heapAdjMB = s.heapUsedMB - s.shardsLoaded * SHARD_MB;
   samples.push(s);

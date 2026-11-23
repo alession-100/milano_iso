@@ -1,0 +1,56 @@
+{
+  "comparedSeconds": 1200,
+  "A": {
+    "label": "no driver",
+    "samples": 171,
+    "framesPerMin": 7141.6134453781515,
+    "tileFetchesPerMin": 699.5798319327731,
+    "totalFrames": 142483,
+    "totalTileFetches": 13977,
+    "shardsLast": 52,
+    "levelSamples": {
+      "L0": 61,
+      "L1": 48,
+      "L2": 38,
+      "L3": 24
+    },
+    "visibility": {
+      "visible": 171
+    },
+    "focusFalseSamples": 86,
+    "geometriesMedian": 118,
+    "texturesMedian": 198,
+    "rendererMedianMin4to20": 263.421875,
+    "rendererSlopeMin4to20": 1.1770671479675654
+  },
+  "B": {
+    "label": "Playwright",
+    "samples": 171,
+    "framesPerMin": 6154.869638351556,
+    "tileFetchesPerMin": 710.8158116063919,
+    "totalFrames": 122785,
+    "totalTileFetches": 14245,
+    "shardsLast": 52,
+    "levelSamples": {
+      "L0": 61,
+      "L1": 48,
+      "L2": 41,
+      "L3": 21
+    },
+    "visibility": {
+      "visible": 171
+    },
+    "focusFalseSamples": 0,
+    "geometriesMedian": 118,
+    "texturesMedian": 196,
+    "rendererMedianMin4to20": 397.2109375,
+    "rendererSlopeMin4to20": 4.438285335754422
+  },
+  "ratio": {
+    "frames": 1.1603192049557158,
+    "tileFetches": 0.9841928394245673
+  }
+}
+no-driver renderer slope minutes 4-20: 1.18 MB/min, median 263 MB, gpu slope 0.27, heap slope -0.26
+no-driver renderer slope minutes 20-40: -0.13 MB/min, median 269 MB, gpu slope 0.57, heap slope -0.03
+no-driver renderer slope minutes 40-60: -0.10 MB/min, median 269 MB, gpu slope 0.15, heap slope -0.05

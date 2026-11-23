@@ -34,7 +34,7 @@ if (!existsSync(chromePath)) throw new Error(`Chrome not found at ${chromePath}`
 const profile = mkdtempSync(path.join(tmpdir(), 'nodriver-'));
 const chrome = spawn(
   chromePath,
-  [`--remote-debugging-port=0`, `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', '--window-size=1280,800', '--js-flags=--expose-gc', 'about:blank'],
+  [`--remote-debugging-port=0`, `--user-data-dir=${profile}`, '--no-first-run', '--no-default-browser-check', '--window-size=1280,800', '--js-flags=--expose-gc', '--disable-backgrounding-occluded-windows', '--disable-renderer-backgrounding', '--disable-background-timer-throttling', '--disable-features=CalculateNativeWinOcclusion', 'about:blank'],
   { stdio: 'ignore' },
 );
 const portFile = path.join(profile, 'DevToolsActivePort');
@@ -65,7 +65,8 @@ const send = (method, params = {}, sessionId) =>
     ws.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
   });
 
-const { targetId } = await send('Target.createTarget', { url: `http://127.0.0.1:${port}/?e2e=1&tiles=tiles/city/` });
+const { targetId } = await send('Target.createTarget', { url: `http://127.0.0.1:${port}/?e2e=1&tiles=tiles/city/`, newWindow: true });
+await send('Target.activateTarget', { targetId }); // a visible foreground tab of its own window; checked per sample (visibilityState, hasFocus)
 const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
 const evalPage = async (expression) => {
   const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId);
@@ -92,6 +93,7 @@ if (motion === 'path') {
     const frame = () => {
       const [x, z, w] = poseAt((performance.now() - t0) / 1000);
       window.__milanoIsoSetView(x, z, w);
+      window.__memFrames = (window.__memFrames ?? 0) + 1;
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
@@ -169,9 +171,21 @@ for (let i = 1; i * SAMPLE_S <= durationS; i++) {
   if (wait > 0) await new Promise((r) => setTimeout(r, wait));
   const { processInfo } = await send('SystemInfo.getProcessInfo');
   const of = (type) => processInfo.filter((p) => p.type === type).map((p) => p.id);
-  const s = { t: Math.round((Date.now() - started) / 1000), rendererMB: await privateMB(of('renderer')), gpuProcessMB: await privateMB(of('GPU')) };
+  const heap = await send('Runtime.getHeapUsage', {}, sessionId);
+  const st = await evalPage(`(() => { const m = window.__milanoIso; return {
+    frames: window.__memFrames ?? 0, visibility: document.visibilityState, hasFocus: document.hasFocus(),
+    tilesLoaded: m.tiles.loaded, tilesStarted: m.tiles.started, tilesCompleted: m.tiles.completed, tilesInScene: m.gpu.tilesInScene,
+    shardsLoaded: m.tiles.shards?.loaded ?? 0, level: m.tiles.level, widthM: m.camera.visibleWidth,
+    geometries: m.gpu.geometries, textures: m.gpu.textures, programs: m.gpu.programs }; })()`);
+  const s = {
+    t: Math.round((Date.now() - started) / 1000),
+    rendererMB: await privateMB(of('renderer')),
+    gpuProcessMB: await privateMB(of('GPU')),
+    heapUsedMB: heap.usedSize / 1048576,
+    ...st,
+  };
   samples.push(s);
-  console.log(`t=${s.t}s rend ${s.rendererMB.toFixed(0)} gpu ${s.gpuProcessMB.toFixed(0)} MB`);
+  console.log(`t=${s.t}s rend ${s.rendererMB.toFixed(0)} gpu ${s.gpuProcessMB.toFixed(0)} MB frames ${s.frames} fetched ${s.tilesStarted} shards ${s.shardsLoaded} L${s.level} ${s.visibility} focus ${s.hasFocus} heap ${s.heapUsedMB.toFixed(1)} geoms ${s.geometries} tex ${s.textures}`);
   while (dumpTimes.length && s.t >= dumpTimes[0]) {
     const at = dumpTimes.shift();
     const text = await memoryDump();
@@ -194,7 +208,22 @@ const slope = (key) => {
   }
   return (60 * num) / den;
 };
-const analysis = { driver: 'none (raw CDP: createTarget, Runtime.evaluate, browser-level SystemInfo and Tracing)', motion, closed, rendererSlopeMBPerMin: slope('rendererMB'), gpuSlopeMBPerMin: slope('gpuProcessMB'), samplesAfterWarmup: pts.length };
+const win = (lo, hi, key) => {
+  const q = samples.filter((x) => x.t > lo * 60 && x.t <= hi * 60);
+  if (q.length < 3) return null;
+  const mt = q.reduce((a, p) => a + p.t, 0) / q.length;
+  const my = q.reduce((a, p) => a + p[key], 0) / q.length;
+  let num = 0;
+  let den = 0;
+  for (const p of q) {
+    num += (p.t - mt) * (p[key] - my);
+    den += (p.t - mt) ** 2;
+  }
+  return (60 * num) / den;
+};
+const windows = {};
+for (const [lo, hi] of [[4, 20], [20, 40], [40, 60]]) windows[`min${lo}-${hi}`] = win(lo, hi, 'rendererMB');
+const analysis = { rendererSlopeByWindowMBPerMin: windows, driver: 'none (raw CDP: createTarget, Runtime.evaluate, browser-level SystemInfo and Tracing)', motion, closed, rendererSlopeMBPerMin: slope('rendererMB'), gpuSlopeMBPerMin: slope('gpuProcessMB'), samplesAfterWarmup: pts.length };
 const result = { durationS, sampleS: SAMPLE_S, analysis, samples };
 if (out) writeFileSync(out, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(analysis, null, 2));
