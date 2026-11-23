@@ -106,11 +106,18 @@ function tilesState() {
   };
 }
 registerTestState('tiles', tilesState);
-// T-6.4 memory session: what the renderer holds, against what the tiles in the scene account for.
+// T-6.4 memory session: what the renderer holds, against what the app itself holds. T-6.7: the whole
+// scene is walked (ground plane included) and the shadow map's textures are counted, so the two sides
+// must be equal: no slack is allowed in the orphan check of `npm run memory`.
 registerTestState('gpu', () => {
   const geoms = new Set<THREE.BufferGeometry>();
   const texs = new Set<THREE.Texture>();
-  tileRoot.traverse((o) => {
+  const shadowMap = sun.shadow.map;
+  if (shadowMap) {
+    texs.add(shadowMap.texture);
+    if (shadowMap.depthTexture) texs.add(shadowMap.depthTexture);
+  }
+  scene.traverse((o) => {
     const mesh = o as THREE.Mesh;
     if (!mesh.isMesh) return;
     geoms.add(mesh.geometry);

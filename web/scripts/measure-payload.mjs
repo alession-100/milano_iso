@@ -434,7 +434,7 @@ for (const j of data.js) lines.push(`| ${j.file} | ${j.raw} | ${j.gzip} | ${j.br
 lines.push('');
 for (const lb of ['br', 'gzip']) {
   if (!data[lb]) continue;
-  lines.push(`## Initial payload until the default view is complete: client accepts ${lb === 'br' ? 'br, gzip' : 'gzip only'} (budget 3 MB = 3,145,728 B)`);
+  lines.push(`## Initial payload until the default view is complete: client accepts ${lb === 'br' ? 'br, gzip' : 'gzip only'} (budget 3 MB = 3,000,000 B)`);
   lines.push('');
   lines.push('Bytes that had crossed the connection when the last tile of the view had arrived ("view loaded"; the prefetch ring is in them only if it had started); `settled` columns: when the prefetch ring had arrived too.');
   lines.push('');
