@@ -56,10 +56,11 @@ export const NON_TILE_CALLS = 1;
 /**
  * A level whose tiles are not all loaded is not given up on while its manifest count (a bound, the real count was at
  * least this fraction of it on the 6,600 views of T-6.5b: 0.44) could still fit under the cap, and at most this many
- * tiles are in its plan (the cache holds 64): its tiles are then loaded to count them exactly (T-6.6).
+ * tiles are in its plan: its tiles are then loaded to count them exactly (T-6.6). 192 is above the largest set of wanted tiles
+ * seen in the sweeps (162, level 1 at 3840x2160 and 3,600 m, where it is the level in use anyway).
  */
 export const PROBE_RATIO = 0.4;
-export const PROBE_MAX_TILES = 64;
+export const PROBE_MAX_TILES = 192;
 
 /** The coarsest level the budget may choose (ADR-0037 error rule: a level above 3 is never shown). */
 export const BUDGET_MAX_LEVEL = 3;

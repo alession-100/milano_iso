@@ -31,6 +31,8 @@ export interface LodState {
   estimatedCalls: number | null;
   /** True when every tile of that count is loaded: the count is then the frame's own, not a bound. */
   estimatedExact: boolean | null;
+  /** Tiles of that count that are not loaded yet (0 when it is exact). */
+  estimatedPending: number | null;
   /** Metres per CSS pixel at the last camera change. */
   mpp: number;
   /** Tolerance in metres of every level of the tileset, ascending. */
@@ -78,6 +80,7 @@ export class LodController<T extends THREE.Object3D> {
   private baseLevel = 0;
   private estimated: number | null = null;
   private estimatedIsExact: boolean | null = null;
+  private estimatedPendingN: number | null = null;
   /** The last decision waited for tiles (a count that is a bound, or a level being counted): ask again when tiles arrive. */
   private waiting = false;
   private seenTiles = 0;
@@ -204,6 +207,7 @@ export class LodController<T extends THREE.Object3D> {
     const own = chosen.missing > 0 ? null : count(this.level);
     this.estimated = own ? own.n : null;
     this.estimatedIsExact = own ? own.pending.length === 0 : null;
+    this.estimatedPendingN = own ? own.pending.length : null;
     this.waiting = unknown.length > 0 || (own?.pending.length ?? 0) > 0;
     // Which shards of this level the view needs (nearest first): request them, cancel the others. The
     // finer levels whose plan is still unknown are asked for too, to answer the budget question.
@@ -297,6 +301,7 @@ export class LodController<T extends THREE.Object3D> {
       budgetSwitched: this.level > this.baseLevel,
       estimatedCalls: this.estimated,
       estimatedExact: this.estimatedIsExact,
+      estimatedPending: this.estimatedPendingN,
       mpp: this.mpp,
       tolerances: this.specs.map((s) => s.tolerance_m),
       visible: this.visible.length,

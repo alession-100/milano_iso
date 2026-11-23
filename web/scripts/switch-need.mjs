@@ -1,7 +1,7 @@
 /* global process, console, window */
 // T-6.5b: was the budget switch needed? For every view of a sweep where the switch fired, the same view is measured with
 // the switch off (`?budget=off`): the draw calls the level of the 1-pixel rule really issues. The switch was needed where that
-// count is over 300 (the budget). Views with fewer calls were switched by a plan that overestimates.
+// count is over the cap (T-6.6: `--cap`, default 280, the cap of the switch; `needed300` says it for the 300 budget). Views with fewer calls were switched by a plan that overestimates.
 //
 //   node scripts/switch-need.mjs --port 4204 --in a.json,b.json --out ../reports/artifacts/T-6.5b/switch_need.json [--only 1920x1080,...]
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -12,6 +12,7 @@ function arg(name, fallback) {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
 }
 const port = Number(arg('port', 4204));
+const CAP = Number(arg('cap', 280));
 const only = arg('only', '') ? arg('only', '').split(',') : null;
 const views = arg('in', '').split(',').filter(Boolean).flatMap((f) => JSON.parse(readFileSync(f, 'utf8')).data);
 const switched = views.filter((v) => v.budgetSwitched === true && v.settled && (!only || only.includes(v.window)));
@@ -43,7 +44,7 @@ for (const [k, g] of groups) {
       await page.evaluate(([px, pz, pw, ps]) => window.__milanoIsoSetView(px, pz, pw, ps), args);
       await page.waitForTimeout(100);
       st = await page.evaluate(() => ({ r: window.__milanoIso.render, t: window.__milanoIso.tiles }));
-      const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.r.calls === last;
+      const done = st.t.loading === 0 && st.t.pending === 0 && st.t.failed === 0 && st.t.inScene === st.t.loaded && st.t.estimatedCalls !== null && st.t.estimatedExact !== false && st.r.calls === last;
       same = done ? same + 1 : 0;
       last = st.r.calls;
       if (same >= 3) break;
@@ -64,7 +65,10 @@ for (const [k, g] of groups) {
       callsOff: st.r.calls,
       estimatedOff: st.t.estimatedCalls,
       settled: same >= 3,
-      needed: st.r.calls > 300,
+      needed: st.r.calls > CAP,
+      needed300: st.r.calls > 300,
+      // T-6.6: a level left for the budget returns only at 0.9 x the cap, so a view whose base level really costs 252 to 280 calls may stay switched after a coarser view (the hysteresis, not a plan error)
+      inHysteresisBand: st.r.calls <= CAP && st.r.calls > CAP * 0.9,
       errorPx: v.errorPx,
     });
     console.log(JSON.stringify(rows[rows.length - 1]));
@@ -73,6 +77,7 @@ for (const [k, g] of groups) {
 }
 await browser.close();
 const needed = rows.filter((r) => r.needed).length;
+const needed300 = rows.filter((r) => r.needed300).length;
 const by = {};
 for (const r of rows) {
   const key = `${r.window} L${r.baseLevel}->L${r.switchedTo}`;
@@ -83,6 +88,6 @@ for (const r of rows) {
   e.minOff = Math.min(e.minOff, r.callsOff);
   e.maxErr = Math.max(e.maxErr, r.errorPx);
 }
-const out = { views: rows.length, needed, notNeeded: rows.length - needed, by, rows };
+const out = { cap: CAP, views: rows.length, needed, needed300, notNeeded: rows.length - needed, by, rows };
 if (arg('out', '')) writeFileSync(arg('out', ''), JSON.stringify(out, null, 1));
 console.log(JSON.stringify({ views: rows.length, needed, by }, null, 1));
