@@ -1,0 +1,6 @@
+[32m✓ built in 13.83s[39m
+[33m[33m[PLUGIN_TIMINGS] [0mJavaScript callbacks ran for 13.6s of this 13.8s build (98%).
+The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+  - plugin vite:prepare-out-dir renderStart (98%, 13.5s, 1 call)
+See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+[39m
