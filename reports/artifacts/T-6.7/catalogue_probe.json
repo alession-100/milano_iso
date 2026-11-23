@@ -1,0 +1,614 @@
+{
+  "shards": 101,
+  "totalMB": 2.533123016357422,
+  "meanPerShardMB": 0.02508042590452893,
+  "maxPerShardMB": 0.067657470703125,
+  "rows": [
+    {
+      "id": "S0_-1_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 55972
+    },
+    {
+      "id": "S0_-1_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 33204
+    },
+    {
+      "id": "S0_-1_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 51720
+    },
+    {
+      "id": "S0_-1_-4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 37924
+    },
+    {
+      "id": "S0_-1_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 46372
+    },
+    {
+      "id": "S0_-1_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 40624
+    },
+    {
+      "id": "S0_-1_2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 32160
+    },
+    {
+      "id": "S0_-1_3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 40108
+    },
+    {
+      "id": "S0_-1_4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": -2924
+    },
+    {
+      "id": "S0_-2_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 52136
+    },
+    {
+      "id": "S0_-2_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 31600
+    },
+    {
+      "id": "S0_-2_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 42968
+    },
+    {
+      "id": "S0_-2_-4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 17216
+    },
+    {
+      "id": "S0_-2_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 43576
+    },
+    {
+      "id": "S0_-2_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 32836
+    },
+    {
+      "id": "S0_-2_2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 38024
+    },
+    {
+      "id": "S0_-2_3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 3140
+    },
+    {
+      "id": "S0_-3_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 36600
+    },
+    {
+      "id": "S0_-3_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 56724
+    },
+    {
+      "id": "S0_-3_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 30796
+    },
+    {
+      "id": "S0_-3_-4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 11460
+    },
+    {
+      "id": "S0_-3_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 42512
+    },
+    {
+      "id": "S0_-3_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 26332
+    },
+    {
+      "id": "S0_-3_2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 17864
+    },
+    {
+      "id": "S0_-4_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 42464
+    },
+    {
+      "id": "S0_-4_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 30988
+    },
+    {
+      "id": "S0_-4_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 40584
+    },
+    {
+      "id": "S0_-4_-4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 11764
+    },
+    {
+      "id": "S0_-4_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 34712
+    },
+    {
+      "id": "S0_-4_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 1320
+    },
+    {
+      "id": "S0_-5_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 32208
+    },
+    {
+      "id": "S0_-5_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 30416
+    },
+    {
+      "id": "S0_-5_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 6748
+    },
+    {
+      "id": "S0_-5_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 38820
+    },
+    {
+      "id": "S0_-5_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 10748
+    },
+    {
+      "id": "S0_-6_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 1124
+    },
+    {
+      "id": "S0_-6_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 6164
+    },
+    {
+      "id": "S0_-6_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 5612
+    },
+    {
+      "id": "S0_-6_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 28000
+    },
+    {
+      "id": "S0_-6_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 10628
+    },
+    {
+      "id": "S0_0_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 41936
+    },
+    {
+      "id": "S0_0_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 34680
+    },
+    {
+      "id": "S0_0_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 70944
+    },
+    {
+      "id": "S0_0_-4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 18836
+    },
+    {
+      "id": "S0_0_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 42160
+    },
+    {
+      "id": "S0_0_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 30936
+    },
+    {
+      "id": "S0_0_2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 41916
+    },
+    {
+      "id": "S0_0_3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 27812
+    },
+    {
+      "id": "S0_0_4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 5024
+    },
+    {
+      "id": "S0_1_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 41992
+    },
+    {
+      "id": "S0_1_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 30640
+    },
+    {
+      "id": "S0_1_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 42608
+    },
+    {
+      "id": "S0_1_-4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 5532
+    },
+    {
+      "id": "S0_1_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 36532
+    },
+    {
+      "id": "S0_1_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 42276
+    },
+    {
+      "id": "S0_1_2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 30240
+    },
+    {
+      "id": "S0_1_3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 8572
+    },
+    {
+      "id": "S0_2_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 38344
+    },
+    {
+      "id": "S0_2_-2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 21340
+    },
+    {
+      "id": "S0_2_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 47292
+    },
+    {
+      "id": "S0_2_-4",
+      "level": 0,
+      "tiles": null,
+      "deltaB": -1924
+    },
+    {
+      "id": "S0_2_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 35068
+    },
+    {
+      "id": "S0_2_1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 40400
+    },
+    {
+      "id": "S0_2_2",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 7256
+    },
+    {
+      "id": "S0_2_3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 564
+    },
+    {
+      "id": "S0_3_-1",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 4440
+    },
+    {
+      "id": "S0_3_-3",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 6840
+    },
+    {
+      "id": "S0_3_0",
+      "level": 0,
+      "tiles": null,
+      "deltaB": 2808
+    },
+    {
+      "id": "S1_-1_-1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 37120
+    },
+    {
+      "id": "S1_-1_-2",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 39664
+    },
+    {
+      "id": "S1_-1_0",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 31108
+    },
+    {
+      "id": "S1_-1_1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 35888
+    },
+    {
+      "id": "S1_-1_2",
+      "level": 1,
+      "tiles": null,
+      "deltaB": -4740
+    },
+    {
+      "id": "S1_-2_-1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 36220
+    },
+    {
+      "id": "S1_-2_-2",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 34388
+    },
+    {
+      "id": "S1_-2_0",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 22496
+    },
+    {
+      "id": "S1_-2_1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 5108
+    },
+    {
+      "id": "S1_-3_-1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 25912
+    },
+    {
+      "id": "S1_-3_-2",
+      "level": 1,
+      "tiles": null,
+      "deltaB": -1392
+    },
+    {
+      "id": "S1_-3_0",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 25512
+    },
+    {
+      "id": "S1_0_-1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 43420
+    },
+    {
+      "id": "S1_0_-2",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 23588
+    },
+    {
+      "id": "S1_0_0",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 42396
+    },
+    {
+      "id": "S1_0_1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 23668
+    },
+    {
+      "id": "S1_0_2",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 1688
+    },
+    {
+      "id": "S1_1_-1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 16792
+    },
+    {
+      "id": "S1_1_-2",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 14180
+    },
+    {
+      "id": "S1_1_0",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 19136
+    },
+    {
+      "id": "S1_1_1",
+      "level": 1,
+      "tiles": null,
+      "deltaB": 5604
+    },
+    {
+      "id": "S2_-1_-1",
+      "level": 2,
+      "tiles": null,
+      "deltaB": 38088
+    },
+    {
+      "id": "S2_-1_0",
+      "level": 2,
+      "tiles": null,
+      "deltaB": 34060
+    },
+    {
+      "id": "S2_-1_1",
+      "level": 2,
+      "tiles": null,
+      "deltaB": -5292
+    },
+    {
+      "id": "S2_-2_-1",
+      "level": 2,
+      "tiles": null,
+      "deltaB": 64588
+    },
+    {
+      "id": "S2_-2_0",
+      "level": 2,
+      "tiles": null,
+      "deltaB": 8848
+    },
+    {
+      "id": "S2_0_-1",
+      "level": 2,
+      "tiles": null,
+      "deltaB": 41092
+    },
+    {
+      "id": "S2_0_0",
+      "level": 2,
+      "tiles": null,
+      "deltaB": 28828
+    },
+    {
+      "id": "S2_0_1",
+      "level": 2,
+      "tiles": null,
+      "deltaB": 548
+    },
+    {
+      "id": "S3_-1_-1",
+      "level": 3,
+      "tiles": null,
+      "deltaB": 21284
+    },
+    {
+      "id": "S3_-1_0",
+      "level": 3,
+      "tiles": null,
+      "deltaB": 13828
+    },
+    {
+      "id": "S3_0_-1",
+      "level": 3,
+      "tiles": null,
+      "deltaB": 16672
+    },
+    {
+      "id": "S3_0_0",
+      "level": 3,
+      "tiles": null,
+      "deltaB": 9564
+    }
+  ]
+}
