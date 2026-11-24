@@ -27,7 +27,7 @@ Status and decisions: `docs/PROGRESS.md`, `docs/DECISIONS.md`. Rules for contrib
 
 Python and Node packages are pinned in `uv.lock` and `web/package-lock.json` and installed from them.
 The pipeline reads and writes about 1.2 GB of downloads plus the processed data and tiles (see
-"Time and disk" below). Free disk space needed for the pilot: see the measured table below.
+"Time and disk" below). Disk and time: see "Time and disk" below.
 
 ## Quick start (use the data directory that already exists)
 
@@ -84,7 +84,7 @@ All `npm` commands run in `web/` (use `npm --prefix web ...` from the repository
 | `npm run serve` | Local static server for `web/dist/` on http://127.0.0.1:4174 (`-- --port N`), serving the `.br`/`.gz` files with the right headers. Needs `npm run build:prod` first. |
 | `npm run preview` | Plain `vite preview` on port 4173 (no precompressed files). |
 | `npm run typecheck`, `npm run lint`, `npm test` | `tsc --noEmit`, eslint, vitest (unit tests). |
-| `npm run e2e` | Playwright end-to-end tests on the built site (`web/dist/`, needs `npm run build` first) with the synthetic fixture tiles, not the real data. Set `E2E_PORT` to use another port than 4173. Needs `npx playwright install chromium` once. |
+| `npm run e2e` | Playwright end-to-end tests on the built site (`web/dist/`, needs `npm run build` first) with the synthetic fixture tiles, not the real data. Set `E2E_PORT` to use another port than 4173. Needs `npx playwright install chromium` (run it in `web/`) once. |
 | `make test` (repository root) | ruff, pytest, and the web typecheck, lint and unit tests. |
 
 Open `http://localhost:5173/?tiles=tiles/pilot/` for the pilot or `/` for the city. Useful parameters:
@@ -105,7 +105,28 @@ decided here. `web/scripts/serve.mjs` implements the same rules locally.
 
 ## Time and disk (measured)
 
-TIME_DISK_PLACEHOLDER
+Measured in task T-7.2 on a Windows 11 machine (20 logical cores, 64 GB), from a fresh clone, pilot extent
+(full log: `reports/artifacts/T-7.2/rebuild.md`):
+
+| Step | Wall time | Disk |
+|---|---|---|
+| `make setup` (uv sync + npm ci) | 27 s | `.venv` 229 MB, `web/node_modules` 150 MB |
+| `make tiles` (pilot, from `data/processed/pilot.gpkg`) | 19 s | `data/tiles/pilot` 6.8 MB (104 files) |
+| `make web-tiles EXTENT=pilot` | 1 s | `web/public/tiles/pilot` 6.8 MB |
+| `npm run build:prod` | 19 to 21 s | `web/dist` 14 MB |
+| `make test` | 64 s | |
+| `npm run e2e` | 388 s (179 tests, 10 workers) | |
+
+`data/processed/pilot.gpkg` is 7.6 MB. **Not measured in T-7.2:** `make data` (the download of about 1.2 GB and the
+processing) and every city step; the rebuild copied the processed data from an earlier build instead (see the log).
+For the city, the T-6.1 measurements on the same kind of machine (`reports/artifacts/T-6.1/measurements.json`,
+`reports/R-6.1.md`) are: `make data EXTENT=city` about 48 minutes (osm 348 s, dbt 64 s, normalise 154 s,
+heights 1,683 s, decor 663 s; peak memory 5.0 GB in decor), `make tiles EXTENT=city` 390 s (peak 1.6 GB),
+`data/processed/city.gpkg` 390 MB, `data/tiles/city` about 194 MB over 6,281 files.
+
+Notes: for any extent but the pilot, `make` records each step in the tracked file
+`reports/artifacts/T-6.1/measurements.json` (pass `MEASURE=` to turn that off); `make tiles EXTENT=city` also
+needs `data/raw/comune_boundary/` from `make data-boundary` (part of `make data`).
 
 ## Licences
 
@@ -116,10 +137,13 @@ TIME_DISK_PLACEHOLDER
 |---|---|
 | OpenStreetMap contributors | ODbL 1.0, https://www.openstreetmap.org/copyright. "(c) OpenStreetMap contributors" is shown on the map. |
 | Comune di Milano, Database Topografico (DBT) 2020 | Creative Commons Attribuzione 4.0 (CC BY 4.0), https://dati.comune.milano.it/dataset/ds2889_database-topografico-dbt-2020-shp |
-| Comune di Milano, confini amministrativi | Creative Commons Attribution (CC BY), https://dati.comune.milano.it/dataset/ds2841-confini-amministrativi-del-comune-di-milano |
+| Comune di Milano, confini amministrativi (clips the city extent) | Creative Commons Attribution (CC BY), https://dati.comune.milano.it/dataset/ds2841-confini-amministrativi-del-comune-di-milano |
+
+The data were simplified, reprojected and converted into 3D tiles for this map; the About panel says so.
 
 The tiles built from OpenStreetMap data are treated as a derivative database under the ODbL (ADR-0009).
 
-**The code of this project:** LICENCE_PLACEHOLDER
+**The code of this project:** not chosen yet. The owner decides it (for example MIT or Apache-2.0); until then no licence is
+granted for the code and this section is a placeholder. Data licences come from the sources above, not from this choice.
 
 Third-party libraries keep their own licences (see `uv.lock` and `web/package-lock.json`).
