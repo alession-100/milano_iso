@@ -1,0 +1,12 @@
+      71 |
+      72 | const overlap = (a: Box, b: Box): boolean =>
+        at boxOf (C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-ae81d373c4bfabbed\web\e2e\ui.spec.ts:69:52)
+        at expectLayoutOk (C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-ae81d373c4bfabbed\web\e2e\ui.spec.ts:418:15)
+        at C:\Users\studi\Documents\milano-iso\.claude\worktrees\agent-ae81d373c4bfabbed\web\e2e\ui.spec.ts:456:11
+
+    Error Context: test-results\ui-layout-and-touch-target-236d9-ce-together-then-the-panels\error-context.md
+
+  2 failed
+    e2e\toolbar.spec.ts:546:5 › toolbar visual baseline › toolbar with results and minimap, desktop-1280x720 
+    e2e\ui.spec.ts:449:9 › layout and touch targets, mobile-412x915 › day/it: the info card, search results and the tiles notice together; then the panels 
+  177 passed (5.4h)

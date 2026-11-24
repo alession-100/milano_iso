@@ -4,6 +4,7 @@ import { Controls } from './controls';
 import { getLang, initialLang, onLangChange, setLang, t } from './i18n';
 import { RotationAnimator, createRotationButtons } from './rotation';
 import { createScene } from './scene';
+import { createAbout } from './about';
 import { createModeToggle } from './modeToggle';
 import { NO_SHADOW_FROM_LEVEL, applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows, sunShadowFrustum } from './style/lights';
 import { setPaletteMode, setShadowCasters } from './style/materials';
@@ -75,6 +76,9 @@ registerTestState('camera', () => rig.snapshot());
 let styleMode: StyleMode = initialMode(window.location.search);
 registerTestState('style', () => ({ mode: styleMode }));
 const modeToggle = createModeToggle(styleMode, () => setMode(styleMode === 'night' ? 'day' : 'night', true));
+// T-7.2: the About dialog; its button sits at the end of the attribution line (renderAttributionNow keeps it there).
+const about = createAbout(() => setLang(getLang() === 'it' ? 'en' : 'it', true));
+about.attach();
 
 function setMode(mode: StyleMode, remember: boolean): void {
   styleMode = mode;
@@ -235,7 +239,13 @@ function showTilesNotice(): void {
 /** Writes the attribution (label in the language in use; the entries are data and stay as they are). */
 function renderAttributionNow(): void {
   if (!manifest) return;
-  renderAttribution(document.getElementById('attribution') as HTMLElement, manifest.attribution, t('dataLabel'));
+  // T-7.2: the Comune di Milano credit is written here in the language in use and also names the boundary
+  // dataset (CC BY, DATA_SOURCES row 4a); the manifest entries keep source, licence and link.
+  const entries = manifest.attribution.map((e) =>
+    e.licence === 'CC BY 4.0' && e.source.startsWith('Comune di Milano') ? { ...e, text: t('attrComune') } : e,
+  );
+  renderAttribution(document.getElementById('attribution') as HTMLElement, entries, t('dataLabel'));
+  about.attach();
 }
 
 /** Whether buildings cast shadows now: not at the coarsest level (T-6.4, ADR-0039). */

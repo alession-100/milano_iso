@@ -112,6 +112,26 @@
       /* At 360-399 px the four buttons need two rows, not three (the zone is 104 px narrower than the screen):
          a little less padding, same 44 px targets. */
       @media (max-width: 399px) { .tb-btn { padding: 0 6px; } }
+      /* About dialog (T-7.2): a modal panel above the map and above the controls, but it stops at the attribution
+         band (bottom: var(--band)), so the attribution is never covered. It scrolls inside the free area. */
+      #about-overlay {
+        position: fixed; left: 0; right: 0; top: 0; bottom: var(--band, 56px); z-index: 40; box-sizing: border-box;
+        display: flex; align-items: center; justify-content: center; padding: 6px; background: rgba(0, 0, 0, 0.45);
+      }
+      #about-overlay[hidden] { display: none; }
+      #about-panel {
+        box-sizing: border-box; width: 100%; max-width: 560px; max-height: 100%; overflow-y: auto; padding: 4px 14px 10px;
+        font: 14px/1.4 sans-serif; color: var(--tb-fg); background: var(--tb-bg); border: 1px solid var(--tb-border); border-radius: 3px;
+      }
+      #about-panel .about-head { display: flex; align-items: center; gap: 6px; }
+      #about-panel h2 { flex: 1 1 auto; margin: 0; font-size: 16px; }
+      #about-panel h3 { margin: 10px 0 4px; font-size: 14px; }
+      #about-panel p { margin: 4px 0; }
+      #about-panel ul { margin: 0; padding: 0; list-style: none; }
+      #about-panel li { margin: 0 0 8px; padding: 6px 0 0; border-top: 1px solid var(--tb-border); }
+      #about-panel a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; color: var(--tb-link); }
+      #about-panel .about-meta { color: var(--tb-muted); }
+      #about-button { font-size: 12px; padding: 0 8px; }
       #minimap-button { display: inline-block; }
       #minimap { position: static; display: none; width: 200px; }
       #minimap.open { display: block; }
