@@ -61,7 +61,7 @@ export const dictionary = {
     helpRotate: 'Q ed E: ruota la mappa a sinistra e a destra',
     helpEscape: 'Esc: chiude la scheda e i risultati della ricerca',
     helpTab: 'Tab: passa da un comando all’altro',
-    aboutButton: 'Informazioni',
+    aboutButton: 'Info',
     aboutTitle: 'Informazioni su Milano Iso',
     aboutWhat: 'Milano Iso è una mappa interattiva di Milano in stile isometrico. La geometria (edifici, strade, acqua, verde) viene da dati aperti; solo lo stile è stilizzato.',
     aboutSources: 'Fonti dei dati',

@@ -11,10 +11,3 @@
 #minimap {
   visibility: hidden !important;
 }
-
-/* T-7.2: the About button in the attribution line is not part of the approved look baselines (the
-   attribution line itself is unchanged and stays in them); it is removed in screenshots.
-   about.spec.ts tests the button and the dialog. */
-#about-button {
-  display: none !important;
-}

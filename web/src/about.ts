@@ -52,7 +52,7 @@ const BACKGROUND_IDS = ['app', 'toolbar-zone', 'mode-toggle', 'rotation-controls
 export interface About {
   /** The button for the attribution line. */
   button: HTMLButtonElement;
-  /** Puts the button at the end of the attribution line (called again after each re-render of the line). */
+  /** Puts the button at the start of the attribution line (called again after each re-render of the line). */
   attach: () => void;
   isOpen: () => boolean;
   open: () => void;
@@ -195,7 +195,7 @@ export function createAbout(onLang: () => void): About {
   return {
     button,
     attach: () => {
-      document.getElementById('attribution')?.append(button); // append moves it to the end
+      document.getElementById('attribution')?.prepend(button); // first in the line: a wrapped line never needs a new row for it
     },
     isOpen,
     open,

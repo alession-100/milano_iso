@@ -260,6 +260,7 @@ for (const size of SIZES) {
           'rotate-left',
           'rotate-right',
           '.close', // the info card's close button
+          'about-button', // T-7.2: the About button opens the attribution line
           'a:(c) OpenStre',
           'a:Comune di Mi',
         ];

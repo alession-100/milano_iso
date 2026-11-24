@@ -126,7 +126,7 @@ for (const size of SIZES) {
         reached = await button.evaluate((b) => b === document.activeElement);
       }
       expect(reached).toBe(true);
-      // About is the last control of the page: after the attribution links, in the attribution line
+      // the About button is in the attribution line
       expect(await page.evaluate(() => document.activeElement?.parentElement?.id)).toBe('attribution');
 
       await page.keyboard.press('Enter');
