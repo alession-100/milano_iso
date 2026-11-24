@@ -4,6 +4,7 @@ import { Controls } from './controls';
 import { getLang, initialLang, onLangChange, setLang, t } from './i18n';
 import { RotationAnimator, createRotationButtons } from './rotation';
 import { createScene } from './scene';
+import { createAbout } from './about';
 import { createModeToggle } from './modeToggle';
 import { NO_SHADOW_FROM_LEVEL, applyLightMode, configureShadowRenderer, fitSunShadow, parseShadows, sunShadowFrustum } from './style/lights';
 import { setPaletteMode, setShadowCasters } from './style/materials';
@@ -75,6 +76,9 @@ registerTestState('camera', () => rig.snapshot());
 let styleMode: StyleMode = initialMode(window.location.search);
 registerTestState('style', () => ({ mode: styleMode }));
 const modeToggle = createModeToggle(styleMode, () => setMode(styleMode === 'night' ? 'day' : 'night', true));
+// T-7.2: the About dialog; its button sits at the end of the attribution line (renderAttributionNow keeps it there).
+const about = createAbout(() => setLang(getLang() === 'it' ? 'en' : 'it', true));
+about.attach();
 
 function setMode(mode: StyleMode, remember: boolean): void {
   styleMode = mode;
@@ -236,6 +240,7 @@ function showTilesNotice(): void {
 function renderAttributionNow(): void {
   if (!manifest) return;
   renderAttribution(document.getElementById('attribution') as HTMLElement, manifest.attribution, t('dataLabel'));
+  about.attach();
 }
 
 /** Whether buildings cast shadows now: not at the coarsest level (T-6.4, ADR-0039). */
