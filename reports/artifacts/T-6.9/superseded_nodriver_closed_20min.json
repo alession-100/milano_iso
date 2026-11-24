@@ -1,0 +1,869 @@
+{
+  "durationS": 1200,
+  "sampleS": 7,
+  "analysis": {
+    "driver": "none (raw CDP: createTarget, Runtime.evaluate, browser-level SystemInfo and Tracing)",
+    "motion": "path",
+    "closed": true,
+    "rendererSlopeMBPerMin": 0.6689602147453079,
+    "gpuSlopeMBPerMin": 0.32918965964086455,
+    "samplesAfterWarmup": 146
+  },
+  "samples": [
+    {
+      "t": 7,
+      "rendererMB": 242.078125,
+      "gpuProcessMB": 234.953125
+    },
+    {
+      "t": 14,
+      "rendererMB": 307.921875,
+      "gpuProcessMB": 231.890625
+    },
+    {
+      "t": 21,
+      "rendererMB": 323.90234375,
+      "gpuProcessMB": 291.68359375
+    },
+    {
+      "t": 28,
+      "rendererMB": 310.07421875,
+      "gpuProcessMB": 310.609375
+    },
+    {
+      "t": 35,
+      "rendererMB": 255.31640625,
+      "gpuProcessMB": 323.0859375
+    },
+    {
+      "t": 42,
+      "rendererMB": 222.671875,
+      "gpuProcessMB": 267.3203125
+    },
+    {
+      "t": 49,
+      "rendererMB": 237.94921875,
+      "gpuProcessMB": 230.03125
+    },
+    {
+      "t": 56,
+      "rendererMB": 233.63671875,
+      "gpuProcessMB": 231.0234375
+    },
+    {
+      "t": 63,
+      "rendererMB": 222.796875,
+      "gpuProcessMB": 231.75390625
+    },
+    {
+      "t": 70,
+      "rendererMB": 230.36328125,
+      "gpuProcessMB": 246.38671875
+    },
+    {
+      "t": 77,
+      "rendererMB": 232.3359375,
+      "gpuProcessMB": 298.48828125
+    },
+    {
+      "t": 84,
+      "rendererMB": 227.71875,
+      "gpuProcessMB": 314.52734375
+    },
+    {
+      "t": 91,
+      "rendererMB": 230.52734375,
+      "gpuProcessMB": 306.0234375
+    },
+    {
+      "t": 98,
+      "rendererMB": 223.55078125,
+      "gpuProcessMB": 247.39453125
+    },
+    {
+      "t": 105,
+      "rendererMB": 215.609375,
+      "gpuProcessMB": 229.48046875
+    },
+    {
+      "t": 112,
+      "rendererMB": 220.2734375,
+      "gpuProcessMB": 232.66796875
+    },
+    {
+      "t": 119,
+      "rendererMB": 264.375,
+      "gpuProcessMB": 332.875
+    },
+    {
+      "t": 126,
+      "rendererMB": 261.26953125,
+      "gpuProcessMB": 288.15625
+    },
+    {
+      "t": 133,
+      "rendererMB": 225.984375,
+      "gpuProcessMB": 296.484375
+    },
+    {
+      "t": 140,
+      "rendererMB": 223.1015625,
+      "gpuProcessMB": 293.53125
+    },
+    {
+      "t": 147,
+      "rendererMB": 223.1015625,
+      "gpuProcessMB": 237.5
+    },
+    {
+      "t": 154,
+      "rendererMB": 229.43359375,
+      "gpuProcessMB": 236.65234375
+    },
+    {
+      "t": 161,
+      "rendererMB": 227.05859375,
+      "gpuProcessMB": 239.078125
+    },
+    {
+      "t": 168,
+      "rendererMB": 157.2109375,
+      "gpuProcessMB": 247.1953125
+    },
+    {
+      "t": 175,
+      "rendererMB": 149.59765625,
+      "gpuProcessMB": 233.4765625
+    },
+    {
+      "t": 182,
+      "rendererMB": 149.6015625,
+      "gpuProcessMB": 233.4765625
+    },
+    {
+      "t": 189,
+      "rendererMB": 149.6015625,
+      "gpuProcessMB": 233.4140625
+    },
+    {
+      "t": 196,
+      "rendererMB": 150.53515625,
+      "gpuProcessMB": 232.98046875
+    },
+    {
+      "t": 203,
+      "rendererMB": 150.53515625,
+      "gpuProcessMB": 232.98046875
+    },
+    {
+      "t": 210,
+      "rendererMB": 162.03515625,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 217,
+      "rendererMB": 162.03515625,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 224,
+      "rendererMB": 162.03515625,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 231,
+      "rendererMB": 162.03515625,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 238,
+      "rendererMB": 162.03515625,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 245,
+      "rendererMB": 161.6484375,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 252,
+      "rendererMB": 161.6484375,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 259,
+      "rendererMB": 161.6171875,
+      "gpuProcessMB": 233.2109375
+    },
+    {
+      "t": 266,
+      "rendererMB": 161.6171875,
+      "gpuProcessMB": 233.1015625
+    },
+    {
+      "t": 273,
+      "rendererMB": 161.6171875,
+      "gpuProcessMB": 233.1015625
+    },
+    {
+      "t": 280,
+      "rendererMB": 161.6171875,
+      "gpuProcessMB": 233.1015625
+    },
+    {
+      "t": 287,
+      "rendererMB": 161.6171875,
+      "gpuProcessMB": 233.1015625
+    },
+    {
+      "t": 294,
+      "rendererMB": 161.6171875,
+      "gpuProcessMB": 233.1015625
+    },
+    {
+      "t": 301,
+      "rendererMB": 161.83203125,
+      "gpuProcessMB": 233.1640625
+    },
+    {
+      "t": 308,
+      "rendererMB": 161.86328125,
+      "gpuProcessMB": 223.95703125
+    },
+    {
+      "t": 315,
+      "rendererMB": 161.90234375,
+      "gpuProcessMB": 223.95703125
+    },
+    {
+      "t": 322,
+      "rendererMB": 161.90234375,
+      "gpuProcessMB": 223.95703125
+    },
+    {
+      "t": 329,
+      "rendererMB": 161.90234375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 336,
+      "rendererMB": 161.90234375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 343,
+      "rendererMB": 161.90234375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 350,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 357,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 364,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 371,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 378,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 385,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 392,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 399,
+      "rendererMB": 159.46484375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 406,
+      "rendererMB": 159.19140625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 413,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 420,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 427,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 434,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 441,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 448,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 455,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 462,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 469,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 476,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 483,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 490,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 497,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 504,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 511,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 518,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 525,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 532,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 539,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 546,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 553,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 560,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 567,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 574,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 581,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 588,
+      "rendererMB": 159.15625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 595,
+      "rendererMB": 159.90625,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 602,
+      "rendererMB": 160.09375,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 609,
+      "rendererMB": 160.3515625,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 616,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 623,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 630,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 637,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 644,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 651,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 658,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 665,
+      "rendererMB": 160.41796875,
+      "gpuProcessMB": 223.953125
+    },
+    {
+      "t": 672,
+      "rendererMB": 160.23046875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 679,
+      "rendererMB": 160.16796875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 686,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 693,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 700,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 707,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 714,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 721,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 728,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 735,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 742,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 749,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 756,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 763,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 770,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 777,
+      "rendererMB": 160.10546875,
+      "gpuProcessMB": 223.91015625
+    },
+    {
+      "t": 784,
+      "rendererMB": 186.34765625,
+      "gpuProcessMB": 265.296875
+    },
+    {
+      "t": 791,
+      "rendererMB": 196.61328125,
+      "gpuProcessMB": 248.24609375
+    },
+    {
+      "t": 798,
+      "rendererMB": 200.35546875,
+      "gpuProcessMB": 237.14453125
+    },
+    {
+      "t": 805,
+      "rendererMB": 205.58984375,
+      "gpuProcessMB": 227.41015625
+    },
+    {
+      "t": 812,
+      "rendererMB": 213.51171875,
+      "gpuProcessMB": 229.953125
+    },
+    {
+      "t": 819,
+      "rendererMB": 262.5,
+      "gpuProcessMB": 276.46875
+    },
+    {
+      "t": 826,
+      "rendererMB": 256.34375,
+      "gpuProcessMB": 289.75
+    },
+    {
+      "t": 833,
+      "rendererMB": 250.39453125,
+      "gpuProcessMB": 300.7421875
+    },
+    {
+      "t": 840,
+      "rendererMB": 267.16015625,
+      "gpuProcessMB": 295.52734375
+    },
+    {
+      "t": 847,
+      "rendererMB": 241.66796875,
+      "gpuProcessMB": 236.94921875
+    },
+    {
+      "t": 854,
+      "rendererMB": 251.72265625,
+      "gpuProcessMB": 249.95703125
+    },
+    {
+      "t": 861,
+      "rendererMB": 168.484375,
+      "gpuProcessMB": 229.6796875
+    },
+    {
+      "t": 868,
+      "rendererMB": 161.97265625,
+      "gpuProcessMB": 229.6796875
+    },
+    {
+      "t": 875,
+      "rendererMB": 161.97265625,
+      "gpuProcessMB": 229.6328125
+    },
+    {
+      "t": 882,
+      "rendererMB": 161.97265625,
+      "gpuProcessMB": 229.67578125
+    },
+    {
+      "t": 889,
+      "rendererMB": 161.97265625,
+      "gpuProcessMB": 229.67578125
+    },
+    {
+      "t": 896,
+      "rendererMB": 161.97265625,
+      "gpuProcessMB": 229.67578125
+    },
+    {
+      "t": 903,
+      "rendererMB": 161.97265625,
+      "gpuProcessMB": 229.67578125
+    },
+    {
+      "t": 910,
+      "rendererMB": 162.16796875,
+      "gpuProcessMB": 229.609375
+    },
+    {
+      "t": 917,
+      "rendererMB": 162.16796875,
+      "gpuProcessMB": 229.42578125
+    },
+    {
+      "t": 924,
+      "rendererMB": 162.16796875,
+      "gpuProcessMB": 229.42578125
+    },
+    {
+      "t": 931,
+      "rendererMB": 162.16796875,
+      "gpuProcessMB": 229.42578125
+    },
+    {
+      "t": 938,
+      "rendererMB": 162.16796875,
+      "gpuProcessMB": 229.42578125
+    },
+    {
+      "t": 945,
+      "rendererMB": 162.16796875,
+      "gpuProcessMB": 229.42578125
+    },
+    {
+      "t": 952,
+      "rendererMB": 162.16796875,
+      "gpuProcessMB": 229.42578125
+    },
+    {
+      "t": 959,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.42578125
+    },
+    {
+      "t": 966,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40625
+    },
+    {
+      "t": 973,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40625
+    },
+    {
+      "t": 980,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40625
+    },
+    {
+      "t": 987,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 994,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1001,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1008,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1015,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1022,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1029,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1036,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1043,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1050,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1057,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1064,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1071,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1078,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1085,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1092,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1099,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1106,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1113,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1120,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1127,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1134,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1141,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.359375
+    },
+    {
+      "t": 1148,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1155,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1163,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1169,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1176,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1183,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1190,
+      "rendererMB": 161.01171875,
+      "gpuProcessMB": 229.40234375
+    },
+    {
+      "t": 1197,
+      "rendererMB": 169.5234375,
+      "gpuProcessMB": 229.4609375
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+t=8s ph 8 w 1000 L1 heap 7.9 (adj 7.4) ext 4.4 rend 136 gpu 232 MB geoms 96/133 tex 172/250 prog 6 tiles 64/64 shards 8 dom 74
+t=14s ph 14 w 1000 L1 heap 8.6 (adj 8.0) ext 9.6 rend 153 gpu 232 MB geoms 116/129 tex 222/258 prog 6 tiles 64/64 shards 10 dom 74
+t=21s ph 21 w 1000 L1 heap 8.6 (adj 7.9) ext 14.5 rend 173 gpu 251 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 12 dom 74
+t=28s ph 28 w 1000 L1 heap 8.4 (adj 7.6) ext 8.6 rend 169 gpu 248 MB geoms 112/129 tex 198/258 prog 6 tiles 64/64 shards 13 dom 74
+t=35s ph 35 w 1000 L1 heap 8.2 (adj 7.4) ext 4.7 rend 163 gpu 232 MB geoms 117/127 tex 208/254 prog 6 tiles 64/64 shards 13 dom 74
+t=42s ph 42 w 1000 L1 heap 8.3 (adj 7.5) ext 4.4 rend 169 gpu 225 MB geoms 113/128 tex 206/256 prog 6 tiles 64/64 shards 14 dom 74
+t=49s ph 49 w 1000 L1 heap 8.9 (adj 8.0) ext 7.4 rend 184 gpu 227 MB geoms 121/129 tex 224/258 prog 6 tiles 64/64 shards 15 dom 74
+t=56s ph 6 w 1000 L1 heap 9.1 (adj 8.1) ext 10.6 rend 204 gpu 241 MB geoms 114/129 tex 212/258 prog 6 tiles 64/64 shards 17 dom 74
+t=63s ph 13 w 1000 L1 heap 9.1 (adj 8.0) ext 6.2 rend 196 gpu 235 MB geoms 115/129 tex 204/258 prog 6 tiles 64/64 shards 19 dom 74
+t=70s ph 20 w 1000 L1 heap 8.8 (adj 7.6) ext 5.0 rend 196 gpu 225 MB geoms 112/129 tex 198/258 prog 6 tiles 64/64 shards 19 dom 74
+t=77s ph 27 w 1000 L1 heap 9.4 (adj 8.2) ext 7.5 rend 212 gpu 227 MB geoms 115/129 tex 206/258 prog 6 tiles 64/64 shards 19 dom 74
+t=84s ph 34 w 1000 L1 heap 9.0 (adj 7.9) ext 5.6 rend 214 gpu 228 MB geoms 116/129 tex 206/258 prog 6 tiles 64/64 shards 19 dom 74
+t=91s ph 41 w 1000 L1 heap 9.2 (adj 8.0) ext 10.0 rend 231 gpu 239 MB geoms 122/129 tex 232/258 prog 6 tiles 64/64 shards 19 dom 74
+t=98s ph 48 w 1000 L1 heap 9.2 (adj 8.0) ext 11.0 rend 232 gpu 241 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=105s ph 5 w 1000 L1 heap 8.8 (adj 7.7) ext 4.8 rend 227 gpu 240 MB geoms 110/125 tex 208/250 prog 6 tiles 64/64 shards 19 dom 74
+t=112s ph 12 w 1000 L1 heap 8.9 (adj 7.7) ext 4.8 rend 228 gpu 226 MB geoms 116/125 tex 220/250 prog 6 tiles 64/64 shards 19 dom 74
+t=119s ph 19 w 1000 L1 heap 9.3 (adj 8.1) ext 14.4 rend 261 gpu 306 MB geoms 117/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=126s ph 26 w 1000 L1 heap 9.0 (adj 7.8) ext 10.4 rend 261 gpu 255 MB geoms 118/129 tex 214/258 prog 6 tiles 64/64 shards 19 dom 74
+t=133s ph 33 w 1000 L1 heap 8.7 (adj 7.6) ext 6.3 rend 257 gpu 242 MB geoms 114/127 tex 202/254 prog 6 tiles 64/64 shards 19 dom 74
+t=140s ph 40 w 1000 L1 heap 8.7 (adj 7.6) ext 3.9 rend 260 gpu 231 MB geoms 118/128 tex 226/256 prog 6 tiles 64/64 shards 19 dom 74
+t=147s ph 47 w 1000 L1 heap 8.9 (adj 7.8) ext 5.1 rend 271 gpu 234 MB geoms 117/128 tex 214/256 prog 6 tiles 64/64 shards 19 dom 74
+t=154s ph 4 w 1000 L1 heap 9.2 (adj 8.1) ext 10.9 rend 294 gpu 252 MB geoms 116/129 tex 224/258 prog 6 tiles 64/64 shards 19 dom 74
+t=161s ph 11 w 1000 L1 heap 9.3 (adj 8.2) ext 7.9 rend 296 gpu 242 MB geoms 115/129 tex 206/258 prog 6 tiles 64/64 shards 19 dom 74
+t=168s ph 18 w 1000 L1 heap 8.8 (adj 7.7) ext 5.0 rend 295 gpu 233 MB geoms 113/129 tex 202/258 prog 6 tiles 64/64 shards 19 dom 74
+t=175s ph 25 w 1000 L1 heap 9.1 (adj 8.0) ext 6.5 rend 307 gpu 233 MB geoms 113/129 tex 208/258 prog 6 tiles 64/64 shards 19 dom 74
+t=182s ph 32 w 1000 L1 heap 9.3 (adj 8.2) ext 6.3 rend 313 gpu 235 MB geoms 113/129 tex 200/258 prog 6 tiles 64/64 shards 19 dom 74
+t=189s ph 39 w 1000 L1 heap 9.1 (adj 8.0) ext 8.1 rend 327 gpu 239 MB geoms 119/129 tex 222/258 prog 6 tiles 64/64 shards 19 dom 74
+t=196s ph 46 w 1000 L1 heap 9.4 (adj 8.3) ext 11.0 rend 333 gpu 248 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+dump at 200s: 3 renderer process(es), trace 6.6 MB
+t=203s ph 3 w 1000 L1 heap 9.0 (adj 7.8) ext 5.9 rend 329 gpu 245 MB geoms 112/127 tex 212/254 prog 6 tiles 64/64 shards 19 dom 74
+t=210s ph 10 w 1000 L1 heap 8.9 (adj 7.7) ext 4.8 rend 333 gpu 232 MB geoms 113/125 tex 214/250 prog 6 tiles 64/64 shards 19 dom 74
+t=217s ph 17 w 1000 L1 heap 9.2 (adj 8.1) ext 13.4 rend 359 gpu 265 MB geoms 117/129 tex 224/258 prog 6 tiles 64/64 shards 19 dom 74
+t=224s ph 24 w 1000 L1 heap 9.1 (adj 8.0) ext 12.6 rend 346 gpu 270 MB geoms 117/129 tex 218/258 prog 6 tiles 64/64 shards 19 dom 74
+t=231s ph 31 w 1000 L1 heap 9.0 (adj 7.9) ext 7.5 rend 339 gpu 260 MB geoms 114/128 tex 200/256 prog 6 tiles 64/64 shards 19 dom 74
+t=238s ph 38 w 1000 L1 heap 8.7 (adj 7.6) ext 3.1 rend 340 gpu 247 MB geoms 123/127 tex 238/254 prog 6 tiles 64/64 shards 19 dom 74
+t=245s ph 45 w 1000 L1 heap 9.0 (adj 7.9) ext 4.7 rend 338 gpu 243 MB geoms 111/128 tex 202/256 prog 6 tiles 64/64 shards 19 dom 74
+t=252s ph 2 w 1000 L1 heap 9.4 (adj 8.3) ext 9.9 rend 346 gpu 254 MB geoms 118/129 tex 228/258 prog 6 tiles 64/64 shards 19 dom 74
+t=259s ph 9 w 1000 L1 heap 9.2 (adj 8.1) ext 9.1 rend 341 gpu 253 MB geoms 114/129 tex 210/258 prog 6 tiles 64/64 shards 19 dom 74
+t=266s ph 16 w 1000 L1 heap 8.9 (adj 7.7) ext 5.0 rend 340 gpu 241 MB geoms 113/129 tex 200/258 prog 6 tiles 64/64 shards 19 dom 74
+t=273s ph 23 w 1000 L1 heap 9.1 (adj 8.0) ext 5.3 rend 340 gpu 233 MB geoms 113/129 tex 208/258 prog 6 tiles 64/64 shards 19 dom 74
+t=280s ph 30 w 1000 L1 heap 9.3 (adj 8.2) ext 6.9 rend 341 gpu 239 MB geoms 114/129 tex 204/258 prog 6 tiles 64/64 shards 19 dom 74
+t=287s ph 37 w 1000 L1 heap 9.1 (adj 8.0) ext 6.1 rend 338 gpu 238 MB geoms 118/129 tex 212/258 prog 6 tiles 64/64 shards 19 dom 74
+t=294s ph 44 w 1000 L1 heap 9.3 (adj 8.1) ext 11.0 rend 349 gpu 253 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=301s ph 1 w 1000 L1 heap 9.2 (adj 8.1) ext 9.5 rend 347 gpu 253 MB geoms 118/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=308s ph 8 w 1000 L1 heap 8.9 (adj 7.7) ext 4.8 rend 338 gpu 241 MB geoms 110/125 tex 208/250 prog 6 tiles 64/64 shards 19 dom 74
+t=315s ph 15 w 1000 L1 heap 9.2 (adj 8.1) ext 11.1 rend 359 gpu 253 MB geoms 114/129 tex 220/258 prog 6 tiles 64/64 shards 19 dom 74
+t=322s ph 22 w 1000 L1 heap 9.3 (adj 8.1) ext 14.6 rend 356 gpu 267 MB geoms 120/129 tex 228/258 prog 6 tiles 64/64 shards 19 dom 74
+t=329s ph 29 w 1000 L1 heap 8.9 (adj 7.8) ext 7.8 rend 345 gpu 262 MB geoms 112/128 tex 198/256 prog 6 tiles 64/64 shards 19 dom 74
+t=336s ph 36 w 1000 L1 heap 8.9 (adj 7.8) ext 3.7 rend 339 gpu 245 MB geoms 118/127 tex 216/254 prog 6 tiles 64/64 shards 19 dom 74
+t=343s ph 43 w 1000 L1 heap 8.9 (adj 7.7) ext 4.6 rend 345 gpu 236 MB geoms 114/128 tex 210/256 prog 6 tiles 64/64 shards 19 dom 74
+t=350s ph 0 w 1000 L1 heap 9.3 (adj 8.1) ext 8.1 rend 351 gpu 245 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=357s ph 7 w 1000 L1 heap 9.3 (adj 8.1) ext 10.0 rend 352 gpu 255 MB geoms 114/129 tex 214/258 prog 6 tiles 64/64 shards 19 dom 74
+t=364s ph 14 w 1000 L1 heap 9.0 (adj 7.9) ext 5.8 rend 343 gpu 248 MB geoms 113/129 tex 200/258 prog 6 tiles 64/64 shards 19 dom 74
+t=371s ph 21 w 1000 L1 heap 8.9 (adj 7.8) ext 5.0 rend 344 gpu 238 MB geoms 111/129 tex 200/258 prog 6 tiles 64/64 shards 19 dom 74
+t=378s ph 28 w 1000 L1 heap 9.5 (adj 8.3) ext 7.3 rend 352 gpu 242 MB geoms 116/129 tex 212/258 prog 6 tiles 64/64 shards 19 dom 74
+t=385s ph 35 w 1000 L1 heap 9.2 (adj 8.1) ext 5.7 rend 348 gpu 249 MB geoms 115/129 tex 206/258 prog 6 tiles 64/64 shards 19 dom 74
+t=392s ph 42 w 1000 L1 heap 9.2 (adj 8.0) ext 11.0 rend 354 gpu 263 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=399s ph 49 w 1000 L1 heap 9.2 (adj 8.0) ext 11.0 rend 348 gpu 262 MB geoms 120/129 tex 228/258 prog 6 tiles 64/64 shards 19 dom 74
+t=406s ph 6 w 1000 L1 heap 9.0 (adj 7.8) ext 4.8 rend 343 gpu 256 MB geoms 110/125 tex 208/250 prog 6 tiles 64/64 shards 19 dom 74
+t=413s ph 13 w 1000 L1 heap 9.1 (adj 8.0) ext 7.2 rend 351 gpu 251 MB geoms 117/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=420s ph 20 w 1000 L1 heap 9.2 (adj 8.0) ext 14.4 rend 356 gpu 275 MB geoms 120/129 tex 228/258 prog 6 tiles 64/64 shards 19 dom 74
+t=427s ph 27 w 1000 L1 heap 8.9 (adj 7.7) ext 9.3 rend 351 gpu 274 MB geoms 114/129 tex 204/258 prog 6 tiles 64/64 shards 19 dom 74
+t=434s ph 34 w 1000 L1 heap 8.7 (adj 7.5) ext 5.4 rend 343 gpu 257 MB geoms 115/127 tex 200/254 prog 6 tiles 64/64 shards 19 dom 74
+t=441s ph 41 w 1000 L1 heap 8.7 (adj 7.6) ext 4.3 rend 346 gpu 244 MB geoms 116/128 tex 218/256 prog 6 tiles 64/64 shards 19 dom 74
+t=448s ph 48 w 1000 L1 heap 9.0 (adj 7.9) ext 6.1 rend 353 gpu 247 MB geoms 119/129 tex 220/258 prog 6 tiles 64/64 shards 19 dom 74
+t=455s ph 5 w 1000 L1 heap 9.2 (adj 8.0) ext 10.8 rend 358 gpu 263 MB geoms 119/129 tex 228/258 prog 6 tiles 64/64 shards 19 dom 74
+t=462s ph 12 w 1000 L1 heap 9.2 (adj 8.1) ext 6.9 rend 349 gpu 259 MB geoms 115/129 tex 206/258 prog 6 tiles 64/64 shards 19 dom 74
+t=469s ph 19 w 1000 L1 heap 8.8 (adj 7.6) ext 5.0 rend 342 gpu 247 MB geoms 113/129 tex 202/258 prog 6 tiles 64/64 shards 19 dom 74
+t=476s ph 26 w 1000 L1 heap 9.1 (adj 8.0) ext 7.1 rend 350 gpu 249 MB geoms 113/129 tex 206/258 prog 6 tiles 64/64 shards 19 dom 74
+t=483s ph 33 w 1000 L1 heap 9.2 (adj 8.0) ext 5.7 rend 348 gpu 250 MB geoms 113/129 tex 200/258 prog 6 tiles 64/64 shards 19 dom 74
+t=490s ph 40 w 1000 L1 heap 9.1 (adj 8.0) ext 9.5 rend 361 gpu 255 MB geoms 120/129 tex 228/258 prog 6 tiles 64/64 shards 19 dom 74
+t=497s ph 47 w 1000 L1 heap 9.2 (adj 8.0) ext 11.0 rend 352 gpu 255 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=504s ph 4 w 1000 L1 heap 8.9 (adj 7.7) ext 5.3 rend 347 gpu 253 MB geoms 111/127 tex 210/254 prog 6 tiles 64/64 shards 19 dom 74
+t=511s ph 11 w 1000 L1 heap 8.8 (adj 7.7) ext 4.8 rend 345 gpu 239 MB geoms 115/125 tex 218/250 prog 6 tiles 64/64 shards 19 dom 74
+t=518s ph 18 w 1000 L1 heap 9.2 (adj 8.0) ext 14.1 rend 364 gpu 265 MB geoms 118/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=525s ph 25 w 1000 L1 heap 9.0 (adj 7.9) ext 12.0 rend 354 gpu 268 MB geoms 120/129 tex 222/258 prog 6 tiles 64/64 shards 19 dom 74
+t=532s ph 32 w 1000 L1 heap 8.8 (adj 7.6) ext 7.0 rend 348 gpu 255 MB geoms 114/127 tex 204/254 prog 6 tiles 64/64 shards 19 dom 74
+t=539s ph 39 w 1000 L1 heap 8.7 (adj 7.5) ext 3.4 rend 349 gpu 244 MB geoms 120/128 tex 232/256 prog 6 tiles 64/64 shards 19 dom 74
+t=546s ph 46 w 1000 L1 heap 8.8 (adj 7.7) ext 5.0 rend 350 gpu 237 MB geoms 116/128 tex 212/256 prog 6 tiles 64/64 shards 19 dom 74
+t=553s ph 3 w 1000 L1 heap 9.1 (adj 8.0) ext 10.5 rend 358 gpu 253 MB geoms 117/129 tex 224/258 prog 6 tiles 64/64 shards 19 dom 74
+t=560s ph 10 w 1000 L1 heap 9.1 (adj 8.0) ext 8.7 rend 352 gpu 253 MB geoms 115/129 tex 210/258 prog 6 tiles 64/64 shards 19 dom 74
+t=567s ph 17 w 1000 L1 heap 8.8 (adj 7.7) ext 5.0 rend 350 gpu 244 MB geoms 113/129 tex 202/258 prog 6 tiles 64/64 shards 19 dom 74
+t=574s ph 24 w 1000 L1 heap 8.9 (adj 7.8) ext 6.0 rend 354 gpu 238 MB geoms 115/129 tex 208/258 prog 6 tiles 64/64 shards 19 dom 74
+t=581s ph 31 w 1000 L1 heap 9.5 (adj 8.4) ext 6.8 rend 352 gpu 243 MB geoms 112/129 tex 200/258 prog 6 tiles 64/64 shards 19 dom 74
+t=588s ph 38 w 1000 L1 heap 9.2 (adj 8.1) ext 7.2 rend 355 gpu 244 MB geoms 113/129 tex 208/258 prog 6 tiles 64/64 shards 19 dom 74
+t=595s ph 45 w 1000 L1 heap 9.2 (adj 8.0) ext 11.0 rend 357 gpu 255 MB geoms 119/129 tex 226/258 prog 6 tiles 64/64 shards 19 dom 74
+t=602s ph 2 w 1000 L1 heap 9.0 (adj 7.9) ext 7.2 rend 353 gpu 255 MB geoms 116/129 tex 218/258 prog 6 tiles 64/64 shards 19 dom 74
+t=609s ph 9 w 1000 L1 heap 8.8 (adj 7.6) ext 4.8 rend 346 gpu 240 MB geoms 111/125 tex 210/250 prog 6 tiles 64/64 shards 19 dom 74
+dump at 610s: 3 renderer process(es), trace 9.4 MB
+t=616s ph 16 w 1000 L1 heap 9.2 (adj 8.0) ext 12.4 rend 361 gpu 259 MB geoms 115/129 tex 222/258 prog 6 tiles 64/64 shards 19 dom 74
+{
+  "rule": "ADR-0043",
+  "sampleS": 7,
+  "zoomPeriodS": 50,
+  "distinctZoomPhasesSampled": 50,
+  "sampledWidthMinM": 1000,
+  "sampledWidthMaxM": 1000,
+  "sampledWidthBands": {
+    "0-300 m": 0,
+    "300-600 m": 0,
+    "600-1500 m": 88,
+    "1500-3000 m": 0,
+    "3000-3800 m": 0,
+    "3800-Infinity m": 0
+  },
+  "heapAdjusted": {
+    "earlyMedianMB": 8.009074554443359,
+    "lastMedianMB": 7.944768295288085,
+    "changeMB": -0.06430625915527344,
+    "changePct": -0.802917474648765,
+    "slopeMBPerMin": -0.0053862843236603146,
+    "limitPct": 5,
+    "limitSlopeMBPerMin": 0.5,
+    "pass": true
+  },
+  "heapRaw": {
+    "earlyMedianMB": 9.14907455444336,
+    "lastMedianMB": 9.084768295288086,
+    "changeMB": -0.06430625915527344,
+    "changePct": -0.7028717360712983,
+    "slopeMBPerMin": -0.005386284323660321,
+    "limitPct": null,
+    "limitSlopeMBPerMin": null,
+    "pass": true
+  },
+  "external": {
+    "earlyMedianMB": 6.181946754455566,
+    "lastMedianMB": 6.966498374938965,
+    "changeMB": 0.7845516204833984,
+    "changePct": 12.691012259494826,
+    "slopeMBPerMin": 0.03701660052010732,
+    "limitPct": 25,
+    "limitSlopeMBPerMin": 0.5,
+    "pass": true
+  },
+  "rendererProcess": {
+    "earlyMedianMB": 333.125,
+    "lastMedianMB": 353.4921875,
+    "changeMB": 20.3671875,
+    "changePct": 6.1139774859287055,
+    "slopeMBPerMin": 2.6628879248271895,
+    "limitPct": 20,
+    "limitSlopeMBPerMin": 6,
+    "pass": true
+  },
+  "gpuProcess": {
+    "earlyMedianMB": 235.0546875,
+    "lastMedianMB": 244.083984375,
+    "changeMB": 9.029296875,
+    "changePct": 3.8413600558380696,
+    "slopeMBPerMin": 1.3993075177064493,
+    "limitPct": null,
+    "limitSlopeMBPerMin": null,
+    "pass": true
+  },
+  "shardMBAssumed": 0.06,
+  "shardsLoadedFirstLast": [
+    8,
+    19
+  ],
+  "maxGeometries": 123,
+  "maxTextures": 238,
+  "maxGeomsPerTile": 4,
+  "maxTilesInScene": 64,
+  "cacheLimit": 64,
+  "maxWantedTiles": 54,
+  "geometryBound": 257,
+  "orphanGeometriesMax": -4,
+  "orphanTexturesMax": -16,
+  "programsAfterWarmup": [
+    6,
+    6
+  ],
+  "domNodesAfterWarmup": [
+    74,
+    74
+  ],
+  "browserNodesAfterWarmup": [
+    129,
+    129
+  ],
+  "coverageOk": false,
+  "orphanGeometrySampleShare": 0,
+  "geometriesWithinCache": true,
+  "texturesWithinCache": true,
+  "tilesWithinLimit": true,
+  "domConstant": true,
+  "programsConstant": true,
+  "pass": false
+}
