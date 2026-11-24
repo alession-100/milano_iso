@@ -7,11 +7,16 @@
 //   node scripts/memory-nodriver.mjs --port 4213 --duration 620 --out run.json [--dumps 200,610] [--closed] [--motion path|still]
 // Samples every SAMPLE_S s: renderer and GPU process private memory (OS) and the memory-infra
 // `private_footprint_bytes` of the page's renderer at dump times. No heap or app counters (they need a driver).
+// Pass rule (ADR-0044 a, `judgeNoDriver` in memory-analysis.mjs): every sample visible, >= 30 minutes, frames within
+// 25 % of the reference run (--reference run.json, default T-6.9 playwright2_path_closed_20min.json), renderer slope
+// from minute 20 <= 1 MB/min; exit 1 otherwise. The samples of a saved run are judged again with
+// `node scripts/memory-analysis.mjs run.json --nodriver [--reference ref.json]`.
 // Windows only for the sampler; Chrome from the installed channel (path below, override with --chrome).
 import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { DEFAULT_REFERENCE, judgeNoDriver } from './memory-analysis.mjs';
 
 function arg(name, fallback) {
   const i = process.argv.indexOf(`--${name}`);
@@ -224,6 +229,9 @@ const win = (lo, hi, key) => {
 const windows = {};
 for (const [lo, hi] of [[4, 20], [20, 40], [40, 60]]) windows[`min${lo}-${hi}`] = win(lo, hi, 'rendererMB');
 const analysis = { rendererSlopeByWindowMBPerMin: windows, driver: 'none (raw CDP: createTarget, Runtime.evaluate, browser-level SystemInfo and Tracing)', motion, closed, rendererSlopeMBPerMin: slope('rendererMB'), gpuSlopeMBPerMin: slope('gpuProcessMB'), samplesAfterWarmup: pts.length };
+// ADR-0044 (a): the pass rule (visible samples, 30 minutes, frames within 25 % of the reference, slope from minute 20)
+const refRun = JSON.parse(readFileSync(arg('reference', DEFAULT_REFERENCE), 'utf8'));
+analysis.rule = judgeNoDriver(samples, durationS, { frames: refRun.samples.at(-1).frames, t: refRun.samples.at(-1).t });
 const result = { durationS, sampleS: SAMPLE_S, analysis, samples };
 if (out) writeFileSync(out, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(analysis, null, 2));
@@ -231,4 +239,4 @@ ps.kill();
 await send('Browser.close').catch(() => {}); // closes every Chrome process this script started
 await new Promise((r) => setTimeout(r, 2000));
 chrome.kill();
-process.exit(0);
+process.exit(analysis.rule.pass ? 0 : 1);

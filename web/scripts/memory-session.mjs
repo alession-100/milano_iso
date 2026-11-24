@@ -24,12 +24,14 @@
 //   - renderer.info.memory (geometries, textures) against what the app itself holds (the whole scene
 //     graph plus the shadow map, `gpu` in testhook), programs, tiles and shards loaded, DOM node count.
 //
-// Pass rule: ADR-0043, coded in memory-analysis.mjs (thresholds are constants there; the samples of a
-// finished run are judged again with `node scripts/memory-analysis.mjs run.json`). In short:
+// Pass rule: ADR-0043 as amended by ADR-0044, coded in memory-analysis.mjs (thresholds are constants there; the
+// samples of a finished run are judged again with `node scripts/memory-analysis.mjs run.json`). In short:
 //   0. coverage: the sampled widths reach <= 300 m and >= 3,800 m (the 4,000 m phase is sampled);
-//   1. heap (minus shards loaded x 0.06 MB, the catalogue is kept by design), external memory and
-//      renderer-process memory: last-minute median within a stated % of the first judged minute AND a
-//      fitted slope under a stated MB/min (warm-up 60 s, 180 s for the renderer process);
+//   1. heap (minus shards loaded x 0.06 MB, the catalogue is kept by design) and external memory:
+//      last-minute median within a stated % of the first judged minute AND a fitted slope under a stated
+//      MB/min (warm-up 60 s). Renderer-process memory is information only (it includes the driver's network
+//      agent, ADR-0044): it fails only above a fitted slope of 6 MB/min after 180 s (12 MB/min under 10 minutes).
+//      The renderer process is gated without the driver by memory-nodriver.mjs (slope from minute 20 <= 1 MB/min);
 //   2. renderer geometries and textures never exceed what the app holds (the whole scene plus shadow
 //      map): textures 0, geometries at most 1 and in at most 5 % of samples; and never more than the
 //      cache allows (peak tiles held x largest geometry count of one tile + 1);

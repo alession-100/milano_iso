@@ -1,0 +1,16 @@
+{
+  "rule": "ADR-0044 (a)",
+  "valid": false,
+  "pass": false,
+  "reasons": [
+    "171 of 171 samples not visible (or visibility missing)",
+    "run lasts 1200 s, under 1800 s",
+    "frame counts missing",
+    "fewer than 3 samples after minute 20: slope cannot be fitted"
+  ],
+  "rendererSlopeFromMinute20MBPerMin": null,
+  "limitSlopeMBPerMin": 1,
+  "framesRatio": null,
+  "framesToleranceRatio": 0.25,
+  "hiddenSamples": 171
+}

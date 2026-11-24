@@ -1,7 +1,10 @@
-/* global process, console */
+/* global process, console, URL */
 // T-6.7: the pass rule of the memory session (ADR-0043), separate from the browser part so that the
 // samples of a finished run can be judged again: `node scripts/memory-analysis.mjs run.json`.
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+export const DEFAULT_REFERENCE = fileURLToPath(new URL('../../reports/artifacts/T-6.9/playwright2_path_closed_20min.json', import.meta.url));
 
 export const ZOOM_PERIOD_S = 50; // poseAt in memory-session.mjs
 export const WARMUP_S = 60;
@@ -14,8 +17,12 @@ export const SHARD_MB = 0.06; // upper bound of the heap cost of one shard (ADR-
 const LIMITS = {
   heapAdj: { pct: 5, slope: 0.5, warmup: 60 },
   external: { pct: 25, slope: 0.5, warmup: 60 },
-  renderer: { pct: 20, slope: 6, slopeShortRun: 12, warmup: 180 }, // slopeShortRun: runs under 10 minutes (2 minutes of data after warm-up)
+  // ADR-0044 (b): information only (the figure includes the automation driver's network agent); it fails only above
+  // a ceiling: fitted slope after the 180 s warm-up of 6 MB/min, 12 MB/min for runs under 10 minutes. No percent limit.
+  renderer: { pct: Infinity, slope: 6, slopeShortRun: 12, warmup: 180 },
 };
+// ADR-0044 (a): the renderer-process rule without the driver (memory-nodriver.mjs)
+export const NODRIVER = { minDurationS: 30 * 60, slopeFromS: 20 * 60, maxSlopeMBPerMin: 1, framesTolerance: 0.25, minSlopeSamples: 3 };
 const MAX_PROGRAMS = 8; // the app's shader programs: 6 to 7 observed, a program per tile would exceed it at once
 const ORPHAN_SAMPLE_SHARE = 0.05; // a transient geometry (one sample in 42) is allowed, a persistent orphan is not
 
@@ -72,7 +79,7 @@ export function analyse(samples, durationS, SAMPLE_S, SHARD_MB_USED = SHARD_MB) 
   const orphanGeom = samples.map((s) => s.geometries - s.tileGeometries);
   const orphanTex = samples.map((s) => s.textures - s.tileTextures);
   const analysis = {
-    rule: 'ADR-0043',
+    rule: 'ADR-0043, amended by ADR-0044 (b)',
     sampleS: SAMPLE_S,
     zoomPeriodS: ZOOM_PERIOD_S,
     distinctZoomPhasesSampled: new Set(samples.map((s) => s.phaseS)).size,
@@ -82,7 +89,10 @@ export function analyse(samples, durationS, SAMPLE_S, SHARD_MB_USED = SHARD_MB) 
     heapAdjusted: metric('heapAdjMB', LIMITS.heapAdj),
     heapRaw: metric('heapUsedMB', { pct: Infinity, slope: Infinity }),
     external: metric('externalMB', LIMITS.external),
-    rendererProcess: metric('rendererMB', { ...LIMITS.renderer, slope: durationS < 600 ? LIMITS.renderer.slopeShortRun : LIMITS.renderer.slope }),
+    rendererProcess: {
+      ...metric('rendererMB', { ...LIMITS.renderer, slope: durationS < 600 ? LIMITS.renderer.slopeShortRun : LIMITS.renderer.slope }),
+      informationOnly: "includes the driver's network agent (ADR-0044); fails only above the ceiling limitSlopeMBPerMin",
+    },
     gpuProcess: metric('gpuProcessMB', { pct: Infinity, slope: Infinity }),
     shardMBAssumed: SHARD_MB_USED,
     shardsLoadedFirstLast: [samples[0].shardsLoaded, samples.at(-1).shardsLoaded],
@@ -113,7 +123,7 @@ export function analyse(samples, durationS, SAMPLE_S, SHARD_MB_USED = SHARD_MB) 
     analysis.coverageOk &&
     analysis.heapAdjusted.pass &&
     analysis.external.pass &&
-    analysis.rendererProcess.pass &&
+    analysis.rendererProcess.pass && // the ceiling only (ADR-0044 b)
     analysis.geometriesWithinCache &&
     analysis.texturesWithinCache &&
     analysis.tilesWithinLimit &&
@@ -122,8 +132,67 @@ export function analyse(samples, durationS, SAMPLE_S, SHARD_MB_USED = SHARD_MB) 
   return analysis;
 }
 
+/** Least-squares slope of key against t (s) over the given samples, in units per minute; null under 3 samples. */
+function slopeOf(pts, key) {
+  if (pts.length < NODRIVER.minSlopeSamples) return null;
+  const mt = pts.reduce((a, p) => a + p.t, 0) / pts.length;
+  const my = pts.reduce((a, p) => a + p[key], 0) / pts.length;
+  let num = 0;
+  let den = 0;
+  for (const p of pts) {
+    num += (p.t - mt) * (p[key] - my);
+    den += (p.t - mt) ** 2;
+  }
+  return (60 * num) / den;
+}
+
+/**
+ * ADR-0044 (a): judge a run made without the automation driver. Valid only if every sample is `visible`, the
+ * run lasts at least 30 minutes (10 minutes of data after minute 20) and the frame count is within 25 % of the reference (frames per second of the
+ * reference run times this run's length). Passes if the renderer slope from minute 20 is at most 1 MB/min.
+ * `reference` is { frames, t } (the last sample of the reference run). A slope needs 3 samples after minute 20:
+ * with fewer there is no measurement and the run fails.
+ */
+export function judgeNoDriver(samples, durationS, reference) {
+  const reasons = [];
+  const hidden = samples.filter((s) => s.visibility !== 'visible').length;
+  if (hidden > 0) reasons.push(`${hidden} of ${samples.length} samples not visible (or visibility missing)`);
+  if (durationS < NODRIVER.minDurationS) reasons.push(`run lasts ${durationS} s, under ${NODRIVER.minDurationS} s`);
+  const lastS = samples.at(-1);
+  const framesRun = lastS?.frames;
+  const framesExpected = framesRun === undefined ? undefined : (reference.frames * lastS.t) / reference.t;
+  const framesRatio = framesRun === undefined ? null : framesRun / framesExpected;
+  if (framesRatio === null) reasons.push('frame counts missing');
+  else if (Math.abs(framesRatio - 1) > NODRIVER.framesTolerance) reasons.push(`frames ${framesRun} against ${framesExpected.toFixed(0)} expected (ratio ${framesRatio.toFixed(3)}, tolerance 25 %)`);
+  const valid = reasons.length === 0;
+  const slope = slopeOf(samples.filter((s) => s.t > NODRIVER.slopeFromS), 'rendererMB');
+  if (slope === null) reasons.push('fewer than 3 samples after minute 20: slope cannot be fitted');
+  const slopeOk = slope !== null && slope <= NODRIVER.maxSlopeMBPerMin;
+  if (slope !== null && !slopeOk) reasons.push(`renderer slope ${slope.toFixed(2)} MB/min above ${NODRIVER.maxSlopeMBPerMin}`);
+  return {
+    rule: 'ADR-0044 (a)',
+    valid,
+    pass: valid && slopeOk,
+    reasons,
+    rendererSlopeFromMinute20MBPerMin: slope,
+    limitSlopeMBPerMin: NODRIVER.maxSlopeMBPerMin,
+    framesRun,
+    framesExpected,
+    framesRatio,
+    framesToleranceRatio: NODRIVER.framesTolerance,
+    hiddenSamples: hidden,
+  };
+}
+
 if (process.argv[1] && process.argv[1].endsWith('memory-analysis.mjs')) {
   const r = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+  if (process.argv.includes('--nodriver')) {
+    const i = process.argv.indexOf('--reference');
+    const ref = JSON.parse(readFileSync(i >= 0 ? process.argv[i + 1] : DEFAULT_REFERENCE, 'utf8'));
+    const j = judgeNoDriver(r.samples, r.durationS, { frames: ref.samples.at(-1).frames, t: ref.samples.at(-1).t });
+    console.log(JSON.stringify(j, null, 2));
+    process.exit(j.pass ? 0 : 1);
+  }
   const a = analyse(r.samples, r.durationS, r.sampleS);
   console.log(JSON.stringify(a, null, 2));
   process.exit(a.pass ? 0 : 1);

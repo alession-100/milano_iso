@@ -1,0 +1,101 @@
+{
+  "rule": "ADR-0043, amended by ADR-0044 (b)",
+  "sampleS": 7,
+  "zoomPeriodS": 50,
+  "distinctZoomPhasesSampled": 42,
+  "sampledWidthMinM": 252.25683479067646,
+  "sampledWidthMaxM": 3999.700569500266,
+  "sampledWidthBands": {
+    "0-300 m": 7,
+    "300-600 m": 8,
+    "600-1500 m": 9,
+    "1500-3000 m": 9,
+    "3000-3800 m": 4,
+    "3800-Infinity m": 5
+  },
+  "heapAdjusted": {
+    "earlyMedianMB": 8.10223846435547,
+    "lastMedianMB": 7.946685333251953,
+    "changeMB": -0.15555313110351676,
+    "changePct": -1.9198784605988632,
+    "slopeMBPerMin": -0.06249122573834207,
+    "limitPct": 5,
+    "limitSlopeMBPerMin": 0.5,
+    "pass": true
+  },
+  "heapRaw": {
+    "earlyMedianMB": 10.802238464355469,
+    "lastMedianMB": 11.417600631713867,
+    "changeMB": 0.6153621673583984,
+    "changePct": 5.696617135318118,
+    "slopeMBPerMin": 0.17716827442535962,
+    "limitPct": null,
+    "limitSlopeMBPerMin": null,
+    "pass": true
+  },
+  "external": {
+    "earlyMedianMB": 7.745218276977539,
+    "lastMedianMB": 6.161629676818848,
+    "changeMB": -1.5835886001586914,
+    "changePct": -20.446016413325207,
+    "slopeMBPerMin": 0.39474497004834425,
+    "limitPct": 25,
+    "limitSlopeMBPerMin": 0.5,
+    "pass": true
+  },
+  "rendererProcess": {
+    "earlyMedianMB": 357.17578125,
+    "lastMedianMB": 355.732421875,
+    "changeMB": -1.443359375,
+    "changePct": -0.40410337172041955,
+    "slopeMBPerMin": 3.8224625787815127,
+    "limitPct": null,
+    "limitSlopeMBPerMin": 12,
+    "pass": true,
+    "informationOnly": "includes the driver's network agent (ADR-0044); fails only above the ceiling limitSlopeMBPerMin"
+  },
+  "gpuProcess": {
+    "earlyMedianMB": 269.68359375,
+    "lastMedianMB": 292.775390625,
+    "changeMB": 23.091796875,
+    "changePct": 8.562551601268847,
+    "slopeMBPerMin": 7.047185351413291,
+    "limitPct": null,
+    "limitSlopeMBPerMin": null,
+    "pass": true
+  },
+  "shardMBAssumed": 0.06,
+  "shardsLoadedFirstLast": [
+    8,
+    59
+  ],
+  "maxGeometries": 136,
+  "maxTextures": 232,
+  "maxGeomsPerTile": 5,
+  "maxTilesInScene": 64,
+  "cacheLimit": 64,
+  "maxWantedTiles": 69,
+  "geometryBound": 346,
+  "orphanGeometriesMax": -3,
+  "orphanTexturesMax": -14,
+  "programsAfterWarmup": [
+    6,
+    6
+  ],
+  "domNodesAfterWarmup": [
+    74,
+    74
+  ],
+  "browserNodesAfterWarmup": [
+    130,
+    130
+  ],
+  "coverageOk": true,
+  "orphanGeometrySampleShare": 0,
+  "geometriesWithinCache": true,
+  "texturesWithinCache": true,
+  "tilesWithinLimit": true,
+  "domConstant": true,
+  "programsConstant": true,
+  "pass": true
+}
