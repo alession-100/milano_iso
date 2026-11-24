@@ -127,11 +127,12 @@ export function createAbout(onLang: () => void): About {
     list.append(li);
     return { src, use, licenceLabel, date, pageLink };
   });
+  const modified = el('p');
   const version = el('p', { className: 'about-meta' });
   const repoPara = el('p');
   const repoLink = link(REPO_URL, '');
   repoPara.append(repoLink);
-  panel.append(head, what, sourcesTitle, list, version, repoPara);
+  panel.append(head, what, sourcesTitle, list, modified, version, repoPara);
   overlay.append(panel);
 
   const background = (): HTMLElement[] =>
@@ -185,6 +186,7 @@ export function createAbout(onLang: () => void): About {
       r.date.textContent = `${t('aboutDataDate')}: ${t(r.src.dateKey)}`;
       r.pageLink.textContent = t('aboutSourcePage');
     }
+    modified.textContent = t('aboutModified');
     version.textContent = `${t('aboutVersion')}: ${__BUILD_ID__}`;
     repoLink.textContent = t('aboutRepo');
   };

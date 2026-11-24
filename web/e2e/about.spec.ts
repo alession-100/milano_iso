@@ -58,6 +58,8 @@ for (const size of SIZES) {
 
         // what the map is, the sources with their licences and links, the dates, the build, the repository
         await expect(dialog).toContainText(dictionary.it.aboutWhat);
+        await expect(dialog).toContainText(dictionary.it.aboutModified);
+        await expect(page.locator('#attribution')).toContainText(dictionary.it.attrComune);
         const items = dialog.locator('ul.about-sources > li');
         await expect(items).toHaveCount(3);
         await expect(items.nth(0)).toContainText('OpenStreetMap contributors');
@@ -178,6 +180,10 @@ for (const size of SIZES) {
       await expect(page.locator('#about-button')).toHaveText(dictionary.en.aboutButton);
       await expect(page.locator('#attribution')).toContainText(`${dictionary.en.dataLabel}:`);
       await expect(page.locator('#attribution')).toContainText('(c) OpenStreetMap contributors');
+      // the Comune di Milano credit is English too (proper names kept) and names the boundary dataset
+      await expect(page.locator('#attribution')).toContainText(dictionary.en.attrComune);
+      await expect(page.locator('#attribution')).not.toContainText('Attribuzione');
+      await expect(en).toContainText(dictionary.en.aboutModified);
       // the old Italian text is gone
       await expect(en).not.toContainText(dictionary.it.aboutWhat);
       // and back

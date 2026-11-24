@@ -239,7 +239,12 @@ function showTilesNotice(): void {
 /** Writes the attribution (label in the language in use; the entries are data and stay as they are). */
 function renderAttributionNow(): void {
   if (!manifest) return;
-  renderAttribution(document.getElementById('attribution') as HTMLElement, manifest.attribution, t('dataLabel'));
+  // T-7.2: the Comune di Milano credit is written here in the language in use and also names the boundary
+  // dataset (CC BY, DATA_SOURCES row 4a); the manifest entries keep source, licence and link.
+  const entries = manifest.attribution.map((e) =>
+    e.licence === 'CC BY 4.0' && e.source.startsWith('Comune di Milano') ? { ...e, text: t('attrComune') } : e,
+  );
+  renderAttribution(document.getElementById('attribution') as HTMLElement, entries, t('dataLabel'));
   about.attach();
 }
 

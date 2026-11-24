@@ -76,6 +76,8 @@ export const dictionary = {
     aboutDateBoundary: 'Risorsa modificata il 4 novembre 2024',
     aboutVersion: 'Versione della build',
     aboutRepo: 'Codice sorgente su GitHub',
+    aboutModified: 'Modifiche: i dati originali sono stati semplificati, riproiettati e convertiti in tile 3D per questa mappa; i colori, i dettagli dei monumenti e gli alberi di riempimento sono stilizzati.',
+    attrComune: 'Comune di Milano, DBT 2020 e confini amministrativi, licenza Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)',
   },
   en: {
     title: 'Milano Iso',
@@ -149,6 +151,8 @@ export const dictionary = {
     aboutDateBoundary: 'Resource modified on 4 November 2024',
     aboutVersion: 'Build version',
     aboutRepo: 'Source code on GitHub',
+    aboutModified: 'Changes: the original data were simplified, reprojected and converted into 3D tiles for this map; the colours, the landmark details and the fill trees are stylised.',
+    attrComune: 'Comune di Milano, DBT 2020 and administrative boundaries, Creative Commons Attribution 4.0 International licence (CC BY 4.0)',
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 
