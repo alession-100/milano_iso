@@ -1,0 +1,13 @@
+{
+  "rule": "ADR-0044 (a)",
+  "valid": true,
+  "pass": true,
+  "reasons": [],
+  "rendererSlopeFromMinute20MBPerMin": -0.038094956409074336,
+  "limitSlopeMBPerMin": 1,
+  "framesRun": 391067,
+  "framesExpected": 369073.0409356725,
+  "framesRatio": 1.0595924292074232,
+  "framesToleranceRatio": 0.25,
+  "hiddenSamples": 0
+}
