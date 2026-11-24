@@ -1,0 +1,17 @@
+id,osm,yaml_v,d_saved_api_vs_yaml,live_v,d_live_api_vs_yaml,pbf_v,d_pbf_vs_yaml,pbf_building_tag,d_wikidata_vs_yaml,proc_layer,d_processed_vs_yaml,d_processed_vs_pbf,n_rendered_buildings,primary,d_rendered_filled_centroid_vs_yaml,plateau_width_m,best_offset_m,best_offset_dE_dN,overlap_ratio_at_best,iou_rendered_vs_src,ref_inside_rendered
+bosco_verticale_torre_confalonieri,way/179244686,11,0.003,11,0.003,11,0.003,residential,29.44,osm_buildings,0.003,0.0,1,dbt:EDIFC_6991,0.424,0.0,0.25,"+0.00,-0.25",1.0,0.933,True
+bosco_verticale_torre_de_castillia,way/179244688,12,0.004,12,0.004,12,0.004,apartments,24.8,osm_buildings,0.004,0.0,1,dbt:EDIFC_6902,0.816,0.0,0.5,"+0.00,-0.50",0.997,0.914,True
+castello_sforzesco,relation/1918,38,0.003,38,0.003,38,0.003,castle,73.13,osm_buildings,0.003,0.0,1,dbt:EDIFC_1774,13.894,2.0,0.0,"+0.00,+0.00",0.983,0.98,True
+citylife_allianz,way/353878517,9,0.002,9,0.002,9,0.002,office,3.25,osm_buildings,0.002,0.0,1,dbt:EDIFC_20629,12.846,10.0,0.559,"+0.25,-0.50",0.821,0.46,True
+citylife_generali,relation/18247480,2,0.004,2,0.004,2,0.004,office,50.53,osm_buildings,0.004,0.0,1,dbt:EDIFC_16227,2.536,2.0,0.791,"+0.75,-0.25",0.87,0.834,True
+citylife_pwc,relation/18247388,1,0.005,1,0.005,1,0.005,office,15.98,osm_buildings,0.005,0.0,1,dbt:EDIFC_16053,5.764,7.21,2.372,"-0.75,-2.25",0.995,0.644,True
+duomo,relation/18017026,3,0.001,3,0.001,3,0.001,cathedral,83.43,osm_buildings,0.001,0.0,1,dbt:EDIFC_13669,0.954,2.0,0.707,"-0.50,-0.50",0.983,0.954,True
+galleria_vittorio_emanuele_ii,way/166623705,58,0.005,58,0.005,58,0.005,roof,1.7,osm_buildings,0.005,0.0,0,,,,,,,,
+grattacielo_pirelli,way/89444196,34,0.005,34,0.005,34,0.005,office,3.42,osm_buildings,0.005,0.0,1,dbt:EDIFC_13715,8.748,10.0,22.182,"+17.00,-14.25",0.995,0.199,True
+palazzo_assicurazioni_generali,relation/6462576,3,0.001,3,0.001,3,0.001,office,10.1,osm_buildings,0.001,0.0,1,dbt:EDIFC_4831,68.064,21.26,0.0,"+0.00,+0.00",0.996,0.278,True
+palazzo_marino,relation/2766789,13,0.005,13,0.005,13,0.005,civic,14.1,osm_buildings,0.005,0.0,1,dbt:EDIFC_14011,0.507,0.0,0.25,"-0.25,+0.00",0.975,0.967,True
+palazzo_reale,relation/36488,18,0.004,18,0.004,18,0.004,yes,17.59,osm_buildings,0.004,0.0,4,dbt:EDIFC_4565,14.477,0.0,0.0,"+0.00,+0.00",0.875,0.758,True
+stadio_meazza,way/218520505,43,0.003,43,0.003,43,0.003,,5.42,none,,,0,,,,,,,,
+stazione_centrale,relation/18231605,3,0.001,3,0.001,3,0.001,train_station,52.56,osm_buildings,0.001,0.0,1,dbt:EDIFC_14190,128.991,11.66,0.0,"+0.00,+0.00",0.979,0.209,True
+teatro_alla_scala,relation/6552704,18,0.003,18,0.003,18,0.003,theatre,8.92,osm_buildings,0.003,0.0,1,dbt:EDIFC_13997,2.398,0.0,0.0,"+0.00,+0.00",0.967,0.953,True
+torre_velasca,relation/18238298,3,0.006,3,0.006,3,0.006,office,17.32,osm_buildings,0.006,0.0,1,dbt:EDIFC_14394,5.21,0.0,0.0,"+0.00,+0.00",0.967,0.735,True
