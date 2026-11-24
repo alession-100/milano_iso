@@ -1,0 +1,5 @@
+make test rc=0
+build rc=0
+e2e run 1 rc=1
+e2e run 2 rc=0
+done

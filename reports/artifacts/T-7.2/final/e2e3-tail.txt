@@ -1,0 +1,12 @@
+  ok 170 e2e\toolbar.spec.ts:570:3 › search status counts matches and shown results, singular and plural (en) (686ms)
+  ok 171 e2e\ui.spec.ts:449:9 › layout and touch targets, mobile-412x915 › day/en: the info card, search results and the tiles notice together; then the panels (4.9s)
+  ok 172 e2e\ui.spec.ts:449:9 › layout and touch targets, mobile-412x915 › night/it: the info card, search results and the tiles notice together; then the panels (4.7s)
+  ok 173 e2e\ui.spec.ts:449:9 › layout and touch targets, mobile-412x915 › night/en: the info card, search results and the tiles notice together; then the panels (4.8s)
+  ok 174 e2e\ui.spec.ts:487:5 › layout and touch targets, mobile-412x915 › with ?debug the overlay does not cover the tiles notice, the card or the attribution (4.3s)
+  ok 175 e2e\ui.spec.ts:506:3 › touch emulation, 412x915 › tap: the rotation buttons, search, layers, the minimap button and tap-to-pick all work (2.9s)
+  ok 176 e2e\ui.spec.ts:559:3 › reduced motion (VERIFICATION 4a item 6) › rotation and the fly-to after a search are instant with reduced motion, animated without (1.5s)
+  ok 177 e2e\ui.spec.ts:584:3 › reduced motion (VERIFICATION 4a item 6) › without reduced motion the same fly-to and rotation have not moved yet in the same task (2.9s)
+  ok 178 e2e\ui.spec.ts:605:3 › screen reader semantics (VERIFICATION 4a item 8) › every control has an accessible name; the card is a dialog; search is a combobox with a listbox; notices are live regions (4.3s)
+  ok 179 e2e\ui.spec.ts:658:1 › switching the language does not change the draw calls (the map is not touched) (3.5s)
+
+  179 passed (5.1m)
