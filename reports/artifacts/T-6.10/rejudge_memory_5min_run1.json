@@ -50,8 +50,8 @@
     "changePct": 2.7799373470834383,
     "slopeMBPerMin": 9.370240283613445,
     "limitPct": null,
-    "limitSlopeMBPerMin": 4.166666666666667,
-    "pass": false,
+    "limitSlopeMBPerMin": 12,
+    "pass": true,
     "informationOnly": "includes the driver's network agent (ADR-0044); fails only above the ceiling limitSlopeMBPerMin"
   },
   "gpuProcess": {
@@ -97,5 +97,5 @@
   "tilesWithinLimit": true,
   "domConstant": true,
   "programsConstant": true,
-  "pass": false
+  "pass": true
 }

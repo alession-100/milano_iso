@@ -50,7 +50,7 @@
     "changePct": -0.40410337172041955,
     "slopeMBPerMin": 3.8224625787815127,
     "limitPct": null,
-    "limitSlopeMBPerMin": 4.166666666666667,
+    "limitSlopeMBPerMin": 12,
     "pass": true,
     "informationOnly": "includes the driver's network agent (ADR-0044); fails only above the ceiling limitSlopeMBPerMin"
   },

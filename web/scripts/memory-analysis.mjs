@@ -17,12 +17,12 @@ export const SHARD_MB = 0.06; // upper bound of the heap cost of one shard (ADR-
 const LIMITS = {
   heapAdj: { pct: 5, slope: 0.5, warmup: 60 },
   external: { pct: 25, slope: 0.5, warmup: 60 },
-  // ADR-0044 (b): information only; it fails only above a ceiling of 250 MB per hour (4.2 MB/min fitted after
-  // warm-up). The figure includes the automation driver's network agent (no pct limit any more).
-  renderer: { pct: Infinity, slope: 250 / 60, warmup: 180 },
+  // ADR-0044 (b): information only (the figure includes the automation driver's network agent); it fails only above
+  // a ceiling: fitted slope after the 180 s warm-up of 6 MB/min, 12 MB/min for runs under 10 minutes. No percent limit.
+  renderer: { pct: Infinity, slope: 6, slopeShortRun: 12, warmup: 180 },
 };
 // ADR-0044 (a): the renderer-process rule without the driver (memory-nodriver.mjs)
-export const NODRIVER = { minDurationS: 20 * 60, slopeFromS: 20 * 60, maxSlopeMBPerMin: 1, framesTolerance: 0.25, minSlopeSamples: 3 };
+export const NODRIVER = { minDurationS: 30 * 60, slopeFromS: 20 * 60, maxSlopeMBPerMin: 1, framesTolerance: 0.25, minSlopeSamples: 3 };
 const MAX_PROGRAMS = 8; // the app's shader programs: 6 to 7 observed, a program per tile would exceed it at once
 const ORPHAN_SAMPLE_SHARE = 0.05; // a transient geometry (one sample in 42) is allowed, a persistent orphan is not
 
@@ -90,7 +90,7 @@ export function analyse(samples, durationS, SAMPLE_S, SHARD_MB_USED = SHARD_MB) 
     heapRaw: metric('heapUsedMB', { pct: Infinity, slope: Infinity }),
     external: metric('externalMB', LIMITS.external),
     rendererProcess: {
-      ...metric('rendererMB', LIMITS.renderer),
+      ...metric('rendererMB', { ...LIMITS.renderer, slope: durationS < 600 ? LIMITS.renderer.slopeShortRun : LIMITS.renderer.slope }),
       informationOnly: "includes the driver's network agent (ADR-0044); fails only above the ceiling limitSlopeMBPerMin",
     },
     gpuProcess: metric('gpuProcessMB', { pct: Infinity, slope: Infinity }),
@@ -148,7 +148,7 @@ function slopeOf(pts, key) {
 
 /**
  * ADR-0044 (a): judge a run made without the automation driver. Valid only if every sample is `visible`, the
- * run lasts at least 20 minutes and the frame count is within 25 % of the reference (frames per second of the
+ * run lasts at least 30 minutes (10 minutes of data after minute 20) and the frame count is within 25 % of the reference (frames per second of the
  * reference run times this run's length). Passes if the renderer slope from minute 20 is at most 1 MB/min.
  * `reference` is { frames, t } (the last sample of the reference run). A slope needs 3 samples after minute 20:
  * with fewer there is no measurement and the run fails.

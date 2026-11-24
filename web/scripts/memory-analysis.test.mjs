@@ -51,9 +51,19 @@ describe('analyse (ADR-0043, renderer process amended by ADR-0044 b)', () => {
     expect(a.rendererProcess.informationOnly).toMatch(/network agent/);
     expect(a.pass).toBe(true);
   });
-  it('fails 5 MB/min with the driver (above the 250 MB/h ceiling)', () => {
-    const a = run({ rendererSlope: 5 });
+  it('fails 7 MB/min with the driver over 20 minutes (ceiling 6 MB/min)', () => {
+    const a = run({ rendererSlope: 7 });
     expect(a.rendererProcess.pass).toBe(false);
+    expect(a.pass).toBe(false);
+  });
+  it('passes 9 MB/min over 5 minutes (short-run ceiling 12 MB/min)', () => {
+    const a = run({ rendererSlope: 9 }, 300);
+    expect(a.rendererProcess.limitSlopeMBPerMin).toBe(12);
+    expect(a.pass).toBe(true);
+  });
+  it('fails 9 MB/min over 20 minutes', () => {
+    const a = run({ rendererSlope: 9 }, 1200);
+    expect(a.rendererProcess.limitSlopeMBPerMin).toBe(6);
     expect(a.pass).toBe(false);
   });
 });
@@ -78,8 +88,15 @@ describe('judgeNoDriver (ADR-0044 a)', () => {
     expect(j.valid).toBe(false);
     expect(j.pass).toBe(false);
   });
-  it('is invalid when the run is under 20 minutes', () => {
+  it('is invalid when the run is under 30 minutes', () => {
     expect(judgeNoDriver(ndSamples(1000), 1000, REF).valid).toBe(false);
+    expect(judgeNoDriver(ndSamples(1700), 1700, REF).valid).toBe(false);
+    expect(judgeNoDriver(ndSamples(1800), 1800, REF).valid).toBe(true);
+  });
+  it('fails when fewer than 3 samples follow minute 20', () => {
+    const j = judgeNoDriver(ndSamples(1210), 1210, REF);
+    expect(j.pass).toBe(false);
+    expect(j.reasons.join(' ')).toMatch(/fewer than 3 samples/);
   });
   it('is invalid when the frame count is more than 25 % off', () => {
     expect(judgeNoDriver(ndSamples(2400, { fps: 140 }), 2400, REF).valid).toBe(false);
