@@ -73,7 +73,7 @@ The reviewer checks each item on the fixture (e2e) and on real pilot data, at 12
 | Metric | Target |
 |---|---|
 | Frame rate, pilot AOI | >= 60 fps desktop, >= 30 fps mid-range phone |
-| Initial payload (as served with brotli, until the default view is drawn; prefetch excluded; ADR-0038) | <= 3 MB (3,000,000 bytes) |
+| Initial payload (as served by the host, until the default view is drawn; prefetch excluded; ADR-0038) | <= 3 MB (3,000,000 bytes). **Owner exception (ADR-0047, 2026-11-26):** the phone default view (412x915) is accepted at the measured 3.57-4.52 MB on the release host; desktop must still meet 3 MB |
 | JS bundle (gzip) | <= 600 KB |
 | Tile size (gzip) | <= 250 KB each |
 | Draw calls, every settled view (nothing pending; the short peaks while a new level loads are recorded, not capped; owner, 2026-11-22, ADR-0041) | <= 300 |

@@ -471,7 +471,7 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Status:** Accepted by the owner (2026-11-24), on the evidence as it stands (16 % frame difference accepted). Orchestrator check: slopes, visibility (514 of 514), frames (142,483 against 122,785 at 20 minutes) and tile requests (13,977 against 14,245) recomputed from the samples. Applied by T-6.10: rule (a) is `judgeNoDriver` in `web/scripts/memory-analysis.mjs`, run by `memory-nodriver.mjs` (exit 1 on failure) or on a saved run with `node scripts/memory-analysis.mjs run.json --nodriver`; rule (b) (6 / 12 MB/min ceiling) is the renderer-process check in `analyse` of the same file (used by `memory-session.mjs`, `npm run memory`). See R-6.10.
 
 ## ADR-0045 - Static host for Phase 7: Cloudflare Pages by Direct Upload, Netlify as fallback, gated on a measured brotli/zstd check of the tiles (T-7.0)
-- **Status:** Accepted on condition by the owner (2026-11-24): a probe deploy to Cloudflare Pages (T-7.3a) must show compressed `.glb` tiles and a phone default view of at most 3,000,000 B; if not, stop and escalate. Amends ADR-0005 (site host) once the probe passes. **Owner, 2026-11-25:** wrangler 4.159.0 now delegates new Pages projects to Workers (project create failed, nothing deployed), so the probe runs on Cloudflare Workers static assets, an assets-only Worker `milano-iso` on workers.dev. Per Cloudflare's Workers limits, headers and pricing pages (read 2026-11-25), this has the same Free limits ADR-0045 relied on: 20,000 files, 25 MiB per file, `_headers` read, static-asset requests free and unlimited. Source and CI stay on GitHub.
+- **Status:** Accepted on condition by the owner (2026-11-24): a probe deploy to Cloudflare Pages (T-7.3a) must show compressed `.glb` tiles and a phone default view of at most 3,000,000 B; if not, stop and escalate. Amends ADR-0005 (site host). **Outcome, 2026-11-26:** condition 1 met with the T-7.3b content-type rule (tiles labelled `application/json` arrive zstd, brotli or gzip); condition 2 not met on the phone (3.57-4.52 MB) and waived by the owner in ADR-0047. Cloudflare Workers static assets, Worker `milano-iso`, is the release host. **Owner, 2026-11-25:** wrangler 4.159.0 now delegates new Pages projects to Workers (project create failed, nothing deployed), so the probe runs on Cloudflare Workers static assets, an assets-only Worker `milano-iso` on workers.dev. Per Cloudflare's Workers limits, headers and pricing pages (read 2026-11-25), this has the same Free limits ADR-0045 relied on: 20,000 files, 25 MiB per file, `_headers` read, static-asset requests free and unlimited. Source and CI stay on GitHub.
 - **Context (R-7.0, docs retrieved 2026-11-24):** the build to host (`t66data/dist1`) is 8,925 files, 344,201,864 B, largest file 1,731,490 B, 8,701 files in `tiles/city`, no `.br`/`.gz` copies. ADR-0038 requires the phone default view to arrive compressed (2.48-2.57 MB with brotli, 4.44-4.63 MB gzip only, budget 3,000,000 B). GitHub Pages: 1 GB site, 100 GB/month soft bandwidth; custom headers, compression, file count and per-file limit NOT FOUND. Cloudflare Pages (Free): 20,000 files, 25 MiB per file, static requests "free and unlimited", `_headers` read (100 rules); default CDN compression is Zstandard on Free for a type list that has JSON, SVG and JS but not `model/gltf-binary`; serving our `.br` as-is NOT FOUND. Netlify (Free): 300 credits a month, hard limit (20 per GB, 2 per 10,000 requests, 15 per production deploy; all sites paused when used up), files over 10 MB not well supported, `_headers` read but `Content-Encoding` ignored, automatic brotli (2020 blog; types NOT FOUND).
 - **Decision (proposed):**
   1. **Primary: Cloudflare Pages, Direct Upload with Wrangler**, project on the free `*.pages.dev` subdomain. It is the only host whose documented limits all fit the build (files, per-file size, `_headers`) and that has no bandwidth or request cap for static files, so the site cannot be paused by traffic. Git integration is not used: its builds cannot rebuild the city tiles, which are not committed (Direct Upload cannot switch to Git later; accepted).
@@ -487,3 +487,29 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
 - **Context:** T-7.2 left the code licence open for the owner. The data licences come from the sources (ODbL for OpenStreetMap, CC BY 4.0 for the Comune di Milano datasets; ADR-0009, `reports/R-7.2.md`) and are not affected by this choice.
 - **Decision:** the code in this repository (pipeline, web client, scripts, tests) is MIT-licensed. The licence text is in `LICENSE`, with copyright "2026 alession-100", the repository owner's public GitHub handle. The README "Licences" section says that the MIT License covers the code only.
 - **Consequences:** the data, the processed data and the tiles keep their source licences; whether the tiles must also be published under the ODbL (share-alike) is still open. Third-party libraries keep their own licences, which have not been audited yet.
+
+## ADR-0047 - The phone default view is accepted over the 3 MB payload budget on the release host
+- **Status:** Accepted (owner decision, 2026-11-26).
+- **Context:**
+  - **Host behaviour (T-7.3a, T-7.3b):** Cloudflare Workers static assets compresses on the fly, by content type only. With `.glb` tiles labelled `application/json` (`web/public/_headers`), tiles arrive compressed.
+  - **Measured on https://milano-iso.alessio-narciso1.workers.dev** (`reports/R-7.3b.md`, `reports/artifacts/T-7.3b/payload-*.json`):
+
+    | Client | Window | Total bytes | Budget |
+    |---|---|---|---|
+    | Chromium, offering zstd (zstd chosen) | 1280x720 | 2,437,169 - 2,694,680 | met |
+    | Chromium, offering zstd (zstd chosen) | 412x915 | 4,437,382 - 4,518,502 | over |
+    | brotli (Safari's header value) | 412x915 | 3,572,091 | over |
+    | gzip only | 412x915 | 3,923,897 | over |
+
+  - **Why the phone is over:** the edge compresses less tightly than the build-time brotli-11 of ADR-0038 (phone 2.48-2.57 MB). On one tile its zstd is about 30 % larger than its gzip or brotli. The phone view also loads the larger level-1 tiles.
+- **Decision:**
+  - The phone default view is accepted at the measured 3.57-4.52 MB for the release.
+  - The desktop default view must still meet 3,000,000 B.
+  - No change to the tiles, the client or the level selection.
+- **Consequences:**
+  - VERIFICATION section 5 records the exception.
+  - Ways to bring the phone back under 3 MB, if wanted later:
+    - build-time brotli, decoded in the client (needs a decoder dependency);
+    - mesh compression (meshopt) in the pipeline;
+    - a lighter phone default view.
+  - First render on the phone over a real network still needs to be measured in the device smoke test (T-7.3).
