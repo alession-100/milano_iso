@@ -182,8 +182,8 @@ describe('cache headers (T-6.3)', () => {
     }
     const toRegex = (p) =>
       new RegExp('^' + p.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/:[a-z]+/g, '[^/]+').replace(/\*/g, '.*') + '$');
-    // the last matching rule wins (general first, specific last)
-    const forPath = (p) => rules.filter((r) => toRegex(r.pattern).test(p)).at(-1)?.headers['cache-control'];
+    // the last matching rule that sets Cache-Control wins (general first, specific last)
+    const forPath = (p) => rules.filter((r) => toRegex(r.pattern).test(p) && r.headers['cache-control']).at(-1)?.headers['cache-control'];
     for (const p of ['/', '/index.html', '/assets/index-abc123.js', '/tiles/city/tiles.json', '/tiles/city/0_0.glb', '/tiles/pilot/shards/S0_0_0.json', '/tiles/city/index.json', '/tiles/city/minimap.svg']) {
       expect(forPath(p), p).toBe(cacheControlFor(p, true));
     }

@@ -1,0 +1,87 @@
+## 0_0 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: zstd
+## 0_0 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: gzip
+## L1_0_0 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: zstd
+## L1_0_0 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: gzip
+## L3_-1_0q1 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: zstd
+## L3_-1_0q1 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: gzip
+## 0_-1 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: application/wasm
+Content-Encoding: zstd
+## 0_-1 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: application/wasm
+Content-Encoding: gzip
+## 0_1 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Encoding: zstd
+## 0_1 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Encoding: gzip
+## L1_-1_-1 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Encoding: zstd
+## L1_-1_-1 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Encoding: gzip
+## -1_-1 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: zstd
+## -1_-1 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Encoding: gzip
+## -2_0 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Content-Encoding: zstd
+## -2_0 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Content-Encoding: gzip
+## -1_0 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+## -1_0 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+## L1_-1_0 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+## L1_-1_0 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+## L3_-1_0q0 AE=br, gzip, zstd
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+## L3_-1_0q0 AE=gzip
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+## tiles.json
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-cache
+Content-Encoding: gzip
