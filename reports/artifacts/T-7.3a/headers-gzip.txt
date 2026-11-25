@@ -1,0 +1,96 @@
+=== GET /index.html  (Accept-Encoding: gzip)
+HTTP/1.1 307 Temporary Redirect
+Content-Length: 0
+Cache-Control: no-cache
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=0
+=== GET /assets/index-BJXNlAhL.js  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: text/javascript
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: W/"333b683da24cd25703432577bbad1610"
+Content-Encoding: gzip
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=187379
+=== GET /tiles/city/tiles.json  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: application/json
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable, no-cache
+ETag: W/"67b83a50c4027c4f24b95dd25e49f565"
+Content-Encoding: gzip
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=9054
+=== GET /tiles/city/shards/S0_-1_-1.json?v=052954438158  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: application/json
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: W/"a1ae219bd0936285c6cd4150b1abb8d7"
+Content-Encoding: gzip
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=10419
+=== GET /tiles/city/index.json?v=b3212a7428d4  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: application/json
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: W/"a45b150d1a01861a60933e78c70a0164"
+Content-Encoding: gzip
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=472546
+=== GET /tiles/city/minimap.svg?v=6419740f70c4  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: image/svg+xml
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: W/"790919a9a362d92b789e66e643b05c14"
+Content-Encoding: gzip
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=149117
+=== GET /tiles/city/-1_0.glb?v=d0c381e15902  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+Content-Length: 139220
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: "0b75477323c1979a0c787207401a25f9"
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=139220
+=== GET /tiles/city/-1_0.json?v=f1d1ce7903e1  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: application/json
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: W/"5249fa993e36539f81a8ad4b3649b34b"
+Content-Encoding: gzip
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=1814
+=== GET /tiles/city/L1_-1_0.glb?v=08710c40f908  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+Content-Length: 287620
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: "733e74e65cfdb1f935818271537a5956"
+Server: cloudflare
+CF-RAY: [REDACTED]
+size_download(wire body)=287620
+=== GET /tiles/city/L3_-1_0q0.glb?v=2efaa7339da3  (Accept-Encoding: gzip)
+HTTP/1.1 200 OK
+Content-Type: model/gltf-binary
+Content-Length: 309988
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=31536000, immutable
+ETag: "3ba5cbbb2277c08aacda199b9202c7c3"
+Server: cloudflare
+size_download(wire body)=309988
