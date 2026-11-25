@@ -143,7 +143,6 @@ The data were simplified, reprojected and converted into 3D tiles for this map; 
 
 The tiles built from OpenStreetMap data are treated as a derivative database under the ODbL (ADR-0009).
 
-**The code of this project:** not chosen yet. The owner decides it (for example MIT or Apache-2.0); until then no licence is
-granted for the code and this section is a placeholder. Data licences come from the sources above, not from this choice.
+**The code of this project** is released under the MIT License, see [`LICENSE`](LICENSE) (owner decision, 2026-11-25). The MIT License covers the code only: the data and the tiles keep the licences of their sources above.
 
 Third-party libraries keep their own licences (see `uv.lock` and `web/package-lock.json`).

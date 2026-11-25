@@ -481,3 +481,9 @@ Owner answers to the Phase 0 ASK items were given on 2026-11-15 and are the basi
   5. **GitHub Pages is not used for the site**: brotli and headers are not documented, and gzip only is over the phone budget.
 - **What the owner must do:** create a free Cloudflare account (owner only: no agent creates accounts or signs in); run `npx wrangler login` on the dev machine, or create a Cloudflare API token limited to Pages edit and store it as a GitHub Actions secret if deploys should run from CI; choose the project name (the `*.pages.dev` subdomain). For the fallback only: a free Netlify account and a personal access token. Expected cost: none (no domain, no paid plan); anything paid is proposed separately under ADR-0008.
 - **Consequences:** cache rules from `_headers` apply on the host; the `.br`/`.gz` files stay a local and reverse-proxy feature; the compression of `.glb` on the wire is unverified until the probe, and the 3 MB phone budget depends on it.
+
+## ADR-0046 - The project's code is released under the MIT License
+- **Status:** Accepted (owner decision, 2026-11-25).
+- **Context:** T-7.2 left the code licence open for the owner. The data licences come from the sources (ODbL for OpenStreetMap, CC BY 4.0 for the Comune di Milano datasets; ADR-0009, `reports/R-7.2.md`) and are not affected by this choice.
+- **Decision:** the code in this repository (pipeline, web client, scripts, tests) is MIT-licensed. The licence text is in `LICENSE`, with copyright "2026 alession-100", the repository owner's public GitHub handle. The README "Licences" section says that the MIT License covers the code only.
+- **Consequences:** the data, the processed data and the tiles keep their source licences; whether the tiles must also be published under the ODbL (share-alike) is still open. Third-party libraries keep their own licences, which have not been audited yet.
