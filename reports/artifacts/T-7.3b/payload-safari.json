@@ -1,0 +1,80 @@
+[
+ {
+  "vp": "412x915",
+  "run": 0,
+  "ae": "gzip, deflate, br",
+  "sentAE": [
+   "gzip, deflate, br",
+   "?"
+  ],
+  "viewLoadedMs": 1267,
+  "bytes": {
+   "html": {
+    "requests": 1,
+    "bytes": 2644
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 190161
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 46905
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 155021
+   },
+   "tiles": {
+    "requests": 54,
+    "bytes": 3177360
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 62,
+    "bytes": 3572091
+   }
+  },
+  "bytesSettled": {
+   "html": {
+    "requests": 1,
+    "bytes": 2644
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 190161
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 46905
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 155021
+   },
+   "tiles": {
+    "requests": 74,
+    "bytes": 4238111
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 82,
+    "bytes": 4632842
+   }
+  },
+  "glbEncodings": [
+   "br"
+  ],
+  "allEncodings": [
+   "br"
+  ],
+  "glbCount": 37,
+  "problems": []
+ }
+]

@@ -1,0 +1,470 @@
+[
+ {
+  "vp": "1280x720",
+  "run": 0,
+  "ae": "chromium default",
+  "sentAE": [
+   "gzip, deflate, br, zstd",
+   "?"
+  ],
+  "viewLoadedMs": 5588,
+  "bytes": {
+   "html": {
+    "requests": 1,
+    "bytes": 2847
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195761
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 48744
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159909
+   },
+   "tiles": {
+    "requests": 53,
+    "bytes": 2287419
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 61,
+    "bytes": 2694680
+   }
+  },
+  "bytesSettled": {
+   "html": {
+    "requests": 1,
+    "bytes": 2847
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195761
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 48744
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159909
+   },
+   "tiles": {
+    "requests": 108,
+    "bytes": 4206452
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 116,
+    "bytes": 4613713
+   }
+  },
+  "glbEncodings": [
+   "zstd"
+  ],
+  "allEncodings": [
+   "zstd"
+  ],
+  "glbCount": 54,
+  "problems": []
+ },
+ {
+  "vp": "1280x720",
+  "run": 1,
+  "ae": "chromium default",
+  "sentAE": [
+   "gzip, deflate, br, zstd",
+   "?"
+  ],
+  "viewLoadedMs": 1347,
+  "bytes": {
+   "html": {
+    "requests": 1,
+    "bytes": 2851
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195765
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 48768
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159909
+   },
+   "tiles": {
+    "requests": 51,
+    "bytes": 2128245
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 59,
+    "bytes": 2535538
+   }
+  },
+  "bytesSettled": {
+   "html": {
+    "requests": 1,
+    "bytes": 2851
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195765
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 48768
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159909
+   },
+   "tiles": {
+    "requests": 108,
+    "bytes": 4205755
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 116,
+    "bytes": 4613048
+   }
+  },
+  "glbEncodings": [
+   "zstd"
+  ],
+  "allEncodings": [
+   "zstd"
+  ],
+  "glbCount": 54,
+  "problems": []
+ },
+ {
+  "vp": "1280x720",
+  "run": 2,
+  "ae": "chromium default",
+  "sentAE": [
+   "gzip, deflate, br, zstd",
+   "?"
+  ],
+  "viewLoadedMs": 1506,
+  "bytes": {
+   "html": {
+    "requests": 1,
+    "bytes": 2848
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195790
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 48759
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159909
+   },
+   "tiles": {
+    "requests": 48,
+    "bytes": 2029863
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 56,
+    "bytes": 2437169
+   }
+  },
+  "bytesSettled": {
+   "html": {
+    "requests": 1,
+    "bytes": 2848
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195790
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 48759
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159909
+   },
+   "tiles": {
+    "requests": 108,
+    "bytes": 4205571
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 116,
+    "bytes": 4612877
+   }
+  },
+  "glbEncodings": [
+   "zstd"
+  ],
+  "allEncodings": [
+   "zstd"
+  ],
+  "glbCount": 54,
+  "problems": []
+ },
+ {
+  "vp": "412x915",
+  "run": 0,
+  "ae": "chromium default",
+  "sentAE": [
+   "gzip, deflate, br, zstd",
+   "?"
+  ],
+  "viewLoadedMs": 2775,
+  "bytes": {
+   "html": {
+    "requests": 1,
+    "bytes": 2847
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195763
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 47349
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159914
+   },
+   "tiles": {
+    "requests": 54,
+    "bytes": 4031509
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 62,
+    "bytes": 4437382
+   }
+  },
+  "bytesSettled": {
+   "html": {
+    "requests": 1,
+    "bytes": 2847
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195763
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 47349
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159914
+   },
+   "tiles": {
+    "requests": 74,
+    "bytes": 5587914
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 82,
+    "bytes": 5993787
+   }
+  },
+  "glbEncodings": [
+   "zstd"
+  ],
+  "allEncodings": [
+   "zstd"
+  ],
+  "glbCount": 37,
+  "problems": []
+ },
+ {
+  "vp": "412x915",
+  "run": 1,
+  "ae": "chromium default",
+  "sentAE": [
+   "gzip, deflate, br, zstd",
+   "?"
+  ],
+  "viewLoadedMs": 1434,
+  "bytes": {
+   "html": {
+    "requests": 1,
+    "bytes": 2851
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195762
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 47322
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159904
+   },
+   "tiles": {
+    "requests": 58,
+    "bytes": 4112663
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 66,
+    "bytes": 4518502
+   }
+  },
+  "bytesSettled": {
+   "html": {
+    "requests": 1,
+    "bytes": 2851
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195762
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 47322
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159904
+   },
+   "tiles": {
+    "requests": 74,
+    "bytes": 5585149
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 82,
+    "bytes": 5990988
+   }
+  },
+  "glbEncodings": [
+   "zstd"
+  ],
+  "allEncodings": [
+   "zstd"
+  ],
+  "glbCount": 37,
+  "problems": []
+ },
+ {
+  "vp": "412x915",
+  "run": 2,
+  "ae": "chromium default",
+  "sentAE": [
+   "gzip, deflate, br, zstd",
+   "?"
+  ],
+  "viewLoadedMs": 1542,
+  "bytes": {
+   "html": {
+    "requests": 1,
+    "bytes": 2844
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195773
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 47327
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159911
+   },
+   "tiles": {
+    "requests": 56,
+    "bytes": 4042677
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 64,
+    "bytes": 4448532
+   }
+  },
+  "bytesSettled": {
+   "html": {
+    "requests": 1,
+    "bytes": 2844
+   },
+   "js": {
+    "requests": 1,
+    "bytes": 195773
+   },
+   "manifest": {
+    "requests": 5,
+    "bytes": 47327
+   },
+   "minimap": {
+    "requests": 1,
+    "bytes": 159911
+   },
+   "tiles": {
+    "requests": 74,
+    "bytes": 5587020
+   },
+   "other": {
+    "requests": 0,
+    "bytes": 0
+   },
+   "total": {
+    "requests": 82,
+    "bytes": 5992875
+   }
+  },
+  "glbEncodings": [
+   "zstd"
+  ],
+  "allEncodings": [
+   "zstd"
+  ],
+  "glbCount": 37,
+  "problems": []
+ }
+]
