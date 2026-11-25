@@ -20,4 +20,11 @@
   Cache-Control: public, max-age=31536000, immutable
 
 /tiles/:extent/tiles.json
+  ! Cache-Control
   Cache-Control: no-cache
+
+# T-7.3b: Cloudflare compresses a response only by content type and has no rule for model/gltf-binary.
+# This relabels every .glb tile as application/json (a type it compresses); the client reads the body
+# with arrayBuffer() and ignores the type. Single splat, so it also matches nested .glb under /tiles/.
+/tiles/*.glb
+  Content-Type: application/json

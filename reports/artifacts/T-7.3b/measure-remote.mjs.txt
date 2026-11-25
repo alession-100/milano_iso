@@ -1,0 +1,373 @@
+/* global process, console, window, document, requestAnimationFrame, setTimeout, URL */
+// T-6.3 evidence: bytes on the wire, JS size, time to first render and to the complete view, and the
+// requests of a scripted pan and zoom path, on the CITY tileset, served by `npm run serve`.
+//
+// Usage (the server must already run; build with `npm run build:prod` after `make web-tiles EXTENT=city`):
+//   npm run serve -- --port 4189                      # brotli and gzip
+//   node scripts/measure-payload.mjs --label br --port 4189
+//   npm run serve -- --port 4189 --encodings gzip     # a client without brotli
+//   node scripts/measure-payload.mjs --label gzip --port 4189
+// Results of each label are merged into reports/artifacts/T-6.3/measurements.json and the tables are
+// rewritten to measurements.md. Every number in the tables comes from this script's output.
+//
+// Method. Playwright Chromium (SwiftShader software GL, so rendering is slower than on a GPU: the times
+// are an upper bound), a fresh browser context per run (cold HTTP cache), network throttled with CDP
+// Network.emulateNetworkConditions: 40 Mbit/s down (5,000,000 B/s), 20 Mbit/s up, 20 ms latency.
+// Bytes are CDP encodedDataLength (what crossed the connection: compressed body plus response
+// headers) of every request from navigation until the default view (origin, 600 m wide) is complete.
+// Times are in-page performance.now() since navigation start. First render = a tile is drawn, a frame
+// with triangles has run, and one more frame (the change is on the canvas). View complete = every
+// tile in the view and every shard it needs is loaded and drawn (the app's `pending` is 0) and two
+// frames have run. "Settled" = the same and nothing in flight, i.e. the prefetch ring (one tile ring
+// around the view, fetched after the tiles in view) has arrived too. The bytes of the budget are those
+// that had crossed until the last tile of the view had arrived ("view loaded", before the two frames
+// that draw it, during which the prefetch ring keeps loading); the CDP timestamps of every data chunk
+// are mapped to the page clock. The bytes until settled are reported next to them.
+//
+// Every run has its own browser, warmed up first (a page with a WebGL context is opened and closed): the
+// first WebGL context of a SwiftShader browser needs about 2.5 s of its own, which has nothing to do
+// with the payload; the HTTP cache of every run is cold (a new context).
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import zlib from 'node:zlib';
+import { chromium } from 'file:///C:/Users/studi/Documents/milano-iso/.claude/worktrees/agent-a9bdc273dbb848a7a/web/node_modules/@playwright/test/index.mjs';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const arg = (name, fallback) => {
+  const i = process.argv.indexOf(`--${name}`);
+  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
+};
+const label = arg('label', 'br');
+const port = Number(arg('port', 4189));
+const runs = Number(arg('runs', 3));
+const dist = path.resolve(arg('dist', path.join(here, '..', 'dist')));
+const outDir = path.resolve(arg('out', path.join(here, '..', '..', 'reports', 'artifacts', 'T-6.3')));
+const only = arg('only', ''); // 'initial' or 'path' to run one part, 'tables' to only rewrite the tables
+const base = arg('base', 'https://milano-iso.alessio-narciso1.workers.dev');
+const AE = arg('ae', '');
+const URL_QUERY = '?e2e=1&tiles=tiles/city/';
+
+const PROFILE = { latency: 20, downloadThroughput: 5_000_000, uploadThroughput: 2_500_000 };
+const VIEWPORTS = [
+  ['1280x720', 1280, 720],
+  ['412x915', 412, 915],
+];
+
+// The scripted path: x, z in client metres (x = E - E0, z = -(N - N0)), width in metres. It goes out to
+// the widest zoom, along the city to the east, in to 300 m, back, west to the stadium and in to 150 m,
+// then home: 27 steps over all four levels. The points are inside the comune (T-6.2 used the same).
+const PATH = [
+  [0, 0, 1200],
+  [0, 0, 2400],
+  [400, -300, 2400],
+  [1200, -500, 4000],
+  [2500, -800, 4000],
+  [4000, -1000, 4000],
+  [4500, 0, 2400],
+  [4500, 0, 1200],
+  [4500, 0, 600],
+  [4500, 0, 300],
+  [4300, 200, 300],
+  [4100, 400, 300],
+  [3500, 300, 600],
+  [2500, 300, 1200],
+  [1500, 200, 1200],
+  [800, 100, 2400],
+  [0, 0, 2400],
+  [0, 0, 1200],
+  [0, 0, 600],
+  [-300, 100, 600],
+  [-1500, 0, 1200],
+  [-3000, -500, 2400],
+  [-5291, -1529, 1200],
+  [-5291, -1529, 300],
+  [-5291, -1529, 150],
+  [-2000, -500, 1200],
+  [0, 0, 600],
+];
+const DWELL_MS = 150; // "scrubbing": the next step comes before the last view has loaded
+
+function kindOf(url, type) {
+  const u = new URL(url);
+  const p = u.pathname;
+  if (type === 'Document' || p.endsWith('/') || p.endsWith('.html')) return 'html';
+  if (p.endsWith('.js') || p.endsWith('.mjs')) return 'js';
+  if (/\/tiles\/[^/]+\/tiles\.json$/.test(p) || /\/shards\/S\d+_/.test(p)) return 'manifest';
+  if (p.endsWith('/minimap.svg')) return 'minimap';
+  if (/\/tiles\//.test(p) && /\.(glb|json)$/.test(p)) return /\/index\.json$/.test(p) ? 'other' : 'tiles';
+  return 'other';
+}
+
+/** Watches the network through CDP: every request with its kind, bytes, and how it ended. */
+async function watch(ctx, page) {
+  const cdp = await ctx.newCDPSession(page);
+  await cdp.send('Network.enable');
+  await cdp.send('Network.emulateNetworkConditions', { offline: false, ...PROFILE });
+  const reqs = new Map();
+  let offset = 0; // wall clock ms minus CDP monotonic ms
+  cdp.on('Network.requestWillBeSent', (e) => {
+    offset = e.wallTime * 1000 - e.timestamp * 1000;
+    if (e.request.url.startsWith('data:')) return;
+    if (reqs.has(e.requestId)) return; // a redirect: keep the first
+    reqs.set(e.requestId, {
+      url: e.request.url,
+      kind: kindOf(e.request.url, e.type),
+      status: 0,
+      encoding: '',
+      received: 0,
+      total: 0,
+      end: null,
+      endT: Infinity,
+      chunks: [], // [wall ms, encoded bytes]
+    });
+  });
+  cdp.on('Network.requestWillBeSentExtraInfo', (e) => { const r = reqs.get(e.requestId); if (r) r.sentAE = e.headers['accept-encoding'] ?? e.headers['Accept-Encoding'] ?? ''; });
+  cdp.on('Network.responseReceived', (e) => {
+    const r = reqs.get(e.requestId);
+    if (!r) return;
+    r.status = e.response.status;
+    r.encoding = e.response.headers['content-encoding'] ?? e.response.headers['Content-Encoding'] ?? '';
+    r.cacheControl = e.response.headers['cache-control'] ?? e.response.headers['Cache-Control'] ?? '';
+    r.fromCache = Boolean(e.response.fromDiskCache || e.response.fromPrefetchCache);
+  });
+  cdp.on('Network.dataReceived', (e) => {
+    const r = reqs.get(e.requestId);
+    if (!r) return;
+    r.received += e.encodedDataLength;
+    r.chunks.push([e.timestamp * 1000 + offset, e.encodedDataLength]);
+  });
+  cdp.on('Network.loadingFinished', (e) => {
+    const r = reqs.get(e.requestId);
+    if (r) {
+      r.end = 'finished';
+      r.total = e.encodedDataLength;
+      r.endT = e.timestamp * 1000 + offset;
+    }
+  });
+  cdp.on('Network.loadingFailed', (e) => {
+    const r = reqs.get(e.requestId);
+    if (r) {
+      r.end = e.canceled ? 'cancelled' : `failed:${e.errorText}`;
+      r.endT = e.timestamp * 1000 + offset;
+    }
+  });
+  return { cdp, reqs };
+}
+
+const WATCHER = `(() => {
+  const t = { origin: performance.timeOrigin, first: null, viewLoaded: null, viewComplete: null, settled: null, maxUnwanted: 0, sceneMismatch: 0, samples: 0, maxLoaded: 0, maxLoading: 0, maxVisible: 0 };
+  window.__t = t;
+  let firstSeen = false;
+  let completeSeen = false;
+  const twoFrames = (fn) => requestAnimationFrame(() => requestAnimationFrame(() => fn(performance.now())));
+  setInterval(() => {
+    const m = window.__milanoIso;
+    if (!m || !m.tiles || !m.render) return;
+    const s = m.tiles;
+    const r = m.render;
+    const now = performance.now();
+    t.samples += 1;
+    if ((s.unwantedInFlight || 0) > t.maxUnwanted) t.maxUnwanted = s.unwantedInFlight;
+    t.maxLoaded = Math.max(t.maxLoaded, s.loaded);
+    t.maxLoading = Math.max(t.maxLoading, s.loading);
+    t.maxVisible = Math.max(t.maxVisible, s.visible);
+    if (s.inScene !== undefined && s.inScene !== s.loaded) t.sceneMismatch += 1;
+    const drawn = Object.values(s.drawnByLevel || {}).reduce((a, b) => a + b, 0);
+    if (!firstSeen && r.triangles > 0 && drawn > 0) {
+      firstSeen = true;
+      twoFrames((x) => { t.first = x; });
+    }
+    const view = s.visible > 0 && s.pending === 0 && (s.shardsPending || 0) === 0 && (s.drawnByLevel[s.level] || 0) >= s.visible;
+    if (!completeSeen && view) {
+      completeSeen = true;
+      t.viewLoaded = now;
+      twoFrames((x) => { t.viewComplete = x; });
+    }
+    if (t.viewComplete !== null && t.settled === null && s.loading === 0 && (!s.shards || s.shards.loading === 0)) t.settled = now;
+  }, 10);
+})();`;
+
+async function openPage(browser, vp) {
+  const ctx = await browser.newContext({ viewport: { width: vp[1], height: vp[2] }, reducedMotion: 'reduce', ...(AE ? { extraHTTPHeaders: { 'Accept-Encoding': AE } } : {}) });
+  const page = await ctx.newPage();
+  const problems = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error') problems.push(m.text());
+  });
+  page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
+  await page.addInitScript(WATCHER);
+  const net = await watch(ctx, page);
+  return { ctx, page, problems, ...net };
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function waitComplete(page, timeout = 300_000) {
+  await page.waitForFunction(() => window.__t && window.__t.settled !== null, null, { timeout, polling: 50 });
+}
+
+/** Bytes by kind of the requests, counting only what had crossed by wall-clock `cut` ms (default: all). */
+function summarise(reqs, cut = Infinity) {
+  const out = {};
+  for (const k of ['html', 'js', 'manifest', 'minimap', 'tiles', 'other']) out[k] = { requests: 0, bytes: 0 };
+  for (const r of reqs.values()) {
+    const first = r.chunks.length ? r.chunks[0][0] : r.endT;
+    if (first > cut) continue; // nothing of it had arrived yet
+    const o = out[r.kind];
+    o.requests += 1;
+    o.bytes += r.end === 'finished' && r.endT <= cut ? r.total : r.chunks.filter(([t]) => t <= cut).reduce((a, [, n]) => a + n, 0);
+  }
+  out.total = {
+    requests: Object.values(out).reduce((a, b) => a + b.requests, 0),
+    bytes: Object.values(out).reduce((a, b) => a + b.bytes, 0),
+  };
+  return out;
+}
+
+/** One cold load of the default view. */
+async function initialRun(browser, vp) {
+  const { ctx, page, reqs, problems } = await openPage(browser, vp);
+  await page.goto(`${base}/${URL_QUERY}`);
+  await waitComplete(page);
+  // let anything still in flight (the minimap) end, so its bytes are counted
+  for (let i = 0; i < 100 && [...reqs.values()].some((r) => r.end === null); i++) await sleep(50);
+  const t = await page.evaluate(() => ({ ...window.__t }));
+  const state = await page.evaluate(() => ({
+    tiles: JSON.parse(JSON.stringify(window.__milanoIso.tiles)),
+    camera: JSON.parse(JSON.stringify(window.__milanoIso.camera ?? null)),
+  }));
+  const res = {
+    firstRenderMs: Math.round(t.first),
+    viewLoadedMs: Math.round(t.viewLoaded),
+    completeMs: Math.round(t.viewComplete),
+    settledMs: Math.round(t.settled),
+    bytes: summarise(reqs, t.origin + t.viewLoaded),
+    bytesSettled: summarise(reqs),
+    encodings: [...new Set([...reqs.values()].map((r) => r.encoding || 'identity'))].sort(),
+    cacheControl: Object.fromEntries(
+      [...new Map([...reqs.values()].map((r) => [r.kind, r.cacheControl])).entries()].sort(),
+    ),
+    tileFilesInView: [...reqs.values()].filter((r) => r.kind === 'tiles' && /\.glb$/.test(new URL(r.url).pathname) && (r.chunks[0]?.[0] ?? Infinity) <= t.origin + t.viewLoaded).length,
+    tileFilesTotal: [...reqs.values()].filter((r) => r.kind === 'tiles' && /\.glb$/.test(new URL(r.url).pathname)).length,
+    level: state.tiles.level,
+    tilesLoaded: state.tiles.loaded,
+    visible: state.tiles.visible,
+    cameraWidth: state.camera?.visibleWidth ?? state.camera?.width ?? null,
+    problems,
+  };
+  await ctx.close();
+  return res;
+}
+
+/** The scripted path. `settle`: wait for each view to complete before the next step; else scrub. */
+async function pathRun(browser, vp, settle) {
+  const { ctx, page, reqs, problems } = await openPage(browser, vp);
+  await page.goto(`${base}/${URL_QUERY}`);
+  await waitComplete(page);
+  for (let i = 0; i < 100 && [...reqs.values()].some((r) => r.end === null); i++) await sleep(50);
+  const startedBefore = new Set(reqs.keys());
+  const before = await page.evaluate(() => JSON.parse(JSON.stringify(window.__milanoIso.tiles)));
+  const levels = new Set();
+  const frames = () =>
+    page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))));
+  for (const [x, z, w] of PATH) {
+    await page.evaluate(([a, b, c]) => window.__milanoIsoSetView(a, b, c), [x, z, w]);
+    await frames();
+    const s = await page.evaluate(() => ({ level: window.__milanoIso.tiles.level, u: window.__milanoIso.tiles.unwantedInFlight }));
+    levels.add(s.level);
+    if (settle) {
+      await page.waitForFunction(
+        () => {
+          const s = window.__milanoIso.tiles;
+          return s.visible > 0 && s.loading === 0 && s.pending === 0 && (!s.shards || s.shards.loading === 0);
+        },
+        null,
+        { timeout: 300_000, polling: 50 },
+      );
+    } else {
+      await sleep(DWELL_MS);
+    }
+  }
+  // finally let the last view complete in both modes
+  await page.waitForFunction(
+    () => {
+      const s = window.__milanoIso.tiles;
+      return s.visible > 0 && s.loading === 0 && s.pending === 0 && (!s.shards || s.shards.loading === 0);
+    },
+    null,
+    { timeout: 300_000, polling: 50 },
+  );
+  await sleep(300);
+  for (let i = 0; i < 100 && [...reqs.values()].some((r) => r.end === null); i++) await sleep(50);
+  const after = await page.evaluate(() => JSON.parse(JSON.stringify(window.__milanoIso.tiles)));
+  const t = await page.evaluate(() => ({ ...window.__t }));
+  const path = [...reqs.entries()].filter(([id]) => !startedBefore.has(id)).map(([, r]) => r);
+  const isTileOrShard = (r) => r.kind === 'tiles' || r.kind === 'manifest';
+  const group = (list) => ({
+    started: list.length,
+    completed: list.filter((r) => r.end === 'finished').length,
+    cancelled: list.filter((r) => r.end === 'cancelled').length,
+    failed: list.filter((r) => r.end !== null && r.end !== 'finished' && r.end !== 'cancelled').length,
+    unfinished: list.filter((r) => r.end === null).length,
+    fromCache: list.filter((r) => r.fromCache).length,
+    bytesCompleted: list.filter((r) => r.end === 'finished').reduce((a, r) => a + r.total, 0),
+    bytesCancelled: list.filter((r) => r.end === 'cancelled').reduce((a, r) => a + r.received, 0),
+  });
+  const glb = path.filter((r) => r.kind === 'tiles' && /\.glb$/.test(new URL(r.url).pathname));
+  const res = {
+    mode: settle ? 'settled' : `scrub ${DWELL_MS} ms`,
+    steps: PATH.length,
+    levelsVisited: [...levels].sort(),
+    tileFilesAndShards: group(path.filter(isTileOrShard)),
+    glb: group(glb),
+    shards: group(path.filter((r) => r.kind === 'manifest')),
+    app: {
+      tilesStarted: after.started - before.started,
+      tilesCompleted: after.completed - before.completed,
+      tilesCancelled: after.cancelled - before.cancelled,
+      shardsStarted: after.shards.started - before.shards.started,
+      shardsCompleted: after.shards.completed - before.shards.completed,
+      shardsCancelled: after.shards.cancelled - before.shards.cancelled,
+      loadedAtEnd: after.loaded,
+      inSceneAtEnd: after.inScene,
+      unwantedInFlightAtEnd: after.unwantedInFlight,
+    },
+    // sampled every 10 ms for the whole session
+    maxUnwantedInFlight: t.maxUnwanted,
+    maxLoaded: t.maxLoaded,
+    maxLoadingTiles: t.maxLoading,
+    maxVisible: t.maxVisible,
+    sceneMismatchSamples: t.sceneMismatch,
+    samples: t.samples,
+    failedAtEnd: after.failed,
+    problems,
+  };
+  await ctx.close();
+  return res;
+}
+
+
+const out = [];
+for (const vp of VIEWPORTS.filter((v) => !arg('vp', '') || v[0] === arg('vp', ''))) for (let i = 0; i < runs; i++) {
+  const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  try {
+    const c = await browser.newContext(); const p = await c.newPage(); await p.goto('about:blank');
+    await p.evaluate(() => document.createElement('canvas').getContext('webgl2')); await c.close();
+    const { ctx, page, reqs, problems } = await openPage(browser, vp);
+    await page.goto(base + '/' + URL_QUERY);
+    await waitComplete(page);
+    for (let k = 0; k < 100 && [...reqs.values()].some((r) => r.end === null); k++) await sleep(50);
+    const t = await page.evaluate(() => ({ ...window.__t }));
+    const all = [...reqs.values()];
+    const glbs = all.filter((r) => /\.glb$/.test(new URL(r.url).pathname));
+    const res = { vp: vp[0], run: i, ae: AE || 'chromium default', sentAE: [...new Set(all.map((r) => r.sentAE ?? '?'))],
+      viewLoadedMs: Math.round(t.viewLoaded), bytes: summarise(reqs, t.origin + t.viewLoaded), bytesSettled: summarise(reqs),
+      glbEncodings: [...new Set(glbs.map((r) => r.encoding || 'identity'))], allEncodings: [...new Set(all.map((r) => r.encoding || 'identity'))],
+      glbCount: glbs.length, problems };
+    out.push(res);
+    console.log(JSON.stringify({ vp: vp[0], run: i, ae: res.ae, sentAE: res.sentAE, glbEnc: res.glbEncodings, enc: res.allEncodings, total: res.bytes.total.bytes, tiles: res.bytes.tiles.bytes, js: res.bytes.js.bytes, settled: res.bytesSettled.total.bytes, glbs: glbs.length, problems }));
+    await ctx.close();
+  } finally { await browser.close(); }
+}
+writeFileSync(path.join(outDir, 'payload-' + label + '.json'), JSON.stringify(out, null, 1));

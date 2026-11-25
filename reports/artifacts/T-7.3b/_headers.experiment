@@ -1,0 +1,52 @@
+# Cache rules for a static host that reads a `_headers` file (Netlify and Cloudflare Pages use this
+# format; GitHub Pages does not read it). Written to match scripts/serve.mjs, the local server. See
+# ADR-0038. Not deployed yet, so no host has been tried.
+#
+# Order: general first, specific last. A path-only file cannot see the `?v=` of a request, so tile
+# files are marked immutable by path: the client always asks for them as `...?v=<sha256 prefix>`
+# (the root manifest has the hash), and fetches tiles.json with `cache: 'no-cache'`, so the one file
+# that is not content-addressed is revalidated whatever this file says.
+
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/tiles/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/tiles/:extent/tiles.json
+  ! Cache-Control
+  Cache-Control: no-cache
+
+# T-7.3b experiment: one variant per tile, after the general rules. Controls (no rule): -1_0, L1_-1_0, L3_-1_0q0.
+
+/tiles/city/0_0.glb
+  Content-Type: application/json
+
+/tiles/city/L1_0_0.glb
+  Content-Type: application/json
+
+/tiles/city/L3_-1_0q1.glb
+  Content-Type: application/json
+
+/tiles/city/0_-1.glb
+  Content-Type: application/wasm
+
+/tiles/city/0_1.glb
+  Content-Type: text/plain
+
+/tiles/city/L1_-1_-1.glb
+  Content-Type: text/plain
+
+/tiles/city/-1_-1.glb
+  ! Content-Type
+  Content-Type: application/json
+
+/tiles/city/-2_0.glb
+  ! Content-Type
+  Content-Type: text/plain; charset=utf-8
